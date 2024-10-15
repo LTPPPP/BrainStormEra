@@ -1,0 +1,34 @@
+/* Gradient Header */
+.gradient-header {
+    background: linear-gradient(to right,var(--main-color),
+        var(--secondary-color));
+    font-weight: bold;
+}
+
+/* Sidebar buttons customization */
+
+
+/* Ensure the card has full height */
+.card {
+    border-radius: 15px;
+    height: 100%;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Chapter Management */
+h5 {
+    font-weight: bold;
+}
+
+/* Manage Lessons button and Edit button styling */
+button.btn {
+    border-radius: 5px;
+}
+
+button.btn-outline-primary {
+    border-radius: 5px;
+    padding: 3px 10px;
+}

@@ -1,0 +1,40 @@
+/* Gradient Header */
+.gradient-header {
+    background: linear-gradient(to right, var(--main-color), var(--secondary-color));
+    font-weight: bold;
+}
+
+/* Sidebar buttons customization */
+.sidebar .btn {
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+/* Ensure the card has full height */
+.card {
+    border-radius: 15px;
+    height: 100%;
+}
+
+.card-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Input fields and button styling */
+input[type="text"],
+textarea {
+    border-radius: 5px;
+}
+
+button.btn {
+    width: 120px;
+    border-radius: 5px;
+}
+
+/* Reduce space between the form and the button */
+.mt-2 {
+    margin-top: 80%;
+    /* Reduce the margin to bring the button closer */
+}

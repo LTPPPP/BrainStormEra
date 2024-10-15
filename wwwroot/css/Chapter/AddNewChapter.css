@@ -1,0 +1,33 @@
+/* Gradient Header */
+.gradient-header {
+    background: linear-gradient(to right,var(--main-color),
+        var(--secondary-color));
+}
+
+/* Sidebar buttons customization */
+.sidebar .btn {
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+/* Form and card styling */
+.card-body {
+    padding: 2rem;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+input[type="text"],
+textarea {
+    border-radius: 5px;
+}
+
+button.btn {
+    width: 120px;
+}
+
+.main-content {
+    height: 100vh;
+}
