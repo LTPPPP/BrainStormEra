@@ -1,0 +1,243 @@
+﻿@page
+@model BrainStormEra.Views.Course.SearchCourseModel
+@{
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Course Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <link rel="stylesheet" href="~/css/Course/SearchCourse.css">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+</head>
+
+<body>
+    <header class="container-fluid">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">ACHIEVEMENT</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">CHATBOT</a></li>
+                    </ul>
+                    <div class="profile d-flex align-items-center">
+                        <i class="fas fa-bell icon"></i>
+                        <img src="../assests/img/landing_page/user.jpg" alt="Profile Picture" class="user_img">
+                        <span class="d-none d-md-inline">User</span>
+                        <i class="fas fa-chevron-down d-none d-md-inline"></i>
+                        <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Banner Section -->
+    <div class="banner mb-3">
+        <div class="container text-center">
+            <img class="img-fluid" src="../assests/img/thumnail_search-course.png" alt="Banner Image">
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Filters Section -->
+        <div class="filters mb-3">
+            <div class="categories d-flex flex-wrap justify-content-center gap-2 p-1">
+                <button class="btn btn-link text-dark font-weight-bold">All courses</button>
+                <button class="btn btn-link text-dark font-weight-bold">Business</button>
+                <button class="btn btn-link text-dark font-weight-bold">IT &amp; Software</button>
+                <button class="btn btn-link text-dark font-weight-bold">Design</button>
+                <button class="btn btn-link text-dark font-weight-bold">Health</button>
+                <button class="btn btn-link text-dark font-weight-bold">Math and Logic</button>
+            </div>
+            <div class="search d-flex align-items-center mt-2">
+                <input class="form-control mb-0 mr-2 search-input" placeholder="Search..." type="text" />
+                <button class="btn btn-success add-course-btn">Add Course</button>
+            </div>
+        </div>
+
+        <!-- Courses Section -->
+        <div class="courses row">
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                   
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                       
+                    </a>
+                </div>
+            </div>
+
+            <!-- Repeat similar structure for other course cards -->
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                  
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                        
+                    </a>
+                </div>
+            </div>
+
+
+
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                  
+                    </a>
+                </div>
+            </div>
+
+
+
+
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                    
+                    </a>
+                </div>
+            </div>
+
+
+
+
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                       
+                    </a>
+                </div>
+            </div>
+
+
+
+            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+
+                    <a href="#">
+                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">ReactJS for Beginners</h5>
+                            <p class="card-text text-muted">Created by Sarah Lee</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="5"></span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+
+            <!-- Continue with other course cards as needed -->
+        </div>
+    </div>
+
+
+
+    <footer class="bg-secondary text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h3>BrainStormEra</h3>
+                    <div class="social-icons my-2">
+                        <i class="fab fa-facebook me-2"></i>
+                        <i class="fab fa-instagram me-2"></i>
+                        <i class="fab fa-x-twitter"></i>
+                    </div>
+                    <p>2024 by BrainStormEra</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h4>Contact Us</h4>
+                    <p class="mb-1">Tel: 123-456-789</p>
+                    <p>Email: brainstormera@edu.vn</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>Address</h4>
+                    <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
+                    <p>District, Cantho, Vietnam</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap and jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

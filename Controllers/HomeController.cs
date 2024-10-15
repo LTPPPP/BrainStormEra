@@ -44,8 +44,55 @@ public class HomeController : Controller
     {
         return View();
     }
+
+    [HttpGet]
+    public IActionResult CourseDetail()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult EditCourse()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult ReviewCourse()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult SearchCourse()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult Analysis()
+    {
+        return View();
+    }
+
     [HttpGet]
     public IActionResult LessonManagement()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult CreateLesson()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult CreateNotification()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult Notification()
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult EditNotification()
     {
         return View();
     }

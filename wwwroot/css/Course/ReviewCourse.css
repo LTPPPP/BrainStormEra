@@ -1,0 +1,64 @@
+/* :root {
+    --primary-color: #183A9E;
+    --green-color: #4BAE4F;
+    --red-color: #FF0000;
+    --light-blue: #F1F5FD;
+    --button-blue: #007bff;
+} */
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--white-color);
+}
+
+.main-header {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    background-color: var(--light-blue);
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.course-details h2 {
+    color: #0b0b0c;
+}
+
+.learning-outcome {
+    background-color: var(--light-blue);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.course-part {
+    cursor: pointer;
+}
+
+.header {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: auto;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.approval-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 80px;
+
+}
+
+.approval-buttons .btn{
+    font-size: 1.5rem;
+    padding: 15px 30px;
+}

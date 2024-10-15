@@ -1,0 +1,42 @@
+body {
+  background-color: var(--white-color);
+}
+h5 {
+  color: var(--primary-color);
+}
+.sidebar {
+  background-color: var(--white-color);
+  border-right: 1px solid var(--light-gay-color);
+  height: 140vh;
+  padding: 20px;
+}
+.sidebar button {
+  width: 80%;
+  margin-bottom: 10px;
+}
+.sidebar .btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.content {
+  padding: 20px;
+}
+.content-header {
+  background-color: var(--secondary-color);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--light-gray-color);
+  }
+  .content {
+    padding: 10px;
+  }
+}
+.btn {
+  margin-bottom: 10px;
+}

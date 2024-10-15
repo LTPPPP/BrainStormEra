@@ -1,8 +1,47 @@
 :root {
+    /* Primary and Secondary Colors */
+    --primary-color: #183A9E; /* Chose value from second set */
+    --secondary-primary-color: #4682B4;
+    --secondary-color: #99b3c9;
     --main-color: #4682b4;
+    /* Backgrounds and Shadows */
     --white-color: #fff;
     --black-color: #181818;
+    --background-light: #f8f9fa;
+    --light-blue: #F1F5FD;
+    --light-blue-color: #EDF1F8;
+    --very-light-gray: #e0e0e0;
+    --light-gray-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    /* Text Colors */
     --text-color: #323232;
+    --text-muted: #6c757d;
+    --text-light-color: #888;
+    --border-color: #6c757d;
+    /* Button Colors */
+    --button-blue: #007bff;
+    --button-gray: #434548;
+    --cancel-color: #b0b0b0;
+    --cancel-hover-color: #9c9c9c;
+    --btn-create: #28a745;
+    --btn-create-hover: #218838;
+    /* Link and Hover Colors */
+    --link-color: #007bff;
+    --blue-hover-color: #0056b3;
+    /* Special Colors */
+    --green-color: #4BAE4F;
+    --red-color: #FF0000;
+    --orange: #ff6347;
+    --yellow-color: #FFD700;
+    --star-color: #f4b400;
+    --star-default-color: #cccccc;
+    /* Font Sizes */
+    --font-size-default: 1.6rem;
+    --font-size-large: 2rem;
+    --font-size-medium: 1.8rem;
+    --font-size-small: 1rem;
+    --font-size-tiny: 0.6rem;
+    --font-size-button: 1.4rem;
 }
 
 
@@ -18,7 +57,7 @@ html {
         đưa về =62.5% tương đương với 1 rem = 10px 
         nếu muốn đưa về 12px thì chỉ cần ghi 1.2px 
         */
-    font-size: 62.5%;
+    font-size: 1.8 rem;
     line-height: 1.6rem;
     font-family: 'Calibri', 'Roboto', sans-serif, Helvetica;
     box-sizing: border-box;

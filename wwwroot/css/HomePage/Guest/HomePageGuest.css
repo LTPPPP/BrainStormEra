@@ -1,0 +1,128 @@
+.img-welcomeheader {
+    display: flex;
+    width: 100%;
+    height: 40%;
+}
+
+.course-card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s;
+}
+
+.course-card:hover {
+    transform: scale(1.05);
+}
+
+.course-card img {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.card-body {
+    background-color: var(--background-light);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.card-text {
+    color: var(--text-muted);
+}
+
+.companies {
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.companies-pic {
+    border-bottom: 1px solid var(--border-color);
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.diverse-course img {
+    width: 150px;
+    height: 150px;
+    transition: transform 0.3s;
+}
+
+.diverse-course img:hover {
+    transform: scale(1.1);
+}
+
+.robotwelcome {
+    width: 250px;
+    position: absolute;
+    top: 85%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width: 390px) { /* iPhone 12 màn hình rộng 390px */
+    .img-welcomeheader {
+        height: 200px;
+    }
+
+    .text-center {
+        font-size: 1rem;
+    }
+
+    .course-card {
+        margin: 0 auto;
+        width: 90%;
+    }
+
+    .course-card img {
+        height: auto;
+    }
+
+    .card-body {
+        padding: 10px;
+    }
+
+    .card-title {
+        font-size: 0.9rem;
+    }
+
+    .card-text {
+        font-size: 0.8rem;
+    }
+
+    .companies-pic img {
+        max-width: 80px;
+    }
+
+    .diverse-course img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .diverse-course h5 {
+        font-size: 0.9rem;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .row {
+        margin: 0;
+    }
+
+    .robotwelcome {
+        max-width: 50% !important;
+        height: auto !important;
+        position: relative !important;
+        transform: none !important;
+    }
+
+    .img-fluid {
+        width: 150px;
+    }
+}

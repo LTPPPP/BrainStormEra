@@ -25,6 +25,8 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Views\Instructor\" />
+    <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />
   </ItemGroup>
 

@@ -1,0 +1,63 @@
+﻿@page
+@model BrainStormEra.Views.Admin.AnalysisModel
+@{
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainStormEra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/Admin/analysis.css">
+
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- Header Section -->
+        <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
+            <img src="" class="img-welcomeheader" alt="Welcome Header">
+            <img src="" class="robotwelcome" alt="Robot Welcome">
+        </div>
+
+        <div class="text-center" style="margin-top: 150px;">
+            <h4>REPORT AND ANALYZE</h4>
+        </div>
+
+        <div class="time-card">
+            <div class="text-center">
+                <h5>Time</h5>
+            </div>
+            <div class="time-buttons mt-3 mb-3">
+                <button class="btn btn-outline-secondary btn-sm">1h</button>
+                <button class="btn btn-outline-secondary btn-sm">4h</button>
+                <button class="btn btn-outline-secondary btn-sm active">1d</button>
+                <button class="btn btn-outline-secondary btn-sm">1w</button>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-container">
+                <div class="chart" id="chart-learners">
+                    <div class="chart-title">Learners</div>
+                </div>
+                <div class="chart" id="chart-rating">
+                    <div class="chart-title">Rating</div>
+                </div>
+                <div class="chart" id="chart-enroll">
+                    <div class="chart-title">Enroll Course</div>
+                </div>
+                <div class="chart" id="chart-comment">
+                    <div class="chart-title">Comment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

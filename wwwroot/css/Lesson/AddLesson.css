@@ -1,0 +1,102 @@
+body {
+  background-color: var(--white-color);
+}
+h5 {
+  color: var(--primary-color);
+}
+.sidebar {
+  background-color: var(--white-color);
+  border-right: 1px solid var(--light-gray-color);
+  height: 140vh;
+  padding: 20px;
+}
+.sidebar button {
+  width: 80%;
+  margin-bottom: 10px;
+}
+.sidebar .btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.content {
+  padding: 20px;
+}
+.content-header {
+  background-color: var(--secondary-color);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--light-gay-color);
+  padding: 20px;
+  text-align: center;
+  margin: 20px auto;
+  width: 500px;
+  height: 200px;
+}
+.upload-box i {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+.btn-create {
+  background-color: var(--btn-create);
+  border: none;
+  width: 150px;
+  height: 50px;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s;
+  border-radius: 10px;
+}
+.btn-create:hover {
+  background-color: var(--btn-create-hover);
+  color: var(--white-color);
+}
+.add-more {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--link-color);
+  margin-bottom: 10px;
+}
+.add-more i {
+  margin-right: 5px;
+}
+.form-control {
+  margin-bottom: 10px;
+}
+.editor-toolbar {
+  border: 1px solid var(--light-gay-color);
+  border-bottom: none;
+  padding: 5px;
+  background-color: var(--white-color);
+}
+.editor-toolbar button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.editor {
+  border: 1px solid var(--light-gray-color);
+  border-top: none;
+  padding: 10px;
+  min-height: 100px;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--light-gay-color);
+  }
+  .content {
+    padding: 10px;
+  }
+}
+.btn {
+  margin-bottom: 10px;
+}
