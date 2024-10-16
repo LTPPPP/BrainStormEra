@@ -6,7 +6,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
-     
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,21 +28,21 @@
 
                 <!-- Login Form -->
                 <form asp-action="Index" method="post" class="sign-in-form">
+                    @Html.AntiForgeryToken() 
                     <h2 class="title">Sign In</h2>
                     <div class="input-field">
                         <i class="fas fa-user"></i>
-                        <input asp-for="Username" type="text" placeholder="👤Username" />
+                        <input asp-for="Username" id="LoginUsername" type="text" placeholder="👤Username" autocomplete="username" />
                         <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
                     <div class="input-field">
                         <i class="fas fa-lock"></i>
-                        <input asp-for="Password" type="password" placeholder="🔒Password" />
+                        <input asp-for="Password" id="LoginPassword" type="password" placeholder="🔒Password" autocomplete="current-password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
-                    <!-- Hiển thị thông báo lỗi nếu có -->
                     @if (ViewBag.ErrorMessage != null)
                     {
-                        <div class="error-message">
+                        <div class="alert alert-danger">
                             @ViewBag.ErrorMessage
                         </div>
                     }
@@ -50,28 +50,52 @@
                            style="background-color: white; font-family: Poppins; font-size: 1.6rem; border-radius: 10px;" />
                 </form>
 
-                <!-- Optional Sign-Up Form -->
-                <form action="#" class="sign-up-form">
+
+                <form asp-action="Register" method="post" class="sign-up-form">
+                    @Html.AntiForgeryToken() 
                     <h2 class="title">Sign Up</h2>
                     <div class="input-field">
+                        <i class="fas fa-user"></i>
+                        <input asp-for="Username" id="RegisterUsername" name="Username" type="text" placeholder="👤Username" autocomplete="username" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                    <div class="input-field">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" placeholder="📧Email" />
+                        <input asp-for="Email" id="RegisterEmail" name="Email" type="email" placeholder="📧Email" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <div class="input-field">
                         <i class="fas fa-lock"></i>
-                        <input type="password" placeholder="🔒Password" />
+                        <input asp-for="Password" id="RegisterPassword" name="Password" type="password" placeholder="🔒Password" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <div class="input-field">
                         <i class="fas fa-lock"></i>
-                        <input type="password" placeholder="🔒Confirm password" />
+                        <input asp-for="ConfirmPassword" id="RegisterConfirmPassword" name="ConfirmPassword" type="password" placeholder="🔒Confirm password" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
-                    <input type="submit" class="btn btn-submit" value="REGISTER"
-                           style="background-color: white;font-family: Poppins; font-size: 1.6rem; border-radius: 10px;" />
+                    <input type="submit" class="btn btn-submit" value="REGISTER" />
                 </form>
             </div>
         </div>
 
-        <!-- Panel Container for Sign-In/Sign-Up Switching -->
+        <div class="modal fade" id="registerSuccessModal" tabindex="-1" aria-labelledby="registerSuccessModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="registerSuccessModalLabel">Registration Successful</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        You have successfully registered! Click OK to go back to the login page.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="registerSuccessOkBtn">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="panels-container">
             <div class="panel left-panel">
                 <div class="content">
@@ -98,7 +122,8 @@
         </div>
     </div>
 
-    <!-- Include Bootstrap and FontAwesome -->
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
@@ -110,37 +135,43 @@
             const sign_up_btn = document.querySelector("#sign-up-btn");
             const container = document.querySelector(".container");
 
-            // Toggle between Sign-In and Sign-Up forms
-            if (sign_up_btn && sign_in_btn) {
-                sign_up_btn.addEventListener("click", () => {
-                    container.classList.add("sign-up-mode");
-                });
 
-                sign_in_btn.addEventListener("click", () => {
-                    container.classList.remove("sign-up-mode");
-                });
-            }
+            sign_up_btn?.addEventListener("click", () => {
+                container.classList.add("sign-up-mode");
+            });
 
-            // Handle form submission for login
-            let loginForm = document.querySelector('.sign-in-form');
-            if (loginForm) {
-                loginForm.addEventListener("submit", (event) => {
-                    let username = document.querySelector('input[name="Username"]').value;
-                    let password = document.querySelector('input[name="Password"]').value;
+            sign_in_btn?.addEventListener("click", () => {
+                container.classList.remove("sign-up-mode");
+            });
 
-                    // Perform validation
-                    if (!username || !password) {
-                        event.preventDefault(); // Prevent form submission if validation fails
-                        alert("Please fill in both username and password.");
-                    }
-                });
-            }
 
-            // Check for error message and display alert if there is one
-            const errorMessage = document.querySelector('#errorMessage')?.value;
-            if (errorMessage) {
-                alert(errorMessage);  // Display error message as a pop-up alert
-            }
+            document.querySelector('.sign-in-form')?.addEventListener("submit", (event) => {
+                let username = document.querySelector('input[name="Username"]').value;
+                let password = document.querySelector('input[name="Password"]').value;
+
+                // Perform validation
+                if (!username || !password) {
+                    event.preventDefault(); // Prevent form submission if validation fails
+                    alert("Please fill in both username and password.");
+                }
+            });
+
+            // Handle form submission for registration
+            document.querySelector('.sign-up-form')?.addEventListener("submit", (event) => {
+                const password = document.querySelector('input[name="Password"]').value;
+                const confirmPassword = document.querySelector('input[name="ConfirmPassword"]').value;
+                console.log("pass",password);
+                console.log("confirmPass", ConfirmPassword);
+                if (password !== confirmPassword) {
+                    event.preventDefault();
+                    alert("Password and Confirm Password must match.");
+                }
+            });
+
+            // Registration success modal redirect
+            document.querySelector("#registerSuccessOkBtn")?.addEventListener("click", () => {
+                window.location.href = "/Login/LoginPage"; // Redirect to login page after successful registration
+            });
         });
     </script>
 </body>

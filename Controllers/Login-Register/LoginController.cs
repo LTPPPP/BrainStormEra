@@ -73,6 +73,43 @@ namespace BrainStormEra.Controllers
             return View("LoginPage", model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Register(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if the email is already registered
+                var existingUser = _context.Accounts.FirstOrDefault(u => u.UserEmail == model.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "This email is already registered.");
+                    return View("LoginPage", model);
+                }
+
+                // Hash the password using MD5
+                string hashedPassword = HashPasswordMD5(model.Password);
+
+                // Create new account
+                var newAccount = new Account
+                {
+                    Username = model.Username,
+                    UserEmail = model.Email,
+                    Password = hashedPassword,
+                    UserRole = 3, // Assign a default role (e.g., 3 for learners)
+                    AccountCreatedAt = DateTime.Now
+                };
+
+                _context.Accounts.Add(newAccount);
+                await _context.SaveChangesAsync();
+
+                // Return success modal
+                TempData["RegisterSuccess"] = true;
+                return Json(new { success = true });
+            }
+
+            return View("LoginPage", model);
+        }
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

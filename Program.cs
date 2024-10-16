@@ -55,8 +55,8 @@ namespace BrainStormEra
             app.UseSession();
 
             app.MapControllerRoute(
-                name: "home",
-                pattern: "{controller=Home}/{action=HomePageInstructor}/{id?}"); 
+                name: "login",
+                pattern: "{controller=Login}/{action=LoginPage}/{id?}"); 
 
             app.Run();
         }
