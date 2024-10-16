@@ -82,31 +82,3 @@ html {
     box-sizing: border-box;
     scroll-behavior: smooth;
 }
-
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-h1, h2 {
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 15px;
-}
-
-input[type="text"], input[type="date"] {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid var(--header-color);
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-button {
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}

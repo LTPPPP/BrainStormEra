@@ -5,6 +5,74 @@
       "PackagePath": "staticwebassets\\BrainStormEra.bundle.scp.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Achievement\\achievement.css",
+      "PackagePath": "staticwebassets\\css\\Achievement\\achievement.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Admin\\analysis.css",
+      "PackagePath": "staticwebassets\\css\\Admin\\analysis.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Certificate\\addcertificates.css",
+      "PackagePath": "staticwebassets\\css\\Certificate\\addcertificates.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Certificate\\certificates.css",
+      "PackagePath": "staticwebassets\\css\\Certificate\\certificates.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Certificate\\editcertificates.css",
+      "PackagePath": "staticwebassets\\css\\Certificate\\editcertificates.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Certificate\\view-certificates.css",
+      "PackagePath": "staticwebassets\\css\\Certificate\\view-certificates.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Chapter\\AddNewChapter.css",
+      "PackagePath": "staticwebassets\\css\\Chapter\\AddNewChapter.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Chapter\\DeleteChapter.css",
+      "PackagePath": "staticwebassets\\css\\Chapter\\DeleteChapter.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Chapter\\EditChapter.css",
+      "PackagePath": "staticwebassets\\css\\Chapter\\EditChapter.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Chapter\\ViewChapter.css",
+      "PackagePath": "staticwebassets\\css\\Chapter\\ViewChapter.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\CourseDetail.css",
+      "PackagePath": "staticwebassets\\css\\Course\\CourseDetail.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\CreateCourse.css",
+      "PackagePath": "staticwebassets\\css\\Course\\CreateCourse.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\DeleteCourse.css",
+      "PackagePath": "staticwebassets\\css\\Course\\DeleteCourse.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\EditCourse.css",
+      "PackagePath": "staticwebassets\\css\\Course\\EditCourse.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\ReviewCourse.css",
+      "PackagePath": "staticwebassets\\css\\Course\\ReviewCourse.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\SearchCourse.css",
+      "PackagePath": "staticwebassets\\css\\Course\\SearchCourse.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\HomePage\\Guest\\HomePageGuest.css",
+      "PackagePath": "staticwebassets\\css\\HomePage\\Guest\\HomePageGuest.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\HomePage\\homePage.css",
       "PackagePath": "staticwebassets\\css\\HomePage\\homePage.css"
     },
@@ -13,12 +81,40 @@
       "PackagePath": "staticwebassets\\css\\HomePage\\landing_page.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Lesson\\AddLesson.css",
+      "PackagePath": "staticwebassets\\css\\Lesson\\AddLesson.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Lesson\\DeleteLesson.css",
+      "PackagePath": "staticwebassets\\css\\Lesson\\DeleteLesson.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Lesson\\ManageLesson.css",
+      "PackagePath": "staticwebassets\\css\\Lesson\\ManageLesson.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Lesson\\VideoLesson.css",
+      "PackagePath": "staticwebassets\\css\\Lesson\\VideoLesson.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Lesson\\ViewLesson.css",
+      "PackagePath": "staticwebassets\\css\\Lesson\\ViewLesson.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Login\\login.css",
       "PackagePath": "staticwebassets\\css\\Login\\login.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Notification\\notification.css",
+      "PackagePath": "staticwebassets\\css\\Notification\\notification.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\base.css",
       "PackagePath": "staticwebassets\\css\\base.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\baseChapter.css",
+      "PackagePath": "staticwebassets\\css\\baseChapter.css"
     },
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\site.css",
@@ -29,8 +125,56 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\AddAchievement.js",
+      "PackagePath": "staticwebassets\\js\\Achievement\\AddAchievement.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Certificate\\certificates.js",
+      "PackagePath": "staticwebassets\\js\\Certificate\\certificates.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Chapter\\DeleteChapter.js",
+      "PackagePath": "staticwebassets\\js\\Chapter\\DeleteChapter.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\CourseDetail.js",
+      "PackagePath": "staticwebassets\\js\\Course\\CourseDetail.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\CreateCourse.js",
+      "PackagePath": "staticwebassets\\js\\Course\\CreateCourse.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\DeleteCourse.js",
+      "PackagePath": "staticwebassets\\js\\Course\\DeleteCourse.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\EditCourse.js",
+      "PackagePath": "staticwebassets\\js\\Course\\EditCourse.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\ReviewCourse.js",
+      "PackagePath": "staticwebassets\\js\\Course\\ReviewCourse.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\SearchCourse.js",
+      "PackagePath": "staticwebassets\\js\\Course\\SearchCourse.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Lesson\\Lesson.js",
+      "PackagePath": "staticwebassets\\js\\Lesson\\Lesson.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Lesson\\VideoLesson.js",
+      "PackagePath": "staticwebassets\\js\\Lesson\\VideoLesson.js"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Login\\login.js",
       "PackagePath": "staticwebassets\\js\\Login\\login.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Notification\\notification.js",
+      "PackagePath": "staticwebassets\\js\\Notification\\notification.js"
     },
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\site.js",
@@ -217,6 +361,14 @@
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\BrainStormEra_logo.png",
+      "PackagePath": "staticwebassets\\lib\\img\\BrainStormEra_logo.png"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Certificate\\certificates.png",
+      "PackagePath": "staticwebassets\\lib\\img\\Certificate\\certificates.png"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Login\\BG.png",
       "PackagePath": "staticwebassets\\lib\\img\\Login\\BG.png"
     },
@@ -231,6 +383,14 @@
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Login\\landing_page\\user.jpg",
       "PackagePath": "staticwebassets\\lib\\img\\Login\\landing_page\\user.jpg"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\WelcomeHeader.png",
+      "PackagePath": "staticwebassets\\lib\\img\\WelcomeHeader.png"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\robotwelcome.png",
+      "PackagePath": "staticwebassets\\lib\\img\\robotwelcome.png"
     },
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",

@@ -32,8 +32,8 @@ namespace BrainStormEra.Controllers
             if (ModelState.IsValid)
             {
                 // Hash password using MD5
-                //string hashedPassword = HashPasswordMD5(model.Password);
-                string hashedPassword = model.Password;
+                string hashedPassword = HashPasswordMD5(model.Password);
+                //string hashedPassword = model.Password;
                 // Check if the user exists in the database
                 var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
 
