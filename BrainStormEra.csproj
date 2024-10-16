@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\Lesson\" />
     <Folder Include="Data\" />
     <Folder Include="Views\Instructor\" />
     <Folder Include="Views\Learner\" />
