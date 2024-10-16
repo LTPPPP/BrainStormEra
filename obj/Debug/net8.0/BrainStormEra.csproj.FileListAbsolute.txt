@@ -125,9 +125,7 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebas
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.BrainStormEra.props
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.BrainStormEra.props
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebassets.pack.json
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\scopedcss\bundle\BrainStormEra.styles.css
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\scopedcss\projectbundle\BrainStormEra.bundle.scp.css
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainSto.7D847332.Up2Date
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\refint\BrainStormEra.dll

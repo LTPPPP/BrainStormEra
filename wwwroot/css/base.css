@@ -48,20 +48,12 @@
     --yellow-color: #FFD700;
     --star-color: #f4b400;
     --star-default-color: #cccccc;
-    /* Font Sizes */
-    --font-size-default: 1.6rem;
-    --font-size-large: 2rem;
-    --font-size-medium: 1.8rem;
-    --font-size-small: 1rem;
-    --font-size-tiny: 0.6rem;
-    --font-size-button: 1.4rem;
     /* Other Colors */
     --header-color: #d0d0d0;
     --gray-color-main: #737373;
     --upload-area-border-color: #007bff;
     --button-bg-color: #ffffff;
 }
-
 
 
 * {
@@ -76,9 +68,13 @@ html {
         đưa về =62.5% tương đương với 1 rem = 10px 
         nếu muốn đưa về 12px thì chỉ cần ghi 1.2px 
         */
-    font-size: 1.8 rem;
-    line-height: 1.6rem;
+    font-size: 62.5%;
+    line-height: 1.4rem;
     font-family: 'Calibri', 'Roboto', sans-serif, Helvetica;
     box-sizing: border-box;
     scroll-behavior: smooth;
+}
+
+.container-fluid{
+    width : 100%;
 }

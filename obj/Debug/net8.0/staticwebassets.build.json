@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "J2tJa//aSjY00Hb4N3qL37ZFTkaaKxYIQ2GSSKLoEMk=",
+  "Hash": "sO6y/7RcgoujkFEjEUJcpO9ovJDvIsaMFIgRPQJhd6w=",
   "Source": "BrainStormEra",
   "BasePath": "_content/BrainStormEra",
   "Mode": "Default",
@@ -16,44 +16,6 @@
     }
   ],
   "Assets": [
-    {
-      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\obj\\Debug\\net8.0\\scopedcss\\bundle\\BrainStormEra.styles.css",
-      "SourceId": "BrainStormEra",
-      "SourceType": "Computed",
-      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
-      "BasePath": "_content/BrainStormEra",
-      "RelativePath": "BrainStormEra.styles.css",
-      "AssetKind": "All",
-      "AssetMode": "CurrentProject",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "ScopedCss",
-      "AssetTraitValue": "ApplicationBundle",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\obj\\Debug\\net8.0\\scopedcss\\bundle\\BrainStormEra.styles.css"
-    },
-    {
-      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BrainStormEra.bundle.scp.css",
-      "SourceId": "BrainStormEra",
-      "SourceType": "Computed",
-      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
-      "BasePath": "_content/BrainStormEra",
-      "RelativePath": "BrainStormEra.bundle.scp.css",
-      "AssetKind": "All",
-      "AssetMode": "Reference",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "ScopedCss",
-      "AssetTraitValue": "ProjectBundle",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BrainStormEra.bundle.scp.css"
-    },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Achievement\\achievement.css",
       "SourceId": "BrainStormEra",

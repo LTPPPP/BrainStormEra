@@ -13,11 +13,12 @@
     <link rel="icon" href="~/lib/Login/img/BrainStormEra_logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="~/css/HomePage/landing_page.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/Admin/analysis.css">
     <title>BrainStormEra</title>
 </head>
 
 <body>
-    <header class="container-fluid">
+    <header class="container-fluid sticky-header">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
@@ -49,6 +50,49 @@
             </div>
         </nav>
     </header>
+
+
+    <div class="container mt-5">
+        <!-- Header Section -->
+        <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
+            <img src="" class="img-welcomeheader" alt="Welcome Header">
+            <img src="" class="robotwelcome" alt="Robot Welcome">
+        </div>
+
+        <div class="text-center" style="margin-top: 150px;">
+            <h4>REPORT AND ANALYZE</h4>
+        </div>
+
+        <div class="time-card">
+            <div class="text-center">
+                <h5>Time</h5>
+            </div>
+            <div class="time-buttons mt-3 mb-3">
+                <button class="btn btn-outline-secondary btn-sm">1h</button>
+                <button class="btn btn-outline-secondary btn-sm">4h</button>
+                <button class="btn btn-outline-secondary btn-sm active">1d</button>
+                <button class="btn btn-outline-secondary btn-sm">1w</button>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-container">
+                <div class="chart" id="chart-learners">
+                    <div class="chart-title">Learners</div>
+                </div>
+                <div class="chart" id="chart-rating">
+                    <div class="chart-title">Rating</div>
+                </div>
+                <div class="chart" id="chart-enroll">
+                    <div class="chart-title">Enroll Course</div>
+                </div>
+                <div class="chart" id="chart-comment">
+                    <div class="chart-title">Comment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <footer class="bg-secondary text-white py-4">
         <div class="container">
