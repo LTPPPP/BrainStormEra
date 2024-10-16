@@ -1,9 +1,10 @@
 :root {
     /* Primary and Secondary Colors */
-    --primary-color: #183A9E; /* Chose value from second set */
+    --primary-color: #183A9E;
     --secondary-primary-color: #4682B4;
     --secondary-color: #99b3c9;
     --main-color: #4682b4;
+    --blue-color-primary: #223786;
     /* Backgrounds and Shadows */
     --white-color: #fff;
     --black-color: #181818;
@@ -13,10 +14,14 @@
     --very-light-gray: #e0e0e0;
     --light-gray-color: #dee2e6;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --box-shadow-color: rgba(0, 0, 0, 0.2);
+    --modal-bg-color: rgba(0, 0, 0, 0.5);
     /* Text Colors */
     --text-color: #323232;
     --text-muted: #6c757d;
     --text-light-color: #888;
+    --text-color-light: #fff;
+    --text-color-dark: #181818;
     --border-color: #6c757d;
     /* Button Colors */
     --button-blue: #007bff;
@@ -25,9 +30,17 @@
     --cancel-hover-color: #9c9c9c;
     --btn-create: #28a745;
     --btn-create-hover: #218838;
+    --delete-btn-bg-color: #ff0000;
+    --delete-btn-hover-bg-color: #b30000;
+    --create-btn-bg-color: #28a745;
+    --create-btn-hover-bg-color: #218838;
+    --cancel-btn-color: #6c757d;
     /* Link and Hover Colors */
     --link-color: #007bff;
     --blue-hover-color: #0056b3;
+    --hover-color-primary: #4682b4;
+    --linkedin-btn-bg-color: #4682b4;
+    --linkedin-btn-hover-bg-color: #005582;
     /* Special Colors */
     --green-color: #4BAE4F;
     --red-color: #FF0000;
@@ -42,7 +55,13 @@
     --font-size-small: 1rem;
     --font-size-tiny: 0.6rem;
     --font-size-button: 1.4rem;
+    /* Other Colors */
+    --header-color: #d0d0d0;
+    --gray-color-main: #737373;
+    --upload-area-border-color: #007bff;
+    --button-bg-color: #ffffff;
 }
+
 
 
 * {
@@ -62,4 +81,32 @@ html {
     font-family: 'Calibri', 'Roboto', sans-serif, Helvetica;
     box-sizing: border-box;
     scroll-behavior: smooth;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2 {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+input[type="text"], input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid var(--header-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }

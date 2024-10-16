@@ -18,8 +18,20 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra
 build_property._RazorSourceGeneratorDebug = 
 
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievement/Achievements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcQWNoaWV2ZW1lbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Admin/Analysis.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQW5hbHlzaXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Certificate/Certificates.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2VydGlmaWNhdGVcQ2VydGlmaWNhdGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Certificate/ViewCertificateLearner.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2VydGlmaWNhdGVcVmlld0NlcnRpZmljYXRlTGVhcm5lci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Chapter/DeleteChapter.cshtml]

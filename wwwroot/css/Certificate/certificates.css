@@ -1,0 +1,101 @@
+.certificate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--text-color-light);
+    /* Màu nền trắng */
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--blue-color-primary);
+    /* Giảm độ dày viền xuống 1px */
+    color: var(--text-color-dark);
+    transition: box-shadow 0.3s ease;
+}
+
+
+.certificate-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-item img {
+    width: 50px;
+    height: auto;
+    margin-right: 20px;
+}
+
+.certificate-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.certificate-details h4 {
+    font-size: 16px;
+    margin: 0;
+    color: var(--text-color-dark);
+}
+
+.certificate-details p {
+    font-size: 14px;
+    margin: 5px 0 0;
+    color: var(--text-color-dark);
+}
+
+.certificate-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-btn {
+    background-color: var(--delete-btn-bg-color);
+    color: var(--text-color-light);
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: var(--delete-btn-hover-bg-color);
+}
+
+.edit-btn {
+    background-color: var(--blue-color-primary);
+    color: var(--text-color-light);
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+    background-color: var(--hover-color-primary);
+}
+
+.main-container {
+    background-color: var(--text-color-light);
+    padding: 20px;
+    min-height: 100vh;
+    /* Đảm bảo phần main sẽ chiếm hết chiều cao màn hình */
+}
+
+.container {
+    background-color: var(--text-color-light);
+}
+
+/* Responsive */
+@media only screen and (max-width: 768px) {
+    .certificate-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .certificate-buttons {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+}

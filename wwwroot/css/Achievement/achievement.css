@@ -1,0 +1,163 @@
+/* Định dạng cho phần Achievements */
+.achievement-header {
+    color: var(--blue-color-primary);
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.section {
+    margin-bottom: 30px;
+    background-color: var(--blue-color-primary);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.img-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.section-header {
+    color: var(--gray-color-main);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.streaks-subheader {
+    color: var(--text-color-light);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.img-item {
+    width: 100px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.img-item img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s;
+}
+
+.img-item img:hover {
+    transform: scale(1.1);
+}
+
+.img-caption {
+    color: var(--text-color-light);
+    font-weight: bold;
+    margin-top: 5px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.add-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.add-more-btn {
+    background-color: var(--text-color-light);
+    border: 1px solid var(--blue-color-primary);
+    border-radius: 5px;
+    color: var(--blue-color-primary);
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.add-more-btn img.add-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.add-more-btn:hover {
+    background-color: var(--blue-color-primary);
+    color: var(--text-color-light);
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--text-color-light);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: auto;
+    max-width: 500px;
+}
+
+/* Thu nhỏ hình ảnh trong modal */
+.modal-content img {
+    width: 80px;
+    height: auto;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+/* Điều chỉnh màu và kích thước của nút 'Add' */
+.add-btn {
+    background-color: var(--blue-color-primary);
+    color: var(--text-color-light);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Responsive cho phần Achievements */
+@media only screen and (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .img-container {
+        justify-content: center;
+    }
+
+    .img-item {
+        flex: 0 0 calc(33.33% - 10px);
+        margin-bottom: 10px;
+    }
+
+    .add-more-btn {
+        padding: 8px 16px;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+
+    .upload-area img.upload-icon {
+        width: 40px;
+    }
+
+    h2, h3, .streaks-header, .study-header {
+        font-size: 18px;
+    }
+}

@@ -1,0 +1,153 @@
+/* Sử dụng các biến từ base.css */
+.certificate-preview {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.certificate-preview img {
+    max-width: 50%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px var(--box-shadow-color);
+    /* Lấy box shadow từ base */
+    display: block;
+    margin: 0 auto;
+}
+
+input[type="text"], input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid var(--header-color);
+    /* Lấy màu từ base */
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1.6rem;
+    /* Sử dụng kích thước font từ base */
+}
+
+.create-button {
+    background-color: var(--create-btn-bg-color);
+    /* Sử dụng màu từ base */
+    color: var(--text-color-light);
+    /* Màu văn bản lấy từ base */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 20px auto;
+}
+
+.create-button:hover {
+    background-color: var(--create-btn-hover-bg-color);
+    /* Sử dụng màu hover từ base */
+}
+
+h1 {
+    font-size: 2.4rem;
+    /* Sử dụng font-size 24px từ base */
+    color: var(--primary-color);
+    /* Màu tiêu đề lấy từ base */
+}
+
+h2 {
+    font-size: 2rem;
+    /* Font-size 20px */
+    color: var(--text-color-dark);
+    /* Màu văn bản lấy từ base */
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--text-color-light);
+    /* Màu nền sidebar lấy từ base */
+    box-shadow: 2px 0 5px var(--box-shadow-color);
+    padding-top: 20px;
+    box-sizing: border-box;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    text-align: left;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    font-size: 1.8rem;
+    color: var(--text-color-dark);
+    /* Màu chữ sidebar từ base */
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar ul li a:hover {
+    color: var(--primary-color);
+    /* Màu hover từ base */
+}
+
+/* Main container for content */
+.main-container {
+    margin-left: 250px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Responsive styles */
+@media only screen and (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main-container {
+        margin-left: 200px;
+    }
+}
+
+@media only screen and (max-width: 390px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2.4rem;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    input[type="text"], input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        margin: 8px 0;
+    }
+
+    .certificate-preview img {
+        max-width: 100%;
+    }
+
+    .create-button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.6rem;
+    }
+
+    button {
+        margin-bottom: 20px;
+    }
+}

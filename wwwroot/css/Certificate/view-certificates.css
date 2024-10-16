@@ -1,0 +1,136 @@
+/* Phong cách chung cho View Certificates */
+.certificate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--blue-color-primary);
+    padding: 10px;
+    position: relative;
+    margin-top: 20px;
+}
+
+.certificate-detail {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.course-link {
+    font-size: 18px;
+    color: var(--linkedin-btn-bg-color);
+    text-decoration: none;
+    display: block;
+}
+
+.course-link:hover {
+    color: var(--linkedin-btn-hover-bg-color);
+}
+
+.certificate-detail p {
+    margin-top: 5px;
+    color: var(--text-color-dark);
+}
+
+.header {
+    color: var(--blue-color-primary);
+    font-weight: bold;
+    font-size: large;
+}
+
+.sub-header {
+    color: var(--gray-color-main);
+    font-weight: bold;
+}
+
+/* Nút Add to LinkedIn */
+.link-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--linkedin-btn-bg-color);
+    color: var(--text-color-light);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.link-button img.linkedin-logo {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.link-button:hover {
+    background-color: var(--linkedin-btn-hover-bg-color);
+}
+
+.certificate-item img {
+    width: 70px;
+    height: auto;
+    margin-right: 10px;
+    padding: 5px;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media only screen and (max-width: 768px) {
+    .certificate-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+
+    .certificate-detail {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        width: 100%;
+        text-align: left;
+    }
+
+    .certificate-item img {
+        width: 60px;
+        margin-bottom: 10px;
+        align-self: center;
+    }
+
+    .course-link {
+        font-size: 16px;
+        color: var(--linkedin-btn-bg-color);
+        text-decoration: none;
+        display: block;
+    }
+
+    .certificate-detail p {
+        margin-top: 5px;
+        margin-bottom: 10px;
+        color: var(--text-color-dark);
+    }
+
+    .link-button {
+        width: 100%;
+        background-color: var(--linkedin-btn-bg-color);
+        color: var(--text-color-light);
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        position: static;
+        /* Đặt vị trí lại cho màn hình nhỏ */
+    }
+
+    .link-button img.linkedin-logo {
+        width: 16px;
+        margin-right: 8px;
+    }
+
+    .certificate-item {
+        margin-top: 20px;
+    }
+}

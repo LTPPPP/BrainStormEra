@@ -12,13 +12,21 @@ public class HomeController : Controller
     {
         return View();
     }
+
     [HttpGet]
     public IActionResult HomePageInstructor()
     {
         return View();
     }
+
     [HttpGet]
     public IActionResult HomePageLearner()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Privacy()
     {
         return View();
     }
@@ -34,37 +42,55 @@ public class HomeController : Controller
     {
         return View();
     }
+
     [HttpGet]
-    public IActionResult DeleteChapter()
-    {
-        return View();
-    }
-    [HttpGet]
-    public IActionResult EditChapter()
+    public IActionResult DeleteChapter(int id)
     {
         return View();
     }
 
     [HttpGet]
-    public IActionResult CourseDetail()
+    public IActionResult EditChapter(int id)
     {
         return View();
     }
+
     [HttpGet]
-    public IActionResult EditCourse()
+    public IActionResult CourseDetail(int id)
     {
         return View();
     }
+
     [HttpGet]
-    public IActionResult ReviewCourse()
+    public IActionResult CreateCourse()
     {
         return View();
     }
+
     [HttpGet]
-    public IActionResult SearchCourse()
+    public IActionResult DeleteCourse(int id)
     {
         return View();
     }
+
+    [HttpGet]
+    public IActionResult EditCourse(int id)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult ReviewCourse(int id)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult SearchCourse(string searchTerm)
+    {
+        return View();
+    }
+
     [HttpGet]
     public IActionResult Analysis()
     {
@@ -76,23 +102,68 @@ public class HomeController : Controller
     {
         return View();
     }
+
     [HttpGet]
     public IActionResult CreateLesson()
     {
         return View();
     }
+
+    [HttpGet]
+    public IActionResult DeleteLesson(int id)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult EditLesson(int id)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Notifications()
+    {
+        return View();
+    }
+
     [HttpGet]
     public IActionResult CreateNotification()
     {
         return View();
     }
+
     [HttpGet]
-    public IActionResult Notification()
+    public IActionResult EditNotification(int id)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult DeleteNotification(int id)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Achievements(int id)
     {
         return View();
     }
     [HttpGet]
-    public IActionResult EditNotification()
+    public IActionResult Certificates(int id)
+    {
+        return View();
+    }
+    [HttpGet]
+    public IActionResult ViewCertificate(int id)
+    {
+        return View();
+    }
+
+
+    [HttpGet]
+    public IActionResult LoginPage()
     {
         return View();
     }
