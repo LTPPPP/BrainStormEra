@@ -31,15 +31,12 @@ namespace BrainStormEra.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Hash password using MD5
                 //string hashedPassword = HashPasswordMD5(model.Password);
                 string hashedPassword = model.Password;
-                // Check if the user exists in the database
                 var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
 
                 if (user != null)
                 {
-                    // Create the claims for the user
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Username),
@@ -86,16 +83,14 @@ namespace BrainStormEra.Controllers
                     return View("LoginPage", model);
                 }
 
-                // Hash the password using MD5
                 string hashedPassword = HashPasswordMD5(model.Password);
 
-                // Create new account
                 var newAccount = new Account
                 {
                     Username = model.Username,
                     UserEmail = model.Email,
                     Password = hashedPassword,
-                    UserRole = 3, // Assign a default role (e.g., 3 for learners)
+                    UserRole = 3, 
                     AccountCreatedAt = DateTime.Now
                 };
 

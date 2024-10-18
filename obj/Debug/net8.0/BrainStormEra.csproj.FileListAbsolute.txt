@@ -133,3 +133,9 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormE
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.genruntimeconfig.cache
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\ref\BrainStormEra.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.sourcelink.json
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
