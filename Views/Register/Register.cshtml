@@ -1,6 +1,6 @@
-﻿@model BrainStormEra.Views.Login.LoginPageViewModel
+﻿@model BrainStormEra.Views.Register.RegisterModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Register";
     Layout = null;
 }
 
@@ -26,27 +26,42 @@
             <div class="signin-signup">
                 <img src="~/lib/img/Login/Register-login/login.png" alt="Login Image" />
 
-                <!-- Login Form -->
-                <form asp-action="Index" method="post" class="sign-in-form">
-                    @Html.AntiForgeryToken() 
-                    <h2 class="title">Sign In</h2>
-                    <div class="input-field">
-                        <i class="fas fa-user"></i>
-                        <input asp-for="Username" id="LoginUsername" type="text" placeholder="👤Username" autocomplete="username" />
-                        <span asp-validation-for="Username" class="text-danger"></span>
-                    </div>
-                    <div class="input-field">
-                        <i class="fas fa-lock"></i>
-                        <input asp-for="Password" id="LoginPassword" type="password" placeholder="🔒Password" autocomplete="current-password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
+                <!-- Register Form -->
+                <form asp-action="Register" method="post" class="sign-in-form">
+                    @Html.AntiForgeryToken()
+                    <h2 class="title">Sign Up</h2>
+
+                    <!-- Hiển thị lỗi nếu có -->
                     @if (ViewBag.ErrorMessage != null)
                     {
-                        <div class="alert alert-danger">
-                            @ViewBag.ErrorMessage
-                        </div>
+                        <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
                     }
-                    <input type="submit" value="Login" class="btn btn-submit solid"
+
+                    <div class="input-field">
+                        <i class="fas fa-user"></i>
+                        <input asp-for="Username" id="RegisterUsername" name="Username" type="text" placeholder="👤Username" autocomplete="username" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input asp-for="Email" id="RegisterEmail" name="Email" type="email" placeholder="📧Email" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input asp-for="Password" id="RegisterPassword" name="Password" type="password" placeholder="🔒Password" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input asp-for="ConfirmPassword" id="RegisterConfirmPassword" name="ConfirmPassword" type="password" placeholder="🔒Confirm password" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <input type="submit" value="Register" class="btn btn-submit solid"
                            style="background-color: white; font-family: Poppins; font-size: 1.6rem; border-radius: 10px;" />
                 </form>
             </div>
@@ -54,12 +69,12 @@
         <div class="panels-container">
             <div class="panel left-panel">
                 <div class="content">
-                    <h3><span>Welcome,</span> back!</h3>
+                    <h3><span>Hello,</span> Friend!</h3>
                     <p class="signin-signup-content">
-                        Please log in using your personal information to stay connected with us.
+                        Enter your personal details to use all the site features.
                     </p>
                     <button class="btn transparent signin-signup-btn" id="sign-up-btn">
-                        Sign up
+                        Sign in
                     </button>
                 </div>
             </div>
@@ -81,11 +96,7 @@
 
 
             sign_up_btn?.addEventListener("click", () => {
-                window.location.href = '@Url.Action("Register", "Register")';
-            });
-
-            sign_in_btn?.addEventListener("click", () => {
-                container.classList.remove("sign-up-mode");
+                window.location.href = '@Url.Action("LoginPage", "Login")';
             });
 
 

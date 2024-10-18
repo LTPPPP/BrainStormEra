@@ -101,6 +101,10 @@
       "PackagePath": "staticwebassets\\css\\Login\\login.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Login\\register.css",
+      "PackagePath": "staticwebassets\\css\\Login\\register.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Notification\\notification.css",
       "PackagePath": "staticwebassets\\css\\Notification\\notification.css"
     },

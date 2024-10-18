@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
-using BrainStormEra.ViewModel;
+using BrainStormEra.Views.Login;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
@@ -27,16 +27,19 @@ namespace BrainStormEra.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(LoginViewModel model)
+        public async Task<IActionResult> Index(LoginPageViewModel model)
         {
             if (ModelState.IsValid)
             {
+                // Hash password using MD5
                 //string hashedPassword = HashPasswordMD5(model.Password);
                 string hashedPassword = model.Password;
+                // Check if the user exists in the database
                 var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
 
                 if (user != null)
                 {
+                    // Create the claims for the user
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Username),
@@ -61,45 +64,8 @@ namespace BrainStormEra.Controllers
                 }
                 else
                 {
-                    // If login fails, set error message
-                    ViewBag.ErrorMessage = "Invalid username or password.";
+                    ViewBag.ErrorMessage = "Username or password is incorrect!";
                 }
-            }
-
-            // Return the view with error message if login fails
-            return View("LoginPage", model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(LoginViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Check if the email is already registered
-                var existingUser = _context.Accounts.FirstOrDefault(u => u.UserEmail == model.Email);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError("Email", "This email is already registered.");
-                    return View("LoginPage", model);
-                }
-
-                string hashedPassword = HashPasswordMD5(model.Password);
-
-                var newAccount = new Account
-                {
-                    Username = model.Username,
-                    UserEmail = model.Email,
-                    Password = hashedPassword,
-                    UserRole = 3, 
-                    AccountCreatedAt = DateTime.Now
-                };
-
-                _context.Accounts.Add(newAccount);
-                await _context.SaveChangesAsync();
-
-                // Return success modal
-                TempData["RegisterSuccess"] = true;
-                return Json(new { success = true });
             }
 
             return View("LoginPage", model);

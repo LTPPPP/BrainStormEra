@@ -20,7 +20,13 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.E
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Identity.Client.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
@@ -118,6 +124,7 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormE
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.MvcApplicationPartsAssemblyInfo.cache
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.RazorAssemblyInfo.cache
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.RazorAssemblyInfo.cs
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.sourcelink.json
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebassets.build.json
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebassets.development.json
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\staticwebassets\msbuild.BrainStormEra.Microsoft.AspNetCore.StaticWebAssets.props
@@ -132,10 +139,3 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\refint\Brai
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.pdb
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.genruntimeconfig.cache
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\ref\BrainStormEra.dll
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.sourcelink.json
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Microsoft.Extensions.Options.dll

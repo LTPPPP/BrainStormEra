@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Content Remove="Views\Chapter\ChapterManagement.cshtml" />
+    <Content Remove="Views\Login\Register.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,10 +38,16 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Chapter\ChapterManagement.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Login\Register.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Views\Chapter\ChapterManagement.cshtml" />
+    <None Include="Views\Register\Register.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Login\Register.cshtml" />
   </ItemGroup>
 
 </Project>

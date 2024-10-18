@@ -1,0 +1,109 @@
+﻿body,
+input {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--main-color);
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    transition: 0.6s;
+    background-color: var(--main-color);
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    background-color: var(--main-color);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0rem 5rem;
+    transition: all 0.2s 0.7s;
+    overflow: hidden;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+    form.sign-up-form {
+        opacity: 1; /* Hiển thị form đăng ký */
+        z-index: 2;
+        padding: 20px 0;
+    }
+
+.title {
+    font-size: 4.5rem;
+    padding: 10px 0;
+    color: var(--white-color);
+    margin-bottom: 50px;
+}
+
+.input-field {
+    max-width: 380px;
+    width: 100%;
+    background-color: #f0f0f0;
+    margin: 10px 0;
+    height: 55px;
+    border-radius: 55px;
+    display: grid;
+    grid-template-columns: 15% 85%;
+    padding: 0 0.4rem;
+    border: 2px solid var(--text-color);
+    position: relative;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+    .input-field i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: normal; /* Xóa bỏ giá trị line-height để tránh lỗi căn chỉnh */
+        color: #acacac;
+        transition: 0.5s;
+        font-size: 1.8rem; /* Có thể điều chỉnh kích thước icon */
+    }
+
+    .input-field input {
+        background: none;
+        outline: none;
+        border: none;
+        line-height: 2rem;
+        font-size: 2rem;
+        color: var(--text-color);
+    }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-weight: 500;
+        }
+
+.btn-submit {
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    font-size: 2rem;
+    width: 200px;
+    height: 60px;
+    background-color: var(--white-color);
+    color: var(--text-color);
+    border: 2px solid var(--white-color);
+    transition: all 0.3s ease;
+}
+
+    .btn-submit:hover {
+        background-color: var(--white-color);
+        /* Màu nền khi hover vẫn giữ màu trắng */
+        color: black;
+        color: var(--text-color);
+        /* Màu chữ khi hover */
+        transform: translateY(-3px);
+        box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
+    }

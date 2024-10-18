@@ -167,4 +167,10 @@ public class HomeController : Controller
     {
         return View();
     }
+
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
+    }
 }
