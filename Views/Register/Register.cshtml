@@ -38,25 +38,21 @@
                     }
 
                     <div class="input-field">
-                        <i class="fas fa-user"></i>
                         <input asp-for="Username" id="RegisterUsername" name="Username" type="text" placeholder="👤Username" autocomplete="username" />
                         <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
 
                     <div class="input-field">
-                        <i class="fas fa-envelope"></i>
                         <input asp-for="Email" id="RegisterEmail" name="Email" type="email" placeholder="📧Email" autocomplete="email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="input-field">
-                        <i class="fas fa-lock"></i>
                         <input asp-for="Password" id="RegisterPassword" name="Password" type="password" placeholder="🔒Password" autocomplete="new-password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
                     <div class="input-field">
-                        <i class="fas fa-lock"></i>
                         <input asp-for="ConfirmPassword" id="RegisterConfirmPassword" name="ConfirmPassword" type="password" placeholder="🔒Confirm password" autocomplete="new-password" />
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>

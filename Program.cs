@@ -1,4 +1,4 @@
-using BrainStormEra.Models;
+﻿using BrainStormEra.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,25 +13,28 @@ namespace BrainStormEra
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Configure DbContext
             builder.Services.AddDbContext<SwpDb7Context>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("SwpDb7Context")));
 
             // Add authentication service
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Home/LoginPage";  // Set the login page path
-                    options.LogoutPath = "/Login/Logout";  // Set the logout path
-                    options.AccessDeniedPath = "/Home/HomePageAdmin";  // Optional: set a page for access denied
-                    options.Events.OnRedirectToAccessDenied = context =>
-                    {
-                        context.Response.StatusCode = 403;  // Return 403 Forbidden
-                        return Task.CompletedTask;
-                    };
+                    options.LoginPath = "/Login/LoginPage";  // Login page path
+                    options.LogoutPath = "/Login/Logout";    // Logout path
+                    options.AccessDeniedPath = "/Home/HomePageAdmin";  // Access denied page
+                    options.SlidingExpiration = true;  // Sliding expiration for session
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);  // Session expiry time
                 });
 
-            // Add session handling
-            builder.Services.AddSession();
+            // Add session handling with configuration
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(3600);  // Session timeout
+                options.Cookie.HttpOnly = true;  // Cookie protection from client-side scripts
+                options.Cookie.IsEssential = true;  // Mark cookie as essential
+            });
 
             var app = builder.Build();
 
@@ -47,16 +50,17 @@ namespace BrainStormEra
 
             app.UseRouting();
 
-            // Enable authentication and authorization middlewares
-            app.UseAuthentication();  // Added for login functionality
-            app.UseAuthorization();
-
-            // Enable session handling
+            // Enable session handling before authentication and authorization
             app.UseSession();
 
+            // Enable authentication and authorization middlewares
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            // Map the controller routes
             app.MapControllerRoute(
                 name: "home",
-                pattern: "{controller=Login}/{action=LoginPage}/{id?}"); 
+                pattern: "{controller=Login}/{action=LoginPage}/{id?}");
 
             app.Run();
         }

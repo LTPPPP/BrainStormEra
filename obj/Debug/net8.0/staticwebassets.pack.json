@@ -389,6 +389,14 @@
       "PackagePath": "staticwebassets\\lib\\img\\Login\\landing_page\\user.jpg"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\User-img\\default_user.png",
+      "PackagePath": "staticwebassets\\lib\\img\\User-img\\default_user.png"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\User-img\\user.png",
+      "PackagePath": "staticwebassets\\lib\\img\\User-img\\user.png"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\WelcomeHeader.png",
       "PackagePath": "staticwebassets\\lib\\img\\WelcomeHeader.png"
     },

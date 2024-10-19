@@ -78,14 +78,14 @@ form.sign-in-form {
 }
 
 .input-field {
-    max-width: 380px;
+    max-width: 100%; /* Đảm bảo khung chứa không bị thu nhỏ */
     width: 100%;
     background-color: #f0f0f0;
     margin: 10px 0;
     height: 55px;
     border-radius: 55px;
-    display: grid;
-    grid-template-columns: 15% 85%;
+    display: flex; /* Sử dụng flex để căn chỉnh */
+    align-items: center;
     padding: 0 0.4rem;
     border: 2px solid var(--text-color);
     position: relative;
@@ -103,14 +103,16 @@ form.sign-in-form {
     font-size: 1.8rem; /* Có thể điều chỉnh kích thước icon */
 }
 
-.input-field input {
-    background: none;
-    outline: none;
-    border: none;
-    line-height: 2rem;
-    font-size: 2rem;
-    color: var(--text-color);
-}
+    .input-field input {
+        background: none;
+        outline: none;
+        border: none;
+        font-size: 2rem;
+        color: var(--text-color);
+        width: 100%; /* Đảm bảo input luôn chiếm toàn bộ chiều rộng của input-field */
+        box-sizing: border-box; /* Bao gồm padding và border vào kích thước */
+        padding: 0 1rem; /* Đảm bảo khoảng cách giữa văn bản và đường viền */
+    }
 
 .input-field input::placeholder {
     color: #aaa;

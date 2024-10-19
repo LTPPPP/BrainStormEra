@@ -28,15 +28,13 @@
 
                 <!-- Login Form -->
                 <form asp-action="Index" method="post" class="sign-in-form">
-                    @Html.AntiForgeryToken() 
+                    @Html.AntiForgeryToken()
                     <h2 class="title">Sign In</h2>
                     <div class="input-field">
-                        <i class="fas fa-user"></i>
                         <input asp-for="Username" id="LoginUsername" type="text" placeholder="👤Username" autocomplete="username" />
                         <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
                     <div class="input-field">
-                        <i class="fas fa-lock"></i>
                         <input asp-for="Password" id="LoginPassword" type="password" placeholder="🔒Password" autocomplete="current-password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
@@ -66,8 +64,6 @@
         </div>
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
@@ -79,7 +75,6 @@
             const sign_up_btn = document.querySelector("#sign-up-btn");
             const container = document.querySelector(".container");
 
-
             sign_up_btn?.addEventListener("click", () => {
                 window.location.href = '@Url.Action("Register", "Register")';
             });
@@ -87,7 +82,6 @@
             sign_in_btn?.addEventListener("click", () => {
                 container.classList.remove("sign-up-mode");
             });
-
 
             document.querySelector('.sign-in-form')?.addEventListener("submit", (event) => {
                 let username = document.querySelector('input[name="Username"]').value;

@@ -40,8 +40,9 @@
                     </ul>
                     <div class="profile d-flex align-items-center">
                         <i class="fas fa-bell icon"></i>
-                        <img src="../assests/img/landing_page/user.jpg" alt="Profile Picture" class="user_img">
-                        <span class="d-none d-md-inline">User</span>
+                        <img src="@Url.Content(Model?.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Profile Picture" class="user_img">
+                        <!-- Kiểm tra tên đầy đủ của người dùng có null không trước khi hiển thị -->
+                        <span class="d-none d-md-inline">@Model?.FullName "User"</span>
                         <i class="fas fa-chevron-down d-none d-md-inline"></i>
                         <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
                     </div>

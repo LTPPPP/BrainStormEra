@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace BrainStormEra.Controllers
 {
@@ -31,15 +31,16 @@ namespace BrainStormEra.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Hash password using MD5
-                //string hashedPassword = HashPasswordMD5(model.Password);
+                //string hashedPassword = HashPasswordMD5(model.Password); // Bạn có thể thêm logic hash password nếu cần
                 string hashedPassword = model.Password;
-                // Check if the user exists in the database
                 var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
 
                 if (user != null)
                 {
-                    // Create the claims for the user
+                    // Lưu user_id vào session
+                    HttpContext.Session.SetString("user_id", user.UserId);
+
+                    // Tạo các claims cho người dùng
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Username),
@@ -59,8 +60,9 @@ namespace BrainStormEra.Controllers
                             return RedirectToAction("HomePageInstructor", "Home");
                         case 3:
                             return RedirectToAction("HomePageLearner", "Home");
+                        default:
+                            return RedirectToAction("LoginPage", "Login");
                     }
-
                 }
                 else
                 {

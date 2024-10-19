@@ -5,18 +5,19 @@ using System.Linq;
 
 namespace BrainStormEra.Controllers
 {
-    public class HomePageAdminController : Controller
+    public class HomePageLearnerController : Controller
     {
         private readonly SwpDb7Context _dbContext;
-        private readonly ILogger<HomePageAdminController> _logger;
+        private readonly ILogger<HomePageLearnerController> _logger;
 
-        public HomePageAdminController(SwpDb7Context dbContext, ILogger<HomePageAdminController> logger)
+        public HomePageLearnerController(SwpDb7Context dbContext, ILogger<HomePageLearnerController> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
         }
 
-        public IActionResult HomePageAdmin()
+        // Trang HomePageLearner
+        public IActionResult HomePageLearner()
         {
             try
             {
@@ -36,9 +37,12 @@ namespace BrainStormEra.Controllers
                     return RedirectToAction("LoginPage", "Login");
                 }
 
+                // Nếu user không có hình ảnh, sử dụng hình ảnh mặc định
+                var imagePath = string.IsNullOrEmpty(user.UserPicture) ? "~/lib/img/User-img/default_user.png" : user.UserPicture;
+
                 var model = new Account
                 {
-                    FullName = user?.FullName ?? "User",
+                    FullName = user?.FullName ?? "Learner",
                     UserPicture = string.IsNullOrEmpty(user?.UserPicture) ? "~/lib/img/User-img/default_user.png" : user.UserPicture
                 };
 
@@ -46,7 +50,7 @@ namespace BrainStormEra.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred in HomePageAdmin action.");
+                _logger.LogError(ex, "An error occurred in HomePageLearner action.");
                 return RedirectToAction("Error", "Home");
             }
         }
