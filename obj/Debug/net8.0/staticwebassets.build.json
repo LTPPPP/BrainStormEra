@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "1PukKXd9CM4tGn39AFEIpK1IFm/nVB4V7IXVrJHTmgQ=",
+  "Hash": "yAefa2VHSqxKZJTBcATI4wK8Pq+r/22IuxQpqLSq+ac=",
   "Source": "BrainStormEra",
   "BasePath": "_content/BrainStormEra",
   "Mode": "Default",
@@ -243,6 +243,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\Chapter\\ViewChapter.css"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Chatbot\\chatbot.css",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "css/Chatbot/chatbot.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\Chatbot\\chatbot.css"
     },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\CourseDetail.css",
@@ -661,6 +680,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\Chapter\\DeleteChapter.js"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Chatbot\\Chatbot.js",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "js/Chatbot/Chatbot.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\Chatbot\\Chatbot.js"
     },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\CourseDetail.js",
@@ -2162,6 +2200,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\Json\\Chat.json",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "lib/Json/Chat.json",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\Json\\Chat.json"
     }
   ]
 }

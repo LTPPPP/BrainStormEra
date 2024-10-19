@@ -41,6 +41,10 @@
       "PackagePath": "staticwebassets\\css\\Chapter\\ViewChapter.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Chatbot\\chatbot.css",
+      "PackagePath": "staticwebassets\\css\\Chatbot\\chatbot.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Course\\CourseDetail.css",
       "PackagePath": "staticwebassets\\css\\Course\\CourseDetail.css"
     },
@@ -137,6 +141,10 @@
       "PackagePath": "staticwebassets\\js\\Chapter\\DeleteChapter.js"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Chatbot\\Chatbot.js",
+      "PackagePath": "staticwebassets\\js\\Chatbot\\Chatbot.js"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Course\\CourseDetail.js",
       "PackagePath": "staticwebassets\\js\\Course\\CourseDetail.js"
     },
@@ -179,6 +187,10 @@
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\Json\\Chat.json",
+      "PackagePath": "staticwebassets\\lib\\Json\\Chat.json"
     },
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\bootstrap\\LICENSE",
