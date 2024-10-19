@@ -5,8 +5,7 @@ namespace BrainStormEra.Views.Home
 {
     public class HomePageAdminModel : PageModel
     {
-        public void OnGet()
-        {
-        }
+        public string? FullName { get; set; }
+        public string? UserPicture { get; set; }
     }
 }

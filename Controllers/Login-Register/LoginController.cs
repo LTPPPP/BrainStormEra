@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
 using BrainStormEra.Views.Login;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace BrainStormEra.Controllers
 {
@@ -31,31 +31,21 @@ namespace BrainStormEra.Controllers
         {
             if (ModelState.IsValid)
             {
-                //string hashedPassword = HashPasswordMD5(model.Password); // Bạn có thể thêm logic hash password nếu cần
-                string hashedPassword = model.Password;
+                string hashedPassword = HashPasswordMD5(model.Password); // Hash the password
                 var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
 
                 if (user != null)
                 {
-                    // Lưu user_id vào session
+                    // Save user_id to session
                     HttpContext.Session.SetString("user_id", user.UserId);
+                    HttpContext.Session.SetString("username", user.Username);
+                    HttpContext.Session.SetString("user_role", user.UserRole.ToString());
 
-                    // Tạo các claims cho người dùng
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.Username),
-                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                        new Claim(ClaimTypes.Role, user.UserRole.ToString())
-                    };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
+                    // Redirect based on user role
                     switch (user.UserRole)
                     {
                         case 1:
-                            return RedirectToAction("HomePageAdmin", "Home");
+                            return RedirectToAction("HomepageAdmin", "Home");
                         case 2:
                             return RedirectToAction("HomePageInstructor", "Home");
                         case 3:
@@ -69,13 +59,12 @@ namespace BrainStormEra.Controllers
                     ViewBag.ErrorMessage = "Username or password is incorrect!";
                 }
             }
-
             return View("LoginPage", model);
         }
 
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear(); // Clear all session
             return RedirectToAction("LoginPage", "Login");
         }
 

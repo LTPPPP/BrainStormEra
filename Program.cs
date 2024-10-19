@@ -1,5 +1,4 @@
 ﻿using BrainStormEra.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra
@@ -13,25 +12,14 @@ namespace BrainStormEra
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Configure DbContext
+            // Configure DbContext with SQL Server
             builder.Services.AddDbContext<SwpDb7Context>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SwpDb7Context")));
-
-            // Add authentication service
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/Login/LoginPage";  // Login page path
-                    options.LogoutPath = "/Login/Logout";    // Logout path
-                    options.AccessDeniedPath = "/Home/HomePageAdmin";  // Access denied page
-                    options.SlidingExpiration = true;  // Sliding expiration for session
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);  // Session expiry time
-                });
 
             // Add session handling with configuration
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(3600);  // Session timeout
+                options.IdleTimeout = TimeSpan.FromMinutes(60);  // Session timeout after 60 minutes of inactivity
                 options.Cookie.HttpOnly = true;  // Cookie protection from client-side scripts
                 options.Cookie.IsEssential = true;  // Mark cookie as essential
             });
@@ -50,16 +38,14 @@ namespace BrainStormEra
 
             app.UseRouting();
 
-            // Enable session handling before authentication and authorization
+            // Enable session handling
             app.UseSession();
 
-            // Enable authentication and authorization middlewares
-            app.UseAuthentication();
             app.UseAuthorization();
 
             // Map the controller routes
             app.MapControllerRoute(
-                name: "home",
+                name: "default",
                 pattern: "{controller=Login}/{action=LoginPage}/{id?}");
 
             app.Run();

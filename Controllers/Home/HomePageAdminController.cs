@@ -1,54 +1,40 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
-using Microsoft.Extensions.Logging;
 using System.Linq;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageAdminController : Controller
     {
-        private readonly SwpDb7Context _dbContext;
-        private readonly ILogger<HomePageAdminController> _logger;
+        private readonly SwpDb7Context _context;
 
-        public HomePageAdminController(SwpDb7Context dbContext, ILogger<HomePageAdminController> logger)
+        public HomePageAdminController(SwpDb7Context context)
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult HomePageAdmin()
+        public IActionResult Index()
         {
-            try
+            // Lấy user_id từ session
+            string userId = HttpContext.Session.GetString("user_id");
+
+            // Kiểm tra nếu user_id tồn tại
+            if (string.IsNullOrEmpty(userId))
             {
-                var userId = HttpContext.Session.GetString("user_id");
-
-                if (string.IsNullOrEmpty(userId))
-                {
-                    _logger.LogWarning("Session does not contain user_id.");
-                    return RedirectToAction("LoginPage", "Login");
-                }
-
-                var user = _dbContext.Accounts.FirstOrDefault(u => u.UserId == userId);
-
-                if (user == null)
-                {
-                    _logger.LogWarning($"User with ID {userId} not found.");
-                    return RedirectToAction("LoginPage", "Login");
-                }
-
-                var model = new Account
-                {
-                    FullName = user?.FullName ?? "User",
-                    UserPicture = string.IsNullOrEmpty(user?.UserPicture) ? "~/lib/img/User-img/default_user.png" : user.UserPicture
-                };
-
-                return View(model);
+                return RedirectToAction("LoginPage", "Login");
             }
-            catch (Exception ex)
+
+            // Lấy thông tin user từ database
+            var user = _context.Accounts.FirstOrDefault(u => u.UserId == userId);
+
+            if (user != null)
             {
-                _logger.LogError(ex, "An error occurred in HomePageAdmin action.");
-                return RedirectToAction("Error", "Home");
+                // Truyền tên và hình ảnh của người dùng vào View
+                ViewBag.FullName = user.FullName;
+                ViewBag.UserPicture = user.UserPicture;
             }
+
+            return View();
         }
     }
 }

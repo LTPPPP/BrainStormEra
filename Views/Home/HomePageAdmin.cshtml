@@ -1,4 +1,9 @@
-﻿@model BrainStormEra.Models.Account
+﻿@page
+@model BrainStormEra.Views.Home.HomePageAdminModel
+@{
+    var fullName = ViewBag.FullName as string;
+    var userPicture = ViewBag.UserPicture as string;
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +11,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="icon" href="~/lib/Login/img/BrainStormEra_logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="~/css/HomePage/landing_page.css" rel="stylesheet" />
@@ -22,7 +27,7 @@
                     <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="Logo" class="logo_img">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -36,9 +41,8 @@
                     </ul>
                     <div class="profile d-flex align-items-center">
                         <i class="fas fa-bell icon"></i>
-                        <img src="@Url.Content(Model?.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Profile Picture" class="user_img">
-                        <!-- Kiểm tra tên đầy đủ của người dùng có null không trước khi hiển thị -->
-                        <span class="d-none d-md-inline">@Model?.FullName ?? "User"</span>
+                        <img src="~/lib/img/User-img/default_user.png" alt="Profile Picture" class="user_img">
+                        <span class="d-none d-md-inline">@fullName</span>
                         <i class="fas fa-chevron-down d-none d-md-inline"></i>
                         <a href="@Url.Action("Logout", "Login")" class="d-flex align-items-center">
                             <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
@@ -49,9 +53,48 @@
         </nav>
     </header>
 
+
     <div class="container mt-5">
-        <!-- Content -->
+        <!-- Header Section -->
+        <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
+            <img src="" class="img-welcomeheader" alt="Welcome Header">
+            <img src="" class="robotwelcome" alt="Robot Welcome">
+        </div>
+
+        <div class="text-center" style="margin-top: 150px;">
+            <h4>REPORT AND ANALYZE</h4>
+        </div>
+
+        <div class="time-card">
+            <div class="text-center">
+                <h5>Time</h5>
+            </div>
+            <div class="time-buttons mt-3 mb-3">
+                <button class="btn btn-outline-secondary btn-sm">1h</button>
+                <button class="btn btn-outline-secondary btn-sm">4h</button>
+                <button class="btn btn-outline-secondary btn-sm active">1d</button>
+                <button class="btn btn-outline-secondary btn-sm">1w</button>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-container">
+                <div class="chart" id="chart-learners">
+                    <div class="chart-title">Learners</div>
+                </div>
+                <div class="chart" id="chart-rating">
+                    <div class="chart-title">Rating</div>
+                </div>
+                <div class="chart" id="chart-enroll">
+                    <div class="chart-title">Enroll Course</div>
+                </div>
+                <div class="chart" id="chart-comment">
+                    <div class="chart-title">Comment</div>
+                </div>
+            </div>
+        </div>
     </div>
+
 
     <footer class="bg-secondary text-white py-4">
         <div class="container">
@@ -80,8 +123,8 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-            crossorigin="anonymous"></script>
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
