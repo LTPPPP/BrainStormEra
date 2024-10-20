@@ -1,5 +1,3 @@
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\appsettings.Development.json
-E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\appsettings.json
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\BrainStormEra.staticwebassets.runtime.json
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\BrainStormEra.exe
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\BrainStormEra.deps.json
@@ -146,3 +144,5 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\selenium-ma
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\selenium-manager\windows\selenium-manager.exe
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\WebDriver.Support.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\WebDriver.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\appsettings.Development.json
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\appsettings.json

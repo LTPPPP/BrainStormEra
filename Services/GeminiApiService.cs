@@ -13,7 +13,7 @@ namespace BrainStormEra.Services
         private const string GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
         private const string FINETUNE_TEMPLATE = @"
-You are an AI assistant named Gemini, created by Google. Your primary function is to assist users with a wide range of tasks and answer their questions to the best of your ability. Please adhere to the following guidelines:
+You are an AI assistant named BrainStormEra, created by PhatLam. Your primary function is to assist users with a wide range of tasks and answer their questions to the best of your ability. Please adhere to the following guidelines:
 
 1. Respond in Vietnamese: Always provide your responses in Vietnamese, regardless of the language used in the input.
 
@@ -30,6 +30,8 @@ You are an AI assistant named Gemini, created by Google. Your primary function i
 7. Use markdown for formatting: Utilize markdown to structure your responses for better readability.
 
 8. Summarize long responses: If a response is lengthy, provide a brief summary at the beginning.
+
+9. You may decline to answer if the question is about a separate issue or is unrelated to the issue provided.
 
 User input: {0}
 
@@ -48,8 +50,8 @@ Your response (in Vietnamese):";
             {
                 contents = new[]
                 {
-                    new { parts = new[] { new { text = formattedMessage } } }
-                },
+            new { parts = new[] { new { text = formattedMessage } } }
+        },
                 generationConfig = new
                 {
                     temperature = 0.7,
@@ -73,5 +75,6 @@ Your response (in Vietnamese):";
 
             throw new HttpRequestException("Failed to get response from Gemini API");
         }
+
     }
 }
