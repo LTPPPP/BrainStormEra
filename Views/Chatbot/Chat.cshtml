@@ -1,5 +1,18 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Chatbot";
+}
+<div class="container">
+    <h2>BrainStormEra Chatbot</h2>
+    <div id="chat-messages" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+    <div class="input-group">
+        <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" id="send-button">Send</button>
+        </div>
+    </div>
+</div>
+<script src="~/js/Chatbot/Chatbot.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+@section Scripts {
+    <script src="~/js/Chatbot/chatbot.js"></script>
 }

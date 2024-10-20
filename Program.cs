@@ -1,5 +1,6 @@
 ﻿using BrainStormEra.Controllers;
 using BrainStormEra.Models;
+using BrainStormEra.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra
@@ -11,7 +12,7 @@ namespace BrainStormEra
             var builder = WebApplication.CreateBuilder(args);
 
             // Register GeminiApiService to be injected when needed
-            //builder.Services.AddHttpClient<GeminiApiService>();
+            builder.Services.AddHttpClient<GeminiApiService>();
 
             // Add services to the container, such as Controllers with Views
             builder.Services.AddControllersWithViews();

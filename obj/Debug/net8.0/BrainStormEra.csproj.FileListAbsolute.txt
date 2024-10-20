@@ -140,3 +140,4 @@ E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormE
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\BrainStormEra.genruntimeconfig.cache
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\obj\Debug\net8.0\ref\BrainStormEra.dll
 E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Newtonsoft.Json.dll
+E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra\bin\Debug\net8.0\Markdig.dll

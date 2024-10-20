@@ -1,0 +1,22 @@
+[
+  {
+    "Timestamp": "2024-10-20T06:42:05.010Z",
+    "Sender": "User",
+    "Message": "lập trình c++"
+  },
+  {
+    "Timestamp": "2024-10-20T06:42:12.896Z",
+    "Sender": "Bot",
+    "Message": "{\"reply\":\"**L\\u1EADp tr\\u00ECnh C\\u002B\\u002B**\\n\\nC\\u002B\\u002B l\\u00E0 m\\u1ED9t ng\\u00F4n ng\\u1EEF l\\u1EADp tr\\u00ECnh h\\u01B0\\u1EDBng \\u0111\\u1ED1i t\\u01B0\\u1EE3ng, \\u0111\\u01B0\\u1EE3c ph\\u00E1t tri\\u1EC3n b\\u1EDFi Bjarne Stroustrup v\\u00E0o n\\u0103m 1979. N\\u00F3 l\\u00E0 m\\u1ED9t ng\\u00F4n ng\\u1EEF l\\u1EADp tr\\u00ECnh c\\u1EA5p trung, k\\u1EBFt h\\u1EE3p c\\u00E1c t\\u00EDnh n\\u0103ng c\\u1EE7a l\\u1EADp tr\\u00ECnh c\\u1EA5u tr\\u00FAc v\\u00E0 h\\u01B0\\u1EDBng \\u0111\\u1ED1i t\\u01B0\\u1EE3ng. C\\u002B\\u002B \\u0111\\u01B0\\u1EE3c s\\u1EED d\\u1EE5ng r\\u1ED9ng r\\u00E3i trong ph\\u00E1t tri\\u1EC3n ph\\u1EA7n m\\u1EC1m, h\\u1EC7 \\u0111i\\u1EC1u h\\u00E0nh, \\u1EE9ng d\\u1EE5ng nh\\u00FAng v\\u00E0 c\\u00E1c \\u1EE9ng d\\u1EE5ng hi\\u1EC7u su\\u1EA5t cao.\\n\\n**C\\u00E1c t\\u00EDnh n\\u0103ng ch\\u00EDnh c\\u1EE7a C\\u002B\\u002B**\\n\\n* H\\u01B0\\u1EDBng \\u0111\\u1ED1i t\\u01B0\\u1EE3ng\\n* Ki\\u1EC3m so\\u00E1t c\\u1EA5p th\\u1EA5p \\u0111\\u1ED1i v\\u1EDBi b\\u1ED9 nh\\u1EDB\\n* Qu\\u1EA3n l\\u00FD t\\u00E0i nguy\\u00EAn th\\u1EE7 c\\u00F4ng\\n* H\\u1ED7 tr\\u1EE3 l\\u1EADp tr\\u00ECnh \\u0111a lu\\u1ED3ng\\n* Th\\u01B0 vi\\u1EC7n chu\\u1EA9n m\\u1EA1nh m\\u1EBD\\n* Cung c\\u1EA5p c\\u00E1c c\\u00F4ng c\\u1EE5 m\\u1EA1nh m\\u1EBD \\u0111\\u1EC3 x\\u00E2y d\\u1EF1ng c\\u00E1c \\u1EE9ng d\\u1EE5ng hi\\u1EC7u su\\u1EA5t cao\\n* Kh\\u1EA3 n\\u0103ng t\\u01B0\\u01A1ng th\\u00EDch v\\u1EDBi C\\n\\n**C\\u00E1c \\u1EE9ng d\\u1EE5ng c\\u1EE7a C\\u002B\\u002B**\\n\\n* H\\u1EC7 \\u0111i\\u1EC1u h\\u00E0nh (v\\u00ED d\\u1EE5: Windows, Linux)\\n* \\u1EE8ng d\\u1EE5ng nh\\u00FAng (v\\u00ED d\\u1EE5: thi\\u1EBFt b\\u1ECB y t\\u1EBF, h\\u1EC7 th\\u1ED1ng \\u00F4 t\\u00F4)\\n* Tr\\u00F2 ch\\u01A1i \\u0111i\\u1EC7n t\\u1EED\\n* \\u1EE8ng d\\u1EE5ng t\\u00E0i ch\\u00EDnh\\n* M\\u00F4 ph\\u1ECFng khoa h\\u1ECDc v\\u00E0 k\\u1EF9 thu\\u1EADt\\n* X\\u1EED l\\u00FD d\\u1EEF li\\u1EC7u l\\u1EDBn\\n* Tr\\u00ED tu\\u1EC7 nh\\u00E2n t\\u1EA1o (AI)\\n\\n**C\\u00E1c t\\u00E0i nguy\\u00EAn h\\u1ECDc C\\u002B\\u002B**\\n\\n* [Trang ch\\u1EE7 C\\u002B\\u002B](https://www.cplusplus.com/)\\n* [T\\u00E0i li\\u1EC7u C\\u002B\\u002B](https://docs.microsoft.com/en-us/cpp/)\\n* [S\\u00E1ch h\\u01B0\\u1EDBng d\\u1EABn C\\u002B\\u002B](https://www.learncpp.com/)\\n* [C\\u00E1c kh\\u00F3a h\\u1ECDc C\\u002B\\u002B tr\\u1EF1c tuy\\u1EBFn](https://www.coursera.org/browse/computer-science/programming-languages/cpp)\\n\\nN\\u1EBFu b\\u1EA1n quan t\\u00E2m \\u0111\\u1EBFn vi\\u1EC7c h\\u1ECDc C\\u002B\\u002B, c\\u00F3 nhi\\u1EC1u t\\u00E0i nguy\\u00EAn tr\\u1EF1c tuy\\u1EBFn v\\u00E0 ngo\\u1EA1i tuy\\u1EBFn c\\u00F3 s\\u1EB5n \\u0111\\u1EC3 gi\\u00FAp b\\u1EA1n b\\u1EAFt \\u0111\\u1EA7u.\"}"
+  },
+  {
+    "Timestamp": "2024-10-20T06:43:00.200Z",
+    "Sender": "User",
+    "Message": "c++"
+  },
+  {
+    "Timestamp": "2024-10-20T06:43:04.530Z",
+    "Sender": "Bot",
+    "Message": "{\"reply\":\"C\\u002B\\u002B l\\u00E0 m\\u1ED9t ng\\u00F4n ng\\u1EEF l\\u1EADp tr\\u00ECnh h\\u01B0\\u1EDBng \\u0111\\u1ED1i t\\u01B0\\u1EE3ng \\u0111\\u01B0\\u1EE3c ph\\u00E1t tri\\u1EC3n b\\u1EDFi Bjarne Stroustrup. \\u0110\\u00E2y l\\u00E0 m\\u1ED9t ng\\u00F4n ng\\u1EEF \\u0111a n\\u0103ng c\\u00F3 th\\u1EC3 \\u0111\\u01B0\\u1EE3c s\\u1EED d\\u1EE5ng \\u0111\\u1EC3 ph\\u00E1t tri\\u1EC3n nhi\\u1EC1u lo\\u1EA1i \\u1EE9ng d\\u1EE5ng, bao g\\u1ED3m tr\\u00F2 ch\\u01A1i, \\u1EE9ng d\\u1EE5ng m\\u00E1y t\\u00EDnh \\u0111\\u1EC3 b\\u00E0n v\\u00E0 \\u1EE9ng d\\u1EE5ng web. C\\u002B\\u002B n\\u1ED5i ti\\u1EBFng v\\u1EDBi hi\\u1EC7u su\\u1EA5t cao v\\u00E0 ki\\u1EC3m so\\u00E1t ch\\u1EB7t ch\\u1EBD \\u0111\\u1ED1i v\\u1EDBi t\\u00E0i nguy\\u00EAn h\\u1EC7 th\\u1ED1ng, khi\\u1EBFn n\\u00F3 tr\\u1EDF th\\u00E0nh s\\u1EF1 l\\u1EF1a ch\\u1ECDn ph\\u1ED5 bi\\u1EBFn cho c\\u00E1c \\u1EE9ng d\\u1EE5ng hi\\u1EC7u su\\u1EA5t cao nh\\u01B0 tr\\u00F2 ch\\u01A1i v\\u00E0 ph\\u1EA7n m\\u1EC1m x\\u1EED l\\u00FD \\u0111\\u1ED3 h\\u1ECDa.\"}"
+  }
+]
