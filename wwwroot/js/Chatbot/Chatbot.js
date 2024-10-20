@@ -32,10 +32,10 @@ function sendMessage() {
         .then(data => {
             try {
                 const jsonData = JSON.parse(data);
-                appendMessage('Bot: ' + jsonData.reply);
+                appendMessage('Bot: ' + jsonData.reply, true);  // Pass 'true' for bot response
                 logChatHistory('Bot', jsonData.reply);
             } catch (e) {
-                appendMessage('Bot: ' + data);
+                appendMessage('Bot: ' + data, true);  // Pass 'true' for bot response
                 logChatHistory('Bot', data);
             }
         })
@@ -46,13 +46,22 @@ function sendMessage() {
         });
 }
 
-function appendMessage(message) {
+
+function appendMessage(message, isBot = false) {
     var chatMessages = document.getElementById('chat-messages');
     var messageElement = document.createElement('p');
-    messageElement.textContent = message;
+
+    // If the message is from the bot, convert markdown to HTML
+    if (isBot) {
+        messageElement.innerHTML = marked.parse(message);
+    } else {
+        messageElement.textContent = message;
+    }
+
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
 
 function logChatHistory(sender, message) {
     const timestamp = new Date().toISOString();
