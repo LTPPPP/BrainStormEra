@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "yAefa2VHSqxKZJTBcATI4wK8Pq+r/22IuxQpqLSq+ac=",
+  "Hash": "3CESz7m26Vh+kfmqmhjKZUiTjsrcDCNowI7crw+QOao=",
   "Source": "BrainStormEra",
   "BasePath": "_content/BrainStormEra",
   "Mode": "Default",
@@ -1763,6 +1763,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\LICENSE"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Bot\\bot-icon.png",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "lib/img/Bot/bot-icon.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\img\\Bot\\bot-icon.png"
     },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Bot\\iconBot.png",

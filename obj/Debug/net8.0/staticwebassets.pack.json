@@ -373,6 +373,10 @@
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Bot\\bot-icon.png",
+      "PackagePath": "staticwebassets\\lib\\img\\Bot\\bot-icon.png"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\img\\Bot\\iconBot.png",
       "PackagePath": "staticwebassets\\lib\\img\\Bot\\iconBot.png"
     },

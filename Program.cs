@@ -53,7 +53,7 @@ namespace BrainStormEra
             // Map the controller routes with default route settings
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Chatbot}/{action=Chat}/{id?}");
+                pattern: "{controller=Home}/{action=HomePageAdmin}/{id?}");
 
             app.Run();
         }
