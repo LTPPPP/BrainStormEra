@@ -82,7 +82,6 @@ namespace BrainStormEra.Controllers.Achievement
             }
         }
 
-
         [HttpPost]
         public async Task<IActionResult> AddAchievement(string achievementId, string achievementName, string achievementDescription, string achievementIcon, DateTime achievementCreatedAt)
         {

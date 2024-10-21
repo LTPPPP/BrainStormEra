@@ -30,8 +30,9 @@
     <link rel="icon" href="~/lib/Login/img/BrainStormEra_logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="~/css/HomePage/landing_page.css" rel="stylesheet" />
-    <link href="~/css/base.css" />
+    <link href="~/css/base.css" rel="stylesheet"/>
     <link rel="stylesheet" href="~/css/Admin/analysis.css">
+    <link href="~/css/Chatbot/chatbot.css" rel="stylesheet" />
     <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
 
 </head>
@@ -124,6 +125,24 @@
             <button id="sendToUsers">Send</button>
         </div>
     </div>
+    <div class="icon-bot" onclick="toggleChatbot()">
+        <img src="~/lib/img/Bot/bot-icon.png" alt="icon-bot" />
+    </div>
+    <div id="chat-container" class="chat-container" style="display: none;">
+        <!-- Add this button where appropriate, e.g., beside the chatbot -->
+        <button id="new-chat-button" class="btn btn-danger">New Chat</button>
+        <div id="chat-messages" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+        <div class="input-group">
+            <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="send-button" style="background-color : green;">Send</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    @section Scripts {
+        <script src="~/js/Chatbot/chatbot.js"></script>
+    }
 
     <footer class="bg-secondary text-white py-4">
         <div class="container">
@@ -157,7 +176,7 @@
             crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Đảm bảo jQuery đã được chèn -->
     <script src="~/js/Notification/notification.js"></script>
-
+    <script src="~/js/Chatbot/chatbot.js"></script>
     <script>
         $(document).ready(function () {
             $('#notificationsModal').on('shown.bs.modal', function () {

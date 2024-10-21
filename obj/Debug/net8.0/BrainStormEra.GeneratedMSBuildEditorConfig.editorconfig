@@ -18,10 +18,6 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra
 build_property._RazorSourceGeneratorDebug = 
 
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievements/Achievements.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRzXEFjaGlldmVtZW50cy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievements/AdminAchievements.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRzXEFkbWluQWNoaWV2ZW1lbnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

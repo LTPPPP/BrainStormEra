@@ -1,4 +1,4 @@
-﻿using BrainStormEra.Models;  // Thêm tham chiếu tới model
+﻿using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
@@ -86,7 +86,7 @@ namespace BrainStormEra.Controllers
                 // Tìm số lớn nhất trong các ID hiện tại và cộng thêm 1 để tạo ID mới
                 int nextIdNumber = existingIds.Count > 0 ? existingIds.Max() + 1 : 1;
 
-                foreach (var userId in model.UserIds)
+                foreach (var userId in model.UserId)
                 {
                     // Tạo ID mới theo định dạng "N{number}"
                     string newNotificationId = "N" + nextIdNumber.ToString();
@@ -183,7 +183,7 @@ namespace BrainStormEra.Controllers
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
 
-            public List<string> UserIds { get; set; }
+            public List<string> UserId { get; set; }
             public string NotificationTitle { get; set; }
             public string NotificationContent { get; set; }
             public string NotificationType { get; set; }
