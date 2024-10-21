@@ -6,25 +6,6 @@ public class HomeController : Controller
     {
         return View();
     }
-
-    [HttpGet]
-    public IActionResult HomePageAdmin()
-    {
-        return View();
-    }
-
-    [HttpGet]
-    public IActionResult HomePageInstructor()
-    {
-        return View();
-    }
-
-    [HttpGet]
-    public IActionResult HomePageLearner()
-    {
-        return View();
-    }
-
     [HttpGet]
     public IActionResult Privacy()
     {
@@ -146,11 +127,6 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-    public IActionResult Achievements(int id)
-    {
-        return View();
-    }
-    [HttpGet]
     public IActionResult Certificates(int id)
     {
         return View();
@@ -177,6 +153,24 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Chat()
         {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult _NotificationModal()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult addNotificationModal()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult editNotificationModal()
+    {
         return View();
     }
 }

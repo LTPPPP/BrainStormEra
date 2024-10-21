@@ -3,6 +3,7 @@
 *@
 @{
 }
+@inject IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,15 +22,14 @@
 </head>
 
 <body>
-
-    <header class="container-fluid sticky-header">
+    <header class="container-fluid sticky-header" style="background-color: white;">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
                     <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -40,11 +40,12 @@
                     </ul>
                     <div class="profile d-flex align-items-center">
                         <i class="fas fa-bell icon"></i>
-                        <img src="@Url.Content(Model?.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Profile Picture" class="user_img">
-                        <!-- Kiểm tra tên đầy đủ của người dùng có null không trước khi hiển thị -->
-                        <span class="d-none d-md-inline">@Model?.FullName "User"</span>
+                        <img src="@ViewBag.UserPicture" alt="Profile Picture" class="user_img" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <span class="d-none d-md-inline">@ViewBag.FullName</span>
                         <i class="fas fa-chevron-down d-none d-md-inline"></i>
-                        <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
+                        <a href="@Url.Action("Logout", "Login")" class="d-flex align-items-center" aria-label="Logout">
+                            <i class="fa-solid fa-arrow-right-from-bracket exit_icon" aria-hidden="true"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -86,7 +87,7 @@
             </div>
             <img src="/assests/img/robotlearner.png" alt="Robot Welcome" class="robot-img">
 
-        </div>  
+        </div>
 
 
         <!-- Recommend Course Section -->

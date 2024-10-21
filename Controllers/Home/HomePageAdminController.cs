@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
-using System.Linq;
+using System.Security.Claims;
 
 namespace BrainStormEra.Controllers
 {
@@ -13,28 +13,40 @@ namespace BrainStormEra.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult HomepageAdmin()
         {
-            // Lấy user_id từ session
-            string userId = HttpContext.Session.GetString("user_id");
-
-            // Kiểm tra nếu user_id tồn tại
-            if (string.IsNullOrEmpty(userId))
+            // Check if the user is authenticated
+            if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("LoginPage", "Login");
+                // Retrieve user ID and role from claims
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var username = User.Identity.Name;  // This retrieves the username stored as ClaimTypes.Name
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (userId != null)
+                {
+                    // Fetch user details from the database
+                    var user = _context.Accounts.FirstOrDefault(u => u.UserId == userId);
+
+                    if (user != null)
+                    {
+                        ViewBag.FullName = user.FullName;
+                        ViewBag.UserPicture = user.UserPicture ?? "~/lib/img/User-img/default_user.png"; // Use default image if no picture
+                    }
+                    else
+                    {
+                        // Handle case where user is not found
+                        ViewBag.FullName = "Guest";
+                        ViewBag.UserPicture = "~/lib/img/User-img/default_user.png";
+                    }
+
+                    return View("~/Views/Home/HomePageAdmin.cshtml");
+                }
             }
 
-            // Lấy thông tin user từ database
-            var user = _context.Accounts.FirstOrDefault(u => u.UserId == userId);
-
-            if (user != null)
-            {
-                // Truyền tên và hình ảnh của người dùng vào View
-                ViewBag.FullName = user.FullName;
-                ViewBag.UserPicture = user.UserPicture;
-            }
-
-            return View();
+            // Redirect to login if the user is not authenticated or cookies are not found
+            return RedirectToAction("LoginPage", "Login");
         }
     }
 }

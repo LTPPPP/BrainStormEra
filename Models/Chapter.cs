@@ -9,7 +9,7 @@ public partial class Chapter
 
     public string? CourseId { get; set; }
 
-    public string ChapterName { get; set; } = null!;
+    public string? ChapterName { get; set; }
 
     public string? ChapterDescription { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Chapter
 
     public int? ChapterStatus { get; set; }
 
-    public DateTime ChapterCreatedAt { get; set; }
+    public DateTime? ChapterCreatedAt { get; set; }
 
     public virtual Status? ChapterStatusNavigation { get; set; }
 

@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<BrainStormEra.Models.Course>
+
+<h2>Instructor - Your Courses</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Description</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <td>@course.CourseName</td>
+                <td>@course.CourseDescription</td>
+                <td>@course.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>

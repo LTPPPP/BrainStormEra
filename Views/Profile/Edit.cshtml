@@ -1,0 +1,261 @@
+﻿@model BrainStormEra.Models.Account
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/base.css">
+
+    <!-- Custom CSS for Avatar Preview -->
+    <style>
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .avatar-upload label {
+                cursor: pointer;
+                padding: 5px 10px;
+                background-color: #007bff;
+                color: white;
+                border-radius: 5px;
+            }
+
+            .avatar-upload input[type="file"] {
+                display: none;
+            }
+
+        .btn-custom {
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1.4rem;
+        }
+
+            .btn-custom:hover {
+                background-color: #218838;
+            }
+
+        .form-group {
+            margin-top: 15px;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+        }
+
+            footer h3, footer h4 {
+                color: #fff;
+            }
+
+        .social-icons i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+    </style>
+
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="container-fluid sticky-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Courses</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Certificates</a></li>
+                    </ul>
+                    <div class="profile d-flex align-items-center">
+                        <i class="fas fa-bell"></i>
+                        <a href="@Url.Action("Index", "Profile", new { accountId = HttpContextAccessor.HttpContext.Session.GetString("user_id") })">
+                            <img src="@Url.Content(Model?.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Profile Picture" class="user_img">
+                        </a>
+                        <span class="d-none d-md-inline">@Model?.FullName ?? "User"</span>
+                        <i class="fas fa-chevron-down d-none d-md-inline"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <h2>Edit Profile</h2>
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="UserId" />
+
+            <!-- Avatar Upload Section -->
+            <div class="avatar-upload">
+                <img id="avatarPreview" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Avatar" class="avatar-preview">
+                <label for="avatarUpload">Change Avatar</label>
+                <input type="file" id="avatarUpload" name="avatar" accept="image/*" onchange="previewAvatar()">
+            </div>
+
+            <!-- Full Name with Validation -->
+            <div class="form-group">
+                <label asp-for="FullName" class="control-label"></label>
+                <input asp-for="FullName" class="form-control" id="fullName" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label asp-for="UserEmail" class="control-label"></label>
+                <input asp-for="UserEmail" class="form-control" type="email" />
+                <span asp-validation-for="UserEmail" class="text-danger"></span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <!-- Gender Dropdown -->
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label>
+                <select asp-for="Gender" class="form-control">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label asp-for="UserAddress" class="control-label"></label>
+                <input asp-for="UserAddress" class="form-control" />
+                <span asp-validation-for="UserAddress" class="text-danger"></span>
+            </div>
+
+            <!-- Date of Birth with Validation -->
+            <div class="form-group">
+                <label asp-for="DateOfBirth" class="control-label"></label>
+                <input asp-for="DateOfBirth" class="form-control" type="date" id="dob" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+
+            <!-- Submit and Cancel Buttons -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-custom">Save Changes</button>
+                <a class="btn btn-secondary" asp-action="Index" asp-route-accountId="@Model.UserId">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h3>BrainStormEra</h3>
+                    <div class="social-icons my-2">
+                        <i class="fab fa-facebook"></i>
+                        <i class="fab fa-instagram"></i>
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <p>2024 by BrainStormEra.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h4>Contact Us</h4>
+                    <p>Tel: 123-456-789</p>
+                    <p>Email: brainstormera@edu.vn</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>Address</h4>
+                    <p>123 Nguyen Van Cu, Cai Rang, Can Tho, Vietnam</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS for Avatar Preview and Form Validation -->
+    <script>
+        function previewAvatar() {
+            const file = document.getElementById('avatarUpload').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function calculateAge(dob) {
+            const today = new Date();
+            const birthDate = new Date(dob);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function validateFullName() {
+            const fullName = document.getElementById('fullName').value;
+            const nameRegex = /^[a-zA-Z\s]+$/; // Allows only letters and spaces
+            if (!nameRegex.test(fullName)) {
+                alert("Full Name can only contain letters and spaces.");
+                return false;
+            }
+            return true;
+        }
+
+        function validateAge() {
+            const dob = document.getElementById('dob').value;
+            if (dob) {
+                const age = calculateAge(dob);
+                if (age < 13) {
+                    alert("You must be at least 13 years old to submit this form.");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateForm() {
+            return validateFullName() && validateAge();
+        }
+    </script>
+
+    <!-- Link to Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

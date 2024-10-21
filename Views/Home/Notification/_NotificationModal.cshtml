@@ -1,0 +1,71 @@
+﻿@model IEnumerable<BrainStormEra.Models.Notification>
+
+<div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationsModalLabel">Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                <div class="notification-container">
+                    <div class="notification-header">
+                        <h1><b>Notifications</b></h1>
+                        @if (ViewBag.UserRole == "1" || ViewBag.UserRole == "2")
+                        {
+                            <button type="button" class="btn btn-primary add-notification">Add Notification</button>
+                        }
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        DateTime? lastDate = null;
+
+                        @foreach (var notification in Model.OrderBy(n => n.NotificationCreatedAt))
+                        {
+                            var currentDate = notification.NotificationCreatedAt;
+
+                            if (lastDate == null || currentDate.Month != lastDate.Value.Month || currentDate.Year != lastDate.Value.Year)
+                            {
+                                <div class="notification-section">
+                                    <h2>@currentDate.ToString("MMMM yyyy")</h2>
+                                </div>
+                            }
+
+                            <div class="notification-item" data-notification-id="@notification.NotificationId">
+                                <div class="icon">
+                                    <i class="fas fa-user" aria-hidden="true"></i>
+                                </div>
+                                <div class="content">
+                                    <p>
+                                        <strong>@notification.NotificationTitle</strong> <br />
+                                        @notification.NotificationContent
+                                    </p>
+                                    <p class="time">@notification.NotificationCreatedAt.ToString("g")</p>
+                                </div>
+                                <div class="actions">
+                                    @* Kiểm tra role dựa trên ViewBag.UserRole *@
+                                    @if (ViewBag.UserRole == "1" || ViewBag.UserRole == "2")
+                                    {
+                                        <div class="action edit" aria-label="Edit Notification">
+                                            <i class="fas fa-edit" aria-hidden="true"></i>
+                                        </div>
+                                        <div class="action delete" aria-label="Delete Notification">
+                                            <i class="fas fa-times-circle" aria-hidden="true"></i>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            lastDate = currentDate;
+                        }
+                    }
+                    else
+                    {
+                        <p>No notifications available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

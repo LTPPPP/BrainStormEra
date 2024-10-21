@@ -1,0 +1,51 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<BrainStormEra.Models.Account>
+
+
+<h1>Admin_manage-user</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Payment Points</th>
+            <th>Date of birth</th>
+            <th>Gender</th>
+            <th>Created at</th>
+            <th>Roles</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.UserEmail</td>
+                <td>@user.FullName</td>
+                <td>@user.PaymentPoint</td>
+                <td>@user.DateOfBirth</td>
+                <td>@user.Gender</td>
+                <td>@user.AccountCreatedAt</td>
+                @if (@user.UserRole == 1)
+                {
+                    <td>Admin</td>
+                }
+                @if (@user.UserRole == 2)
+                {
+                    <td>Instructor</td>
+                }
+                @if (@user.UserRole == 3)
+                {
+                    <td>Learner</td>
+
+                }
+            </tr>
+        }
+    </tbody>
+</table>

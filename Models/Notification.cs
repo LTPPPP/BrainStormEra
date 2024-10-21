@@ -11,13 +11,14 @@ public partial class Notification
 
     public string? CourseId { get; set; }
 
-    public string NotificationTitle { get; set; } = null!;
+    public string? NotificationTitle { get; set; }
 
-    public string NotificationContent { get; set; } = null!;
+    public string? NotificationContent { get; set; }
 
     public string? NotificationType { get; set; }
+    public string? CreatedBy { get; set; }
 
-    public DateTime NotificationCreatedAt { get; set; }
+    public DateTime? NotificationCreatedAt { get; set; }
 
     public virtual Course? Course { get; set; }
 

@@ -15,11 +15,11 @@ public partial class Feedback
 
     public string? Comment { get; set; }
 
-    public DateOnly FeedbackDate { get; set; }
+    public DateOnly? FeedbackDate { get; set; }
 
     public bool? HiddenStatus { get; set; }
 
-    public DateTime FeedbackCreatedAt { get; set; }
+    public DateTime? FeedbackCreatedAt { get; set; }
 
     public virtual Course? Course { get; set; }
 

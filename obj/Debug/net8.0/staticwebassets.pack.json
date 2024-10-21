@@ -109,6 +109,10 @@
       "PackagePath": "staticwebassets\\css\\Login\\register.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Notification\\notification-modal.css",
+      "PackagePath": "staticwebassets\\css\\Notification\\notification-modal.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Notification\\notification.css",
       "PackagePath": "staticwebassets\\css\\Notification\\notification.css"
     },
@@ -129,8 +133,12 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
-      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\AddAchievement.js",
-      "PackagePath": "staticwebassets\\js\\Achievement\\AddAchievement.js"
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\AdminAchievements.js",
+      "PackagePath": "staticwebassets\\js\\Achievement\\AdminAchievements.js"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\LearnerAchievements.js",
+      "PackagePath": "staticwebassets\\js\\Achievement\\LearnerAchievements.js"
     },
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Certificate\\certificates.js",
@@ -467,6 +475,10 @@
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\log\\Log.txt",
+      "PackagePath": "staticwebassets\\lib\\log\\Log.txt"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BrainStormEra.Microsoft.AspNetCore.StaticWebAssets.props",

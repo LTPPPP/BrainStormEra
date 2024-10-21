@@ -22,8 +22,20 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcQWNoaWV2ZW1lbnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievement/AdminAchievements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcQWRtaW5BY2hpZXZlbWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievement/LearnerAchievements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcTGVhcm5lckFjaGlldmVtZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Admin/Analysis.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQW5hbHlzaXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Admin/ManageUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlVXNlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Certificate/Certificates.cshtml]
@@ -90,8 +102,32 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Home/Notification/addNotificationModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxOb3RpZmljYXRpb25cYWRkTm90aWZpY2F0aW9uTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Home/Notification/CreateNotification.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxOb3RpZmljYXRpb25cQ3JlYXRlTm90aWZpY2F0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Home/Notification/EditNotification.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxOb3RpZmljYXRpb25cRWRpdE5vdGlmaWNhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Home/Notification/editNotificationModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxOb3RpZmljYXRpb25cZWRpdE5vdGlmaWNhdGlvbk1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Home/Notification/Notifications.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxOb3RpZmljYXRpb25cTm90aWZpY2F0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Instructor/ViewListOfInstructorCourse.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5zdHJ1Y3RvclxWaWV3TGlzdE9mSW5zdHJ1Y3RvckNvdXJzZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Lesson/CreateLesson.cshtml]
@@ -110,16 +146,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cTG9naW5QYWdlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Notification/CreateNotification.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uXENyZWF0ZU5vdGlmaWNhdGlvbi5jc2h0bWw=
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Profile/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Notification/EditNotification.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uXEVkaXROb3RpZmljYXRpb24uY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Notification/Notifications.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uXE5vdGlmaWNhdGlvbnMuY3NodG1s
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Profile/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Register/Register.cshtml]

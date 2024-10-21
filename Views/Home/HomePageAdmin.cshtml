@@ -1,8 +1,6 @@
 ﻿@page
 @model BrainStormEra.Views.Home.HomePageAdminModel
 @{
-    var fullName = ViewBag.FullName as string;
-    var userPicture = ViewBag.UserPicture as string;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -10,25 +8,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | BrainStormEra</title>
+    <meta name="description" content="Welcome to BrainStormEra Admin Dashboard. Manage courses, users, achievements, and more efficiently.">
+    <meta name="keywords" content="BrainStormEra, Admin Dashboard, Course Management, User Management, Achievements, Certificates, Chatbot">
+    <link rel="canonical" href="https://www.brainstormera.com/admin/dashboard">
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Admin Dashboard | BrainStormEra">
+    <meta property="og:description" content="Welcome to BrainStormEra Admin Dashboard. Manage courses, users, achievements, and more efficiently.">
+    <meta property="og:image" content="https://www.brainstormera.com/lib/img/Login/BrainStormEra_logo.png">
+    <meta property="og:url" content="https://www.brainstormera.com/admin/dashboard">
+    <meta property="og:type" content="website">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Admin Dashboard | BrainStormEra">
+    <meta name="twitter:description" content="Welcome to BrainStormEra Admin Dashboard. Manage courses, users, achievements, and more efficiently.">
+    <meta name="twitter:image" content="https://www.brainstormera.com/lib/img/Login/BrainStormEra_logo.png">
+
+    <!-- CSS Links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="icon" href="~/lib/Login/img/BrainStormEra_logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="~/css/HomePage/landing_page.css" rel="stylesheet" />
+    <link href="~/css/base.css" />
     <link rel="stylesheet" href="~/css/Admin/analysis.css">
-    <link href="~/css/Chatbot/chatbot.css" rel="stylesheet" />
-    <title>BrainStormEra</title>
+    <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
+
 </head>
 
 <body>
-    <header class="container-fluid sticky-header">
+    <header class="container-fluid sticky-header" style="background-color: white;">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
-                    <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                    <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="BrainStormEra Logo" class="logo_img">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -36,17 +52,19 @@
                         <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">ACHIEVEMENT</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Achievements", "Achievement", new { userId = ViewBag.UserId })">ACHIEVEMENT</a>
+                        </li>
                         <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">CHATBOT</a></li>
                     </ul>
                     <div class="profile d-flex align-items-center">
-                        <i class="fas fa-bell icon"></i>
-                        <img src="~/lib/img/User-img/default_user.png" alt="Profile Picture" class="user_img">
-                        <span class="d-none d-md-inline">@fullName</span>
-                        <i class="fas fa-chevron-down d-none d-md-inline"></i>
-                        <a href="@Url.Action("Logout", "Login")" class="d-flex align-items-center">
-                            <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
+                        <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal" data-bs-target="#notificationsModal"></i>
+                        <img src="@ViewBag.UserPicture" alt="Profile Picture" class="user_img" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <span class="d-none d-md-inline">@ViewBag.FullName</span>
+                        <i class="fas fa-chevron-down d-none d-md-inline" aria-hidden="true"></i>
+                        <a href="@Url.Action("Logout", "Login")" class="d-flex align-items-center" aria-label="Logout">
+                            <i class="fa-solid fa-arrow-right-from-bracket exit_icon" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -54,11 +72,10 @@
         </nav>
     </header>
 
-
     <div class="container mt-5">
         <!-- Header Section -->
         <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
-            <img src="" class="img-welcomeheader" alt="Welcome Header">
+            <img src="~/lib/img/WelcomeHeader.png" class="img-welcomeheader" alt="Welcome Header">
             <img src="" class="robotwelcome" alt="Robot Welcome">
         </div>
 
@@ -95,27 +112,18 @@
             </div>
         </div>
     </div>
-    <div class="icon-bot" onclick="toggleChatbot()">
-        <img src="~/lib/img/Bot/bot-icon.png" alt="icon-bot" />
-    </div>
-
-    <div id="chat-container" class="chat-container" style="display: none;">
-        <!-- Add this button where appropriate, e.g., beside the chatbot -->
-        <button id="new-chat-button" class="btn btn-danger">New Chat</button>
-
-        <div id="chat-messages" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
-        <div class="input-group">
-            <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="button" id="send-button" style="background-color : green;">Send</button>
-            </div>
+    @* @await Html.PartialAsync("~/Views/Home/Notification/_NotificationModal.cshtml")
+    @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml")
+    @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml") *@
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog">
+            <h3>Select Users</h3>
+            <ul id="userList">
+                <!-- Danh sách user sẽ được tải từ server -->
+            </ul>
+            <button id="sendToUsers">Send</button>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    @section Scripts {
-        <script src="~/js/Chatbot/chatbot.js"></script>
-    }
-
 
     <footer class="bg-secondary text-white py-4">
         <div class="container">
@@ -123,11 +131,11 @@
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h3>BrainStormEra</h3>
                     <div class="social-icons my-2">
-                        <i class="fab fa-facebook me-2"></i>
-                        <i class="fab fa-instagram me-2"></i>
-                        <i class="fab fa-x-twitter"></i>
+                        <a href="https://facebook.com/brainstormera" aria-label="Facebook"><i class="fab fa-facebook me-2"></i></a>
+                        <a href="https://instagram.com/brainstormera" aria-label="Instagram"><i class="fab fa-instagram me-2"></i></a>
+                        <a href="https://twitter.com/brainstormera" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
                     </div>
-                    <p>2024 by BrainStormEra</p>
+                    <p>2024 by BrainStormEra.</p>
                 </div>
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h4>Contact Us</h4>
@@ -143,11 +151,31 @@
         </div>
     </footer>
 
+    <!-- JavaScript Links -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-        crossorigin="anonymous"></script>
-    <script src="~/js/Chatbot/chatbot.js"></script>
-       
+            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Đảm bảo jQuery đã được chèn -->
+    <script src="~/js/Notification/notification.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#notificationsModal').on('shown.bs.modal', function () {
+                $.get('@Url.Action("Notifications", "Notification")', function (data) {
+                    // Thay thế nội dung của modal-body bằng dữ liệu trả về
+                    $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
+                });
+            });
+        });
+        $(document).on('click', '.add-notification', function () {
+            console.log('Add Notification button clicked');
+            $('#notificationsModal').modal('hide');
+            $('#addNotificationModal').modal('show');
+        });
+
+        console.log('Full Name:', '@ViewBag.FullName');
+        console.log('User Picture:', '@ViewBag.UserPicture');
+    </script>
 </body>
 
 </html>

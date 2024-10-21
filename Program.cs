@@ -1,6 +1,7 @@
 ﻿using BrainStormEra.Controllers;
 using BrainStormEra.Models;
 using BrainStormEra.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra
@@ -21,13 +22,16 @@ namespace BrainStormEra
             builder.Services.AddDbContext<SwpDb7Context>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SwpDb7Context")));
 
-            // Add session handling with configuration
-            builder.Services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromMinutes(60);  // Session timeout after 60 minutes of inactivity
-                options.Cookie.HttpOnly = true;  // Cookie protection from client-side scripts
-                options.Cookie.IsEssential = true;  // Mark cookie as essential
-            });
+            // Add authentication services for cookies
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Login/LoginPage";  // Redirect to login page if unauthorized
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Set cookie expiration time
+                    options.SlidingExpiration = true;
+                    options.Cookie.HttpOnly = true; // Secure the cookie
+                    options.Cookie.IsEssential = true;  // Ensure it's essential for GDPR compliance
+                });
 
             var app = builder.Build();
 
@@ -44,8 +48,8 @@ namespace BrainStormEra
 
             app.UseRouting();
 
-            // Enable session handling
-            app.UseSession();
+            // Enable cookie authentication
+            app.UseAuthentication();
 
             // Enable authorization middleware
             app.UseAuthorization();
@@ -53,7 +57,7 @@ namespace BrainStormEra
             // Map the controller routes with default route settings
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=HomePageAdmin}/{id?}");
+                pattern: "{controller=Login}/{action=LoginPage}/{id?}");
 
             app.Run();
         }

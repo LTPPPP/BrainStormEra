@@ -7,7 +7,7 @@ public partial class Course
 {
     public string CourseId { get; set; } = null!;
 
-    public string CourseName { get; set; } = null!;
+    public string? CourseName { get; set; }
 
     public string? CourseDescription { get; set; }
 
@@ -15,9 +15,11 @@ public partial class Course
 
     public string? CoursePicture { get; set; }
 
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
 
-    public DateTime CourseCreatedAt { get; set; }
+    public string? CreatedBy { get; set; }
+
+    public DateTime? CourseCreatedAt { get; set; }
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
 

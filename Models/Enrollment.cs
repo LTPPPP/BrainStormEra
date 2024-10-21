@@ -17,7 +17,7 @@ public partial class Enrollment
 
     public DateOnly? CertificateIssuedDate { get; set; }
 
-    public DateTime EnrollmentCreatedAt { get; set; }
+    public DateTime? EnrollmentCreatedAt { get; set; }
 
     public virtual Course? Course { get; set; }
 

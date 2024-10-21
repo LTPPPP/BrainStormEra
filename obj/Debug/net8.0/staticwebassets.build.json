@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "3CESz7m26Vh+kfmqmhjKZUiTjsrcDCNowI7crw+QOao=",
+  "Hash": "XdM2W8hyW2ky5alfbJpUiS7B8mEI+a9UE5S0fDxO0M8=",
   "Source": "BrainStormEra",
   "BasePath": "_content/BrainStormEra",
   "Mode": "Default",
@@ -587,6 +587,25 @@
       "OriginalItemSpec": "wwwroot\\css\\Notification\\notification.css"
     },
     {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Notification\\notification-modal.css",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "css/Notification/notification-modal.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\Notification\\notification-modal.css"
+    },
+    {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\site.css",
       "SourceId": "BrainStormEra",
       "SourceType": "Discovered",
@@ -625,12 +644,12 @@
       "OriginalItemSpec": "wwwroot\\favicon.ico"
     },
     {
-      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\AddAchievement.js",
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\AdminAchievements.js",
       "SourceId": "BrainStormEra",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
       "BasePath": "_content/BrainStormEra",
-      "RelativePath": "js/Achievement/AddAchievement.js",
+      "RelativePath": "js/Achievement/AdminAchievements.js",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -641,7 +660,26 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\js\\Achievement\\AddAchievement.js"
+      "OriginalItemSpec": "wwwroot\\js\\Achievement\\AdminAchievements.js"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Achievement\\LearnerAchievements.js",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "js/Achievement/LearnerAchievements.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\Achievement\\LearnerAchievements.js"
     },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Certificate\\certificates.js",
@@ -2238,6 +2276,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\Json\\Chat.json"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\lib\\log\\Log.txt",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "lib/log/Log.txt",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\log\\Log.txt"
     }
   ]
 }

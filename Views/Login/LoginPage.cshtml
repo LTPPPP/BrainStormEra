@@ -86,7 +86,6 @@
             document.querySelector('.sign-in-form')?.addEventListener("submit", (event) => {
                 let username = document.querySelector('input[name="Username"]').value;
                 let password = document.querySelector('input[name="Password"]').value;
-
                 // Perform validation
                 if (!username || !password) {
                     event.preventDefault(); // Prevent form submission if validation fails

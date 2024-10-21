@@ -1,0 +1,43 @@
+﻿<!-- Modal Edit Notification -->
+<div class="modal fade" id="editNotificationModal" tabindex="-1" aria-labelledby="editNotificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="editnotification-container">
+                    <div class="editheader">
+                        <h1>Edit Notification</h1>
+                    </div>
+
+                    <form class="notification-form" id="editNotificationForm">
+                        <input type="hidden" id="editNotificationId" />
+
+                        <div class="form-group">
+                            <label for="editSubject">Title</label>
+                            <input type="text" id="editSubject" placeholder="Title..." />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editContent">Content</label>
+                            <input type="text" id="editContent" placeholder="Content..." />
+                        </div>
+
+                        <div class="form-group select-group">
+                            <label for="editType">Type</label>
+                            <select id="editType">
+                                <option value="Info">Info</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Reminder">Reminder</option>
+                            </select>
+
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="cancel" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="save">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
