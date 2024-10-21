@@ -18,16 +18,16 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = E:\CN\FA24_K5\SWP391\FP\BrainStormEra\BrainStormEra
 build_property._RazorSourceGeneratorDebug = 
 
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievement/Achievements.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcQWNoaWV2ZW1lbnRzLmNzaHRtbA==
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievements/Achievements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRzXEFjaGlldmVtZW50cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievement/AdminAchievements.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcQWRtaW5BY2hpZXZlbWVudHMuY3NodG1s
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievements/AdminAchievements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRzXEFkbWluQWNoaWV2ZW1lbnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievement/LearnerAchievements.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRcTGVhcm5lckFjaGlldmVtZW50cy5jc2h0bWw=
+[E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Achievements/LearnerAchievements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNoaWV2ZW1lbnRzXExlYXJuZXJBY2hpZXZlbWVudHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/CN/FA24_K5/SWP391/FP/BrainStormEra/BrainStormEra/Views/Admin/Analysis.cshtml]

@@ -20,10 +20,11 @@ namespace BrainStormEra.Controllers.Achievement
         [HttpGet]
         public async Task<IActionResult> Achievements()
         {
-            // Retrieve userId from cookies
+            // Retrieve userId and userRole from cookies
             var userId = Request.Cookies["userId"];
+            var userRole = Request.Cookies["userRole"];
 
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userRole))
             {
                 return RedirectToAction("LoginPage", "Login");
             }
@@ -53,9 +54,9 @@ namespace BrainStormEra.Controllers.Achievement
 
                     ViewData["UserId"] = userId;
                     ViewData["Achievements"] = learnerAchievements;
-                    return View("LearnerAchievements");
+                    return View("~/Views/Achievements/LearnerAchievements.cshtml");
 
-                case 1: 
+                case 1: // Admin
                     var allAchievements = await _context.Achievements
                         .Select(a => new
                         {
@@ -74,12 +75,13 @@ namespace BrainStormEra.Controllers.Achievement
 
                     ViewData["UserId"] = userId;
                     ViewData["Achievements"] = allAchievements;
-                    return View("AdminAchievements");
+                    return View("~/Views/Achievements/AdminAchievements.cshtml");
 
                 default:
                     return RedirectToAction("LoginPage", "Login");
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> AddAchievement(string achievementId, string achievementName, string achievementDescription, string achievementIcon, DateTime achievementCreatedAt)
