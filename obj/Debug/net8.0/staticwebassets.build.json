@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ycz1EKhfJKVoNNzYiIedp3FJC1AbVKepzJ56vSQIMQ4=",
+  "Hash": "b7xIlPoL3cX/glR3B8o1WXY9+EC5mIrD8bLd60ysdWM=",
   "Source": "BrainStormEra",
   "BasePath": "_content/BrainStormEra",
   "Mode": "Default",
@@ -2333,6 +2333,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\log\\Log.txt"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\uploads\\Achievement\\A007_cat2.jpg",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "uploads/Achievement/A007_cat2.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\Achievement\\A007_cat2.jpg"
     },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\uploads\\cat.jpg",

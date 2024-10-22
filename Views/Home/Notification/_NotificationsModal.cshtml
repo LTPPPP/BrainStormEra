@@ -26,7 +26,7 @@
             </div>
             <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
                 <div class="notification-container">
-                    <div class="notification-header">
+                    <div class="notification-header d-flex justify-content-between align-items-center">
                         <h1><b>Notifications</b></h1>
 
                         <!-- Kiểm tra userRole từ cookies để hiển thị nút Add Notification -->
@@ -34,6 +34,15 @@
                         {
                             <button type="button" class="btn btn-primary add-notification">Add Notification</button>
                         }
+                    </div>
+
+                    <!-- Select All Checkbox -->
+                    <div class="d-flex justify-content-between align-items-center my-2">
+                        <div>
+                            <input type="checkbox" id="selectAll" />
+                            <label for="selectAll">Select All</label>
+                        </div>
+                        <button type="button" class="btn btn-danger" id="deleteSelected">Delete Selected</button>
                     </div>
 
                     @if (Model != null && Model.Any())
@@ -53,7 +62,10 @@
 
                             <div class="notification-item d-flex justify-content-between align-items-center" data-notification-id="@notification.NotificationId" data-createdby="@notification.CreatedBy">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon">
+                                    <!-- Checkbox for selecting this notification -->
+                                    <input type="checkbox" class="select-notification" data-notification-id="@notification.NotificationId" />
+
+                                    <div class="icon ms-2">
                                         <i class="fas fa-user" aria-hidden="true"></i>
                                     </div>
                                     <div class="content ms-3">
