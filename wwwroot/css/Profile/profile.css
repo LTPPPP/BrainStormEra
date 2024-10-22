@@ -36,7 +36,7 @@
 
 /* Button styling */
 .btn-custom {
-    background-color: #28a745;
+    background-color: var(--secondary-color);
     color: white;
     border-radius: 5px;
     padding: 10px 20px;
@@ -70,3 +70,8 @@
     .profile-card p {
         color: #666;
     }
+
+.title-container {
+    color: var(--text-color);
+    font-weight: bold;
+}

@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding-top: 50px;
     font-family: Arial, sans-serif;
-    background-color: var(--main-color);
+    /*background-color: var(--main-color);*/
 }
 
 .sticky-header {
@@ -160,4 +160,27 @@ body {
     .footer {
         padding: 20px 10px;
     }
+}
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1; /* This ensures the main content grows to fill the available space */
+}
+
+/* Footer should stay at the bottom */
+footer {
+    background-color: var(--button-color);
+    color: var(--white-color);
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
 }

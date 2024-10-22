@@ -117,6 +117,10 @@
       "PackagePath": "staticwebassets\\css\\Notification\\notification.css"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Profile\\editProfile.css",
+      "PackagePath": "staticwebassets\\css\\Profile\\editProfile.css"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Profile\\profile.css",
       "PackagePath": "staticwebassets\\css\\Profile\\profile.css"
     },

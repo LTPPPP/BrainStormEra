@@ -1,5 +1,6 @@
 ﻿using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
 namespace BrainStormEra.Controllers.Account
 {
@@ -12,81 +13,60 @@ namespace BrainStormEra.Controllers.Account
             _context = context;
         }
 
+        // Action to display the profile page
         public IActionResult Index()
         {
             var userId = Request.Cookies["user_id"];
 
             if (string.IsNullOrEmpty(userId))
             {
-                return RedirectToAction("LoginPage", "Login"); // Chuyển hướng về trang đăng nhập nếu không có session
+                return RedirectToAction("LoginPage", "Login");
             }
+
             var account = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
 
             if (account == null)
             {
-                return NotFound(); // Nếu không tìm thấy tài khoản thì trả về lỗi NotFound
+                return NotFound();
             }
 
-            return View(account); // Truyền thông tin tài khoản đến view để hiển thị
+            return View(account);
         }
 
-        public IActionResult RedirectToHome()
-        {
-            // Retrieve the user_id and user_role from cookies
-            var userId = Request.Cookies["user_id"];
-            var userRole = Request.Cookies["user_role"];
-
-            // Check if user_id or user_role is missing, redirect to login page if necessary
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userRole))
-            {
-                return RedirectToAction("LoginPage", "Login");
-            }
-
-            // Redirect based on the user's role
-            switch (userRole)
-            {
-                case "1":  // Admin role
-                    return RedirectToAction("HomepageAdmin", "HomePageAdmin");
-                case "2":  // Instructor role
-                    return RedirectToAction("HomePageInstructor", "HomePageInstructor");
-                case "3":  // Learner role
-                    return RedirectToAction("HomePageLearner", "HomePageLearner");
-                default:   // Unknown role, redirect to login page
-                    return RedirectToAction("LoginPage", "Login");
-            }
-        }
-
-
+        // Action to edit profile
         [HttpGet]
         public IActionResult Edit()
         {
-
             var userId = Request.Cookies["user_id"];
 
             if (string.IsNullOrEmpty(userId))
             {
-                return RedirectToAction("LoginPage", "Login"); // Chuyển hướng về trang đăng nhập nếu không có session
+                return RedirectToAction("LoginPage", "Login");
             }
+
             var account = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
 
             if (account == null)
             {
-                return NotFound(); // Nếu không tìm thấy tài khoản thì trả về lỗi NotFound
+                return NotFound();
             }
 
-            return View(account); // Truyền thông tin tài khoản đến view để hiển thị
+            return View(account);
         }
 
+        // Action to post profile edits
+        // Action to post profile edits
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(BrainStormEra.Models.Account account, IFormFile avatar)
         {
             if (ModelState.IsValid)
             {
+                // Lấy thông tin tài khoản người dùng từ database
                 var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == account.UserId);
                 if (accountInDb == null) return NotFound();
 
-                // Cập nhật các trường thông tin khác của tài khoản
+                // Cập nhật thông tin người dùng
                 accountInDb.FullName = account.FullName;
                 accountInDb.UserEmail = account.UserEmail;
                 accountInDb.PhoneNumber = account.PhoneNumber;
@@ -94,12 +74,12 @@ namespace BrainStormEra.Controllers.Account
                 accountInDb.UserAddress = account.UserAddress;
                 accountInDb.DateOfBirth = account.DateOfBirth;
 
-                // Xử lý logic giữ nguyên avatar cũ nếu không có ảnh mới
+                // Xử lý avatar mới nếu có
                 if (avatar != null && avatar.Length > 0)
                 {
                     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
-                    // Tạo thư mục uploads nếu chưa có
+                    // Tạo thư mục nếu chưa tồn tại
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
@@ -108,24 +88,24 @@ namespace BrainStormEra.Controllers.Account
                     var fileName = Path.GetFileName(avatar.FileName);
                     var filePath = Path.Combine(uploadsFolder, fileName);
 
+                    // Lưu file avatar vào thư mục uploads
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         avatar.CopyTo(stream);
                     }
 
-                    // Cập nhật đường dẫn ảnh mới vào cơ sở dữ liệu
+                    // Cập nhật đường dẫn ảnh trong database
                     accountInDb.UserPicture = $"/uploads/{fileName}";
                 }
-                // Không cập nhật avatar nếu không có ảnh mới
-                else
-                {
-                    accountInDb.UserPicture = accountInDb.UserPicture; // Giữ nguyên avatar hiện tại
-                }
 
+                // Lưu các thay đổi vào database
                 _context.SaveChanges();
+
+                // Sau khi cập nhật, chuyển hướng về trang profile
                 return RedirectToAction("Index");
             }
 
+            // Nếu có lỗi, trả về view hiện tại với các thông tin lỗi
             return View(account);
         }
 

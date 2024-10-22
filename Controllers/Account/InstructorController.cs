@@ -15,7 +15,7 @@ namespace BrainStormEra.Controllers.Account
 
         public IActionResult ViewListOfInstructorCourse()
         {
-            var userId = HttpContext.Session.GetString("user_id");
+            var userId = Request.Cookies["userId"];
             if (userId.IsNullOrEmpty())
             {
                 return Unauthorized();

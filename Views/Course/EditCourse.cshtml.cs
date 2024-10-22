@@ -14,7 +14,7 @@ namespace BrainStormEra.Views.Course
         public string CourseId { get; set; } = null!;
 
 
-        [DisplayName("CourseName")]
+        [DisplayName("CourseName")] 
         [Required(ErrorMessage = "Course Name is required")]
         [StringLength(100, ErrorMessage = "Course Name cannot exceed 100 characters")]
         public string CourseName { get; set; } = null!;

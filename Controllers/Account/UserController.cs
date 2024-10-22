@@ -16,8 +16,5 @@ namespace BrainStormEra.Controllers.Account
             _context = context;
         }
 
-
-
-
     }
 }

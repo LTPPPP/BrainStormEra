@@ -12,6 +12,7 @@ namespace BrainStormEra
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddHttpContextAccessor();
             // Register GeminiApiService to be injected when needed
             builder.Services.AddHttpClient<GeminiApiService>();
 

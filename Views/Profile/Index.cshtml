@@ -28,12 +28,12 @@
     </header>
 
     <!-- Main Content Section -->
-    <main class="container mt-5">
+    <main class="container mt-5" style="background-color : white ;">
         <div class="row">
             <!-- Profile Card -->
             <div class="col-md-4">
                 <div class="profile-card">
-                    <img class="card-img-top" src="@Model.UserPicture ?? '/images/default.png'" alt="User Picture" />
+                    <img class="card-img-top" src="@Model.UserPicture ?? '~/lib/img/User-img/default_user.png'" alt="User Picture" />
                     <h4>@Model.FullName</h4>
                     <p>@Model.UserEmail</p>
                 </div>
@@ -41,7 +41,7 @@
 
             <!-- Profile Details Section -->
             <div class="col-md-8">
-                <h2 class="text-primary">@Model.FullName's Profile</h2>
+                <h2 class="title-container">@Model.FullName's Profile</h2>
                 <table class="table table-hover table-bordered">
                     <tbody>
                         <tr>

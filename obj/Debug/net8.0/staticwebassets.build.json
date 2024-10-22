@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "8TrraAWyxYGxlx2KlHLrcPILr+y4y18FcyDV+uMlcKc=",
+  "Hash": "yu6KYl2QScouRG7c/F83EEdpVpsQ9dMwTdmH4W99rqk=",
   "Source": "BrainStormEra",
   "BasePath": "_content/BrainStormEra",
   "Mode": "Default",
@@ -604,6 +604,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\Notification\\notification-modal.css"
+    },
+    {
+      "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Profile\\editProfile.css",
+      "SourceId": "BrainStormEra",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\",
+      "BasePath": "_content/BrainStormEra",
+      "RelativePath": "css/Profile/editProfile.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\Profile\\editProfile.css"
     },
     {
       "Identity": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Profile\\profile.css",
