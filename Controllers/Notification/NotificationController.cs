@@ -140,8 +140,6 @@ namespace BrainStormEra.Controllers
         }
 
 
-
-
         [HttpPost]
         public IActionResult EditNotification([FromBody] Notification updatedNotification)
         {

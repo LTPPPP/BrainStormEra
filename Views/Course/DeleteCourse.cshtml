@@ -1,7 +1,6 @@
-﻿@page
-@model BrainStormEra.Views.Course.DeleteCourseModel
-@{
+﻿﻿@{
 }
+@model List<DeleteCourseViewModel>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,17 +8,27 @@
     <meta charset="UTF-8">
     <title>Course Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="~/css/Course/DeleteCourse.css">
+
     <link rel="stylesheet" href="~/css/base.css">
-    <script src="~/js/Course/DeleteCourse.js" defer></script>
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
-  
+    <link rel="stylesheet" href="~/css/Course/DeleteCourse.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-wEmeIV1mKuiNp12S5ZgFv3qdn7mQbso5mZlDR5A8P75jph8qf7ST8f7nU5V0WLFp" crossorigin="anonymous" defer></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+            crossorigin="anonymous" defer></script>
+
+    <script src="~/js/Course/DeleteCourse.js" defer></script>
+
+
 </head>
 
-<body>
+<body class="delete-course">
+
     <header class="container-fluid">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
@@ -27,7 +36,7 @@
                     <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -69,220 +78,79 @@
             </div>
             <div class="search d-flex align-items-center mt-2">
                 <input class="form-control mb-0 mr-2 search-input" placeholder="Search..." type="text" />
-                <button class="btn btn-success add-course-btn">Add Course</button>
+                <a href="/Course/CreateCourse" class="btn btn-success add-course-btn">Add Course</a>
             </div>
         </div>
 
-        <!-- Courses Section -->
+
         <div class="courses row">
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
+
+            @foreach (var c in Model)
+            {
+                <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
+                    <div class="card h-100">
+                        <a class="btn btn-danger position-absolute remove-button" href="javascript:void(0);" onclick="confirmDelete('@c.CourseId')">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <a href="#">
+                            <img class="card-img-top" src="@c.CoursePicture" alt="Course Image">
+                            <div class="card-body">
+                                <h5 class="card-title">@c.CourseName</h5>
+                                <p class="card-text text-muted"> @c.Price</p>
+                                <p class="card-text text-muted">Create by @c.CreatedBy</p>
+                                <div class="rating">
+                                    <span class="stars" data-rating="@c.StarRating"></span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> E dit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Repeat similar structure for other course cards -->
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
+                            <div class="card-footer">
+                                <a href="/Course/EditCourse/@c.CourseId" class="edit btn btn-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
                             </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-
-
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-
-
-
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-
-
-
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-
-
-            <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
-                <div class="card h-100">
-                    <button class="remove btn btn-danger position-absolute remove-button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <a href="#">
-                        <img class="card-img-top" src="../assests/img/course.png" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">ReactJS for Beginners</h5>
-                            <p class="card-text text-muted">Created by Sarah Lee</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="5"></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="edit btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            
-
-            <!-- Continue with other course cards as needed -->
-        </div>
-    </div>
-
-
-    <footer class="bg-secondary text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h3>BrainStormEra</h3>
-                    <div class="social-icons my-2">
-                        <i class="fab fa-facebook me-2"></i>
-                        <i class="fab fa-instagram me-2"></i>
-                        <i class="fab fa-x-twitter"></i>
+                        </a>
                     </div>
-                    <p>2024 by BrainStormEra.</p>
                 </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h4>Contact Us</h4>
-                    <p class="mb-1">Tel: 123-456-789</p>
-                    <p>Email: brainstormera@edu.vn</p>
-                </div>
-                <div class="col-md-4">
-                    <h4>Address</h4>
-                    <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
-                    <p>District, Cantho, Vietnam</p>
+            }
+        </div>
+        </div>
+
+
+        <footer class="bg-secondary text-white py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <h3>BrainStormEra</h3>
+                        <div class="social-icons my-2">
+                            <i class="fab fa-facebook me-2"></i>
+                            <i class="fab fa-instagram me-2"></i>
+                            <i class="fab fa-x-twitter"></i>
+                        </div>
+                        <p>2024 by BrainStormEra.</p>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <h4>Contact Us</h4>
+                        <p class="mb-1">Tel: 123-456-789</p>
+                        <p>Email: brainstormera@edu.vn</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>Address</h4>
+                        <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
+                        <p>District, Cantho, Vietnam</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
-    <!-- Bootstrap and jQuery JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Bootstrap and jQuery JS -->
+
+        <script>
+            function confirmDelete(courseId) {
+                if (confirm('Are you sure you want to delete this course?')) {
+                    window.location.href = '/Course/Delete/' + courseId;
+                }
+            }
+        </script>
 </body>
 
 </html>

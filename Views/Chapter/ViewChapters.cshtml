@@ -1,7 +1,6 @@
-﻿@page
-@model BrainStormEra.Views.Chapter.ChaptersModel
-@{
+﻿@{
 }
+@model List<Chapter>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,81 +13,75 @@
     <!-- Base CSS (Common Styles) -->
     <link rel="stylesheet" href="~/css/Chapter/ViewChapter.css">
     <!-- Page-Specific Styles -->
-    <link rel="stylesheet" href="~/css/Lesson/ManageLesson.css">
+    <link href="~/css/baseChapter.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
 </head>
 
 <body>
-    <div class="container-fluid">
-        <header class="container-fluid">
-            <nav class="navbar navbar-expand-lg">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#">
-                        <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+    <header class="container-fluid">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
-                        </ul>
-                        <div class="profile d-flex align-items-center">
-                            <a href="./login.html" class="btn_login">Log In</a>
-                        </div>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
+                    </ul>
+                    <div class="profile d-flex align-items-center">
+                        <i class="fas fa-bell icon"></i>
+                        <img src="../assests/img/landing_page/user.jpg" alt="Profile Picture" class="user_img">
+                        <span class="d-none d-md-inline">User</span>
+                        <i class="fas fa-chevron-down d-none d-md-inline"></i>
+                        <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
                     </div>
                 </div>
-            </nav>
-        </header>
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 bg-light sidebar p-3">
-                <a class="btn btn-outline-secondary w-100 mb-3" href="../html/AddNewChapter.html">Add Chapter</a>
-                <a class="btn btn-outline-secondary w-100 mb-3" href="../html/DeleteChapter.html">Delete Chapter</a>
-                <a class="btn btn-primary w-100" href="../html/ViewChapter.html">View Chapter</a>
             </div>
+        </nav>
+    </header>
 
-            <!-- Main Content for View Chapter -->
-            <div class="col-md-9 d-flex align-items-start vh-100">
-                <div class="card w-100">
-                    <div class="card-header gradient-header">
-                        VIEW CHAPTER
-                    </div>
-                    <div class="card-body">
-                        <!-- List of chapters with edit and manage lessons buttons -->
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5>Chapter 1: Introduction</h5>
-                                <a class="btn btn-outline-primary btn-sm" href="../html/EditChapter.html">Edit</a>
-                            </div>
-                            <p>This chapter covers the basics of the course.</p>
-                            <a class="btn btn-primary" href="../html/ManageLesson.html">Manage Lessons</a>
-                        </div>
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 bg-light sidebar p-3">
+            <a class="btn btn-primary w-100 mb-3" href="@Url.Action("ChapterManagement", "Chapter", new { courseId = @ViewBag.CourseId })">Add Chapter</a>
+            <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter", new { courseId = @ViewBag.CourseId })">Delete Chapter</a>
+            <a class="btn btn-outline-secondary w-100" href="@Url.Action("ViewChapters", "Chapter", new { courseId = @ViewBag.CourseId })">View Chapter</a>
+        </div>
 
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5>Chapter 2: Install Environment</h5>
-                                <a class="btn btn-outline-primary btn-sm" href="../html/EditChapter.html">Edit</a>
-                            </div>
-                            <p>This chapter dives into more complex topics.</p>
-                            <a class="btn btn-primary" href="../html/ManageLesson.html">Manage Lessons</a>
-                        </div>
+        <!-- Main Content for View Chapter -->
+        <div class="col-md-9 d-flex align-items-start vh-100">
+            <div class="card w-100">
+                <div class="card-header gradient-header">
+                    VIEW CHAPTER
+                </div>
+                <div class="card-body">
+                    <!-- List of chapters with edit and manage lessons buttons -->
+                    @foreach (var c in Model)
+                    {
+                        <input type="hidden" name="CourseId" value="@ViewBag.CourseId" />
 
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5>Chapter 3: Practice</h5>
-                                <a class="btn btn-outline-primary btn-sm" href="../html/EditChapter.html">Edit</a>
+                                <h5>@c.ChapterName</h5>
+                                <a class="btn btn-outline-primary btn-sm" href="/Chapter/EditChapter/@c.ChapterId">Edit</a>
                             </div>
-                            <p>This chapter dives into more complex topics.</p>
+                            <p>@c.ChapterDescription</p>
                             <a class="btn btn-primary" href="../html/ManageLesson.html">Manage Lessons</a>
                         </div>
-                    </div>
+                    }
+
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <footer class="bg-secondary text-white py-4">

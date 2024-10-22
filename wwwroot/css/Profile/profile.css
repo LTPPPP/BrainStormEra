@@ -1,0 +1,72 @@
+﻿.logo_img {
+    max-width: 70px;
+    height: auto;
+}
+
+.profile .user_img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+.profile {
+    font-size: 1.4rem;
+}
+
+.table {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px var(--box-shadow-color);
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+    .table th {
+        background-color: #4682b4;
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .table td {
+        padding: 12px;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+/* Button styling */
+.btn-custom {
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1.4rem;
+}
+
+    .btn-custom:hover {
+        background-color: #218838;
+    }
+
+/* Profile Card customization */
+.profile-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px var(--box-shadow-color);
+    text-align: center;
+    padding: 20px;
+}
+
+    .profile-card img {
+        max-width: 100px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+
+    .profile-card h4 {
+        font-size: 1.6rem;
+        color: #333;
+    }
+
+    .profile-card p {
+        color: #666;
+    }

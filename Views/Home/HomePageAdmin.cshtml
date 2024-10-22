@@ -61,10 +61,12 @@
                     </ul>
                     <div class="profile d-flex align-items-center">
                         <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal" data-bs-target="#notificationsModal"></i>
-                        <img src="@ViewBag.UserPicture" alt="Profile Picture" class="user_img" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <a href="@Url.Action("Index", "Profile")">
+                            <img src="@ViewBag.UserPicture" alt="Profile Picture" class="user_img" style="width: 40px; height: 40px; border-radius: 50%;">
+                        </a>
                         <span class="d-none d-md-inline">@ViewBag.FullName</span>
                         <i class="fas fa-chevron-down d-none d-md-inline" aria-hidden="true"></i>
-                        <a href="@Url.Action("Logout", "Login")" class="d-flex align-items-center" aria-label="Logout">
+                        <a href="#" onclick="confirmLogout()" class="d-flex align-items-center" aria-label="Logout">
                             <i class="fa-solid fa-arrow-right-from-bracket exit_icon" aria-hidden="true"></i>
                         </a>
                     </div>
@@ -76,7 +78,7 @@
     <div class="container mt-5">
         <!-- Header Section -->
         <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
-            <img src="~/lib/img/WelcomeHeader.png" class="img-welcomeheader" alt="Welcome Header">
+            <img src="~/lib/img/Bot/bot-icon.png" class="img-welcomeheader" alt="Welcome Header">
             <img src="" class="robotwelcome" alt="Robot Welcome">
         </div>
 
@@ -194,6 +196,14 @@
 
         console.log('Full Name:', '@ViewBag.FullName');
         console.log('User Picture:', '@ViewBag.UserPicture');
+
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to logout?");
+
+            if (result) {
+                window.location.href = '@Url.Action("Logout", "Login")';
+            }
+        }
     </script>
 </body>
 

@@ -14,7 +14,7 @@ namespace BrainStormEra.Controllers.Account
 
         public IActionResult Index()
         {
-            var userId = HttpContext.Session.GetString("user_id");
+            var userId = Request.Cookies["user_id"];
 
             if (string.IsNullOrEmpty(userId))
             {
@@ -30,12 +30,38 @@ namespace BrainStormEra.Controllers.Account
             return View(account); // Truyền thông tin tài khoản đến view để hiển thị
         }
 
+        public IActionResult RedirectToHome()
+        {
+            // Retrieve the user_id and user_role from cookies
+            var userId = Request.Cookies["user_id"];
+            var userRole = Request.Cookies["user_role"];
+
+            // Check if user_id or user_role is missing, redirect to login page if necessary
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userRole))
+            {
+                return RedirectToAction("LoginPage", "Login");
+            }
+
+            // Redirect based on the user's role
+            switch (userRole)
+            {
+                case "1":  // Admin role
+                    return RedirectToAction("HomepageAdmin", "HomePageAdmin");
+                case "2":  // Instructor role
+                    return RedirectToAction("HomePageInstructor", "HomePageInstructor");
+                case "3":  // Learner role
+                    return RedirectToAction("HomePageLearner", "HomePageLearner");
+                default:   // Unknown role, redirect to login page
+                    return RedirectToAction("LoginPage", "Login");
+            }
+        }
+
 
         [HttpGet]
         public IActionResult Edit()
         {
 
-            var userId = HttpContext.Session.GetString("user_id");
+            var userId = Request.Cookies["user_id"];
 
             if (string.IsNullOrEmpty(userId))
             {

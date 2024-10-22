@@ -1,5 +1,4 @@
-﻿@page
-@model BrainStormEra.Views.Chapter.EditChapterModel
+﻿@model Chapter
 @{
 }
 <!DOCTYPE html>
@@ -19,13 +18,44 @@
 </head>
 
 <body>
+
+
+      <header class="container-fluid">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
+                    </ul>
+                    <div class="profile d-flex align-items-center">
+                        <i class="fas fa-bell icon"></i>
+                        <img src="../assests/img/landing_page/user.jpg" alt="Profile Picture" class="user_img">
+                        <span class="d-none d-md-inline">User</span>
+                        <i class="fas fa-chevron-down d-none d-md-inline"></i>
+                        <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 bg-light sidebar p-3">
-                <a class="btn btn-outline-secondary w-100 mb-3" href="../html/AddNewChapter.html">Add Chapter</a>
-                <a class="btn btn-outline-secondary w-100 mb-3" href="../html/DeleteChapter.html">Delete Chapter</a>
-                <a class="btn btn-primary w-100 mb-3" href="../html/ViewChapter.html">View Chapter</a>
+                <a class="btn btn-primary w-100 mb-3" href="@Url.Action("ChapterManagement", "Chapter", new { courseId = @ViewBag.CourseId })">Add Chapter</a>
+                <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter", new { courseId = @ViewBag.CourseId })">Delete Chapter</a>
+                <a class="btn btn-outline-secondary w-100" href="@Url.Action("ViewChapters", "Chapter", new { courseId = @ViewBag.CourseId })">View Chapter</a>
             </div>
 
             <!-- Main Content for Edit Chapter -->
@@ -35,23 +65,32 @@
                         VIEW CHAPTER > EDIT CHAPTER
                     </div>
                     <div class="card-body">
-                        <form>
+
+                        <form method="post">
+                            <input type="hidden" asp-for="CourseId" />
                             <!-- Chapter Title -->
+                            <input type="hidden" asp-for="ChapterId" />
+                           
                             <div class="mb-3">
                                 <label for="chapterTitle" class="form-label">Title Chapter</label>
-                                <input type="text" class="form-control" id="chapterTitle" value="Introduction">
+                                <input asp-for="ChapterName" type="text" class="form-control" id="chapterTitle" >
+                                <span asp-validation-for="ChapterId" class="text-danger"></span>
                             </div>
                             <!-- Chapter Description -->
                             <div class="mb-3">
                                 <label for="chapterDescription" class="form-label">Chapter Description</label>
-                                <textarea class="form-control" id="chapterDescription"
+                                <textarea asp-for="ChapterDescription"  class="form-control" id="chapterDescription"
                                     rows="5">This chapter dives into more complex topics.</textarea>
+                                <span asp-validation-for="ChapterName" class="text-danger"></span>
+
                             </div>
                             <!-- Save Button -->
                             <div class="text-center mt-2">
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="submit" class="btn btn-primary" style="z-index: 1000;">Save</button>
                             </div>
                         </form>
+                       
+
                     </div>
                 </div>
             </div>

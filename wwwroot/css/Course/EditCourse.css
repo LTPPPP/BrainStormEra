@@ -1,6 +1,7 @@
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--light-blue-color);
+    padding-add : 0;
 }
 
 .sidebar {
