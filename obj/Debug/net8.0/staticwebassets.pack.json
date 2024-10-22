@@ -489,6 +489,10 @@
       "PackagePath": "staticwebassets\\lib\\log\\Log.txt"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\uploads\\cat.jpg",
+      "PackagePath": "staticwebassets\\uploads\\cat.jpg"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BrainStormEra.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },

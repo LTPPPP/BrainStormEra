@@ -67,47 +67,92 @@ namespace BrainStormEra.Controllers.Account
 
             if (ModelState.IsValid)
             {
-                // Get the user's account from the database
-                var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
-                if (accountInDb == null) return NotFound();
-
-                // Update the account details
-                accountInDb.FullName = account.FullName;
-                accountInDb.UserEmail = account.UserEmail;
-                accountInDb.PhoneNumber = account.PhoneNumber;
-                accountInDb.Gender = account.Gender;
-                accountInDb.UserAddress = account.UserAddress;
-                accountInDb.DateOfBirth = account.DateOfBirth;
-
-                // Handle new avatar upload if available
-                if (avatar != null && avatar.Length > 0)
+                try
                 {
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    // Get the user's account from the database
+                    var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
+                    if (accountInDb == null) return NotFound();
 
-                    if (!Directory.Exists(uploadsFolder))
+                    // Update the account details
+                    accountInDb.FullName = account.FullName;
+                    accountInDb.UserEmail = account.UserEmail;
+                    accountInDb.PhoneNumber = account.PhoneNumber;
+                    accountInDb.Gender = account.Gender;
+                    accountInDb.UserAddress = account.UserAddress;
+                    accountInDb.DateOfBirth = account.DateOfBirth;
+
+                    // Handle new avatar upload if available
+                    if (avatar != null && avatar.Length > 0)
                     {
-                        Directory.CreateDirectory(uploadsFolder);
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                        if (!Directory.Exists(uploadsFolder))
+                        {
+                            Directory.CreateDirectory(uploadsFolder);
+                        }
+
+                        var fileName = Path.GetFileName(avatar.FileName);
+                        var filePath = Path.Combine(uploadsFolder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            avatar.CopyTo(stream);
+                        }
+
+                        // Update the user's picture path in the database
+                        accountInDb.UserPicture = $"/uploads/{fileName}";
                     }
 
-                    var fileName = Path.GetFileName(avatar.FileName);
-                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    // Save the changes back to the database
+                    var result = _context.SaveChanges();
+                    Console.WriteLine($"{result} record(s) updated.");
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        avatar.CopyTo(stream);
-                    }
-
-                    // Update the user's picture path in the database
-                    accountInDb.UserPicture = $"/uploads/{fileName}";
+                    return RedirectToAction("Index");
                 }
-
-                // Save the changes back to the database
-                _context.SaveChanges();
-
-                return RedirectToAction("Index");
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating profile: {ex.Message}");
+                    ModelState.AddModelError("", "An error occurred while updating your profile.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("ModelState is not valid");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
 
             return View(account);
         }
+        public IActionResult RedirectToHome()
+        {
+            // Kiểm tra xem các cookie đã tồn tại chưa
+            var userIdCookie = Request.Cookies["user_id"];
+            var userRoleCookie = Request.Cookies["user_role"];
+
+            if (userIdCookie != null && userRoleCookie != null)
+            {
+                int userRole = int.Parse(userRoleCookie);
+
+                // Điều hướng dựa vào userRole
+                switch (userRole)
+                {
+                    case 1:
+                        return RedirectToAction("HomepageAdmin", "HomePageAdmin");
+                    case 2:
+                        return RedirectToAction("HomePageInstructor", "HomePageInstructor");
+                    case 3:
+                        return RedirectToAction("HomePageLearner", "HomePageLearner");
+                    default:
+                        return RedirectToAction("LoginPage", "Login");
+                }
+            }
+
+            // Nếu không có cookie, chuyển về trang login
+            return RedirectToAction("LoginPage", "Login");
+        }
+
     }
 }

@@ -1,0 +1,26 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<link href="~/css/Chatbot/chatbot.css" rel="stylesheet" />
+<div class="icon-bot" onclick="toggleChatbot()">
+    <img src="~/lib/img/Bot/bot-icon.png" alt="icon-bot" />
+</div>
+<div id="chat-container" class="chat-container" style="display: none;">
+    <!-- Add this button where appropriate, e.g., beside the chatbot -->
+    <button id="new-chat-button" class="btn btn-danger">New Chat</button>
+    <div id="chat-messages" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+    <div class="input-group">
+        <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" id="send-button" style="background-color : green;">Send</button>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+@section Scripts {
+    <script src="~/js/Chatbot/chatbot.js"></script>
+}
+
+<script src="~/js/Chatbot/chatbot.js"></script>

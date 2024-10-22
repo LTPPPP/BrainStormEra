@@ -18,7 +18,7 @@
     <header class="container-fluid sticky-header" style="background-color: white;">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-                <a class="navbar-brand" href="@Url.Action("RedirectToHome", "Profile")">
+                <a class="navbar-brand" href="@Url.Action("RedirectToHome", "Login")">
                     <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="BrainStormEra Logo" class="logo_img">
                 </a>
             </div>
@@ -116,7 +116,6 @@
         </div>
     </footer>
 
-    <!-- JS for Avatar Preview and Form Validation -->
     <script>
         function previewAvatar() {
             const file = document.getElementById('avatarUpload').files[0];

@@ -20,68 +20,13 @@
 </head>
 
 <body>
-    <header class="container-fluid sticky-header" style="background-color: white;">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="BrainStormEra Logo" class="logo_img">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
-                    </ul>
-                    <div class="profile d-flex align-items-center">
-                        <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal" data-bs-target="#notificationsModal"></i>
-                        <a href="@Url.Action("Index", "Profile")">
-                            <img src="@ViewBag.UserPicture" alt="Profile Picture" class="user_img" style="width: 40px; height: 40px; border-radius: 50%;">
-                        </a>
-                        <span class="d-none d-md-inline">@ViewBag.FullName</span>
-                        <i class="fas fa-chevron-down d-none d-md-inline" aria-hidden="true"></i>
-                        <a href="#" onclick="confirmLogout()" class="d-flex align-items-center" aria-label="Logout">
-                            <i class="fa-solid fa-arrow-right-from-bracket exit_icon" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
+    @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
 
     @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml")
     @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml")
     @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml")
-
-    <footer class="bg-secondary text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h3>BrainStormEra</h3>
-                    <div class="social-icons my-2">
-                        <a href="https://facebook.com/brainstormera" aria-label="Facebook"><i class="fab fa-facebook me-2"></i></a>
-                        <a href="https://instagram.com/brainstormera" aria-label="Instagram"><i class="fab fa-instagram me-2"></i></a>
-                        <a href="https://twitter.com/brainstormera" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-                    </div>
-                    <p>2024 by BrainStormEra.</p>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h4>Contact Us</h4>
-                    <p class="mb-1">Tel: 123-456-789</p>
-                    <p>Email: brainstormera@edu.vn</p>
-                </div>
-                <div class="col-md-4">
-                    <h4>Address</h4>
-                    <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
-                    <p>District, Cantho, Vietnam</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"

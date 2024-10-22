@@ -4,7 +4,6 @@ using BrainStormEra.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace BrainStormEra.Controllers.Achievement
 {
@@ -46,11 +45,6 @@ namespace BrainStormEra.Controllers.Achievement
                     })
                     .ToListAsync();
 
-                if (learnerAchievements == null || learnerAchievements.Count == 0)
-                {
-                    return NotFound(); // Return 404 error if no achievements found for the learner
-                }
-
                 ViewData["UserId"] = userId;
                 ViewData["Achievements"] = learnerAchievements;
                 return View("~/Views/Achievements/LearnerAchievements.cshtml");
@@ -73,11 +67,6 @@ namespace BrainStormEra.Controllers.Achievement
                     .OrderBy(a => a.AchievementId)
                     .ToListAsync();
 
-                if (allAchievements == null || allAchievements.Count == 0)
-                {
-                    return NotFound(); // Return 404 error if no achievements found for the admin
-                }
-
                 ViewData["UserId"] = userId;
                 ViewData["Achievements"] = allAchievements;
                 return View("~/Views/Achievements/AdminAchievements.cshtml");
@@ -87,17 +76,15 @@ namespace BrainStormEra.Controllers.Achievement
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAchievement(string achievementId, string achievementName, string achievementDescription, string achievementIcon, DateTime achievementCreatedAt)
+        public async Task<IActionResult> AddAchievement(string achievementName, string achievementDescription, string achievementIcon, DateTime achievementCreatedAt)
         {
-            var existingAchievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
-            if (existingAchievement != null)
-            {
-                return Json(new { success = false, message = "Achievement ID already exists!" });
-            }
+            // Generate the AchievementId based on the last achievement
+            var lastAchievement = await _context.Achievements.OrderByDescending(a => a.AchievementId).FirstOrDefaultAsync();
+            var nextId = lastAchievement == null ? "A001" : $"A{int.Parse(lastAchievement.AchievementId.Substring(1)) + 1:D3}";
 
             var newAchievement = new BrainStormEra.Models.Achievement
             {
-                AchievementId = achievementId,
+                AchievementId = nextId,
                 AchievementName = achievementName,
                 AchievementDescription = achievementDescription,
                 AchievementIcon = achievementIcon,
@@ -107,31 +94,7 @@ namespace BrainStormEra.Controllers.Achievement
             _context.Achievements.Add(newAchievement);
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Achievement added successfully!" });
-        }
-
-        // Get Achievement for Edit
-        [HttpGet]
-        public async Task<IActionResult> GetAchievement(string achievementId)
-        {
-            var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
-            if (achievement == null)
-            {
-                return Json(new { success = false, message = "Achievement not found!" });
-            }
-
-            return Json(new
-            {
-                success = true,
-                data = new
-                {
-                    achievement.AchievementId,
-                    achievement.AchievementName,
-                    achievement.AchievementDescription,
-                    achievement.AchievementIcon,
-                    achievement.AchievementCreatedAt
-                }
-            });
+            return RedirectToAction("AdminAchievements");
         }
 
         [HttpPost]
@@ -150,51 +113,22 @@ namespace BrainStormEra.Controllers.Achievement
 
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Achievement updated successfully!" });
+            return RedirectToAction("AdminAchievements");
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteAchievement([FromBody] JsonElement json)
+        public async Task<IActionResult> DeleteAchievement(string achievementId)
         {
-            try
+            var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
+            if (achievement == null)
             {
-                var achievementId = json.GetProperty("achievementId").GetString();
-
-                var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
-                if (achievement == null)
-                {
-                    return Json(new { success = false, message = "Achievement not found!" });
-                }
-
-                _context.Achievements.Remove(achievement);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Achievement deleted successfully!" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error occurred: {ex.Message}" });
-            }
-        }
-
-        // Get Next Achievement ID (for auto increment)
-        [HttpGet]
-        public async Task<IActionResult> GetNextAchievementId()
-        {
-            var lastAchievement = await _context.Achievements
-                .OrderByDescending(a => a.AchievementId)
-                .FirstOrDefaultAsync();
-
-            if (lastAchievement == null)
-            {
-                return Json(new { success = true, nextId = "A001" });
+                return Json(new { success = false, message = "Achievement not found!" });
             }
 
-            var nextIdNumber = int.Parse(lastAchievement.AchievementId.Substring(1)) + 1;
-            var nextId = "A" + nextIdNumber.ToString("D3");
+            _context.Achievements.Remove(achievement);
+            await _context.SaveChangesAsync();
 
-            return Json(new { success = true, nextId });
+            return Json(new { success = true, message = "Achievement deleted successfully!" });
         }
     }
 }
-

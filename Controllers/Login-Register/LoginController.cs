@@ -89,5 +89,30 @@ namespace BrainStormEra.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("LoginPage", "Login");
         }
+        public IActionResult RedirectToHome()
+        {
+            var userIdCookie = Request.Cookies["user_id"];
+            var userRoleCookie = Request.Cookies["user_role"];
+
+            if (userIdCookie != null && userRoleCookie != null)
+            {
+                int userRole = int.Parse(userRoleCookie);
+
+                switch (userRole)
+                {
+                    case 1:
+                        return RedirectToAction("HomepageAdmin", "HomePageAdmin");
+                    case 2:
+                        return RedirectToAction("HomePageInstructor", "HomePageInstructor");
+                    case 3:
+                        return RedirectToAction("HomePageLearner", "HomePageLearner");
+                    default:
+                        return RedirectToAction("LoginPage", "Login");
+                }
+            }
+
+            return RedirectToAction("LoginPage", "Login");
+        }
+
     }
 }
