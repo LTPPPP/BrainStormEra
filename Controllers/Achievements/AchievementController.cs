@@ -17,86 +17,85 @@ namespace BrainStormEra.Controllers.Achievement
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Achievements()
+        // Display achievements based on user role stored in cookies
+        public async Task<IActionResult> AdminAchievements()
         {
             // Retrieve userId and userRole from cookies
-            var userId = Request.Cookies["userId"];
-            var userRole = Request.Cookies["userRole"];
+            var userId = Request.Cookies["user_id"];
+            var userRole = Request.Cookies["user_role"];
 
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userRole))
             {
-                return RedirectToAction("LoginPage", "Login");
+                return RedirectToAction("LoginPage", "Login"); // Redirect to login if cookies are missing
             }
 
-            // Fetch user information based on userId
-            var user = await _context.Accounts.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null)
+            userId = userId.ToUpper();
+
+            if (userRole == "3") // Learner role
             {
-                return RedirectToAction("LoginPage", "Login");
-            }
+                var learnerAchievements = await _context.UserAchievements
+                    .Where(ua => ua.UserId == userId)
+                    .Include(ua => ua.Achievement)
+                    .Select(ua => new
+                    {
+                        ua.Achievement.AchievementId,
+                        ua.Achievement.AchievementName,
+                        ua.Achievement.AchievementDescription,
+                        ua.Achievement.AchievementIcon,
+                        ua.ReceivedDate
+                    })
+                    .ToListAsync();
 
-            switch (user.UserRole)
+                if (learnerAchievements == null || learnerAchievements.Count == 0)
+                {
+                    return NotFound(); // Return 404 error if no achievements found for the learner
+                }
+
+                ViewData["UserId"] = userId;
+                ViewData["Achievements"] = learnerAchievements;
+                return View("~/Views/Achievements/LearnerAchievements.cshtml");
+            }
+            else if (userRole == "1") // Admin role
             {
-                case 3: // Learner
-                    var learnerAchievements = await _context.UserAchievements
-                        .Where(ua => ua.UserId == userId)
-                        .Include(ua => ua.Achievement)
-                        .Select(ua => new
-                        {
-                            ua.Achievement.AchievementId,
-                            ua.Achievement.AchievementName,
-                            ua.Achievement.AchievementDescription,
-                            ua.Achievement.AchievementIcon,
-                            ua.ReceivedDate
-                        })
-                        .ToListAsync();
+                var allAchievements = await _context.Achievements
+                    .Select(a => new
+                    {
+                        a.AchievementId,
+                        a.AchievementName,
+                        a.AchievementDescription,
+                        a.AchievementIcon,
+                        a.AchievementCreatedAt,
+                        UserName = _context.UserAchievements
+                            .Where(ua => ua.AchievementId == a.AchievementId)
+                            .Select(ua => ua.User.FullName)
+                            .FirstOrDefault() ?? "null"
+                    })
+                    .OrderBy(a => a.AchievementId)
+                    .ToListAsync();
 
-                    ViewData["UserId"] = userId;
-                    ViewData["Achievements"] = learnerAchievements;
-                    return View("~/Views/Achievements/LearnerAchievements.cshtml");
+                if (allAchievements == null || allAchievements.Count == 0)
+                {
+                    return NotFound(); // Return 404 error if no achievements found for the admin
+                }
 
-                case 1: // Admin
-                    var allAchievements = await _context.Achievements
-                        .Select(a => new
-                        {
-                            a.AchievementId,
-                            a.AchievementName,
-                            a.AchievementDescription,
-                            a.AchievementIcon,
-                            a.AchievementCreatedAt,
-                            UserName = _context.UserAchievements
-                                .Where(ua => ua.AchievementId == a.AchievementId)
-                                .Select(ua => ua.User.FullName)
-                                .FirstOrDefault() ?? "null"
-                        })
-                        .OrderBy(a => a.AchievementId)
-                        .ToListAsync();
-
-                    ViewData["UserId"] = userId;
-                    ViewData["Achievements"] = allAchievements;
-                    return View("~/Views/Achievements/AdminAchievements.cshtml");
-
-                default:
-                    return RedirectToAction("LoginPage", "Login");
+                ViewData["UserId"] = userId;
+                ViewData["Achievements"] = allAchievements;
+                return View("~/Views/Achievements/AdminAchievements.cshtml");
             }
+
+            return NotFound(); // Return 404 error if the user role is invalid or not recognized
         }
 
         [HttpPost]
         public async Task<IActionResult> AddAchievement(string achievementId, string achievementName, string achievementDescription, string achievementIcon, DateTime achievementCreatedAt)
         {
-            if (string.IsNullOrEmpty(achievementId) || string.IsNullOrEmpty(achievementName))
-            {
-                return Json(new { success = false, message = "Achievement ID and Name are required." });
-            }
-
             var existingAchievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
             if (existingAchievement != null)
             {
                 return Json(new { success = false, message = "Achievement ID already exists!" });
             }
 
-            var newAchievement = new Models.Achievement
+            var newAchievement = new BrainStormEra.Models.Achievement
             {
                 AchievementId = achievementId,
                 AchievementName = achievementName,
@@ -105,20 +104,16 @@ namespace BrainStormEra.Controllers.Achievement
                 AchievementCreatedAt = achievementCreatedAt
             };
 
-            await _context.Achievements.AddAsync(newAchievement);
+            _context.Achievements.Add(newAchievement);
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Achievement added successfully!" });
         }
 
+        // Get Achievement for Edit
         [HttpGet]
         public async Task<IActionResult> GetAchievement(string achievementId)
         {
-            if (string.IsNullOrEmpty(achievementId))
-            {
-                return Json(new { success = false, message = "Achievement ID is required." });
-            }
-
             var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
             if (achievement == null)
             {
@@ -142,11 +137,6 @@ namespace BrainStormEra.Controllers.Achievement
         [HttpPost]
         public async Task<IActionResult> EditAchievement(string achievementId, string achievementName, string achievementDescription, string achievementIcon, DateTime achievementCreatedAt)
         {
-            if (string.IsNullOrEmpty(achievementId))
-            {
-                return Json(new { success = false, message = "Achievement ID is required." });
-            }
-
             var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
             if (achievement == null)
             {
@@ -169,10 +159,6 @@ namespace BrainStormEra.Controllers.Achievement
             try
             {
                 var achievementId = json.GetProperty("achievementId").GetString();
-                if (string.IsNullOrEmpty(achievementId))
-                {
-                    return Json(new { success = false, message = "Achievement ID is required." });
-                }
 
                 var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
                 if (achievement == null)
@@ -190,5 +176,25 @@ namespace BrainStormEra.Controllers.Achievement
                 return Json(new { success = false, message = $"Error occurred: {ex.Message}" });
             }
         }
+
+        // Get Next Achievement ID (for auto increment)
+        [HttpGet]
+        public async Task<IActionResult> GetNextAchievementId()
+        {
+            var lastAchievement = await _context.Achievements
+                .OrderByDescending(a => a.AchievementId)
+                .FirstOrDefaultAsync();
+
+            if (lastAchievement == null)
+            {
+                return Json(new { success = true, nextId = "A001" });
+            }
+
+            var nextIdNumber = int.Parse(lastAchievement.AchievementId.Substring(1)) + 1;
+            var nextId = "A" + nextIdNumber.ToString("D3");
+
+            return Json(new { success = true, nextId });
+        }
     }
 }
+

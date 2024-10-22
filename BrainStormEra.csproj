@@ -9,7 +9,6 @@
   <ItemGroup>
     <Content Remove="Views\Chapter\ChapterManagement.cshtml" />
     <Content Remove="Views\Login\Register.cshtml" />
-    <Content Remove="Views\Home\Notification\_NotificationModal.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,10 +32,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\Lesson\" />
     <Folder Include="Data\" />
     <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />
+    <Folder Include="wwwroot\lib\document\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,7 +49,6 @@
 
   <ItemGroup>
     <None Include="Views\Chapter\ChapterManagement.cshtml" />
-    <None Include="Views\Home\Notification\_NotificationModal.cshtml" />
     <None Include="Views\Register\Register.cshtml" />
   </ItemGroup>
 

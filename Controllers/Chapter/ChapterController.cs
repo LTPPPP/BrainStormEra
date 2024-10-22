@@ -4,6 +4,7 @@ using BrainStormEra.Views;
 using BrainStormEra.Views.Chapter;
 using BrainStormEra.Models;
 
+
 namespace BrainStormEra.Controllers.Chapter
 {
     public class ChapterController : Controller
@@ -35,7 +36,6 @@ namespace BrainStormEra.Controllers.Chapter
             {
                 return NotFound();
             }
-            ViewBag.CourseId = chapter.CourseId;
 
             return View(chapter);
         }
@@ -65,7 +65,7 @@ namespace BrainStormEra.Controllers.Chapter
         [HttpGet("/Chapter/ViewChapters/{courseId}")]
         public ActionResult ViewChapters(string courseId)
         {
-            ViewBag.CourseId = courseId;
+
             var chapters = context.Chapters
                 .Where(ch => ch.CourseId == courseId)
                 .Select(ch => new BrainStormEra.Models.Chapter
@@ -87,7 +87,7 @@ namespace BrainStormEra.Controllers.Chapter
         [HttpGet]
         public async Task<IActionResult> CreateChapter(string courseId)
         {
-            ViewBag.CourseId = courseId;
+
             if (string.IsNullOrEmpty(courseId))
             {
                 return BadRequest("Course ID is required.");
@@ -115,7 +115,6 @@ namespace BrainStormEra.Controllers.Chapter
         [HttpGet("/Chapter/DeleteChapter/{courseId}")]
         public ActionResult DeleteChapter(string courseId)
         {
-            ViewBag.CourseId = courseId;
             var chapters = context.Chapters
                 .Where(ch => ch.CourseId == courseId)
                 .Select(ch => new BrainStormEra.Models.Chapter
@@ -132,11 +131,6 @@ namespace BrainStormEra.Controllers.Chapter
 
             return View(chapters);
         }
-
-
-
-
-
 
         [HttpPost]
         public IActionResult DeleteChapter(List<string> ChapterIds)
@@ -169,19 +163,14 @@ namespace BrainStormEra.Controllers.Chapter
 
 
 
-
-        //ADD
-
-
         [HttpGet]
         public ActionResult ChapterManagement(String courseId)
         {
 
             if (string.IsNullOrEmpty(courseId))
             {
-                return BadRequest("Course ID is required.");
+                return View("~/Views/Chapter/ChapterManagement.cshtml");
             }
-            ViewBag.CourseId = courseId;
 
             return View();
         }
@@ -193,9 +182,9 @@ namespace BrainStormEra.Controllers.Chapter
         [HttpPost]
         public ActionResult ChapterManagement(BrainStormEra.Models.Chapter chapter)
         {
+
             if (!ModelState.IsValid)
             {
-                chapter.ChapterId = ViewBag.CourseId;
                 return View(chapter);
             }
 

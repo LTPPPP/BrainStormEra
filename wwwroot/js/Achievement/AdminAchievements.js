@@ -1,14 +1,17 @@
-﻿// Handle Edit
+﻿
+// Handle Edit
 document.querySelectorAll('.btn-edit').forEach(button => {
     button.addEventListener('click', function () {
         const achievementId = this.getAttribute('data-id');
 
+        // Fetch the achievement data for the given ID
         fetch(`/Achievement/GetAchievement?achievementId=${achievementId}`)
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
                     const data = result.data;
-                    // Fill the form with data for editing
+
+                    // Fill the form with the fetched data
                     document.getElementById('achievementId').value = data.achievementId;
                     document.getElementById('achievementName').value = data.achievementName;
                     document.getElementById('achievementDescription').value = data.achievementDescription;
@@ -19,33 +22,40 @@ document.querySelectorAll('.btn-edit').forEach(button => {
                     document.getElementById('achievementId').setAttribute('readonly', 'readonly');
                     document.getElementById('achievementForm').action = '/Achievement/EditAchievement';
                 } else {
-                    alert(result.message);
+                    alert(result.message);  // Show an alert if fetching fails
                 }
+            })
+            .catch(error => {
+                console.error("Error fetching achievement data: ", error);
             });
     });
 });
 
 // Handle Add (Auto-generate ID and clear form before showing it)
 document.querySelector('.btn-add').addEventListener('click', function () {
+    // Clear the form fields
     document.getElementById('achievementId').value = '';
     document.getElementById('achievementName').value = '';
     document.getElementById('achievementDescription').value = '';
     document.getElementById('achievementIcon').value = '';
     document.getElementById('achievementCreatedAt').value = '';
 
-    // Enable the ID field when adding
+    // Enable the ID field
     document.getElementById('achievementId').removeAttribute('readonly');
 
-    // Fetch and display next sequential Achievement ID
+    // Fetch and auto-fill the next Achievement ID
     fetch('/Achievement/GetNextAchievementId')
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                document.getElementById('achievementId').value = result.nextId;
+                document.getElementById('achievementId').value = result.nextId;  // Fill the ID field
             }
+        })
+        .catch(error => {
+            console.error("Error fetching next achievement ID: ", error);
         });
 
-    document.getElementById('achievementForm').action = '/Achievement/AddAchievement';
+    document.getElementById('achievementForm').action = '/Achievement/AddAchievement';  // Set the form action
 });
 
 // Handle form submission for both Add and Edit using AJAX
@@ -99,4 +109,3 @@ document.querySelectorAll('.btn-delete').forEach(button => {
         }
     });
 });
- 

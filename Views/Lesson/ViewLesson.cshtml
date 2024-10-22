@@ -1,0 +1,85 @@
+﻿@model IEnumerable<BrainStormEra.Models.Lesson>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrainStormEra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/Lesson/AddLesson.css" />
+    <link rel="stylesheet" href="~/css/base.css" />
+</head>
+<body>
+    <div class="content flex-grow-1">
+        <div class="content-header" id="content-header">
+            <h5>All LESSON</h5>
+        </div>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Chapter ID</th>
+                    <th>Lesson ID</th>
+                    <th>Lesson Name</th>
+                    <th>Description</th>
+                    <th>Lesson Type</th>
+                    <th>Lesson Video</th>
+                    <th>Lesson Document</th>
+                    <th>Lesson Order</th>
+                    <th>Status</th>
+                    <th>Lesson Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lesson in Model)
+                {
+                    <tr>
+                        <td>@lesson.ChapterId</td>
+                        <td>@lesson.LessonId</td>
+                        <td>@lesson.LessonName</td>
+                        <td>@lesson.LessonDescription</td>
+                        <td>@(lesson.LessonTypeId == 1 ? "Video" : "Reading")</td>
+
+                        <!-- Lesson Video -->
+                        <td>
+                            @if (lesson.LessonTypeId == 1 && !string.IsNullOrEmpty(lesson.LessonContent))
+                            {
+                                <a href="@lesson.LessonContent" target="_blank">View Video</a>
+                            }
+                            else
+                            {
+                                <span>N/A</span>
+                            }
+                        </td>
+
+                        <!-- Lesson Document -->
+                        <td>
+                            @if (lesson.LessonTypeId == 2 && !string.IsNullOrEmpty(lesson.LessonContent))
+                            {
+                                <a href="@lesson.LessonContent" target="_blank">Download Document</a>
+                            }
+                            else
+                            {
+                                <span>N/A</span>
+                            }
+                        </td>
+
+                        <td>@lesson.LessonOrder</td>
+                        <td>@(lesson.LessonStatus == 1 ? "Inactive" : "Active")</td>
+                        <td>@(lesson.LessonCreatedAt.HasValue ? lesson.LessonCreatedAt.Value.ToString("yyyy-MM-dd") : "N/A")</td>
+                        <td>
+                            <a href="@Url.Action("EditLesson", new { id = lesson.LessonId })" class="btn btn-primary">Edit</a>
+                            <a href="@Url.Action("DeleteLesson", new { id = lesson.LessonId })" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- External Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -20,15 +20,12 @@ $(document).ready(function () {
         // Kiểm tra xem các trường cần thiết đã được điền chưa
         if (!notificationTitle || !notificationContent || !notificationType) {
             alert("Please fill in all required fields before selecting users.");
-            return; // Ngăn không cho hiện overlay dialog nếu dữ liệu chưa đầy đủ
+            return; 
         }
-
-        // Nếu tất cả dữ liệu đã được điền, hiển thị overlay dialog
+        
         $('#dialogOverlay').fadeIn();
-
-        // Gọi AJAX để lấy danh sách user từ server khi hiển thị dialog
+        
         $.get('/Notification/GetUsers', function (data) {
-            // Giả sử server trả về danh sách user dưới dạng JSON
             var userList = '';
             $.each(data, function (index, user) {
                 userList += '<li><input type="checkbox" value="' + user.user_id + '">' + user.full_name + '</li>';
@@ -38,8 +35,7 @@ $(document).ready(function () {
             alert('Failed to load users'); // Thông báo nếu việc tải dữ liệu thất bại
         });
     });
-
-    // Khi nhấn nút "Send" trong dialog overlay, lấy danh sách user đã chọn và các giá trị từ form
+    
     $('#sendToUsers').click(function () {
         var selectedUsers = [];
         $('#dialogOverlay input[type="checkbox"]:checked').each(function () {
@@ -50,21 +46,18 @@ $(document).ready(function () {
             alert("No users selected");
             return;
         }
-
-        // Lấy các giá trị từ form Add Notification
+        
         var notificationTitle = $('#subject').val();
         var notificationContent = $('#content').val();
-        var notificationType = $('.select-group select:eq(1)').val(); // Lấy giá trị của thẻ select loại thông báo
-
-        // Kiểm tra lại xem các trường cần thiết đã được điền chưa
+        var notificationType = $('.select-group select:eq(1)').val(); 
+        
         if (!notificationTitle || !notificationContent || !notificationType) {
             alert("Please fill in all required fields.");
             return;
         }
-
-        // Tạo object chứa dữ liệu để gửi lên server
+        
         var notificationData = {
-            UserIds: selectedUsers, // Danh sách UserId
+            UserIds: selectedUsers, 
             NotificationTitle: notificationTitle, // Tiêu đề thông báo
             NotificationContent: notificationContent, // Nội dung thông báo
             NotificationType: notificationType // Loại thông báo (Info, Warning, Reminder)

@@ -1,0 +1,98 @@
+﻿@model IEnumerable<BrainStormEra.Models.Notification>
+
+@{
+    // Lấy user_id và user_role từ HttpContext.Request
+    var userId = Context.Request.Cookies["user_id"];
+    var userRole = Context.Request.Cookies["user_role"];
+
+    // Kiểm tra nếu cookies không tồn tại thì gán giá trị mặc định
+    if (string.IsNullOrEmpty(userId))
+    {
+        userId = "Unknown"; // Giá trị mặc định nếu không có cookie user_id
+    }
+
+    if (string.IsNullOrEmpty(userRole))
+    {
+        userRole = "0"; // Giá trị mặc định nếu không có cookie user_role
+    }
+}
+
+<div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationsModalLabel">Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                <div class="notification-container">
+                    <div class="notification-header">
+                        <h1><b>Notifications</b></h1>
+
+                        <!-- Kiểm tra userRole từ cookies để hiển thị nút Add Notification -->
+                        @if (userRole == "1" || userRole == "2")
+                        {
+                            <button type="button" class="btn btn-primary add-notification">Add Notification</button>
+                        }
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        DateTime? lastDate = null;
+
+                        @foreach (var notification in Model.OrderBy(n => n.NotificationCreatedAt))
+                        {
+                            var currentDate = notification.NotificationCreatedAt;
+
+                            if (lastDate == null || currentDate.Value.Month != lastDate.Value.Month || currentDate.Value.Year != lastDate.Value.Year)
+                            {
+                                <div class="notification-section">
+                                    <h2>@currentDate.Value.ToString("MMMM yyyy")</h2>
+                                </div>
+                            }
+
+                            <div class="notification-item d-flex justify-content-between align-items-center" data-notification-id="@notification.NotificationId" data-createdby="@notification.CreatedBy">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon">
+                                        <i class="fas fa-user" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="content ms-3">
+                                        <p>
+                                            <strong>@notification.NotificationTitle</strong> <br />
+                                            @notification.NotificationContent
+                                        </p>
+                                        <p class="time">@currentDate?.ToString("g")</p>
+                                    </div>
+                                </div>
+                                <div class="actions d-flex align-items-center">
+                                    @if (notification.CreatedBy == userId)
+                                    {
+                                        <div class="action edit me-2" aria-label="Edit Notification">
+                                            <i class="fas fa-edit" aria-hidden="true"></i>
+                                        </div>
+                                        <div class="action delete" aria-label="Delete Notification">
+                                            <i class="fas fa-times-circle" aria-hidden="true"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="action bell" aria-label="Notification Bell">
+                                            <i class="fas fa-bell" aria-hidden="true"></i>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            lastDate = currentDate;
+                        }
+                    }
+                    else
+                    {
+                        <p>No notifications available.</p>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

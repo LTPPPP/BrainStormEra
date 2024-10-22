@@ -54,19 +54,24 @@ namespace BrainStormEra.Controllers.Account
             return View(account);
         }
 
-        // Action to post profile edits
-        // Action to post profile edits
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(BrainStormEra.Models.Account account, IFormFile avatar)
         {
+            var userId = Request.Cookies["user_id"];
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("LoginPage", "Login");
+            }
+
             if (ModelState.IsValid)
             {
-                // Lấy thông tin tài khoản người dùng từ database
-                var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == account.UserId);
+                // Get the user's account from the database
+                var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
                 if (accountInDb == null) return NotFound();
 
-                // Cập nhật thông tin người dùng
+                // Update the account details
                 accountInDb.FullName = account.FullName;
                 accountInDb.UserEmail = account.UserEmail;
                 accountInDb.PhoneNumber = account.PhoneNumber;
@@ -74,12 +79,11 @@ namespace BrainStormEra.Controllers.Account
                 accountInDb.UserAddress = account.UserAddress;
                 accountInDb.DateOfBirth = account.DateOfBirth;
 
-                // Xử lý avatar mới nếu có
+                // Handle new avatar upload if available
                 if (avatar != null && avatar.Length > 0)
                 {
                     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
-                    // Tạo thư mục nếu chưa tồn tại
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
@@ -88,26 +92,22 @@ namespace BrainStormEra.Controllers.Account
                     var fileName = Path.GetFileName(avatar.FileName);
                     var filePath = Path.Combine(uploadsFolder, fileName);
 
-                    // Lưu file avatar vào thư mục uploads
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         avatar.CopyTo(stream);
                     }
 
-                    // Cập nhật đường dẫn ảnh trong database
+                    // Update the user's picture path in the database
                     accountInDb.UserPicture = $"/uploads/{fileName}";
                 }
 
-                // Lưu các thay đổi vào database
+                // Save the changes back to the database
                 _context.SaveChanges();
 
-                // Sau khi cập nhật, chuyển hướng về trang profile
                 return RedirectToAction("Index");
             }
 
-            // Nếu có lỗi, trả về view hiện tại với các thông tin lỗi
             return View(account);
         }
-
     }
 }
