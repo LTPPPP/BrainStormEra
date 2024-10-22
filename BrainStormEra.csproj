@@ -36,6 +36,9 @@
     <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />
     <Folder Include="wwwroot\lib\document\" />
+    <Folder Include="wwwroot\uploads\Achievement\" />
+    <Folder Include="wwwroot\uploads\Course\Chapter\Lesson\" />
+    <Folder Include="wwwroot\uploads\User-img\" />
   </ItemGroup>
 
   <ItemGroup>
