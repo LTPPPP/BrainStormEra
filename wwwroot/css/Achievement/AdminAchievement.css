@@ -1,0 +1,135 @@
+﻿/* Table Styles */
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: var(--background-light);
+    box-shadow: 0px 4px 8px var(--box-shadow-color);
+    margin-top: 20px;
+}
+
+    .table th {
+        background-color: var(--primary-color);
+        color: var(--text-color-light);
+        padding: 10px;
+        text-align: center;
+        font-size: 1.6rem;
+        border-bottom: 2px solid var(--light-blue);
+    }
+
+    .table td {
+        padding: 15px;
+        text-align: center;
+        font-size: 1.4rem;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--light-gray-color);
+    }
+
+        .table td img {
+            border-radius: 5px;
+            box-shadow: 0 0 10px var(--box-shadow-color);
+        }
+
+    .table tbody tr:hover {
+        background-color: var(--light-blue-color);
+    }
+
+/* Button Styles */
+.btn {
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-edit {
+    background-color: var(--button-blue);
+    color: var(--text-color-light);
+    border: none;
+}
+
+    .btn-edit:hover {
+        background-color: var(--blue-hover-color);
+    }
+
+.btn-delete {
+    background-color: var(--delete-btn-bg-color);
+    color: var(--text-color-light);
+    border: none;
+}
+
+    .btn-delete:hover {
+        background-color: var(--delete-btn-hover-bg-color);
+    }
+
+.btn-add {
+    background-color: var(--btn-create);
+    color: var(--text-color-light);
+    border: none;
+    margin-top: 20px;
+}
+
+    .btn-add:hover {
+        background-color: var(--btn-create-hover);
+    }
+
+/* Modal Styles */
+.modal-content {
+    background-color: var(--background-light);
+    box-shadow: 0 0 10px var(--box-shadow-color);
+}
+
+.modal-header {
+    background-color: var(--secondary-primary-color);
+    color: var(--text-color-light);
+}
+
+.modal-footer .btn-success {
+    background-color: var(--create-btn-bg-color);
+    border: none;
+}
+
+    .modal-footer .btn-success:hover {
+        background-color: var(--create-btn-hover-bg-color);
+    }
+
+.modal-footer .btn-secondary {
+    background-color: var(--cancel-btn-color);
+    border: none;
+}
+
+    .modal-footer .btn-secondary:hover {
+        background-color: var(--cancel-hover-color);
+    }
+
+.modal-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height: 100vh; */
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Center the modal dialog itself */
+.modal-dialog {
+    max-width: 500px;
+    margin: 0 auto;
+    transform: translateY(-50%);
+    top: 50%;
+    position: relative;
+}
+
+/* Optional: Add padding to modal content */
+.modal-content {
+    padding: 10px;
+}
+
+/* Title styling */
+.achievement-title {
+    color: var(--primary-color);
+    font-weight: bold;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}

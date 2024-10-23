@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="~/css/HomePage/homePage.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
+    <link href="~/css/Achievement/LearnerAchievement.css" rel="stylesheet" />
 
 
 </head>
@@ -178,6 +179,14 @@
             $('#notificationsModal').modal('hide');
             $('#addNotificationModal').modal('show');
         });
+
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to logout?");
+
+            if (result) {
+                window.location.href = '@Url.Action("Logout", "Login")';
+            }
+        }
 
     </script>
 </body>

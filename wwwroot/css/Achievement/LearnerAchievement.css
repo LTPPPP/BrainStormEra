@@ -1,0 +1,92 @@
+﻿h2 {
+    color: var(--primary-color);
+    font-size: 2.4rem;
+    margin-bottom: 3rem;
+}
+
+/* Modal Popup Styling */
+.modal-content {
+    background-color: var(--secondary-primary-color);
+    color: var(--text-color-light);
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 8px var(--box-shadow-color);
+}
+
+.modal-header {
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+}
+
+.modal-title {
+    font-weight: bold;
+    font-size: 1.75rem;
+    text-align: center;
+    color: var(--text-color-light);
+}
+
+.modal-body {
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-color-light);
+}
+
+    .modal-body img {
+        max-height: 120px;
+        margin-bottom: 20px;
+    }
+
+    .modal-body h5 {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .modal-body p {
+        font-size: 1.25rem;
+        margin: 0.5rem 0;
+    }
+
+.btn-close {
+    background-color: var(--white-color);
+    border-radius: 50%;
+    border: none;
+}
+/* ??nh d?ng cho t?ng th? achievement */
+.card {
+    background-color: var(--primary-color); /* M�u n?n cho th? */
+    color: var(--text-color-light); /* M�u ch? trong th? */
+    border-radius: 10px; /* Bo g�c cho th? */
+    box-shadow: 0 4px 8px var(--box-shadow-color); /* ?? b�ng cho th? */
+    transition: transform 0.3s ease; /* Hi?u ?ng khi hover v�o th? */
+    width: 250px; /* Chi?u r?ng c?a th? */
+    height: 250px; /* Chi?u cao c?a th? */
+    margin-top: 20px; /* Kho?ng c�ch ph�a tr�n th? */
+}
+
+    .card:hover {
+        transform: scale(1.05); /* T?ng k�ch th??c th? khi hover */
+    }
+
+    /* ??nh d?ng cho ti�u ?? b�n trong m?i th? */
+    .card h5 {
+        font-size: 1.2rem; /* K�ch th??c ch? */
+        font-weight: bold; /* Ch? ??m */
+        color: var(--text-color-light); /* M�u ch? */
+        margin-top: 10px; /* Kho?ng c�ch tr�n c?a ti�u ?? */
+    }
+
+    /* ??nh d?ng cho h�nh ?nh b�n trong th? */
+    .card img {
+        max-width: 60px; /* Gi?m k�ch th??c h�nh ?nh */
+        margin-top: 10px; /* Kho?ng c�ch tr�n c?a h�nh ?nh */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Ph?n n?i dung b�n trong th? */
+    .card .card-body {
+        padding: 10px;
+        text-align: center;
+    }

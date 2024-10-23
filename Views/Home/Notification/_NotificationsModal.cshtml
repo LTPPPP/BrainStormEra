@@ -21,10 +21,10 @@
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="notificationsModalLabel">Notifications</h5>
+                <h5 class="modal-title" id="notificationsModalLabel"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+            <div class="modal-body">
                 <div class="notification-container">
                     <div class="notification-header d-flex justify-content-between align-items-center">
                         <h1><b>Notifications</b></h1>
@@ -37,13 +37,17 @@
                     </div>
 
                     <!-- Select All Checkbox -->
-                    <div class="d-flex justify-content-between align-items-center my-2">
-                        <div>
-                            <input type="checkbox" id="selectAll" />
-                            <label for="selectAll">Select All</label>
+                    @if (userRole != "3")
+                    {
+
+                        <div class="d-flex justify-content-between align-items-center my-2">
+                            <div>
+                                <input type="checkbox" id="selectAll" />
+                                <label for="selectAll">Select All</label>
+                            </div>
+                            <button type="button" class="btn btn-danger" id="deleteSelected">Delete Selected</button>
                         </div>
-                        <button type="button" class="btn btn-danger" id="deleteSelected">Delete Selected</button>
-                    </div>
+                    }
 
                     @if (Model != null && Model.Any())
                     {
@@ -53,12 +57,13 @@
                         {
                             var currentDate = notification.NotificationCreatedAt;
 
-                            if (lastDate == null || currentDate.Value.Month != lastDate.Value.Month || currentDate.Value.Year != lastDate.Value.Year)
+                            if (lastDate == null || (currentDate.Value.Month != lastDate.Value.Month || currentDate.Value.Year != lastDate.Value.Year))
                             {
                                 <div class="notification-section">
                                     <h2>@currentDate.Value.ToString("MMMM yyyy")</h2>
                                 </div>
                             }
+
 
                             <div class="notification-item d-flex justify-content-between align-items-center" data-notification-id="@notification.NotificationId" data-createdby="@notification.CreatedBy">
                                 <div class="d-flex align-items-center">

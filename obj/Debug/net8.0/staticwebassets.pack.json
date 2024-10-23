@@ -1,8 +1,12 @@
 {
   "Files": [
     {
-      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Achievement\\achievement.css",
-      "PackagePath": "staticwebassets\\css\\Achievement\\achievement.css"
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Achievement\\AdminAchievement.css",
+      "PackagePath": "staticwebassets\\css\\Achievement\\AdminAchievement.css"
+    },
+    {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Achievement\\LearnerAchievement.css",
+      "PackagePath": "staticwebassets\\css\\Achievement\\LearnerAchievement.css"
     },
     {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\css\\Admin\\analysis.css",

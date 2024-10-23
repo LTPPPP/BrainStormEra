@@ -22,20 +22,7 @@ namespace BrainStormEra.Views.Course
 
         public string? CreatedBy { get; set; }
 
-        public int? PaymentPoint { get; set; }
-
-        public string? UserPicture { get; set; }
-
-        public virtual Role? UserRoleNavigation { get; set; }
-
         public byte? StarRating { get; set; }
-
-        public string UserId { get; set; } = null!;
-
-        public int? UserRole { get; set; }
-
-        public string Username { get; set; } = null!;
-
 
         public virtual ICollection<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
     }

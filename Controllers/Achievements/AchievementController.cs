@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using BrainStormEra.Models;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace BrainStormEra.Controllers.Achievement
 {
@@ -15,8 +17,66 @@ namespace BrainStormEra.Controllers.Achievement
         {
             _context = context;
         }
+        // Display learner's achievements based on user ID
+        public async Task<IActionResult> LearnerAchievements()
+        {
+            var userId = Request.Cookies["user_id"];
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("LoginPage", "Login");
+            }
 
-        // Display achievements based on user role stored in cookies
+            // Fetch learner's achievements based on userId
+            var learnerAchievements = await _context.UserAchievements
+                .Where(ua => ua.UserId == userId)
+                .Include(ua => ua.Achievement)
+                .Select(ua => new
+                {
+                    ua.Achievement.AchievementId,
+                    ua.Achievement.AchievementName,
+                    ua.Achievement.AchievementDescription,
+                    ua.Achievement.AchievementIcon,
+                    ReceivedDate = ua.ReceivedDate.HasValue ? ua.ReceivedDate.Value.ToString("yyyy-MM-dd") : null
+                })
+                .ToListAsync();
+
+            ViewData["UserId"] = userId;
+            ViewData["Achievements"] = learnerAchievements;
+
+            return View("~/Views/Achievements/LearnerAchievements.cshtml");
+        }
+
+
+        // Get achievement details via AJAX
+        [HttpGet]
+        public async Task<IActionResult> GetAchievementDetails(string achievementId, string userId)
+        {
+            if (string.IsNullOrEmpty(achievementId) || string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Invalid achievementId or userId" });
+            }
+
+            var achievement = await _context.UserAchievements
+                .Where(ua => ua.UserId == userId && ua.AchievementId == achievementId)
+                .Include(ua => ua.Achievement)
+                .Select(ua => new
+                {
+                    ua.Achievement.AchievementName,
+                    ua.Achievement.AchievementDescription,
+                    ua.Achievement.AchievementIcon,
+                    ua.ReceivedDate
+                })
+                .FirstOrDefaultAsync();
+
+            if (achievement == null)
+            {
+                return Json(new { success = false, message = "Achievement not found" });
+            }
+
+            return Json(new { success = true, data = achievement });
+        }
+
+        // Display admin's achievements
         public async Task<IActionResult> AdminAchievements()
         {
             // Retrieve userId and userRole from cookies
@@ -30,26 +90,7 @@ namespace BrainStormEra.Controllers.Achievement
 
             userId = userId.ToUpper();
 
-            if (userRole == "3") // Learner role
-            {
-                var learnerAchievements = await _context.UserAchievements
-                    .Where(ua => ua.UserId == userId)
-                    .Include(ua => ua.Achievement)
-                    .Select(ua => new
-                    {
-                        ua.Achievement.AchievementId,
-                        ua.Achievement.AchievementName,
-                        ua.Achievement.AchievementDescription,
-                        ua.Achievement.AchievementIcon,
-                        ua.ReceivedDate
-                    })
-                    .ToListAsync();
-
-                ViewData["UserId"] = userId;
-                ViewData["Achievements"] = learnerAchievements;
-                return View("~/Views/Achievements/LearnerAchievements.cshtml");
-            }
-            else if (userRole == "1") // Admin role
+            if (userRole == "1") // Admin role
             {
                 var allAchievements = await _context.Achievements
                     .Select(a => new
@@ -69,12 +110,14 @@ namespace BrainStormEra.Controllers.Achievement
 
                 ViewData["UserId"] = userId;
                 ViewData["Achievements"] = allAchievements;
+
                 return View("~/Views/Achievements/AdminAchievements.cshtml");
             }
 
             return NotFound(); // Return 404 error if the user role is invalid or not recognized
         }
 
+        // Add Achievement for Admin
         [HttpPost]
         public async Task<IActionResult> AddAchievement(string achievementName, string achievementDescription, IFormFile achievementIcon, DateTime achievementCreatedAt)
         {
@@ -118,7 +161,7 @@ namespace BrainStormEra.Controllers.Achievement
             return RedirectToAction("AdminAchievements");
         }
 
-
+        // Edit Achievement for Admin
         [HttpPost]
         public async Task<IActionResult> EditAchievement(string achievementId, string achievementName, string achievementDescription, IFormFile achievementIcon, DateTime achievementCreatedAt)
         {
@@ -157,7 +200,7 @@ namespace BrainStormEra.Controllers.Achievement
             return RedirectToAction("AdminAchievements");
         }
 
-
+        // Delete Achievement for Admin
         [HttpPost]
         public async Task<IActionResult> DeleteAchievement(string achievementId)
         {
@@ -171,6 +214,28 @@ namespace BrainStormEra.Controllers.Achievement
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Achievement deleted successfully!" });
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAchievement(string achievementId)
+        {
+            var achievement = await _context.Achievements
+                .Where(a => a.AchievementId == achievementId)
+                .Select(a => new
+                {
+                    a.AchievementId,
+                    a.AchievementName,
+                    a.AchievementDescription,
+                    a.AchievementIcon,
+                    a.AchievementCreatedAt
+                })
+                .FirstOrDefaultAsync();
+
+            if (achievement == null)
+            {
+                return Json(new { success = false, message = "Achievement not found!" });
+            }
+
+            return Json(new { success = true, data = achievement });
         }
     }
 }

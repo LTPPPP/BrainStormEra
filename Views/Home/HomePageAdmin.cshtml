@@ -1,6 +1,8 @@
 ﻿@page
 @model BrainStormEra.Views.Home.HomePageAdminModel
+@inject IHttpContextAccessor HttpContextAccessor
 @{
+    var userId = HttpContextAccessor.HttpContext.Request.Cookies["user_id"];
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -33,6 +35,7 @@
     <link rel="stylesheet" href="~/css/Admin/analysis.css">
     <link href="~/css/Chatbot/chatbot.css" rel="stylesheet" />
     <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
+    @* <link href="~/css/Achievement/AdminAchievement.css" rel="stylesheet" /> *@
 </head>
 
 <body>
@@ -77,73 +80,123 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        $(document).ready(function () {
-            $.get('@Url.Action("GetConversationStatistics", "Chatbot")', function (data) {
-                var chartElement = document.getElementById('conversationChart');
-                if (chartElement) {
-                    var ctx = chartElement.getContext('2d');
-                    var chartData = {
-                        labels: data.map(item => new Date(item.date).toLocaleDateString()),
-                        datasets: [{
-                            label: 'Chatbot Requests',
-                            data: data.map(item => item.count),
-                            fill: false,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            tension: 0.1
-                        }]
-                    };
+            $(document).ready(function () {
+                fetch('@Url.Action("GetConversationStatistics", "Chatbot")')
+                    .then(response => response.json())
+                    .then(data => {
+                        var chartElement = document.getElementById('conversationChart');
+                        if (chartElement) {
+                            var ctx = chartElement.getContext('2d');
+                            var chartData = {
+                                labels: data.map(item => new Date(item.date).toLocaleDateString()),
+                                datasets: [{
+                                    label: 'Chatbot Requests',
+                                    data: data.map(item => item.count),
+                                    fill: false,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    tension: 0.1
+                                }]
+                            };
 
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: chartData,
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
                                 }
-                            }
+                            });
                         }
-                    });
-                }
-            });
+                    })
+                    .catch(error => console.error('Error fetching conversation statistics:', error));
 
-            $.get('@Url.Action("GetUserStatistics", "HomePageAdmin")', function (data) {
-                var chartElement = document.getElementById('userChart');
-                if (chartElement) {
-                    var ctx = chartElement.getContext('2d');
-                    var chartData = {
-                        labels: data.map(item => new Date(item.date).toLocaleDateString()),
-                        datasets: [{
-                            label: 'New Users',
-                            data: data.map(item => item.count),
-                            fill: false,
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            tension: 0.1
-                        }]
-                    };
+                fetch('@Url.Action("GetUserStatistics", "HomePageAdmin")')
+                    .then(response => response.json())
+                    .then(data => {
+                        var chartElement = document.getElementById('userChart');
+                        if (chartElement) {
+                            var ctx = chartElement.getContext('2d');
+                            var chartData = {
+                                labels: data.map(item => new Date(item.date).toLocaleDateString()),
+                                datasets: [{
+                                    label: 'New Users',
+                                    data: data.map(item => item.count),
+                                    fill: false,
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    tension: 0.1
+                                }]
+                            };
 
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: chartData,
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        stepSize: 1, // Hiển thị số nguyên
-                                        callback: function (value) {
-                                            if (Number.isInteger(value)) {
-                                                return value;
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                stepSize: 1,
+                                                callback: function (value) {
+                                                    if (Number.isInteger(value)) {
+                                                        return value;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error fetching user statistics:', error));
+            });
+
+        $(document).ready(function () {
+            $('#notificationsModal').on('shown.bs.modal', function () {
+                var userId = $('#userInfo').data('user-id');
+
+                $.get('@Url.Action("Notifications", "Notification")', function (data) {
+                    $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
+
+                    var currenrUser = '@userId';
+                    $('#selectAll').on('change', function () {
+                        if (this.checked) {
+                            $('.notification-item').each(function () {
+                                var createdBy = $(this).data('createdby');
+
+                                if (createdBy === currenrUser) {
+                                    $(this).find('.select-notification').show().prop('checked', true);
+                                }
+                            });
+                            $('#deleteSelected').show();
+                        } else {
+                            $('.select-notification').hide().prop('checked', false);
+                            $('#deleteSelected').hide();
                         }
                     });
-                }
+                });
             });
         });
+        $(document).on('click', '.add-notification', function () {
+            console.log('Add Notification button clicked');
+            $('#notificationsModal').modal('hide');
+            $('#addNotificationModal').modal('show');
+        });
+
+        console.log('Full Name:', '@ViewBag.FullName');
+        console.log('User Picture:', '@ViewBag.UserPicture');
+
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to logout?");
+
+            if (result) {
+                window.location.href = '@Url.Action("Logout", "Login")';
+            }
+        }
+
     </script>
 </body>
 

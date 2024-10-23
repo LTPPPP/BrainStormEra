@@ -40,10 +40,12 @@
 
 /* Container cho modal */
 .modal-dialog {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Đảm bảo modal luôn ở giữa chiều dọc */
+    position: fixed;
+    top: 70px; /* Đặt khoảng cách từ đầu trang */
+    right: 10px; /* Căn sát vào mép phải */
+    width: 400px; /* Đặt chiều rộng phù hợp */
+    margin: 0;
+    height: 100vh;
 }
 
 /* Modal content */
@@ -52,10 +54,12 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1050;
+    height: 90%;
 }
 
 .modal-body {
-    max-height: 400px; /* Giới hạn chiều cao của modal body */
+    /* Giới hạn chiều cao của modal body */
+    max-height: calc(100vh - 70px);
     overflow-y: auto; /* Cho phép cuộn khi nội dung quá dài */
 }
 
@@ -93,7 +97,7 @@
 
 /* Nút Add Notification */
 .add-notification {
-    font-size: 14px;
+    font-size: 1rem;
     background-color: #007bff;
     color: #ffffff;
     padding: 10px 20px;
@@ -157,13 +161,13 @@
             margin-bottom: 2px;
             line-height: 1.2;
             color: #333333;
-            font-size: 14px;
+            font-size: 1.3rem;
         }
 
         .notification-item .content .time {
             margin-top: 10px;
             color: #999999;
-            font-size: 12px;
+            font-size: 1.1rem;
         }
 
     /* Hành động cho thông báo */
@@ -178,7 +182,7 @@
         }
 
             .notification-item .actions .action i {
-                font-size: 14px;
+                font-size: 1.1rem;
             }
 
             .notification-item .actions .action.accept {
@@ -186,7 +190,7 @@
             }
 
             .notification-item .actions .action.delete {
-                color: #dc3545;
+                color: #FF0000;
             }
 
             .notification-item .actions .action.notify {
@@ -194,12 +198,20 @@
             }
 
             .notification-item .actions .action.edit {
-                color: #28a745;
+                color: #4BAE4F;
             }
 
             .notification-item .actions .action.bell {
-                color: #ffc107;
+                color: #FFD700;
             }
+
+.select-notification {
+    display: none; /* Ẩn checkbox mặc định */
+}
+
+#deleteSelected {
+    display: none; /* Ẩn nút ban đầu */
+}
 
 /* Form thêm thông báo */
 .addheader {
@@ -212,7 +224,7 @@
 }
 
     .addheader h1 {
-        font-size: 16px;
+        font-size: 1.6rem;
     }
 
 .notification-form {
@@ -235,7 +247,7 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 1.3rem;
     box-sizing: border-box;
 }
 
@@ -245,7 +257,7 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 1.3rem;
     box-sizing: border-box;
     z-index: 1070;
     pointer-events: auto;
@@ -262,7 +274,7 @@
         background-color: #ffffff;
         color: #000000;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 1.2rem;
         padding: 10px 20px;
         cursor: pointer;
     }
@@ -304,7 +316,7 @@
     background-color: rgba(0, 0, 0, 0.5); /* Nền mờ đen */
     justify-content: center; /* Căn giữa theo chiều ngang */
     align-items: center; /* Căn giữa theo chiều dọc */
-    z-index: 1060; /* Đảm bảo nằm trên cùng */
+    z-index: 1080; /* Đảm bảo nằm trên cùng */
 }
 
 
@@ -396,7 +408,7 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 1.3rem;
     box-sizing: border-box;
     width: 100%;
 }
@@ -412,7 +424,7 @@
         background-color: #ffffff;
         color: #000000;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 1.2rem;
         padding: 10px 20px;
         cursor: pointer;
     }

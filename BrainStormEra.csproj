@@ -48,6 +48,7 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Chapter\ChapterManagement.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Login\Register.cshtml" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Achievement\AdminAchievement.css" />
   </ItemGroup>
 
   <ItemGroup>

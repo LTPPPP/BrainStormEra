@@ -39,20 +39,44 @@
     <script>
         $(document).ready(function () {
             $('#notificationsModal').on('shown.bs.modal', function () {
-                $.get('@Url.Action("Notifications", "Notification")', function (data) {
-                    // Thay thế nội dung của modal-body bằng dữ liệu trả về
-                    $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
-                    console.log('User Role:', '@ViewBag.UserRole');
-                    console.log('User id:', '@ViewBag.UserId');
+                var userId = $('#userInfo').data('user-id');
 
+                $.get('@Url.Action("Notifications", "Notification")', function (data) {
+                    $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
+
+                    var currenrUser = '@userId';
+                    $('#selectAll').on('change', function () {
+                        if (this.checked) {
+                            $('.notification-item').each(function () {
+                                var createdBy = $(this).data('createdby');
+
+                                if (createdBy === currenrUser) {
+                                    $(this).find('.select-notification').show().prop('checked', true);
+                                }
+                            });
+                            $('#deleteSelected').show();
+                        } else {
+                            $('.select-notification').hide().prop('checked', false);
+                            $('#deleteSelected').hide();
+                        }
+                    });
                 });
             });
         });
+
         $(document).on('click', '.add-notification', function () {
             console.log('Add Notification button clicked');
             $('#notificationsModal').modal('hide');
             $('#addNotificationModal').modal('show');
         });
+
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to logout?");
+
+            if (result) {
+                window.location.href = '@Url.Action("Logout", "Login")';
+            }
+        }
 
     </script>
 </body>

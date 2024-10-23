@@ -120,24 +120,6 @@ h5 {
     margin-bottom: 10px;
 }
 
-.modal-title {
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.form-check {
-    margin-bottom: 15px;
-}
-
-#fileDetails {
-    font-size: 14px;
-    color: #333;
-}
-
-#videoFile {
-    margin-top: 10px;
-}
-
 .modal-dialog-centered {
     display: flex;
     align-items: center;
@@ -145,16 +127,41 @@ h5 {
     min-height: 100vh;
 }
 
-.modal-dialog {
-    max-width: 400px;
-    width: 100%;
+.file-details {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #6c757d;
 }
 
-.modal-body {
-    padding: 20px;
+    .file-details p {
+        margin: 0;
+    }
+
+.modal-body input[type="file"] {
+    display: none;
 }
 
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
+.btn-file-label {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Notification Styling */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.show-notification {
+    opacity: 1;
 }
