@@ -194,3 +194,28 @@ $(document).on('click', '.delete', function () {
         });
     }
 });
+
+$(document).ready(function () {
+    $('#notificationsModal').on('shown.bs.modal', function () {
+        $.get('@Url.Action("Notifications", "Notification")', function (data) {
+            // Replace the content of modal-body with the returned data
+            $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
+        });
+    });
+});
+
+$(document).on('click', '.add-notification', function () {
+    console.log('Add Notification button clicked');
+    $('#notificationsModal').modal('hide');
+    $('#addNotificationModal').modal('show');
+});
+
+console.log('Full Name:', '@ViewBag.FullName');
+console.log('User Picture:', '@ViewBag.UserPicture');
+
+function confirmLogout() {
+    var result = confirm("Are you sure you want to logout?");
+    if (result) {
+        window.location.href = '@Url.Action("Logout", "Login")';
+    }
+}

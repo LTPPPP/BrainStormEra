@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
 using System.Security.Claims;
+using System.Linq;
 
 namespace BrainStormEra.Controllers
 {
@@ -16,27 +17,23 @@ namespace BrainStormEra.Controllers
         [HttpGet]
         public IActionResult HomepageAdmin()
         {
-            // Check if the user is authenticated
             if (User.Identity.IsAuthenticated)
             {
-                // Retrieve user ID and role from claims
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var username = User.Identity.Name;  // This retrieves the username stored as ClaimTypes.Name
+                var username = User.Identity.Name;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
                 if (userId != null)
                 {
-                    // Fetch user details from the database
                     var user = _context.Accounts.FirstOrDefault(u => u.UserId == userId);
 
                     if (user != null)
                     {
                         ViewBag.FullName = user.FullName;
-                        ViewBag.UserPicture = user.UserPicture ?? "~/lib/img/User-img/default_user.png"; // Use default image if no picture
+                        ViewBag.UserPicture = user.UserPicture ?? "~/lib/img/User-img/default_user.png";
                     }
                     else
                     {
-                        // Handle case where user is not found
                         ViewBag.FullName = "Guest";
                         ViewBag.UserPicture = "~/lib/img/User-img/default_user.png";
                     }
@@ -45,8 +42,32 @@ namespace BrainStormEra.Controllers
                 }
             }
 
-            // Redirect to login if the user is not authenticated or cookies are not found
             return RedirectToAction("LoginPage", "Login");
+        }
+
+        [HttpGet]
+        public IActionResult GetUserStatistics()
+        {
+            try
+            {
+                var userStatistics = _context.Accounts
+                    .Where(u => u.AccountCreatedAt != null)
+                    .GroupBy(u => u.AccountCreatedAt.Value.Date)
+                    .Select(g => new
+                    {
+                        date = g.Key,
+                        count = g.Count()
+                    })
+                    .OrderBy(g => g.date)
+                    .ToList();
+
+                return Json(userStatistics);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching user statistics: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred while retrieving user statistics." });
+            }
         }
     }
 }

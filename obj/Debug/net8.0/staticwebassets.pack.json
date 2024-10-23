@@ -157,6 +157,10 @@
       "PackagePath": "staticwebassets\\js\\Chapter\\DeleteChapter.js"
     },
     {
+      "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Chart\\Chart.js",
+      "PackagePath": "staticwebassets\\js\\Chart\\Chart.js"
+    },
+    {
       "Id": "E:\\CN\\FA24_K5\\SWP391\\FP\\BrainStormEra\\BrainStormEra\\wwwroot\\js\\Chatbot\\Chatbot.js",
       "PackagePath": "staticwebassets\\js\\Chatbot\\Chatbot.js"
     },
