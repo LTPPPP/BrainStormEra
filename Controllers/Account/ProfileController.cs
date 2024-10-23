@@ -128,7 +128,6 @@ namespace BrainStormEra.Controllers.Account
         }
         public IActionResult RedirectToHome()
         {
-            // Kiểm tra xem các cookie đã tồn tại chưa
             var userIdCookie = Request.Cookies["user_id"];
             var userRoleCookie = Request.Cookies["user_role"];
 

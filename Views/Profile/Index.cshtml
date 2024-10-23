@@ -34,7 +34,12 @@
             <!-- Profile Card -->
             <div class="col-md-4">
                 <div class="profile-card">
-                    <img class="card-img-top" src="@Model.UserPicture ?? '~/lib/img/User-img/default_user.png'" alt="User Picture" />
+                    <img id="avatarPreview"
+                         src="@(!string.IsNullOrEmpty(Model.UserPicture) ? Model.UserPicture : Url.Content("~/lib/img/User-img/default_user.png'"))"
+                         alt="Avatar"
+                         class="avatar-preview img-thumbnail"
+                         style="max-width: 150px;"
+                         onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" />
                     <h4>@Model.FullName</h4>
                     <p>@Model.UserEmail</p>
                 </div>
@@ -92,32 +97,7 @@
         </div>
     </main>
 
-    <!-- Footer Section -->
-    <footer class="bg-secondary text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h3>BrainStormEra</h3>
-                    <div class="social-icons my-2">
-                        <a href="https://facebook.com/brainstormera" aria-label="Facebook"><i class="fab fa-facebook me-2"></i></a>
-                        <a href="https://instagram.com/brainstormera" aria-label="Instagram"><i class="fab fa-instagram me-2"></i></a>
-                        <a href="https://twitter.com/brainstormera" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-                    </div>
-                    <p>2024 by BrainStormEra.</p>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h4>Contact Us</h4>
-                    <p class="mb-1">Tel: 123-456-789</p>
-                    <p>Email: brainstormera@edu.vn</p>
-                </div>
-                <div class="col-md-4">
-                    <h4>Address</h4>
-                    <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
-                    <p>District, Cantho, Vietnam</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
     <!-- Link to Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>

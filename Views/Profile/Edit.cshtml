@@ -34,11 +34,14 @@
             <input type="hidden" asp-for="UserId" />
 
             <!-- Avatar Upload Section -->
-            <div class="avatar-upload mb-3">
-                <img id="avatarPreview" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Avatar" class="avatar-preview img-thumbnail" style="max-width: 150px;">
+            <img id="avatarPreview"
+                  src="@(!string.IsNullOrEmpty(Model.UserPicture) ? Model.UserPicture : Url.Content("~/lib/img/User-img/default_user.png'"))"
+                  alt="Avatar"
+                  class="avatar-preview img-thumbnail"
+                  style="max-width: 150px;"
+                  onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" />
                 <label for="avatarUpload" class="form-label">Change Avatar</label>
                 <input type="file" id="avatarUpload" name="avatar" accept="image/*" class="form-control" onchange="previewAvatar()" />
-            </div>
 
             <!-- Full Name with Validation -->
             <div class="form-group">
@@ -91,30 +94,10 @@
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 <a class="btn btn-secondary" asp-action="Index" asp-route-accountId="@Model.UserId">Cancel</a>
             </div>
-        </form>
+         </form>
     </div>
 
-    <!-- Footer Section -->
-    <footer class="bg-secondary text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h3>BrainStormEra</h3>
-                    <p>2024 by BrainStormEra.</p>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h4>Contact Us</h4>
-                    <p class="mb-1">Tel: 123-456-789</p>
-                    <p>Email: brainstormera@edu.vn</p>
-                </div>
-                <div class="col-md-4">
-                    <h4>Address</h4>
-                    <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
-                    <p>District, Cantho, Vietnam</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <script>
         function previewAvatar() {
