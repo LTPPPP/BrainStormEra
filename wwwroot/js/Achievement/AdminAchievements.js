@@ -16,15 +16,20 @@
 });
 
 $('.btn-add').on('click', function () {
+    // Clear previous values in the form
     $('#achievementId').val('');
     $('#achievementName').val('');
     $('#achievementDescription').val('');
     $('#achievementIcon').val('');
-    $('#achievementCreatedAt').val('');
+
+    // Set today's date in the 'achievementCreatedAt' field
+    const today = new Date().toISOString().split('T')[0]; // Get current date in yyyy-MM-dd format
+    $('#achievementCreatedAt').val(today);
 
     // Switch form action to AddAchievement
     $('#achievementForm').attr('action', '/Achievement/AddAchievement');
 });
+
 
 $(document).on('click', '.btn-delete', function () {
     const achievementId = $(this).data('id');

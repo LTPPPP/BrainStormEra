@@ -119,7 +119,7 @@ namespace BrainStormEra.Controllers.Achievement
 
         // Add Achievement for Admin
         [HttpPost]
-        public async Task<IActionResult> AddAchievement(string achievementName, string achievementDescription, IFormFile achievementIcon, DateTime achievementCreatedAt)
+        public async Task<IActionResult> AddAchievement(string achievementName, string achievementDescription, IFormFile achievementIcon)
         {
             // Generate the AchievementId based on the last achievement
             var lastAchievement = await _context.Achievements.OrderByDescending(a => a.AchievementId).FirstOrDefaultAsync();
@@ -146,13 +146,14 @@ namespace BrainStormEra.Controllers.Achievement
                 iconPath = $"/uploads/Achievement/{fileName}";
             }
 
+            // Automatically set the current date as AchievementCreatedAt
             var newAchievement = new BrainStormEra.Models.Achievement
             {
                 AchievementId = nextId,
                 AchievementName = achievementName,
                 AchievementDescription = achievementDescription,
                 AchievementIcon = iconPath,
-                AchievementCreatedAt = achievementCreatedAt
+                AchievementCreatedAt = DateTime.Now // Automatically set the creation date
             };
 
             _context.Achievements.Add(newAchievement);

@@ -93,10 +93,6 @@
                             <label for="achievementIcon" class="form-label">Icon</label>
                             <input type="file" class="form-control" id="achievementIcon" name="achievementIcon" accept="image/*">
                         </div>
-                        <div class="mb-3">
-                            <label for="achievementCreatedAt" class="form-label">Date Created</label>
-                            <input type="date" class="form-control" id="achievementCreatedAt" name="achievementCreatedAt" required>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success">Save</button>
@@ -135,14 +131,17 @@
         // Add achievement button logic
         $('.btn-add').on('click', function () {
             // Clear previous values in the form
-            $('#achievementId').val(''); // Hidden in Add mode
+            $('#achievementId').val('');
             $('#achievementName').val('');
             $('#achievementDescription').val('');
             $('#achievementIcon').val('');
-            $('#achievementCreatedAt').val('');
+
+            // Set today's date in the 'achievementCreatedAt' field
+            const today = new Date().toISOString().split('T')[0]; // Get current date in yyyy-MM-dd format
+            $('#achievementCreatedAt').val(today);
 
             // Switch form action to AddAchievement
-            $('#achievementForm').attr('action', '@Url.Action("AddAchievement", "Achievement")');
+            $('#achievementForm').attr('action', '/Achievement/AddAchievement');
         });
 
         // Handle delete button click
