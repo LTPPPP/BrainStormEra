@@ -1,6 +1,4 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
-    loadChatHistory(); // Load chat history from localStorage on page load
-
     document.getElementById('send-button').addEventListener('click', sendMessage);
     document.getElementById('user-input').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
@@ -8,9 +6,15 @@
         }
     });
 
-    // Event listener for the "New Chat" button (you need to add a button in your HTML)
     document.getElementById('new-chat-button').addEventListener('click', resetChat);
 });
+
+// Function to get cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
 function toggleChatbot() {
     var chatContainer = document.getElementById('chat-container');
@@ -26,15 +30,24 @@ function sendMessage() {
     if (message.trim() === '') return;
 
     appendMessage('You: ' + message);
-    logChatHistory('User', message);
     document.getElementById('user-input').value = '';
+
+    // Get the userId from the cookies
+    var userId = getCookie('user_id');  // Ensure 'user_id' matches your cookie name
+
+    // Construct the correct request body as expected by the server
+    var conversationData = {
+        ConversationContent: message,
+        UserId: userId,  // UserId retrieved from cookies
+        ConversationTime: new Date().toISOString()  // Optional: server may handle this
+    };
 
     fetch('/Chatbot/SendMessage', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: message })
+        body: JSON.stringify(conversationData) // Send the correct object structure
     })
         .then(response => {
             if (!response.ok) {
@@ -44,13 +57,11 @@ function sendMessage() {
         })
         .then(data => {
             const botReply = data.reply;
-            appendMessage('Bot: ' + botReply, true); // Bot response
-            logChatHistory('Bot', botReply);
+            appendMessage('Bot: ' + botReply, true);
         })
         .catch(error => {
             console.error('Error:', error);
             appendMessage('Bot: Sorry, I encountered an error. ' + error.message);
-            logChatHistory('Error', error.message);
         });
 }
 
@@ -69,8 +80,7 @@ function appendMessage(message, isBot = false) {
     }
 
     chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom of the chat
-    saveChatHistory(); // Save chat history after each message
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // Function to implement the typewriter effect for the bot's messages
@@ -86,38 +96,8 @@ function typeWriterEffect(element, message) {
     type();
 }
 
-
-
-function logChatHistory(sender, message) {
-    const timestamp = new Date().toISOString();
-    const logEntry = { timestamp, sender, message };
-    fetch('/Chatbot/LogChat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(logEntry)
-    }).catch(error => console.error('Error logging chat:', error));
-}
-
-// Load chat history from localStorage
-function loadChatHistory() {
-    const savedHistory = localStorage.getItem('chatHistory');
-    if (savedHistory) {
-        const chatMessages = document.getElementById('chat-messages');
-        chatMessages.innerHTML = savedHistory;
-    }
-}
-
-// Save chat history to localStorage
-function saveChatHistory() {
-    const chatMessages = document.getElementById('chat-messages').innerHTML;
-    localStorage.setItem('chatHistory', chatMessages);
-}
-
 // Reset chat by clearing chat history and localStorage
 function resetChat() {
     localStorage.removeItem('chatHistory');
-    document.getElementById('chat-messages').innerHTML = ''; 
+    document.getElementById('chat-messages').innerHTML = '';
 }
-

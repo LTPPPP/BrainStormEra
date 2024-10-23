@@ -46,6 +46,7 @@ Your response (in Vietnamese):";
         public async Task<string> GetResponseFromGemini(string message)
         {
             var formattedMessage = string.Format(FINETUNE_TEMPLATE, message);
+
             var request = new
             {
                 contents = new[]
@@ -64,17 +65,40 @@ Your response (in Vietnamese):";
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{GEMINI_API_URL}?key={_apiKey}", content);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var responseString = await response.Content.ReadAsStringAsync();
-                var responseObject = JsonConvert.DeserializeObject<dynamic>(responseString);
-                return responseObject.candidates[0].content.parts[0].text;
-            }
+                var response = await _httpClient.PostAsync($"{GEMINI_API_URL}?key={_apiKey}", content);
 
-            throw new HttpRequestException("Failed to get response from Gemini API");
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Response from Gemini API: " + responseString); // Log the full response for debugging
+
+                    // Adjust this deserialization if the structure is different
+                    var responseObject = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                    // Ensure that you access the correct fields based on the actual API response
+                    if (responseObject?.candidates != null && responseObject.candidates.Count > 0)
+                    {
+                        return responseObject.candidates[0].content.parts[0].text;
+                    }
+
+                    throw new HttpRequestException("Unexpected response format from Gemini API");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error Response: {errorContent}"); // Log error response
+                    throw new HttpRequestException($"Gemini API request failed with status code {response.StatusCode}: {errorContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception during Gemini API call: {ex.Message}"); // Log exception details
+                throw;
+            }
         }
+
 
     }
 }

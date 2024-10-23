@@ -13,10 +13,8 @@ namespace BrainStormEra
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddHttpContextAccessor();
-            // Register GeminiApiService to be injected when needed
             builder.Services.AddHttpClient<GeminiApiService>();
 
-            // Add services to the container, such as Controllers with Views
             builder.Services.AddControllersWithViews();
 
             // Configure DbContext with SQL Server
