@@ -34,9 +34,9 @@
             <!-- Profile Card -->
             <div class="col-md-4">
                 <div class="profile-card">
-                    <img class="card-img-top" src="@Model.UserPicture ?? '~/lib/img/User-img/default_user.png'" alt="User Picture" />
-                    <h4>@Model.FullName</h4>
-                    <p>@Model.UserEmail</p>
+                    <img class="card-img-top avatar" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="User Picture" />
+                    <h3>@Model.FullName</h3>
+                    <h4>@Model.UserEmail</h4>
                 </div>
             </div>
 

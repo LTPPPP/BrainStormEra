@@ -80,7 +80,6 @@ namespace BrainStormEra.Controllers.Account
                     accountInDb.Gender = account.Gender;
                     accountInDb.UserAddress = account.UserAddress;
                     accountInDb.DateOfBirth = account.DateOfBirth;
-
                     // Handle new avatar upload if available
                     if (avatar != null && avatar.Length > 0)
                     {
@@ -102,7 +101,7 @@ namespace BrainStormEra.Controllers.Account
                         // Update the user's picture path in the database
                         accountInDb.UserPicture = $"/uploads/{fileName}";
                     }
-
+                    
                     // Save the changes back to the database
                     var result = _context.SaveChanges();
                     Console.WriteLine($"{result} record(s) updated.");

@@ -9,20 +9,20 @@
     border-radius: 50%;
 }
 
-.profile {
-    font-size: 1.4rem;
-}
 
 .table {
     background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 10px var(--box-shadow-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
     overflow: hidden;
+    font-size: 1.4rem;
+    width: 100%;
+    border-collapse: collapse;
 }
 
     .table th {
-        background-color: #4682b4;
+        background-color: #7FB29D;
         color: white;
         padding: 12px;
         text-align: left;
@@ -30,8 +30,11 @@
 
     .table td {
         padding: 12px;
-        background-color: #f8f9fa;
+        background-color: #fafafa;
         color: #333;
+    }
+    .table tr:hover {
+        background-color: #f7f7f7; /* Hiệu ứng hover khi di chuột qua */
     }
 
 /* Button styling */
@@ -54,11 +57,16 @@
     box-shadow: 0 4px 8px var(--box-shadow-color);
     text-align: center;
     padding: 20px;
+    margin-top: 16%;
 }
 
+
     .profile-card img {
-        max-width: 100px;
-        border-radius: 50%;
+        width: 100%;
+        height:100%;
+        image-rendering:optimizeQuality;
+        object-fit:cover;
+        border-radius: 10%;
         margin-bottom: 15px;
     }
 
@@ -75,3 +83,21 @@
     color: var(--text-color);
     font-weight: bold;
 }
+
+.btn-custom {
+    background-color: ;
+    color: white;
+    border-radius: 5px;
+    padding: 12px 24px;
+    font-size: 1.4rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+    font-weight: 700;
+}
+
+    .btn-custom:hover {
+        background-color: #0056b3;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        color:white;
+    }

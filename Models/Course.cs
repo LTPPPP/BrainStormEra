@@ -17,13 +17,15 @@ public partial class Course
 
     public decimal? Price { get; set; }
 
-    public string? CreatedBy { get; set; }
-
     public DateTime? CourseCreatedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
 
     public virtual Status? CourseStatusNavigation { get; set; }
+
+    public virtual Account? CreatedByNavigation { get; set; }
 
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 

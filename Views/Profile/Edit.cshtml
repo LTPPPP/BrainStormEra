@@ -27,7 +27,7 @@
 
     <!-- Main Content -->
     <div class="container mt-5">
-        <h2>Edit Profile</h2>
+        <h2>Edit @Model.Username's Profile</h2>
         <form asp-action="Edit" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             @Html.AntiForgeryToken()
 
@@ -57,10 +57,9 @@
             <!-- Phone Number -->
             <div class="form-group">
                 <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
+                <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
-
             <!-- Gender Dropdown -->
             <div class="form-group">
                 <label asp-for="Gender" class="control-label"></label>
@@ -164,6 +163,10 @@
         function validateForm() {
             return validateFullName() && validateAge();
         }
+
+     
+
+
     </script>
 
     <!-- Link to Bootstrap JS and Popper.js -->
