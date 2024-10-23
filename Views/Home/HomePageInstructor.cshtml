@@ -1,6 +1,8 @@
 ﻿@page
 @model BrainStormEra.Models.Account
+@inject IHttpContextAccessor HttpContextAccessor
 @{
+    var userId = HttpContextAccessor.HttpContext.Request.Cookies["user_id"];
 }
 <!DOCTYPE html>
 <html lang="en">

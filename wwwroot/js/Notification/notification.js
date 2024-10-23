@@ -1,23 +1,15 @@
-// View and Add
-$(document).ready(function () {
-    // Đảm bảo dialog overlay được ẩn ngay khi trang tải
-    $('#dialogOverlay').hide();
 
-    // Khi nhấn nút "Add Notification", mở modal thêm thông báo
+$(document).ready(function () {
+    $('#dialogOverlay').hide();
+    
     $('.add-notification').click(function () {
         $('#addNotificationModal').modal('show');
     });
-
-    // Khi nhấn nút "Send" trong form Add Notification, kiểm tra dữ liệu trước khi hiển thị dialog chọn user
     $('#notificationForm').on('submit', function (event) {
-        event.preventDefault(); // Ngăn form submit thật sự
-
-        // Lấy các giá trị từ form Add Notification
+        event.preventDefault(); 
         var notificationTitle = $('#subject').val();
         var notificationContent = $('#content').val();
-        var notificationType = $('.select-group select:eq(1)').val(); // Lấy giá trị của thẻ select loại thông báo
-
-        // Kiểm tra xem các trường cần thiết đã được điền chưa
+        var notificationType = $('.select-group select:eq(1)').val();
         if (!notificationTitle || !notificationContent || !notificationType) {
             alert("Please fill in all required fields before selecting users.");
             return; 
@@ -30,9 +22,9 @@ $(document).ready(function () {
             $.each(data, function (index, user) {
                 userList += '<li><input type="checkbox" value="' + user.user_id + '">' + user.full_name + '</li>';
             });
-            $('#userList').html(userList); // Thêm danh sách user vào dialog
+            $('#userList').html(userList);
         }).fail(function () {
-            alert('Failed to load users'); // Thông báo nếu việc tải dữ liệu thất bại
+            alert('Failed to load users');
         });
     });
     

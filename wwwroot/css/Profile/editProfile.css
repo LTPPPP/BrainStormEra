@@ -1,4 +1,4 @@
-﻿.avatar-preview {
+﻿﻿.avatar-preview {
     width: 150px;
     height: 150px;
     border-radius: 50%;
@@ -15,10 +15,10 @@
 
     .avatar-upload label {
         cursor: pointer;
-        padding: 5px 10px;
+        padding: 8px 20px;
         background-color: #007bff;
         color: white;
-        border-radius: 5px;
+        border-radius: 10px;
     }
 
     .avatar-upload input[type="file"] {
@@ -26,20 +26,43 @@
     }
 
 .btn-custom {
-    background-color: #28a745;
+    background-color: var(--secondary-primary-color);
     color: white;
     border-radius: 5px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 1.4rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
     .btn-custom:hover {
-        background-color: #218838;
+        background-color: var(--btn-create);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
+
 
 .form-group {
     margin-top: 15px;
+    font-size: 1.2rem; /* Tăng cỡ chữ để dễ đọc hơn */
 }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+
+.form-control {
+    font-size: 1.6rem; /* Tăng kích thước font chữ cho input */
+    border-radius: 8px; /* Làm góc bo mềm hơn */
+    border: 1px solid #ced4da; /* Giữ lại viền mềm */
+}
+
+    .form-control:focus {
+        border-color: #007bff; /* Đổi màu viền khi input được chọn */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Tạo hiệu ứng khi focus */
+    }
+
 
 footer {
     background-color: #343a40;

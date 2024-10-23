@@ -56,7 +56,16 @@
     @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml")
     @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml")
     @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml")
-
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog">
+            <h3>Select Users</h3>
+            <div>
+                <input type="checkbox" id="selectAllUsers" /> Select All
+            </div>
+            <ul id="userList"></ul>
+            <button id="sendToUsers">Send</button>
+        </div>
+    </div>
     @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
