@@ -1,3 +1,6 @@
 ﻿.vs/
-/bin
-/obj
+# Ignore bin and obj folders
+**/bin/
+**/obj/
+# Ignore .NET Core
+secrets.json
