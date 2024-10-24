@@ -190,7 +190,7 @@ namespace BrainStormEra.Controllers.Course
             var courses = _context.Courses
        .Include(c => c.CourseCategories)
        .Include(c => c.Enrollments)
-       .Include(c => c.CreatedBy) // Adjust this line
+       /*.Include(c => c.CreatedBy) */// Adjust this line
        .OrderByDescending(c => c.CourseCreatedAt)
        .Select(course => new DeleteCourseViewModel
        {

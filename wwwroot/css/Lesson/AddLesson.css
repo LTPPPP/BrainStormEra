@@ -7,21 +7,46 @@ h5 {
 }
 
 .sidebar {
-    background-color: var(--white-color);
-    border-right: 1px solid var(--light-gray-color);
-    height: 140vh;
-    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    height: 100vh;
+    padding: 30px 20px;
+    color: var(--white-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-    .sidebar button {
-        width: 80%;
-        margin-bottom: 10px;
+    .sidebar h4 {
+        color: var(--white-color);
+        text-align: center;
+        margin-bottom: 40px;
     }
 
-    .sidebar .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
     }
+
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
+
+            .sidebar ul li a {
+                display: block;
+                text-align: center;
+                padding: 15px;
+                background-color: rgba(255, 255, 255, 0.2);
+                color: var(--white-color);
+                border-radius: 8px;
+                transition: background-color 0.3s ease;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+                .sidebar ul li a:hover {
+                    background-color: rgba(255, 255, 255, 0.4);
+                }
 
 .content {
     padding: 20px;
@@ -52,21 +77,25 @@ h5 {
         margin-bottom: 10px;
     }
 
-.btn-create {
+
+.success {
     background-color: var(--btn-create);
     border: none;
-    width: 150px;
+    width: 200px;
     height: 50px;
     display: block;
     margin: 20px auto;
     transition: background-color 0.3s;
     border-radius: 10px;
+    font-size: 15px;
+    color: var(--white-color);
 }
 
-    .btn-create:hover {
-        background-color: var(--btn-create-hover);
-        color: var(--white-color);
-    }
+success:hover {
+    background-color: var(--btn-create-hover);
+    color: var(--white-color);
+}
+
 
 .add-more {
     display: flex;
@@ -117,7 +146,31 @@ h5 {
 }
 
 .btn {
-    margin-bottom: 10px;
+    margin: 10px 70px;
+    width: 250px;
+    height: 50px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: var(--main-color);
+    font-size: 15px;
+}
+
+.modal-title {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.form-check {
+    margin-bottom: 15px;
+}
+
+#fileDetails {
+    font-size: 14px;
+    color: #333;
+}
+
+#videoFile {
+    margin-top: 10px;
 }
 
 .modal-dialog-centered {
@@ -127,41 +180,16 @@ h5 {
     min-height: 100vh;
 }
 
-.file-details {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: #6c757d;
+.modal-dialog {
+    max-width: 400px;
+    width: 100%;
 }
 
-    .file-details p {
-        margin: 0;
-    }
-
-.modal-body input[type="file"] {
-    display: none;
+.modal-body {
+    padding: 20px;
 }
 
-.btn-file-label {
-    display: inline-block;
-    margin-top: 10px;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Notification Styling */
-.custom-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    min-width: 300px;
-    z-index: 9999;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-.show-notification {
-    opacity: 1;
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
 }
