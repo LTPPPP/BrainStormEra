@@ -65,13 +65,14 @@ namespace BrainStormEra.Controllers.Account
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || avatar == null)
             {
                 try
                 {
                     // Get the user's account from the database
                     var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
                     if (accountInDb == null) return NotFound();
+
 
                     // Update the account details
                     accountInDb.FullName = account.FullName;
@@ -80,6 +81,7 @@ namespace BrainStormEra.Controllers.Account
                     accountInDb.Gender = account.Gender;
                     accountInDb.UserAddress = account.UserAddress;
                     accountInDb.DateOfBirth = account.DateOfBirth;
+
                     // Handle new avatar upload if available
                     if (avatar != null && avatar.Length > 0)
                     {
@@ -101,11 +103,14 @@ namespace BrainStormEra.Controllers.Account
                         // Update the user's picture path in the database
                         accountInDb.UserPicture = $"/uploads/{fileName}";
                     }
-                    
-                    // Save the changes back to the database
-                    var result = _context.SaveChanges();
-                    Console.WriteLine($"{result} record(s) updated.");
+                    else if(avatar == null)
+                    {
+                        // Retain the existing picture if no new file is uploaded
+                        accountInDb.UserPicture = accountInDb.UserPicture;
+                    }
 
+                    // Save the changes back to the database
+                    _context.SaveChanges();
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
