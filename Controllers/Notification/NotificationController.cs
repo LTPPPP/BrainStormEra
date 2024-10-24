@@ -13,10 +13,10 @@ namespace BrainStormEra.Controllers
 {
     public class NotificationController : Controller
     {
-        private readonly SwpDb7Context _context;
+        private readonly SwpMainFpContext _context;
         private readonly ILogger<NotificationController> _logger;
 
-        public NotificationController(SwpDb7Context context, ILogger<NotificationController> logger)
+        public NotificationController(SwpMainFpContext context, ILogger<NotificationController> logger)
         {
             _context = context;
             _logger = logger;

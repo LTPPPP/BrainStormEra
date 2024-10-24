@@ -18,7 +18,7 @@ namespace BrainStormEra
             builder.Services.AddControllersWithViews();
 
             // Configure DbContext with SQL Server
-            builder.Services.AddDbContext<SwpDb7Context>(options =>
+            builder.Services.AddDbContext<SwpMainFpContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SwpDb7Context")));
 
             // Add authentication services for cookies

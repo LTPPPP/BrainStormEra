@@ -9,9 +9,9 @@ namespace BrainStormEra.Controllers.Account
 
     public class UserController : Controller
     {
-        private readonly SwpDb7Context _context;
+        private readonly SwpMainFpContext _context;
 
-        public UserController(SwpDb7Context context)
+        public UserController(SwpMainFpContext context)
         {
             _context = context;
         }

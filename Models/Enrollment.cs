@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
-
 public partial class Enrollment
 {
     public string EnrollmentId { get; set; } = null!;
@@ -13,11 +12,11 @@ public partial class Enrollment
 
     public int? EnrollmentStatus { get; set; }
 
-    public bool? ApprovedByAdmin { get; set; }
+    public bool? Approved { get; set; }
 
     public DateOnly? CertificateIssuedDate { get; set; }
 
-    public DateTime? EnrollmentCreatedAt { get; set; }
+    public DateTime EnrollmentCreatedAt { get; set; }
 
     public virtual Course? Course { get; set; }
 

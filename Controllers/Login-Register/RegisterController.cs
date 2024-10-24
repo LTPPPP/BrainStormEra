@@ -7,9 +7,9 @@ using System.Text;
 
 public class RegisterController : Controller
 {
-    private readonly SwpDb7Context _context;
+    private readonly SwpMainFpContext _context;
 
-    public RegisterController(SwpDb7Context context)
+    public RegisterController(SwpMainFpContext context)
     {
         _context = context;
     }

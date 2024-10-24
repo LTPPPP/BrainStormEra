@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
-
 public partial class Feedback
 {
     public string FeedbackId { get; set; } = null!;
@@ -15,11 +14,11 @@ public partial class Feedback
 
     public string? Comment { get; set; }
 
-    public DateOnly? FeedbackDate { get; set; }
+    public DateOnly FeedbackDate { get; set; }
 
     public bool? HiddenStatus { get; set; }
 
-    public DateTime? FeedbackCreatedAt { get; set; }
+    public DateTime FeedbackCreatedAt { get; set; }
 
     public virtual Course? Course { get; set; }
 

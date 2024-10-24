@@ -10,9 +10,9 @@ namespace BrainStormEra.Controllers
     public class ChatbotController : Controller
     {
         private readonly GeminiApiService _geminiApiService;
-        private readonly SwpDb7Context _dbContext;
+        private readonly SwpMainFpContext _dbContext;
 
-        public ChatbotController(GeminiApiService geminiApiService, SwpDb7Context dbContext)
+        public ChatbotController(GeminiApiService geminiApiService, SwpMainFpContext dbContext)
         {
             _geminiApiService = geminiApiService;
             _dbContext = dbContext;
@@ -61,7 +61,7 @@ namespace BrainStormEra.Controllers
         public IActionResult GetConversationStatistics()
         {
             var conversationData = _dbContext.ChatbotConversations
-                .GroupBy(c => c.ConversationTime.Value.Date)
+                .GroupBy(c => c.ConversationTime.ToString())
                 .Select(g => new
                 {
                     Date = g.Key,

@@ -9,9 +9,9 @@ namespace BrainStormEra.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly SwpDb7Context _context;
+        private readonly SwpMainFpContext _context;
 
-        public LoginController(SwpDb7Context context)
+        public LoginController(SwpMainFpContext context)
         {
             _context = context;
         }

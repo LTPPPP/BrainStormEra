@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra.Models;
 
-public partial class SwpDb7Context : DbContext
+public partial class SwpMainFpContext : DbContext
 {
-    public SwpDb7Context()
+    public SwpMainFpContext()
     {
     }
 
-    public SwpDb7Context(DbContextOptions<SwpDb7Context> options)
+    public SwpMainFpContext(DbContextOptions<SwpMainFpContext> options)
         : base(options)
     {
     }
@@ -47,19 +47,19 @@ public partial class SwpDb7Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=LTP;Database=SWP_DB7;uid=sa;pwd=01654460072ltp;encrypt=true;trustServerCertificate=true;");
+        => optionsBuilder.UseSqlServer("Server=LTP;Database=SWP_MAIN_FP;uid=sa;pwd=01654460072ltp;encrypt=true;trustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__account__B9BE370FB705E666");
+            entity.HasKey(e => e.UserId).HasName("PK__account__B9BE370FA0C3F051");
 
             entity.ToTable("account");
 
-            entity.HasIndex(e => e.UserEmail, "UQ__account__B0FBA2124E16495D").IsUnique();
+            entity.HasIndex(e => e.UserEmail, "UQ__account__B0FBA212E8AB6E51").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__account__F3DBC57201711D69").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__account__F3DBC572A0432E20").IsUnique();
 
             entity.Property(e => e.UserId)
                 .HasMaxLength(255)
@@ -72,7 +72,6 @@ public partial class SwpDb7Context : DbContext
             entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
             entity.Property(e => e.FullName)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("full_name");
             entity.Property(e => e.Gender)
                 .HasMaxLength(6)
@@ -83,22 +82,19 @@ public partial class SwpDb7Context : DbContext
                 .IsUnicode(false)
                 .HasColumnName("password");
             entity.Property(e => e.PaymentPoint)
-                .HasDefaultValue(0)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("payment_point");
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("phone_number");
-            entity.Property(e => e.UserAddress)
-                .HasColumnType("text")
-                .HasColumnName("user_address");
+            entity.Property(e => e.UserAddress).HasColumnName("user_address");
             entity.Property(e => e.UserEmail)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("user_email");
-            entity.Property(e => e.UserPicture)
-                .HasColumnType("text")
-                .HasColumnName("user_picture");
+            entity.Property(e => e.UserPicture).HasColumnName("user_picture");
             entity.Property(e => e.UserRole).HasColumnName("user_role");
             entity.Property(e => e.Username)
                 .HasMaxLength(255)
@@ -107,12 +103,13 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.UserRoleNavigation).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.UserRole)
-                .HasConstraintName("FK__account__user_ro__300424B4");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__account__user_ro__3E52440B");
         });
 
         modelBuilder.Entity<Achievement>(entity =>
         {
-            entity.HasKey(e => e.AchievementId).HasName("PK__achievem__3C492E832AA9FEB2");
+            entity.HasKey(e => e.AchievementId).HasName("PK__achievem__3C492E83401420AB");
 
             entity.ToTable("achievement");
 
@@ -124,26 +121,23 @@ public partial class SwpDb7Context : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("achievement_created_at");
-            entity.Property(e => e.AchievementDescription)
-                .HasColumnType("text")
-                .HasColumnName("achievement_description");
+            entity.Property(e => e.AchievementDescription).HasColumnName("achievement_description");
             entity.Property(e => e.AchievementIcon)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("achievement_icon");
             entity.Property(e => e.AchievementName)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("achievement_name");
         });
 
         modelBuilder.Entity<Chapter>(entity =>
         {
-            entity.HasKey(e => e.ChapterId).HasName("PK__chapter__745EFE8749E13080");
+            entity.HasKey(e => e.ChapterId).HasName("PK__chapter__745EFE876EEEFC58");
 
             entity.ToTable("chapter");
 
-            entity.HasIndex(e => new { e.CourseId, e.ChapterOrder }, "UQ__chapter__C75A5C17ACBD8FCA").IsUnique();
+            entity.HasIndex(e => new { e.CourseId, e.ChapterOrder }, "unique_chapter_order_per_course").IsUnique();
 
             entity.Property(e => e.ChapterId)
                 .HasMaxLength(255)
@@ -153,12 +147,9 @@ public partial class SwpDb7Context : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("chapter_created_at");
-            entity.Property(e => e.ChapterDescription)
-                .HasColumnType("text")
-                .HasColumnName("chapter_description");
+            entity.Property(e => e.ChapterDescription).HasColumnName("chapter_description");
             entity.Property(e => e.ChapterName)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("chapter_name");
             entity.Property(e => e.ChapterOrder).HasColumnName("chapter_order");
             entity.Property(e => e.ChapterStatus).HasColumnName("chapter_status");
@@ -169,16 +160,18 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.ChapterStatusNavigation).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.ChapterStatus)
-                .HasConstraintName("FK__chapter__chapter__3A81B327");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__chapter__chapter__5812160E");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__chapter__course___398D8EEE");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__chapter__course___571DF1D5");
         });
 
         modelBuilder.Entity<ChatbotConversation>(entity =>
         {
-            entity.HasKey(e => e.ConversationId).HasName("PK__chatbot___311E7E9ACD20B5AF");
+            entity.HasKey(e => e.ConversationId).HasName("PK__chatbot___311E7E9ACC37A948");
 
             entity.ToTable("chatbot_conversation");
 
@@ -186,9 +179,7 @@ public partial class SwpDb7Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("conversation_id");
-            entity.Property(e => e.ConversationContent)
-                .HasColumnType("text")
-                .HasColumnName("conversation_content");
+            entity.Property(e => e.ConversationContent).HasColumnName("conversation_content");
             entity.Property(e => e.ConversationTime)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -200,12 +191,13 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.ChatbotConversations)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__chatbot_c__user___4F7CD00D");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__chatbot_c__user___6477ECF3");
         });
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK_Course");
+            entity.HasKey(e => e.CourseId).HasName("PK__course__8F1EF7AEA2FA2106");
 
             entity.ToTable("course");
 
@@ -213,60 +205,49 @@ public partial class SwpDb7Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("course_id");
-
-            entity.Property(e => e.CourseName)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .IsRequired()
-                .HasColumnName("course_name");
-
-            entity.Property(e => e.CourseDescription)
-                .HasColumnType("text")
-                .HasColumnName("course_description");
-
-            entity.Property(e => e.CourseStatus)
-                .HasColumnName("course_status");
-
-            entity.Property(e => e.CoursePicture)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("course_picture");
-
-            entity.Property(e => e.Price)
-                .HasDefaultValue(0.00m)
-                .HasColumnType("decimal(10, 2)")
-                .HasColumnName("price");
-
-            entity.Property(e => e.CreatedBy)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("created_by");
-
             entity.Property(e => e.CourseCreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("course_created_at");
+            entity.Property(e => e.CourseDescription).HasColumnName("course_description");
+            entity.Property(e => e.CourseName)
+                .HasMaxLength(255)
+                .HasColumnName("course_name");
+            entity.Property(e => e.CoursePicture)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("course_picture");
+            entity.Property(e => e.CourseStatus).HasColumnName("course_status");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("created_by");
+            entity.Property(e => e.Price)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("price");
 
-            entity.HasOne(d => d.CourseStatusNavigation)
-                .WithMany(p => p.Courses)
+            entity.HasOne(d => d.CourseStatusNavigation).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CourseStatus)
-                .HasConstraintName("FK_Course_Status");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__course__course_s__44FF419A");
 
-            entity.HasMany(d => d.CourseCategories)
-                .WithMany(p => p.Courses)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__course__created___45F365D3");
+
+            entity.HasMany(d => d.CourseCategories).WithMany(p => p.Courses)
                 .UsingEntity<Dictionary<string, object>>(
                     "CourseCategoryMapping",
                     r => r.HasOne<CourseCategory>().WithMany()
                         .HasForeignKey("CourseCategoryId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_CourseCategoryMapping_CourseCategory"),
+                        .HasConstraintName("FK__course_ca__cours__4BAC3F29"),
                     l => l.HasOne<Course>().WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_CourseCategoryMapping_Course"),
+                        .HasConstraintName("FK__course_ca__cours__4AB81AF0"),
                     j =>
                     {
-                        j.HasKey("CourseId", "CourseCategoryId").HasName("PK_CourseCategoryMapping");
+                        j.HasKey("CourseId", "CourseCategoryId").HasName("PK__course_c__10F9222086C4FA90");
                         j.ToTable("course_category_mapping");
                         j.IndexerProperty<string>("CourseId")
                             .HasMaxLength(255)
@@ -279,10 +260,9 @@ public partial class SwpDb7Context : DbContext
                     });
         });
 
-
         modelBuilder.Entity<CourseCategory>(entity =>
         {
-            entity.HasKey(e => e.CourseCategoryId).HasName("PK__course_c__FE7D58E8E65820A2");
+            entity.HasKey(e => e.CourseCategoryId).HasName("PK__course_c__FE7D58E87C61057E");
 
             entity.ToTable("course_category");
 
@@ -292,13 +272,12 @@ public partial class SwpDb7Context : DbContext
                 .HasColumnName("course_category_id");
             entity.Property(e => e.CourseCategoryName)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("course_category_name");
         });
 
         modelBuilder.Entity<Enrollment>(entity =>
         {
-            entity.HasKey(e => e.EnrollmentId).HasName("PK__enrollme__6D24AA7A7575A65D");
+            entity.HasKey(e => e.EnrollmentId).HasName("PK__enrollme__6D24AA7ABDF0C79D");
 
             entity.ToTable("enrollment");
 
@@ -306,9 +285,9 @@ public partial class SwpDb7Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("enrollment_id");
-            entity.Property(e => e.ApprovedByAdmin)
+            entity.Property(e => e.Approved)
                 .HasDefaultValue(false)
-                .HasColumnName("approved_by_admin");
+                .HasColumnName("approved");
             entity.Property(e => e.CertificateIssuedDate).HasColumnName("certificate_issued_date");
             entity.Property(e => e.CourseId)
                 .HasMaxLength(255)
@@ -326,20 +305,23 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__enrollmen__cours__46E78A0C");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__enrollmen__cours__5165187F");
 
             entity.HasOne(d => d.EnrollmentStatusNavigation).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.EnrollmentStatus)
-                .HasConstraintName("FK__enrollmen__enrol__47DBAE45");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__enrollmen__enrol__52593CB8");
 
             entity.HasOne(d => d.User).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__enrollmen__user___45F365D3");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__enrollmen__user___5070F446");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__feedback__7A6B2B8C9D530EF2");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__feedback__7A6B2B8CE88CB622");
 
             entity.ToTable("feedback");
 
@@ -347,9 +329,7 @@ public partial class SwpDb7Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("feedback_id");
-            entity.Property(e => e.Comment)
-                .HasColumnType("text")
-                .HasColumnName("comment");
+            entity.Property(e => e.Comment).HasColumnName("comment");
             entity.Property(e => e.CourseId)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -370,20 +350,22 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__feedback__course__5441852A");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__feedback__course__6A30C649");
 
             entity.HasOne(d => d.User).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__feedback__user_i__5535A963");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__feedback__user_i__6B24EA82");
         });
 
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(e => e.LessonId).HasName("PK__lesson__6421F7BE878D4BDC");
+            entity.HasKey(e => e.LessonId).HasName("PK__lesson__6421F7BE6CC8CF45");
 
             entity.ToTable("lesson");
 
-            entity.HasIndex(e => new { e.ChapterId, e.LessonOrder }, "UQ__lesson__38A2B706078F149B").IsUnique();
+            entity.HasIndex(e => new { e.ChapterId, e.LessonOrder }, "unique_lesson_order_per_chapter").IsUnique();
 
             entity.Property(e => e.LessonId)
                 .HasMaxLength(255)
@@ -393,19 +375,14 @@ public partial class SwpDb7Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("chapter_id");
-            entity.Property(e => e.LessonContent)
-                .HasColumnType("text")
-                .HasColumnName("lesson_content");
+            entity.Property(e => e.LessonContent).HasColumnName("lesson_content");
             entity.Property(e => e.LessonCreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("lesson_created_at");
-            entity.Property(e => e.LessonDescription)
-                .HasColumnType("text")
-                .HasColumnName("lesson_description");
+            entity.Property(e => e.LessonDescription).HasColumnName("lesson_description");
             entity.Property(e => e.LessonName)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("lesson_name");
             entity.Property(e => e.LessonOrder).HasColumnName("lesson_order");
             entity.Property(e => e.LessonStatus).HasColumnName("lesson_status");
@@ -413,20 +390,23 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.ChapterId)
-                .HasConstraintName("FK__lesson__chapter___3F466844");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__lesson__chapter___5EBF139D");
 
             entity.HasOne(d => d.LessonStatusNavigation).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.LessonStatus)
-                .HasConstraintName("FK__lesson__lesson_s__412EB0B6");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__lesson__lesson_s__60A75C0F");
 
             entity.HasOne(d => d.LessonType).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.LessonTypeId)
-                .HasConstraintName("FK__lesson__lesson_t__403A8C7D");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__lesson__lesson_t__5FB337D6");
         });
 
         modelBuilder.Entity<LessonType>(entity =>
         {
-            entity.HasKey(e => e.LessonTypeId).HasName("PK__lesson_t__F5960D1E351D56A0");
+            entity.HasKey(e => e.LessonTypeId).HasName("PK__lesson_t__F5960D1EE5C631D5");
 
             entity.ToTable("lesson_type");
 
@@ -435,13 +415,12 @@ public partial class SwpDb7Context : DbContext
                 .HasColumnName("lesson_type_id");
             entity.Property(e => e.LessonTypeName)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("lesson_type_name");
         });
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK_Notification");
+            entity.HasKey(e => e.NotificationId).HasName("PK__notifica__E059842FCA9974F1");
 
             entity.ToTable("notification");
 
@@ -449,57 +428,49 @@ public partial class SwpDb7Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("notification_id");
-
+            entity.Property(e => e.CourseId)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("course_id");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("created_by");
+            entity.Property(e => e.NotificationContent).HasColumnName("notification_content");
+            entity.Property(e => e.NotificationCreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("notification_created_at");
+            entity.Property(e => e.NotificationTitle)
+                .HasMaxLength(255)
+                .HasColumnName("notification_title");
+            entity.Property(e => e.NotificationType)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("notification_type");
             entity.Property(e => e.UserId)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("user_id");
 
-            entity.Property(e => e.CourseId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("course_id");
-
-            entity.Property(e => e.NotificationTitle)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .IsRequired()
-                .HasColumnName("notification_title");
-
-            entity.Property(e => e.NotificationContent)
-                .HasColumnType("text")
-                .HasColumnName("notification_content");
-
-            entity.Property(e => e.NotificationType)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("notification_type");
-
-            entity.Property(e => e.NotificationCreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("notification_created_at");
-
-            entity.Property(e => e.CreatedBy)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("created_by");
-
-            entity.HasOne(d => d.Course)
-                .WithMany(p => p.Notifications)
+            entity.HasOne(d => d.Course).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK_Notification_Course");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__notificat__cours__787EE5A0");
 
-            entity.HasOne(d => d.User)
-                .WithMany(p => p.Notifications)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.NotificationCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__notificat__creat__797309D9");
+
+            entity.HasOne(d => d.User).WithMany(p => p.NotificationUsers)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK_Notification_User");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__notificat__user___778AC167");
         });
-
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__payment__ED1FC9EABC43225B");
+            entity.HasKey(e => e.PaymentId).HasName("PK__payment__ED1FC9EA9A80E20A");
 
             entity.ToTable("payment");
 
@@ -516,7 +487,6 @@ public partial class SwpDb7Context : DbContext
                 .HasColumnName("payment_date");
             entity.Property(e => e.PaymentDescription)
                 .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("payment_description");
             entity.Property(e => e.PaymentStatus)
                 .HasMaxLength(50)
@@ -530,12 +500,13 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__payment__user_id__656C112C");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__payment__user_id__7F2BE32F");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.UserRole).HasName("PK__role__68057FEC7A883DB3");
+            entity.HasKey(e => e.UserRole).HasName("PK__role__68057FECFECCAEA0");
 
             entity.ToTable("role");
 
@@ -544,13 +515,12 @@ public partial class SwpDb7Context : DbContext
                 .HasColumnName("user_role");
             entity.Property(e => e.RoleName)
                 .HasMaxLength(100)
-                .IsUnicode(false)
                 .HasColumnName("role_name");
         });
 
         modelBuilder.Entity<Status>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__status__3683B53178654D5E");
+            entity.HasKey(e => e.StatusId).HasName("PK__status__3683B531B38CDFB5");
 
             entity.ToTable("status");
 
@@ -559,13 +529,12 @@ public partial class SwpDb7Context : DbContext
                 .HasColumnName("status_id");
             entity.Property(e => e.StatusDescription)
                 .HasMaxLength(100)
-                .IsUnicode(false)
                 .HasColumnName("status_description");
         });
 
         modelBuilder.Entity<UserAchievement>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.AchievementId }).HasName("PK__user_ach__9A7AA5E76D1EDF19");
+            entity.HasKey(e => new { e.UserId, e.AchievementId }).HasName("PK__user_ach__9A7AA5E7612A4218");
 
             entity.ToTable("user_achievement");
 
@@ -585,17 +554,15 @@ public partial class SwpDb7Context : DbContext
 
             entity.HasOne(d => d.Achievement).WithMany(p => p.UserAchievements)
                 .HasForeignKey(d => d.AchievementId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__user_achi__achie__5BE2A6F2");
+                .HasConstraintName("FK__user_achi__achie__71D1E811");
 
             entity.HasOne(d => d.Enrollment).WithMany(p => p.UserAchievements)
                 .HasForeignKey(d => d.EnrollmentId)
-                .HasConstraintName("FK__user_achi__enrol__5CD6CB2B");
+                .HasConstraintName("FK__user_achi__enrol__72C60C4A");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserAchievements)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__user_achi__user___5AEE82B9");
+                .HasConstraintName("FK__user_achi__user___70DDC3D8");
         });
 
         OnModelCreatingPartial(modelBuilder);

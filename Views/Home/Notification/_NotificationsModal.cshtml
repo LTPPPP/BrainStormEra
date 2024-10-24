@@ -57,13 +57,12 @@
                         {
                             var currentDate = notification.NotificationCreatedAt;
 
-                            if (lastDate == null || (currentDate.Value.Month != lastDate.Value.Month || currentDate.Value.Year != lastDate.Value.Year))
+                            @* if (currentDate.HasValue && (lastDate == null || currentDate.Value.Month != lastDate.Value.Month || currentDate.Value.Year != lastDate.Value.Year))
                             {
                                 <div class="notification-section">
                                     <h2>@currentDate.Value.ToString("MMMM yyyy")</h2>
                                 </div>
-                            }
-
+                            } *@
 
                             <div class="notification-item d-flex justify-content-between align-items-center" data-notification-id="@notification.NotificationId" data-createdby="@notification.CreatedBy">
                                 <div class="d-flex align-items-center">
@@ -78,7 +77,7 @@
                                             <strong>@notification.NotificationTitle</strong> <br />
                                             @notification.NotificationContent
                                         </p>
-                                        <p class="time">@currentDate?.ToString("g")</p>
+                                        <p class="time">@currentDate.ToString("g")</p>
                                     </div>
                                 </div>
                                 <div class="actions d-flex align-items-center">

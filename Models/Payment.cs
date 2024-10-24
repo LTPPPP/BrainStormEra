@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
-
 public partial class Payment
 {
     public string PaymentId { get; set; } = null!;
@@ -17,7 +16,7 @@ public partial class Payment
 
     public string? PaymentStatus { get; set; }
 
-    public DateTime? PaymentDate { get; set; }
+    public DateTime PaymentDate { get; set; }
 
     public virtual Account? User { get; set; }
 }

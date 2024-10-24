@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
-
 public partial class UserAchievement
 {
     public string UserId { get; set; } = null!;
 
     public string AchievementId { get; set; } = null!;
 
-    public DateOnly? ReceivedDate { get; set; }
+    public DateOnly ReceivedDate { get; set; }
 
     public string? EnrollmentId { get; set; }
 

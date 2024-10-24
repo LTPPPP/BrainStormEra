@@ -10,9 +10,9 @@ namespace BrainStormEra.Controllers.Chapter
     public class ChapterController : Controller
     {
 
-        private readonly SwpDb7Context _context; // Define the context as a private field
+        private readonly SwpMainFpContext _context; // Define the context as a private field
 
-        public ChapterController(SwpDb7Context context)
+        public ChapterController(SwpMainFpContext context)
         {
             _context = context; // Properly assign the injected context to the private field
         }

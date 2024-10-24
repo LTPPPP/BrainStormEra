@@ -68,8 +68,8 @@
 
                         <td>@lesson.LessonOrder</td>
                         <td>@(lesson.LessonStatus == 1 ? "Inactive" : "Active")</td>
-                        <td>@(lesson.LessonCreatedAt.HasValue ? lesson.LessonCreatedAt.Value.ToString("yyyy-MM-dd") : "N/A")</td>
-                        <td>
+@*                         <td>@(lesson.LessonCreatedAt.HasValue ? lesson.LessonCreatedAt.Value.ToString("yyyy-MM-dd") : "N/A")</td>
+ *@                        <td>
                             <a href="@Url.Action("EditLesson", new { id = lesson.LessonId })" class="btn btn-primary">Edit</a>
                             <a href="@Url.Action("DeleteLesson", new { id = lesson.LessonId })" class="btn btn-danger">Delete</a>
                         </td>

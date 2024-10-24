@@ -1,4 +1,4 @@
-﻿namespace BrainStormEra.Models
+namespace BrainStormEra.Models
 {
     public class ErrorViewModel
     {

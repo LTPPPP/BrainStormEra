@@ -11,9 +11,9 @@ namespace BrainStormEra.Controllers.Achievement
 {
     public class AchievementController : Controller
     {
-        private readonly SwpDb7Context _context;
+        private readonly SwpMainFpContext _context;
 
-        public AchievementController(SwpDb7Context context)
+        public AchievementController(SwpMainFpContext context)
         {
             _context = context;
         }
@@ -36,7 +36,7 @@ namespace BrainStormEra.Controllers.Achievement
                     ua.Achievement.AchievementName,
                     ua.Achievement.AchievementDescription,
                     ua.Achievement.AchievementIcon,
-                    ReceivedDate = ua.ReceivedDate.HasValue ? ua.ReceivedDate.Value.ToString("yyyy-MM-dd") : null
+                    ReceivedDate = ua.ReceivedDate.ToString()
                 })
                 .ToListAsync();
 
