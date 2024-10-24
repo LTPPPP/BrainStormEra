@@ -69,11 +69,9 @@ namespace BrainStormEra.Controllers.Account
             {
                 try
                 {
-                    // Get the user's account from the database
                     var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
                     if (accountInDb == null) return NotFound();
 
-                    // Update the account details
                     accountInDb.FullName = account.FullName;
                     accountInDb.UserEmail = account.UserEmail;
                     accountInDb.PhoneNumber = account.PhoneNumber;
@@ -81,11 +79,10 @@ namespace BrainStormEra.Controllers.Account
                     accountInDb.UserAddress = account.UserAddress;
                     accountInDb.DateOfBirth = account.DateOfBirth;
 
-                    // Handle new avatar upload if available
+                    // Handle avatar upload
                     if (avatar != null && avatar.Length > 0)
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "lib", "img", "User-img");
                         if (!Directory.Exists(uploadsFolder))
                         {
                             Directory.CreateDirectory(uploadsFolder);
@@ -99,14 +96,10 @@ namespace BrainStormEra.Controllers.Account
                             avatar.CopyTo(stream);
                         }
 
-                        // Update the user's picture path in the database
-                        accountInDb.UserPicture = $"/uploads/{fileName}";
+                        accountInDb.UserPicture = $"/lib/img/User-img/{fileName}";
                     }
 
-                    // Save the changes back to the database
-                    var result = _context.SaveChanges();
-                    Console.WriteLine($"{result} record(s) updated.");
-
+                    _context.SaveChanges();
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
@@ -126,8 +119,10 @@ namespace BrainStormEra.Controllers.Account
 
             return View(account);
         }
+
         public IActionResult RedirectToHome()
         {
+            // Kiểm tra xem các cookie đã tồn tại chưa
             var userIdCookie = Request.Cookies["user_id"];
             var userRoleCookie = Request.Cookies["user_role"];
 

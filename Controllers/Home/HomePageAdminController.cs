@@ -2,6 +2,7 @@
 using BrainStormEra.Models;
 using System.Security.Claims;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra.Controllers
 {
@@ -51,15 +52,19 @@ namespace BrainStormEra.Controllers
             try
             {
                 var userStatistics = _context.Accounts
-                    .Where(u => u.AccountCreatedAt != null)
-                    .GroupBy(u => u.AccountCreatedAt.ToString())
+                    .GroupBy(u => u.AccountCreatedAt.Date) // Use Entity Framework to get the date part
                     .Select(g => new
                     {
-                        date = g.Key,
+                        date = g.Key, // Format the date as "yyyy-MM-dd"
                         count = g.Count()
                     })
                     .OrderBy(g => g.date)
-                    .ToList();
+                    .ToList()
+                    .Select(d => new
+                    {
+                        Date = d.date.ToString("yyyy-MM-dd"),
+                        Count = d.count
+                    }).ToList();
 
                 return Json(userStatistics);
             }
@@ -69,5 +74,7 @@ namespace BrainStormEra.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving user statistics." });
             }
         }
+
+
     }
 }

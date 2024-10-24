@@ -34,15 +34,11 @@
             <input type="hidden" asp-for="UserId" />
 
             <!-- Avatar Upload Section -->
-            <img id="avatarPreview"
-                  src="@(!string.IsNullOrEmpty(Model.UserPicture) ? Model.UserPicture : Url.Content("~/lib/img/User-img/default_user.png'"))"
-                  alt="Avatar"
-                  class="avatar-preview img-thumbnail"
-                  style="max-width: 150px;"
-                  onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" />
+            <div class="avatar-upload mb-3">
+                <img id="avatarPreview" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Avatar" class="avatar-preview img-thumbnail" style="max-width: 150px;">
                 <label for="avatarUpload" class="form-label">Change Avatar</label>
                 <input type="file" id="avatarUpload" name="avatar" accept="image/*" class="form-control" onchange="previewAvatar()" />
-
+            </div>
             <!-- Full Name with Validation -->
             <div class="form-group">
                 <label asp-for="FullName" class="control-label"></label>

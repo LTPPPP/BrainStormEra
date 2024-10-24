@@ -1,0 +1,213 @@
+﻿@page
+@model BrainStormEra.Views.Admin.ChatbotHistoryModel
+@{
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chatbot History and Conversation Interface">
+    <meta name="keywords" content="chat, history, chatbot, conversation, admin">
+    <meta name="author" content="BrainStormEra">
+    <title>Mengobrol</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .header i {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .stories {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .story {
+            text-align: center;
+            margin-right: 15px;
+        }
+
+        .story img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+
+        .story p {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .chats {
+            margin-top: 20px;
+        }
+
+        .chat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chat img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-info {
+            flex-grow: 1;
+        }
+
+        .chat-info h2 {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .chat-info p {
+            font-size: 14px;
+            color: #888;
+            margin: 5px 0 0 0;
+        }
+
+        .chat-time {
+            text-align: right;
+        }
+
+        .chat-time p {
+            font-size: 12px;
+            color: #888;
+            margin: 0;
+        }
+
+        .chat-time .badge {
+            background-color: #f1c40f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #fff;
+        }
+
+        .footer i {
+            font-size: 24px;
+        }
+
+        .footer .new-chat {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .footer .new-chat i {
+            margin-right: 10px;
+        }
+
+        /* Mobile Responsiveness */
+        @media screen and (max-width: 600px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .chat-info h2 {
+                font-size: 14px;
+            }
+
+            .chat-info p {
+                font-size: 12px;
+            }
+
+            .chat img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .story img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mengobrol</h1>
+            <i class="fas fa-search" aria-label="Search"></i>
+        </div>
+        <div class="stories">
+            <div class="story">
+                <img alt="Add story" src="https://storage.googleapis.com/a1aa/image/ccRiOL3YSJr6JxMwrdTHQnDf9yeGf6VVZIYFKYlvpeQ8fgQdC.jpg" />
+                <p>Add story</p>
+            </div>
+            <div class="story">
+                <img alt="Terry" src="https://storage.googleapis.com/a1aa/image/yRs0vzXC6169BxSOSK4mCcxZZeVHEjaCzBxMSE8nfQAEIEqTA.jpg" />
+                <p>Terry</p>
+            </div>
+            <!-- Add more stories as needed -->
+        </div>
+        <div class="chats">
+            <div class="chat">
+                <img alt="Angel Curtis" src="https://storage.googleapis.com/a1aa/image/ObWoC3WO8cKuEda2evE7l1hGfQLMUekCYPWIvofup7SjgQoOB.jpg" />
+                <div class="chat-info">
+                    <h2>Angel Curtis</h2>
+                    <p>Please help me find a good monitor for t...</p>
+                </div>
+                <div class="chat-time">
+                    <p>02:11</p>
+                    <span class="badge">2</span>
+                </div>
+            </div>
+            <!-- Add more chats as needed -->
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

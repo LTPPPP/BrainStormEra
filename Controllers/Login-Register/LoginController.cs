@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using BrainStormEra.Views.Login;
+using System.Text;
 
 namespace BrainStormEra.Controllers
 {
@@ -27,8 +28,8 @@ namespace BrainStormEra.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Hash the password (or use MD5 if necessary)
-                string hashedPassword = model.Password;
+                // Hash the password using MD5
+                string hashedPassword = GetMd5Hash(model.Password);
 
                 // Check if the user exists in the database
                 var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
@@ -37,11 +38,11 @@ namespace BrainStormEra.Controllers
                 {
                     // Create the user claims (data about the user)
                     var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.Username),
-                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                        new Claim(ClaimTypes.Role, user.UserRole.ToString())
-                    };
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Role, user.UserRole.ToString())
+            };
 
                     // Create the identity and principal
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -75,6 +76,25 @@ namespace BrainStormEra.Controllers
             }
             return View("LoginPage", model);
         }
+
+        // Helper method to hash password with MD5
+        private string GetMd5Hash(string input)
+        {
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convert the byte array to hexadecimal string
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+        }
+
 
         public async Task<IActionResult> Logout()
         {

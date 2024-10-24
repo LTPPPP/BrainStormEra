@@ -10,7 +10,7 @@ namespace BrainStormEra.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
-        private const string GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+        private const string GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
 
         private const string FINETUNE_TEMPLATE = @"
 You are an AI assistant named BrainStormEra, created by PhatLam. Your primary function is to assist users with a wide range of tasks and answer their questions to the best of your ability. Please adhere to the following guidelines:
@@ -41,8 +41,9 @@ Your response (in Vietnamese):";
         {
             _httpClient = httpClient;
             _apiKey = configuration["GeminiApiKey"];
+            Console.WriteLine("API : "+_apiKey);
         }
-
+        
         public async Task<string> GetResponseFromGemini(string message)
         {
             var formattedMessage = string.Format(FINETUNE_TEMPLATE, message);
@@ -72,13 +73,10 @@ Your response (in Vietnamese):";
                 if (response.IsSuccessStatusCode)
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("Response from Gemini API: " + responseString); // Log the full response for debugging
-
-                    // Adjust this deserialization if the structure is different
+                    Console.WriteLine("Response from Gemini API: " + responseString); 
+                    
                     var responseObject = JsonConvert.DeserializeObject<dynamic>(responseString);
-
-                    // Ensure that you access the correct fields based on the actual API response
-                    if (responseObject?.candidates != null && responseObject.candidates.Count > 0)
+                    if (responseObject.candidates != null && responseObject.candidates.Count > 0)
                     {
                         return responseObject.candidates[0].content.parts[0].text;
                     }
@@ -88,13 +86,13 @@ Your response (in Vietnamese):";
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error Response: {errorContent}"); // Log error response
+                    Console.WriteLine($"Error Response: {errorContent}");
                     throw new HttpRequestException($"Gemini API request failed with status code {response.StatusCode}: {errorContent}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception during Gemini API call: {ex.Message}"); // Log exception details
+                Console.WriteLine($"Exception during Gemini API call: {ex.Message}");
                 throw;
             }
         }

@@ -61,16 +61,24 @@ namespace BrainStormEra.Controllers
         public IActionResult GetConversationStatistics()
         {
             var conversationData = _dbContext.ChatbotConversations
-                .GroupBy(c => c.ConversationTime.ToString())
+                .GroupBy(c => c.ConversationTime.Date) // Group by Date, ignoring the time
                 .Select(g => new
                 {
-                    Date = g.Key,
+                    Date = g.Key,  // Group by the raw DateTime first
                     Count = g.Count()
                 })
                 .OrderBy(d => d.Date)
+                .ToList()
+                .Select(d => new  // After retrieving the data, format the date on the client side
+                {
+                    Date = d.Date.ToString("yyyy-MM-dd"),  // Format the date as "yyyy-MM-dd"
+                    Count = d.Count
+                })
                 .ToList();
 
             return Json(conversationData);
         }
+
+
     }
 }

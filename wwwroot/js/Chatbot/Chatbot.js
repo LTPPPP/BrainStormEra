@@ -39,7 +39,7 @@ function sendMessage() {
     var conversationData = {
         ConversationContent: message,
         UserId: userId,  // UserId retrieved from cookies
-        ConversationTime: new Date().toISOString()  // Optional: server may handle this
+        ConversationTime: new Date // Optional: server may handle this
     };
 
     fetch('/Chatbot/SendMessage', {
