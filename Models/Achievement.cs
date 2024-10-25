@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
+
 public partial class Achievement
 {
     public string AchievementId { get; set; } = null!;

@@ -13,7 +13,20 @@ namespace BrainStormEra.Controllers.Account
             _context = context;
         }
 
-        // Action to display the profile page
+        // Định nghĩa ViewModel ngay bên trong Controller
+        public class ProfileEditViewModel
+        {
+            public string UserId { get; set; }
+            public string? FullName { get; set; }
+            public string? UserEmail { get; set; }
+            public string? PhoneNumber { get; set; }
+            public string? Gender { get; set; }
+            public string? UserAddress { get; set; }
+            public DateOnly? DateOfBirth { get; set; }
+            public string? UserPicture { get; set; }
+        }
+
+        // Action để hiển thị trang profile
         public IActionResult Index()
         {
             var userId = Request.Cookies["user_id"];
@@ -33,7 +46,7 @@ namespace BrainStormEra.Controllers.Account
             return View(account);
         }
 
-        // Action to edit profile
+        // Action để chỉnh sửa hồ sơ
         [HttpGet]
         public IActionResult Edit()
         {
@@ -51,12 +64,25 @@ namespace BrainStormEra.Controllers.Account
                 return NotFound();
             }
 
-            return View(account);
+            // Khởi tạo ViewModel và map dữ liệu từ Account
+            var model = new ProfileEditViewModel
+            {
+                UserId = account.UserId,
+                FullName = account.FullName,
+                UserEmail = account.UserEmail,
+                PhoneNumber = account.PhoneNumber,
+                Gender = account.Gender,
+                UserAddress = account.UserAddress,
+                DateOfBirth = account.DateOfBirth,
+                UserPicture = account.UserPicture
+            };
+
+            return View(model);  // Trả về View cùng với model
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(BrainStormEra.Models.Account account, IFormFile avatar)
+        public IActionResult Edit(ProfileEditViewModel model, IFormFile avatar)
         {
             var userId = Request.Cookies["user_id"];
 
@@ -65,64 +91,70 @@ namespace BrainStormEra.Controllers.Account
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || avatar == null)
             {
-                try
+                var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
+                if (accountInDb == null)
                 {
-                    var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
-                    if (accountInDb == null) return NotFound();
+                    return NotFound();
+                }
 
-                    accountInDb.FullName = account.FullName;
-                    accountInDb.UserEmail = account.UserEmail;
-                    accountInDb.PhoneNumber = account.PhoneNumber;
-                    accountInDb.Gender = account.Gender;
-                    accountInDb.UserAddress = account.UserAddress;
-                    accountInDb.DateOfBirth = account.DateOfBirth;
+                // Cập nhật thông tin từ ViewModel vào Account
+                accountInDb.FullName = model.FullName;
+                accountInDb.UserEmail = model.UserEmail;
+                accountInDb.PhoneNumber = model.PhoneNumber;
+                accountInDb.Gender = model.Gender;
+                accountInDb.UserAddress = model.UserAddress;
+                accountInDb.DateOfBirth = model.DateOfBirth;
 
-                    // Handle avatar upload
-                    if (avatar != null && avatar.Length > 0)
+                // Xử lý việc upload avatar nếu có
+                if (avatar != null)
+                {
+                    // Kiểm tra loại file (chỉ cho phép .png, .jpeg)
+                    var validTypes = new[] { "image/png", "image/jpeg" };
+                    if (!validTypes.Contains(avatar.ContentType))
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "lib", "img", "User-img");
-                        if (!Directory.Exists(uploadsFolder))
-                        {
-                            Directory.CreateDirectory(uploadsFolder);
-                        }
-
-                        var fileName = Path.GetFileName(avatar.FileName);
-                        var filePath = Path.Combine(uploadsFolder, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            avatar.CopyTo(stream);
-                        }
-
-                        accountInDb.UserPicture = $"/lib/img/User-img/{fileName}";
+                        ModelState.AddModelError("avatar", "Chỉ chấp nhận tệp PNG và JPEG.");
+                        return View(model); // Không lưu file và trả về view với lỗi
                     }
 
-                    _context.SaveChanges();
-                    return RedirectToAction("Index");
+                    // Kiểm tra kích thước file (giới hạn 2MB)
+                    if (avatar.Length > 2 * 1024 * 1024) // 2MB
+                    {
+                        ModelState.AddModelError("avatar", "Kích thước tệp không được vượt quá 2MB.");
+                        return View(model); // Không lưu file và trả về view với lỗi
+                    }
+
+                    // Lưu file nếu hợp lệ
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var fileName = Path.GetFileName(avatar.FileName);
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        avatar.CopyTo(stream);
+                    }
+
+                    // Cập nhật đường dẫn ảnh vào database
+                    accountInDb.UserPicture = $"/uploads/{fileName}";
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error updating profile: {ex.Message}");
-                    ModelState.AddModelError("", "An error occurred while updating your profile.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("ModelState is not valid");
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine(error.ErrorMessage);
-                }
+
+                // Lưu thay đổi vào database
+                _context.SaveChanges();
+                return RedirectToAction("Index");
             }
 
-            return View(account);
+            return View(model);  // Trả về view cùng với model nếu có lỗi
         }
 
+        // Action để điều hướng về trang chủ dựa trên vai trò của user
         public IActionResult RedirectToHome()
         {
-            // Kiểm tra xem các cookie đã tồn tại chưa
             var userIdCookie = Request.Cookies["user_id"];
             var userRoleCookie = Request.Cookies["user_role"];
 
@@ -130,7 +162,6 @@ namespace BrainStormEra.Controllers.Account
             {
                 int userRole = int.Parse(userRoleCookie);
 
-                // Điều hướng dựa vào userRole
                 switch (userRole)
                 {
                     case 1:
@@ -144,9 +175,7 @@ namespace BrainStormEra.Controllers.Account
                 }
             }
 
-            // Nếu không có cookie, chuyển về trang login
             return RedirectToAction("LoginPage", "Login");
         }
-
     }
 }
