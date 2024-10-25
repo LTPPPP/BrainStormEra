@@ -69,32 +69,38 @@ function appendMessage(message, isBot = false) {
     var chatMessages = document.getElementById('chat-messages');
     var messageElement = document.createElement('p');
 
-    // Add a class based on whether the message is from the bot or the user
     if (isBot) {
         messageElement.classList.add('bot-message');
-        messageElement.innerHTML = ''; // Start with an empty message for the typewriter effect
-        typeWriterEffect(messageElement, message); // Initiate the typewriter effect for the bot
+        // Sử dụng `marked` để chuyển đổi markdown sang HTML và sử dụng typewriter effect
+        const markdownHTML = marked.parse(message);
+        messageElement.innerHTML = ''; // Bắt đầu với nội dung trống để thực hiện hiệu ứng typewriter
+        typeWriterEffect(messageElement, markdownHTML, true); // Sử dụng typewriter effect cho markdown
     } else {
         messageElement.classList.add('user-message');
-        messageElement.textContent = message; // Show user message immediately
+        messageElement.textContent = message; // Hiển thị tin nhắn của người dùng ngay lập tức
     }
 
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Function to implement the typewriter effect for the bot's messages
-function typeWriterEffect(element, message) {
+// Cập nhật hàm typewriter để chèn HTML khi có markdown
+function typeWriterEffect(element, message, isHTML = false) {
     let index = 0;
     function type() {
         if (index < message.length) {
-            element.innerHTML += message.charAt(index); // Add the next character
+            if (isHTML) {
+                element.innerHTML = message.substring(0, index + 50); // Chèn từng phần tử HTML
+            } else {
+                element.innerHTML += message.charAt(index); // Chèn ký tự tiếp theo cho chuỗi văn bản
+            }
             index++;
-            setTimeout(type, 50); // Control the speed of the typing effect (adjust the delay as needed)
+            setTimeout(type, 1); // Điều chỉnh tốc độ hiệu ứng typewriter nếu cần
         }
     }
     type();
 }
+
 
 // Reset chat by clearing chat history and localStorage
 function resetChat() {

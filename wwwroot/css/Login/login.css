@@ -551,3 +551,9 @@ form.sign-in-form {
         transform: translateX(0);
     }
 }
+
+.btn-OTP {
+    background-color: var(--text-light-color);  
+    max-height : 50px;
+    max-width : 100px
+}

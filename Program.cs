@@ -11,7 +11,8 @@ namespace BrainStormEra
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            // Đăng ký EmailService
+            builder.Services.AddSingleton<EmailService>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<GeminiApiService>();
 
@@ -19,7 +20,7 @@ namespace BrainStormEra
 
             // Configure DbContext with SQL Server
             builder.Services.AddDbContext<SwpMainFpContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("SwpDb7Context")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainFpContext")));
 
             // Add authentication services for cookies
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -57,6 +58,7 @@ namespace BrainStormEra
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Login}/{action=LoginPage}/{id?}");
+
 
             app.Run();
         }

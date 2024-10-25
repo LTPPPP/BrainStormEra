@@ -1,0 +1,18 @@
+﻿
+.hover-zoom:hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease-in-out;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.title-chat {
+    background-color: var(--gray-color-main);
+}
+.header-his {
+    margin: 40px;
+    color: var(--hover-color-primary);
+}
+

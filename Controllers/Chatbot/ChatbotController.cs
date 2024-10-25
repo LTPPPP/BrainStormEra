@@ -4,6 +4,8 @@ using BrainStormEra.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using Microsoft.EntityFrameworkCore;
+using BrainStormEra.ViewModels;
 
 namespace BrainStormEra.Controllers
 {
@@ -78,7 +80,33 @@ namespace BrainStormEra.Controllers
 
             return Json(conversationData);
         }
+        public IActionResult ConversationHistory(int page = 1, int pageSize = 10)
+        {
+            var totalConversations = _dbContext.ChatbotConversations.Count();
+            var totalPages = (int)Math.Ceiling((double)totalConversations / pageSize);
 
+            var conversations = _dbContext.ChatbotConversations
+                .OrderByDescending(c => c.ConversationTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(c => new ConversationViewModel
+                {
+                    ConversationId = c.ConversationId,
+                    UserName = c.User != null ? c.User.FullName : "Guest",
+                    ConversationTime = c.ConversationTime,
+                    ConversationContent = c.ConversationContent
+                })
+                .ToList();
+
+            var viewModel = new ConversationViewModel
+            {
+                Conversations = conversations,
+                CurrentPage = page,
+                TotalPages = totalPages
+            };
+
+            return View("~/Views/Shared/Chatbot/ConversationHistory.cshtml", viewModel);
+        }
 
     }
 }

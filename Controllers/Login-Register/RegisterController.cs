@@ -1,17 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
-using BrainStormEra.Views.Register;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using BrainStormEra.Views.Register;
 
 public class RegisterController : Controller
 {
     private readonly SwpMainFpContext _context;
+    private readonly EmailService _emailService;
 
-    public RegisterController(SwpMainFpContext context)
+    public RegisterController(SwpMainFpContext context, EmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -26,36 +30,30 @@ public class RegisterController : Controller
     {
         if (ModelState.IsValid)
         {
-            // Kiểm tra xem Password và ConfirmPassword đã được sử dụng chưa
+            // Kiểm tra Password và ConfirmPassword
             if (model.Password != model.ConfirmPassword)
             {
                 ViewBag.ErrorMessage = "Password và Confirm Password không khớp.";
                 return View(model);
             }
 
-            // Kiểm tra xem email và username đã tồn tại chưa
+            // Kiểm tra tồn tại của username và email
             bool isUsernameExist = _context.Accounts.Any(a => a.Username == model.Username);
             bool isEmailExist = _context.Accounts.Any(a => a.UserEmail == model.Email);
 
-            if (isUsernameExist)
+            if (isUsernameExist || isEmailExist)
             {
-                ViewBag.ErrorMessage = "Username đã tồn tại.";
+                ViewBag.ErrorMessage = isUsernameExist ? "Username đã tồn tại." : "Email đã tồn tại.";
                 return View(model);
             }
 
-            if (isEmailExist)
-            {
-                ViewBag.ErrorMessage = "Email đã tồn tại.";
-                return View(model);
-            }
-
-            // Nếu hợp lệ, thêm dữ liệu vào database
+            // Nếu hợp lệ, thêm vào database
             Account newAccount = new Account
             {
                 UserId = Guid.NewGuid().ToString(),
                 Username = model.Username,
-                Password = HashPasswordMD5(model.Password), 
-                UserRole = 3, // 3: Vai trò của User bình thường
+                Password = HashPasswordMD5(model.Password),
+                UserRole = 3,
                 UserEmail = model.Email,
                 AccountCreatedAt = DateTime.Now
             };
@@ -63,13 +61,77 @@ public class RegisterController : Controller
             _context.Accounts.Add(newAccount);
             _context.SaveChanges();
 
-            // Quay lại trang login
             return RedirectToAction("LoginPage", "Login");
         }
 
-        // Nếu model không hợp lệ, trả lại form
         return View(model);
     }
+
+    [HttpPost]
+    public IActionResult SendOTP(RegisterModel model)
+    {
+        // Kiểm tra các trường bắt buộc
+        if (string.IsNullOrWhiteSpace(model.Username) ||
+            string.IsNullOrWhiteSpace(model.Email) ||
+            string.IsNullOrWhiteSpace(model.Password) ||
+            string.IsNullOrWhiteSpace(model.ConfirmPassword))
+        {
+            ViewBag.ErrorMessage = "Vui lòng điền đầy đủ các thông tin trước khi gửi OTP.";
+            return View("Register", model);
+        }
+
+        try
+        {
+            var otp = new Random().Next(100000, 999999).ToString();
+            HttpContext.Session.SetString("OTP", otp);
+            HttpContext.Session.SetString("OTPCreationTime", DateTime.Now.ToString());
+
+            // Gửi OTP qua email
+            _emailService.SendOTPEmail(model.Email, otp);
+            ViewBag.SuccessMessage = "OTP đã được gửi đến email của bạn.";
+        }
+        catch (Exception ex)
+        {
+            ViewBag.ErrorMessage = "Đã xảy ra lỗi khi gửi OTP. Vui lòng thử lại.";
+            // Log lỗi nếu cần thiết
+        }
+
+        return View("Register", model);
+    }
+
+    [HttpPost]
+    public IActionResult VerifyOTP(string otp)
+    {
+        try
+        {
+            var sessionOtp = HttpContext.Session.GetString("OTP");
+            var creationTimeString = HttpContext.Session.GetString("OTPCreationTime");
+
+            if (sessionOtp == null || creationTimeString == null)
+            {
+                ViewBag.ErrorMessage = "OTP không hợp lệ hoặc đã hết hạn.";
+                return View("Register");
+            }
+
+            var creationTime = DateTime.Parse(creationTimeString);
+            if (sessionOtp == otp && DateTime.Now < creationTime.AddSeconds(90))
+            {
+                HttpContext.Session.Remove("OTP");
+                HttpContext.Session.Remove("OTPCreationTime");
+                return RedirectToAction("LoginPage", "Login");
+            }
+
+            ViewBag.ErrorMessage = "Mã OTP không đúng hoặc đã hết hạn.";
+        }
+        catch (Exception ex)
+        {
+            ViewBag.ErrorMessage = "Đã xảy ra lỗi khi xác thực OTP. Vui lòng thử lại.";
+            // Log lỗi nếu cần thiết
+        }
+
+        return View("Register");
+    }
+
 
     private string HashPasswordMD5(string password)
     {
@@ -77,12 +139,7 @@ public class RegisterController : Controller
         {
             byte[] inputBytes = Encoding.ASCII.GetBytes(password);
             byte[] hashBytes = md5.ComputeHash(inputBytes);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("X2"));
-            }
-            return sb.ToString();
+            return string.Concat(hashBytes.Select(b => b.ToString("X2")));
         }
     }
 }

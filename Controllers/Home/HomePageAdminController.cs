@@ -74,7 +74,5 @@ namespace BrainStormEra.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving user statistics." });
             }
         }
-
-
     }
 }
