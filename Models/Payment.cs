@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
+
 public partial class Payment
 {
     public string PaymentId { get; set; } = null!;

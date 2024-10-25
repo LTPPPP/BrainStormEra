@@ -47,19 +47,19 @@ public partial class SwpMainFpContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=LTP;Database=SWP_MAIN_FP;uid=sa;pwd=01654460072ltp;encrypt=true;trustServerCertificate=true;");
+        => optionsBuilder.UseSqlServer("Server= USER\\SQLSERVER12;Database=SWP_MAIN_FP;uid=sa;pwd=password@;encrypt=true;trustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__account__B9BE370FA0C3F051");
+            entity.HasKey(e => e.UserId).HasName("PK__account__B9BE370FFFDCAA26");
 
             entity.ToTable("account");
 
-            entity.HasIndex(e => e.UserEmail, "UQ__account__B0FBA212E8AB6E51").IsUnique();
+            entity.HasIndex(e => e.UserEmail, "UQ__account__B0FBA2124BA8EB89").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__account__F3DBC572A0432E20").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__account__F3DBC5727848ACA4").IsUnique();
 
             entity.Property(e => e.UserId)
                 .HasMaxLength(255)
@@ -104,12 +104,12 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.UserRoleNavigation).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.UserRole)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__account__user_ro__3E52440B");
+                .HasConstraintName("FK__account__user_ro__2B3F6F97");
         });
 
         modelBuilder.Entity<Achievement>(entity =>
         {
-            entity.HasKey(e => e.AchievementId).HasName("PK__achievem__3C492E83401420AB");
+            entity.HasKey(e => e.AchievementId).HasName("PK__achievem__3C492E83414CEDB6");
 
             entity.ToTable("achievement");
 
@@ -133,7 +133,7 @@ public partial class SwpMainFpContext : DbContext
 
         modelBuilder.Entity<Chapter>(entity =>
         {
-            entity.HasKey(e => e.ChapterId).HasName("PK__chapter__745EFE876EEEFC58");
+            entity.HasKey(e => e.ChapterId).HasName("PK__chapter__745EFE8701621D2D");
 
             entity.ToTable("chapter");
 
@@ -161,17 +161,17 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.ChapterStatusNavigation).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.ChapterStatus)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__chapter__chapter__5812160E");
+                .HasConstraintName("FK__chapter__chapter__44FF419A");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__chapter__course___571DF1D5");
+                .HasConstraintName("FK__chapter__course___440B1D61");
         });
 
         modelBuilder.Entity<ChatbotConversation>(entity =>
         {
-            entity.HasKey(e => e.ConversationId).HasName("PK__chatbot___311E7E9ACC37A948");
+            entity.HasKey(e => e.ConversationId).HasName("PK__chatbot___311E7E9A4C650D37");
 
             entity.ToTable("chatbot_conversation");
 
@@ -192,12 +192,12 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.ChatbotConversations)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__chatbot_c__user___6477ECF3");
+                .HasConstraintName("FK__chatbot_c__user___5165187F");
         });
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK__course__8F1EF7AEA2FA2106");
+            entity.HasKey(e => e.CourseId).HasName("PK__course__8F1EF7AE938169A9");
 
             entity.ToTable("course");
 
@@ -229,25 +229,25 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.CourseStatusNavigation).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CourseStatus)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__course__course_s__44FF419A");
+                .HasConstraintName("FK__course__course_s__31EC6D26");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__course__created___45F365D3");
+                .HasConstraintName("FK__course__created___32E0915F");
 
             entity.HasMany(d => d.CourseCategories).WithMany(p => p.Courses)
                 .UsingEntity<Dictionary<string, object>>(
                     "CourseCategoryMapping",
                     r => r.HasOne<CourseCategory>().WithMany()
                         .HasForeignKey("CourseCategoryId")
-                        .HasConstraintName("FK__course_ca__cours__4BAC3F29"),
+                        .HasConstraintName("FK__course_ca__cours__38996AB5"),
                     l => l.HasOne<Course>().WithMany()
                         .HasForeignKey("CourseId")
-                        .HasConstraintName("FK__course_ca__cours__4AB81AF0"),
+                        .HasConstraintName("FK__course_ca__cours__37A5467C"),
                     j =>
                     {
-                        j.HasKey("CourseId", "CourseCategoryId").HasName("PK__course_c__10F9222086C4FA90");
+                        j.HasKey("CourseId", "CourseCategoryId").HasName("PK__course_c__10F92220C7B008F8");
                         j.ToTable("course_category_mapping");
                         j.IndexerProperty<string>("CourseId")
                             .HasMaxLength(255)
@@ -262,7 +262,7 @@ public partial class SwpMainFpContext : DbContext
 
         modelBuilder.Entity<CourseCategory>(entity =>
         {
-            entity.HasKey(e => e.CourseCategoryId).HasName("PK__course_c__FE7D58E87C61057E");
+            entity.HasKey(e => e.CourseCategoryId).HasName("PK__course_c__FE7D58E854650C4F");
 
             entity.ToTable("course_category");
 
@@ -277,7 +277,7 @@ public partial class SwpMainFpContext : DbContext
 
         modelBuilder.Entity<Enrollment>(entity =>
         {
-            entity.HasKey(e => e.EnrollmentId).HasName("PK__enrollme__6D24AA7ABDF0C79D");
+            entity.HasKey(e => e.EnrollmentId).HasName("PK__enrollme__6D24AA7A032B20FA");
 
             entity.ToTable("enrollment");
 
@@ -306,22 +306,22 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.Course).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__enrollmen__cours__5165187F");
+                .HasConstraintName("FK__enrollmen__cours__3E52440B");
 
             entity.HasOne(d => d.EnrollmentStatusNavigation).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.EnrollmentStatus)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__enrollmen__enrol__52593CB8");
+                .HasConstraintName("FK__enrollmen__enrol__3F466844");
 
             entity.HasOne(d => d.User).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__enrollmen__user___5070F446");
+                .HasConstraintName("FK__enrollmen__user___3D5E1FD2");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__feedback__7A6B2B8CE88CB622");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__feedback__7A6B2B8C5A6740C8");
 
             entity.ToTable("feedback");
 
@@ -351,17 +351,17 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.Course).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__feedback__course__6A30C649");
+                .HasConstraintName("FK__feedback__course__571DF1D5");
 
             entity.HasOne(d => d.User).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__feedback__user_i__6B24EA82");
+                .HasConstraintName("FK__feedback__user_i__5812160E");
         });
 
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(e => e.LessonId).HasName("PK__lesson__6421F7BE6CC8CF45");
+            entity.HasKey(e => e.LessonId).HasName("PK__lesson__6421F7BEAB908CAF");
 
             entity.ToTable("lesson");
 
@@ -391,22 +391,22 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.Chapter).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.ChapterId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__lesson__chapter___5EBF139D");
+                .HasConstraintName("FK__lesson__chapter___4BAC3F29");
 
             entity.HasOne(d => d.LessonStatusNavigation).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.LessonStatus)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__lesson__lesson_s__60A75C0F");
+                .HasConstraintName("FK__lesson__lesson_s__4D94879B");
 
             entity.HasOne(d => d.LessonType).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.LessonTypeId)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__lesson__lesson_t__5FB337D6");
+                .HasConstraintName("FK__lesson__lesson_t__4CA06362");
         });
 
         modelBuilder.Entity<LessonType>(entity =>
         {
-            entity.HasKey(e => e.LessonTypeId).HasName("PK__lesson_t__F5960D1EE5C631D5");
+            entity.HasKey(e => e.LessonTypeId).HasName("PK__lesson_t__F5960D1EC30517C1");
 
             entity.ToTable("lesson_type");
 
@@ -420,7 +420,7 @@ public partial class SwpMainFpContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__notifica__E059842FCA9974F1");
+            entity.HasKey(e => e.NotificationId).HasName("PK__notifica__E059842F5B12804B");
 
             entity.ToTable("notification");
 
@@ -456,21 +456,21 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.Course).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__notificat__cours__787EE5A0");
+                .HasConstraintName("FK__notificat__cours__656C112C");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.NotificationCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__notificat__creat__797309D9");
+                .HasConstraintName("FK__notificat__creat__66603565");
 
             entity.HasOne(d => d.User).WithMany(p => p.NotificationUsers)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__notificat__user___778AC167");
+                .HasConstraintName("FK__notificat__user___6477ECF3");
         });
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__payment__ED1FC9EA9A80E20A");
+            entity.HasKey(e => e.PaymentId).HasName("PK__payment__ED1FC9EAB4387C21");
 
             entity.ToTable("payment");
 
@@ -501,12 +501,12 @@ public partial class SwpMainFpContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__payment__user_id__7F2BE32F");
+                .HasConstraintName("FK__payment__user_id__6B24EA82");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.UserRole).HasName("PK__role__68057FECFECCAEA0");
+            entity.HasKey(e => e.UserRole).HasName("PK__role__68057FEC48B1C046");
 
             entity.ToTable("role");
 
@@ -520,7 +520,7 @@ public partial class SwpMainFpContext : DbContext
 
         modelBuilder.Entity<Status>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__status__3683B531B38CDFB5");
+            entity.HasKey(e => e.StatusId).HasName("PK__status__3683B531AB6F88F4");
 
             entity.ToTable("status");
 
@@ -534,7 +534,7 @@ public partial class SwpMainFpContext : DbContext
 
         modelBuilder.Entity<UserAchievement>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.AchievementId }).HasName("PK__user_ach__9A7AA5E7612A4218");
+            entity.HasKey(e => new { e.UserId, e.AchievementId }).HasName("PK__user_ach__9A7AA5E759B9B5C5");
 
             entity.ToTable("user_achievement");
 
@@ -554,15 +554,15 @@ public partial class SwpMainFpContext : DbContext
 
             entity.HasOne(d => d.Achievement).WithMany(p => p.UserAchievements)
                 .HasForeignKey(d => d.AchievementId)
-                .HasConstraintName("FK__user_achi__achie__71D1E811");
+                .HasConstraintName("FK__user_achi__achie__5EBF139D");
 
             entity.HasOne(d => d.Enrollment).WithMany(p => p.UserAchievements)
                 .HasForeignKey(d => d.EnrollmentId)
-                .HasConstraintName("FK__user_achi__enrol__72C60C4A");
+                .HasConstraintName("FK__user_achi__enrol__5FB337D6");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserAchievements)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__user_achi__user___70DDC3D8");
+                .HasConstraintName("FK__user_achi__user___5DCAEF64");
         });
 
         OnModelCreatingPartial(modelBuilder);

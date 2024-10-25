@@ -1,4 +1,4 @@
-﻿@model BrainStormEra.Models.Account
+﻿@model BrainStormEra.Controllers.Account.ProfileController.ProfileEditViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
@@ -39,6 +39,7 @@
                 <label for="avatarUpload" class="form-label">Change Avatar</label>
                 <input type="file" id="avatarUpload" name="avatar" accept="image/*" class="form-control" onchange="previewAvatar()" />
             </div>
+
             <!-- Full Name with Validation -->
             <div class="form-group">
                 <label asp-for="FullName" class="control-label"></label>
@@ -90,7 +91,7 @@
                 <button type="submit" class="btn btn-primary btn-custom">Save Changes</button>
                 <a class="btn btn-secondary" asp-action="Index" asp-route-accountId="@Model.UserId">Cancel</a>
             </div>
-         </form>
+        </form>
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
