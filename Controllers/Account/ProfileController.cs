@@ -107,11 +107,26 @@ namespace BrainStormEra.Controllers.Account
                 accountInDb.UserAddress = model.UserAddress;
                 accountInDb.DateOfBirth = model.DateOfBirth;
 
-                // Xử lý việc upload avatar
-                if (avatar != null && avatar.Length > 0)
+                // Xử lý việc upload avatar nếu có
+                if (avatar != null)
                 {
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    // Kiểm tra loại file (chỉ cho phép .png, .jpeg)
+                    var validTypes = new[] { "image/png", "image/jpeg" };
+                    if (!validTypes.Contains(avatar.ContentType))
+                    {
+                        ModelState.AddModelError("avatar", "Chỉ chấp nhận tệp PNG và JPEG.");
+                        return View(model); // Không lưu file và trả về view với lỗi
+                    }
 
+                    // Kiểm tra kích thước file (giới hạn 2MB)
+                    if (avatar.Length > 2 * 1024 * 1024) // 2MB
+                    {
+                        ModelState.AddModelError("avatar", "Kích thước tệp không được vượt quá 2MB.");
+                        return View(model); // Không lưu file và trả về view với lỗi
+                    }
+
+                    // Lưu file nếu hợp lệ
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
@@ -125,6 +140,7 @@ namespace BrainStormEra.Controllers.Account
                         avatar.CopyTo(stream);
                     }
 
+                    // Cập nhật đường dẫn ảnh vào database
                     accountInDb.UserPicture = $"/uploads/{fileName}";
                 }
 
