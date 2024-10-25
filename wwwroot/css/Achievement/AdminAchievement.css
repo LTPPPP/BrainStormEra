@@ -1,21 +1,23 @@
-﻿/* Table Styles */
+﻿/* Table Styling */
 .table {
-    border-collapse: collapse;
-    width: 100%;
+    width: 100%; /* Full width */
+    font-size: 1.2rem; /* Increase font size */
     background-color: var(--background-light);
     box-shadow: 0px 4px 8px var(--box-shadow-color);
     margin-top: 20px;
 }
 
+    /* Header Styling */
     .table th {
-        background-color: var(--primary-color);
-        color: var(--text-color-light);
-        padding: 10px;
+        background-color: var(--primary-color); /* Primary color for the header */
+        color: var(--text-color-light); /* Light text color */
+        padding: 15px; /* Increase padding for more space */
         text-align: center;
-        font-size: 1.6rem;
+        font-size: 1.6rem; /* Larger font size for header */
         border-bottom: 2px solid var(--light-blue);
     }
 
+    /* Table Data Styling */
     .table td {
         padding: 15px;
         text-align: center;
@@ -24,21 +26,16 @@
         border-bottom: 1px solid var(--light-gray-color);
     }
 
-        .table td img {
-            border-radius: 5px;
-            box-shadow: 0 0 10px var(--box-shadow-color);
-        }
-
+    /* Add hover effect for rows */
     .table tbody tr:hover {
         background-color: var(--light-blue-color);
     }
 
-/* Button Styles */
-.btn {
-    font-size: 1.2rem;
-    padding: 8px 15px;
+/* Button Styling */
+.btn-edit, .btn-delete {
+    font-size: 1.1rem;
+    padding: 10px 20px;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
 }
 
 .btn-edit {
@@ -65,6 +62,8 @@
     background-color: var(--btn-create);
     color: var(--text-color-light);
     border: none;
+    font-size: 1.2rem;
+    padding: 10px 20px;
     margin-top: 20px;
 }
 
@@ -72,45 +71,117 @@
         background-color: var(--btn-create-hover);
     }
 
-/* Modal Styles */
-.modal-content {
+/* Achievement Table Styles */
+.achievement-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: var(--background-light);
+    box-shadow: 0px 4px 8px var(--box-shadow-color);
+    margin-top: 20px;
+}
+
+    .achievement-table th {
+        background-color: var(--primary-color);
+        color: var(--text-color-light);
+        padding: 10px;
+        text-align: center;
+        font-size: 1.6rem;
+        border-bottom: 2px solid var(--light-blue);
+    }
+
+    .achievement-table td {
+        padding: 15px;
+        text-align: center;
+        font-size: 1.4rem;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--light-gray-color);
+    }
+
+        .achievement-table td img {
+            border-radius: 5px;
+            box-shadow: 0 0 10px var(--box-shadow-color);
+        }
+
+    .achievement-table tbody tr:hover {
+        background-color: var(--light-blue-color);
+    }
+
+/* Achievement Button Styles */
+.achievement-btn {
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.achievement-btn-edit {
+    background-color: var(--button-blue);
+    color: var(--text-color-light);
+    border: none;
+}
+
+    .achievement-btn-edit:hover {
+        background-color: var(--blue-hover-color);
+    }
+
+.achievement-btn-delete {
+    background-color: var(--delete-btn-bg-color);
+    color: var(--text-color-light);
+    border: none;
+}
+
+    .achievement-btn-delete:hover {
+        background-color: var(--delete-btn-hover-bg-color);
+    }
+
+.achievement-btn-add {
+    background-color: var(--btn-create);
+    color: var(--text-color-light);
+    border: none;
+    margin-top: 20px;
+}
+
+    .achievement-btn-add:hover {
+        background-color: var(--btn-create-hover);
+    }
+
+/* Achievement Modal Styles */
+.achievement-modal-content {
     background-color: var(--background-light);
     box-shadow: 0 0 10px var(--box-shadow-color);
 }
 
-.modal-header {
+.achievement-modal-header {
     background-color: var(--secondary-primary-color);
     color: var(--text-color-light);
 }
 
-.modal-footer .btn-success {
+.achievement-modal-footer .achievement-btn-success {
     background-color: var(--create-btn-bg-color);
     border: none;
 }
 
-    .modal-footer .btn-success:hover {
+    .achievement-modal-footer .achievement-btn-success:hover {
         background-color: var(--create-btn-hover-bg-color);
     }
 
-.modal-footer .btn-secondary {
+.achievement-modal-footer .achievement-btn-secondary {
     background-color: var(--cancel-btn-color);
     border: none;
 }
 
-    .modal-footer .btn-secondary:hover {
+    .achievement-modal-footer .achievement-btn-secondary:hover {
         background-color: var(--cancel-hover-color);
     }
 
-.modal-wrapper {
+.achievement-modal-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* height: 100vh; */
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Center the modal dialog itself */
-.modal-dialog {
+.achievement-modal-dialog {
     max-width: 500px;
     margin: 0 auto;
     transform: translateY(-50%);
@@ -118,12 +189,11 @@
     position: relative;
 }
 
-/* Optional: Add padding to modal content */
-.modal-content {
+.achievement-modal-content {
     padding: 10px;
 }
 
-/* Title styling */
+/* Achievement Title styling */
 .achievement-title {
     color: var(--primary-color);
     font-weight: bold;
@@ -132,4 +202,43 @@
     border-radius: 5px;
     margin-bottom: 20px;
     font-size: 2rem;
+}
+
+/* Responsive for iPhone 12 Pro and smaller screens (max width: 390px) */
+@media (max-width: 390px) {
+    /* Make the table scrollable horizontally */
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
+    }
+
+    /* Reduce padding and font size in table for smaller screens */
+    .achievement-table th, .achievement-table td {
+        font-size: 0.8rem; /* Further reduce font size for narrow screens */
+        padding: 4px; /* Reduce padding */
+        white-space: nowrap; /* Prevent text from wrapping */
+        max-width: 100px; /* Enforce column width for small screens */
+    }
+
+    /* Adjust the 'Add Achievement' button */
+    .achievement-btn-add {
+        width: 100%; /* Full width on mobile */
+        margin-top: 10px;
+        font-size: 1rem;
+    }
+
+    /* Modal adjustments */
+    .achievement-modal-dialog {
+        width: 95%; /* Modal takes full width */
+        max-width: none;
+        margin: 10px auto;
+    }
+
+    /* Achievement title adjustments */
+    .achievement-title {
+        font-size: 1.4rem; /* Slightly smaller for better fitting */
+        padding: 5px;
+    }
 }

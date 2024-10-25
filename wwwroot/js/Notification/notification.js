@@ -40,11 +40,20 @@ $(document).ready(function () {
     $('#selectAllUsers').on('change', function () {
         var isChecked = $(this).is(':checked');
         $('#userList input[type="checkbox"]').prop('checked', isChecked);
+
+        var selectedUsers = [];
+        if (isChecked) {
+            $('#userList input[type="checkbox"]').each(function () {
+                selectedUsers.push($(this).val());
+            });
+        } else {
+            selectedUsers = [];
+        }
     });
 
     $('#sendToUsers').click(function () {
         var selectedUsers = [];
-        $('#dialogOverlay input[type="checkbox"]:checked').each(function () {
+        $('#userList input[type="checkbox"]:checked').each(function () {
             selectedUsers.push($(this).val());
         });
 
@@ -64,9 +73,9 @@ $(document).ready(function () {
 
         var notificationData = {
             UserIds: selectedUsers,
-            NotificationTitle: notificationTitle, // Tiêu đề thông báo
-            NotificationContent: notificationContent, // Nội dung thông báo
-            NotificationType: notificationType // Loại thông báo (Info, Warning, Reminder)
+            NotificationTitle: notificationTitle,
+            NotificationContent: notificationContent,
+            NotificationType: notificationType
         };
 
         console.log("Sending notification data: ", notificationData); // In ra console để kiểm tra dữ liệu
@@ -92,6 +101,7 @@ $(document).ready(function () {
             }
         });
     });
+
 
     // Đảm bảo khi nhấn vào bất kỳ vùng nào ngoài dialog, dialog sẽ bị đóng
     $('#dialogOverlay').click(function (e) {

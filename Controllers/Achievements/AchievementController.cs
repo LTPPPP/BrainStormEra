@@ -117,7 +117,6 @@ namespace BrainStormEra.Controllers.Achievement
             return NotFound(); // Return 404 error if the user role is invalid or not recognized
         }
 
-        // Add Achievement for Admin
         [HttpPost]
         public async Task<IActionResult> AddAchievement(string achievementName, string achievementDescription, IFormFile achievementIcon)
         {
@@ -146,14 +145,14 @@ namespace BrainStormEra.Controllers.Achievement
                 iconPath = $"/uploads/Achievement/{fileName}";
             }
 
-            // Automatically set the current date as AchievementCreatedAt
+            // Set the current date (with time set to 00:00:00) as AchievementCreatedAt
             var newAchievement = new BrainStormEra.Models.Achievement
             {
                 AchievementId = nextId,
                 AchievementName = achievementName,
                 AchievementDescription = achievementDescription,
                 AchievementIcon = iconPath,
-                AchievementCreatedAt = DateTime.Now // Automatically set the creation date
+                AchievementCreatedAt = DateTime.Today // Store only the date part (time will be 00:00:00)
             };
 
             _context.Achievements.Add(newAchievement);
@@ -164,7 +163,7 @@ namespace BrainStormEra.Controllers.Achievement
 
         // Edit Achievement for Admin
         [HttpPost]
-        public async Task<IActionResult> EditAchievement(string achievementId, string achievementName, string achievementDescription, IFormFile achievementIcon, DateTime achievementCreatedAt)
+        public async Task<IActionResult> EditAchievement(string achievementId, string achievementName, string achievementDescription, IFormFile achievementIcon, DateTime? achievementCreatedAt)
         {
             var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.AchievementId == achievementId);
             if (achievement == null)
@@ -194,13 +193,14 @@ namespace BrainStormEra.Controllers.Achievement
 
             achievement.AchievementName = achievementName;
             achievement.AchievementDescription = achievementDescription;
-            achievement.AchievementCreatedAt = achievementCreatedAt;
+
+            // Ensure only the date part is stored (set time to 00:00:00)
+            achievement.AchievementCreatedAt = achievementCreatedAt?.Date ?? DateTime.Today;
 
             await _context.SaveChangesAsync();
 
             return RedirectToAction("AdminAchievements");
         }
-
         // Delete Achievement for Admin
         [HttpPost]
         public async Task<IActionResult> DeleteAchievement(string achievementId)

@@ -29,13 +29,28 @@
     @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
+    <div class="container mt-5">
+        <div class="text-center" style="margin-top: 150px;">
+            <h4>REPORT AND ANALYZE</h4>
+        </div>
+
+        <div class="chart-section row">
+            <div class="chart-container col-md-6">
+                <canvas id="conversationChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container col-md-6">
+                <canvas id="userChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
             crossorigin="anonymous"></script>
 
-    <script src="~/js/Notification/notification.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/js/Notification/notification.js"></script>
     <script>
         $(document).ready(function () {
             $('#notificationsModal').on('shown.bs.modal', function () {

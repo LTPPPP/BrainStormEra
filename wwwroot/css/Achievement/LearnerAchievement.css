@@ -1,49 +1,100 @@
-﻿h2 {
+﻿/* Heading Style */
+h2 {
     color: var(--primary-color);
-    font-size: 2.4rem;
+    font-size: 3.5rem; /* Make heading larger */
     margin-bottom: 3rem;
+    text-align: center;
+    font-weight: bold;
 }
 
+/* Card Styling */
+.achievement-card {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    border-radius: 15px;
+    box-shadow: 0 6px 12px var(--box-shadow-color);
+    transition: transform 0.3s ease;
+    width: 280px; /* Giữ chiều rộng của thẻ */
+    height: auto; /* Để thẻ tự điều chỉnh chiều cao */
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Đẩy nội dung lên trên */
+    align-items: center;
+    padding: 20px;
+}
+
+    /* Image Styling inside card */
+    .achievement-card img {
+        width: 90%; /* Image takes up 90% of the card's width */
+        height: auto; /* Maintain the aspect ratio */
+        max-height: 250px; /* Ensure the image does not overflow */
+        object-fit: contain; /* Ensure image fits nicely inside the container */
+        border-radius: 10px; /* Match with card's border radius */
+        margin-top: 15px;
+    }
+
+    /* Text inside card */
+    .achievement-card h5 {
+        font-size: 2rem; /* Increase the title size */
+        font-weight: bold;
+        color: var(--text-color-light);
+        margin-top: 15px; /* Giảm khoảng cách trên so với hình ảnh */
+        margin-bottom: 0; /* Loại bỏ khoảng trống dưới */
+        text-align: center;
+    }
+
+    /* Card Body */
+    .achievement-card .card-body {
+        padding: 0px;
+        text-align: center;
+    }
 /* Modal Popup Styling */
 .modal-content {
     background-color: var(--secondary-primary-color);
     color: var(--text-color-light);
     border-radius: 10px;
     border: none;
-    box-shadow: 0 4px 8px var(--box-shadow-color);
+    box-shadow: 0 6px 12px var(--box-shadow-color);
+    max-width: 800px; /* Increased max-width for larger modal */
+    margin: auto;
 }
 
 .modal-header {
     border-bottom: none;
-    padding: 1rem 1.5rem;
+    padding: 1.5rem 2rem; /* Adjusted padding for larger header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .modal-title {
     font-weight: bold;
-    font-size: 1.75rem;
+    font-size: 2rem;
     text-align: center;
     color: var(--text-color-light);
+    margin: 0;
 }
 
 .modal-body {
     font-size: 1.2rem;
     text-align: center;
-    padding: 2rem;
+    padding: 2.5rem 2rem; /* Increased padding for content */
     color: var(--text-color-light);
 }
 
     .modal-body img {
-        max-height: 120px;
+        max-height: 150px;
         margin-bottom: 20px;
     }
 
     .modal-body h5 {
-        font-size: 1.5rem;
+        font-size: 1.7rem;
         font-weight: bold;
     }
 
     .modal-body p {
-        font-size: 1.25rem;
+        font-size: 1.3rem; /* Increased font size for better readability */
         margin: 0.5rem 0;
     }
 
@@ -51,42 +102,29 @@
     background-color: var(--white-color);
     border-radius: 50%;
     border: none;
-}
-/* ??nh d?ng cho t?ng th? achievement */
-.card {
-    background-color: var(--primary-color); /* M�u n?n cho th? */
-    color: var(--text-color-light); /* M�u ch? trong th? */
-    border-radius: 10px; /* Bo g�c cho th? */
-    box-shadow: 0 4px 8px var(--box-shadow-color); /* ?? b�ng cho th? */
-    transition: transform 0.3s ease; /* Hi?u ?ng khi hover v�o th? */
-    width: 250px; /* Chi?u r?ng c?a th? */
-    height: 250px; /* Chi?u cao c?a th? */
-    margin-top: 20px; /* Kho?ng c�ch ph�a tr�n th? */
+    font-size: 1.5rem;
 }
 
-    .card:hover {
-        transform: scale(1.05); /* T?ng k�ch th??c th? khi hover */
-    }
+/* Card Container */
+.row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px; /* Optional: Adds spacing between the cards */
+}
 
-    /* ??nh d?ng cho ti�u ?? b�n trong m?i th? */
-    .card h5 {
-        font-size: 1.2rem; /* K�ch th??c ch? */
-        font-weight: bold; /* Ch? ??m */
-        color: var(--text-color-light); /* M�u ch? */
-        margin-top: 10px; /* Kho?ng c�ch tr�n c?a ti�u ?? */
+/* Responsive adjustments for smaller screens */
+@media (min-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 33.3333%; /* Ensure 3 cards in a row on medium+ screens */
+        max-width: 33.3333%;
     }
+}
 
-    /* ??nh d?ng cho h�nh ?nh b�n trong th? */
-    .card img {
-        max-width: 60px; /* Gi?m k�ch th??c h�nh ?nh */
-        margin-top: 10px; /* Kho?ng c�ch tr�n c?a h�nh ?nh */
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+@media (max-width: 767px) {
+    .achievement-card {
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px;
     }
-
-    /* Ph?n n?i dung b�n trong th? */
-    .card .card-body {
-        padding: 10px;
-        text-align: center;
-    }
+}

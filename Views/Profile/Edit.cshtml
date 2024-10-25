@@ -1,4 +1,4 @@
-﻿@model BrainStormEra.Models.Account
+﻿@model BrainStormEra.Controllers.Account.ProfileController.ProfileEditViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
@@ -37,8 +37,10 @@
             <div class="avatar-upload mb-3">
                 <img id="avatarPreview" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Avatar" class="avatar-preview img-thumbnail" style="max-width: 150px;">
                 <label for="avatarUpload" class="form-label">Change Avatar</label>
-                <input type="file" id="avatarUpload" name="avatar" accept="image/*" class="form-control" onchange="previewAvatar()" />
+                <input type="file" id="avatarUpload" name="avatar" accept=".png, .jpeg, .jpg" class="form-control" onchange="previewAvatar(); validateFile();" />
+                <span id="fileError" class="text-danger"></span> <!-- Hiển thị lỗi -->
             </div>
+
             <!-- Full Name with Validation -->
             <div class="form-group">
                 <label asp-for="FullName" class="control-label"></label>
@@ -87,61 +89,74 @@
 
             <!-- Submit and Cancel Buttons -->
             <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-custom">Save Changes</button>
+                <button type="submit" class="btn btn-primary btn-custom" id="saveButton">Save Changes</button>
                 <a class="btn btn-secondary" asp-action="Index" asp-route-accountId="@Model.UserId">Cancel</a>
             </div>
-         </form>
+        </form>
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
+    <!-- Scripts -->
     <script>
+        // Preview avatar when user uploads an image
         function previewAvatar() {
             const file = document.getElementById('avatarUpload').files[0];
+            const preview = document.getElementById('avatarPreview');
+            const errorDisplay = document.getElementById('fileError');
+
+            // Clear previous errors
+            errorDisplay.innerHTML = '';
+
+            // Check if file is selected
             if (file) {
                 const reader = new FileReader();
+
                 reader.onload = function (e) {
-                    document.getElementById('avatarPreview').src = e.target.result;
+                    preview.src = e.target.result; // Update the preview image
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function calculateAge(dob) {
-            const today = new Date();
-            const birthDate = new Date(dob);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
-        }
+        // Validate the image file, but only if a file is selected
+        function validateFile() {
+            const fileInput = document.getElementById('avatarUpload');
+            const file = fileInput.files[0];
+            const errorDisplay = document.getElementById('fileError');
+            const saveButton = document.getElementById('saveButton');
+            errorDisplay.innerHTML = ''; // Clear error message
 
-        function validateFullName() {
-            const fullName = document.getElementById('fullName').value;
-            const nameRegex = /^[a-zA-Z\s]+$/; // Allows only letters and spaces
-            if (!nameRegex.test(fullName)) {
-                alert("Full Name can only contain letters and spaces.");
-                return false;
-            }
-            return true;
-        }
-
-        function validateAge() {
-            const dob = document.getElementById('dob').value;
-            if (dob) {
-                const age = calculateAge(dob);
-                if (age < 13) {
-                    alert("You must be at least 13 years old to submit this form.");
+            if (file) {
+                // Kiểm tra loại file (chỉ cho phép .png, .jpeg, .jpg)
+                const validTypes = ['image/png', 'image/jpeg'];
+                if (!validTypes.includes(file.type)) {
+                    errorDisplay.innerHTML = "Chỉ chấp nhận tệp PNG và JPEG.";
+                    saveButton.disabled = true; // Disable save button
                     return false;
                 }
+
+                // Kiểm tra kích thước file (giới hạn 2MB)
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                if (file.size > maxSize) {
+                    errorDisplay.innerHTML = "Kích thước tệp không được vượt quá 2MB.";
+                    saveButton.disabled = true; // Disable save button
+                    return false;
+                }
+
+                // Nếu tệp hợp lệ, bật lại nút save
+                saveButton.disabled = false;
+                return true;
             }
+
+            // Nếu không có file, cho phép submit form (tệp ảnh giữ nguyên)
+            saveButton.disabled = false;
             return true;
         }
 
+        // Check the full form before submission
         function validateForm() {
-            return validateFullName() && validateAge();
+            return validateFile(); // Nếu file không hợp lệ, form không được submit
         }
     </script>
 
