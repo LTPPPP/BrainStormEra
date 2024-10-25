@@ -125,8 +125,8 @@ namespace BrainStormEra.Controllers.Account
                         return View(model); // Không lưu file và trả về view với lỗi
                     }
 
-                    // Lưu file nếu hợp lệ
                     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads","User-img");
+
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
@@ -142,6 +142,7 @@ namespace BrainStormEra.Controllers.Account
 
                     // Cập nhật đường dẫn ảnh vào database
                     accountInDb.UserPicture = $"/uploads/User-img/{fileName}";
+
                 }
 
                 // Lưu thay đổi vào database

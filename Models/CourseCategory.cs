@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
+
 public partial class CourseCategory
 {
     public string CourseCategoryId { get; set; } = null!;

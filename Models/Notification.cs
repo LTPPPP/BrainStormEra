@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace BrainStormEra.Models;
+
 public partial class Notification
 {
     public string NotificationId { get; set; } = null!;
