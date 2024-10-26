@@ -36,17 +36,17 @@ body {
     border-radius: 20px;
 }
 
-.signin-signup img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    filter: brightness(0.5);
-    -webkit-filter: brightness(0.5);
-    background: transparent;
-    border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
-}
+    .signin-signup img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        filter: brightness(0.5);
+        -webkit-filter: brightness(0.5);
+        background: transparent;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+    }
 
 form {
     display: flex;
@@ -60,15 +60,15 @@ form {
     grid-row: 1 / 2;
 }
 
-form.sign-up-form {
-    opacity: 0;
-    z-index: 1;
-    padding: 20px 0;
-}
+    form.sign-up-form {
+        opacity: 0;
+        z-index: 1;
+        padding: 20px 0;
+    }
 
-form.sign-in-form {
-    z-index: 2;
-}
+    form.sign-in-form {
+        z-index: 2;
+    }
 
 .title {
     font-size: 4.5rem;
@@ -78,13 +78,13 @@ form.sign-in-form {
 }
 
 .input-field {
-    max-width: 100%; /* Đảm bảo khung chứa không bị thu nhỏ */
+    max-width: 100%;
     width: 100%;
     background-color: #f0f0f0;
     margin: 10px 0;
     height: 55px;
     border-radius: 55px;
-    display: flex; /* Sử dụng flex để căn chỉnh */
+    display: flex;
     align-items: center;
     padding: 0 0.4rem;
     border: 2px solid var(--text-color);
@@ -92,16 +92,16 @@ form.sign-in-form {
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-.input-field i {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    line-height: normal; /* Xóa bỏ giá trị line-height để tránh lỗi căn chỉnh */
-    color: #acacac;
-    transition: 0.5s;
-    font-size: 1.8rem; /* Có thể điều chỉnh kích thước icon */
-}
+    .input-field i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: normal;
+        color: #acacac;
+        transition: 0.5s;
+        font-size: 1.8rem;
+    }
 
     .input-field input {
         background: none;
@@ -109,15 +109,15 @@ form.sign-in-form {
         border: none;
         font-size: 2rem;
         color: var(--text-color);
-        width: 100%; /* Đảm bảo input luôn chiếm toàn bộ chiều rộng của input-field */
-        box-sizing: border-box; /* Bao gồm padding và border vào kích thước */
-        padding: 0 1rem; /* Đảm bảo khoảng cách giữa văn bản và đường viền */
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 1rem;
     }
 
-.input-field input::placeholder {
-    color: #aaa;
-    font-weight: 500;
-}
+        .input-field input::placeholder {
+            color: #aaa;
+            font-weight: 500;
+        }
 
 .btn-submit {
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
@@ -130,17 +130,12 @@ form.sign-in-form {
     transition: all 0.3s ease;
 }
 
-.btn-submit:hover {
-    background-color: var(--white-color);
-    /* Màu nền khi hover vẫn giữ màu trắng */
-    color: black;
-    color: var(--text-color);
-    /* Màu chữ khi hover */
-    transform: translateY(-3px);
-    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
-}
-
-
+    .btn-submit:hover {
+        background-color: var(--white-color);
+        color: var(--text-color);
+        transform: translateY(-3px);
+        box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
+    }
 
 .social-text {
     font-size: 1.5rem;
@@ -167,60 +162,60 @@ form.sign-in-form {
     overflow: hidden;
 }
 
-.social-icon:hover {
-    width: 150px;
-    color: var(--white-color);
-}
+    .social-icon:hover {
+        width: 150px;
+        color: var(--white-color);
+    }
 
-.social-icon:nth-child(1):hover i {
-    background-color: #4267B2;
-}
+    .social-icon:nth-child(1):hover i {
+        background-color: #4267B2;
+    }
 
-.social-icon:nth-child(2):hover i {
-    background-color: #333;
-}
+    .social-icon:nth-child(2):hover i {
+        background-color: #333;
+    }
 
-.social-icon:nth-child(3):hover i {
-    background-color: #EA4335;
-}
+    .social-icon:nth-child(3):hover i {
+        background-color: #EA4335;
+    }
 
-.social-icon:nth-child(4):hover i {
-    background-color: #E1306C;
-}
+    .social-icon:nth-child(4):hover i {
+        background-color: #E1306C;
+    }
 
-.social-icon i {
-    display: inline-block;
-    text-align: center;
-    height: 45px;
-    width: 45px;
-    border-radius: 45px;
-    line-height: 45px;
-    font-size: 2rem;
-    transition: all 0.25s ease-out;
-}
+    .social-icon i {
+        display: inline-block;
+        text-align: center;
+        height: 45px;
+        width: 45px;
+        border-radius: 45px;
+        line-height: 45px;
+        font-size: 2rem;
+        transition: all 0.25s ease-out;
+    }
 
-.social-icon span {
-    font-size: 1.6rem;
-    font-weight: 600;
-    line-height: 45px;
-    margin-left: 10px;
-}
+    .social-icon span {
+        font-size: 1.6rem;
+        font-weight: 600;
+        line-height: 45px;
+        margin-left: 10px;
+    }
 
-.social-icon:nth-child(1):hover span {
-    color: #4267B2;
-}
+    .social-icon:nth-child(1):hover span {
+        color: #4267B2;
+    }
 
-.social-icon:nth-child(2):hover span {
-    color: #333;
-}
+    .social-icon:nth-child(2):hover span {
+        color: #333;
+    }
 
-.social-icon:nth-child(3):hover span {
-    color: #EA4335;
-}
+    .social-icon:nth-child(3):hover span {
+        color: #EA4335;
+    }
 
-.social-icon:nth-child(4):hover span {
-    color: #E1306C;
-}
+    .social-icon:nth-child(4):hover span {
+        color: #E1306C;
+    }
 
 .btn {
     width: 180px;
@@ -238,11 +233,11 @@ form.sign-in-form {
     font-size: 1.8rem;
 }
 
-.btn:hover {
-    background-color: var(--main-color);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
-}
+    .btn:hover {
+        background-color: var(--main-color);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        transform: translateY(-5px);
+    }
 
 .panels-container {
     position: absolute;
@@ -313,11 +308,11 @@ form.sign-in-form {
     font-size: 1.8rem;
 }
 
-.btn.transparent:hover {
-    opacity: 0.8;
-    background-color: var(--white-color);
-    color: black;
-}
+    .btn.transparent:hover {
+        opacity: 0.8;
+        background-color: var(--white-color);
+        color: black;
+    }
 
 .right-panel .image,
 .right-panel .content {
@@ -348,6 +343,7 @@ form.sign-in-form {
     }
 }
 
+/* Sign-up mode styles */
 .container.sign-up-mode:before {
     transform: translate(100%, -50%);
     right: 52%;
@@ -385,112 +381,113 @@ form.sign-in-form {
     pointer-events: all;
 }
 
+/* Responsive styles */
 @media (max-width: 870px) {
     .container {
         min-height: 800px;
         height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .forms-container {
+        width: 100%;
+        height: auto;
+        margin-top: 50px;
     }
 
     .signin-signup {
+        position: relative;
         width: 100%;
-        top: 95%;
-        transform: translate(-50%, -100%);
-        transition: 1s 0.8s ease-in-out;
-    }
-
-    .signin-signup,
-    .container.sign-up-mode .signin-signup {
+        max-width: 500px;
+        top: 0;
         left: 50%;
+        transform: translateX(-50%);
+        margin: 2rem auto;
+        padding: 0 20px;
     }
 
     .panels-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr 2fr 1fr;
+        position: relative;
+        height: auto;
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+        margin-top: auto;
     }
 
     .panel {
-        flex-direction: row;
-        justify-content: space-around;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
         padding: 2.5rem 8%;
-        grid-column: 1 / 2;
         width: 100%;
+        text-align: center;
     }
 
+    .left-panel,
     .right-panel {
-        grid-row: 3 / 4;
+        flex: 1;
+        padding: 2rem;
     }
 
-    .left-panel {
-        grid-row: 1 / 2;
+    .panel .content {
+        padding: 20px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .panel h3 {
+        font-size: 2.5rem;
+        line-height: 3rem;
+    }
+
+    .panel p {
+        font-size: 1.5rem;
+        padding: 20px 0;
+    }
+
+    .btn.transparent {
+        width: 140px;
+        height: 45px;
+        font-size: 1.6rem;
     }
 
     .image {
         width: 200px;
-        transition: transform 0.9s ease-in-out;
-        transition-delay: 0.6s;
-    }
-
-    .panel .content {
-        padding-right: 15%;
-        transition: transform 0.9s ease-in-out;
-        transition-delay: 0.8s;
-    }
-
-    .panel h3 {
-        font-size: 3.5rem;
-    }
-
-    .panel p {
-        font-size: 1rem;
-        padding: 10px 0;
-    }
-
-    .btn.transparent {
-        width: 110px;
-        height: 35px;
-        font-size: 1rem;
-    }
-
-    .container:before {
-        width: 1500px;
-        height: 1500px;
-        transform: translateX(-50%);
-        left: 30%;
-        bottom: 68%;
-        right: initial;
-        top: initial;
-        transition: 2s ease-in-out;
-    }
-
-    .container.sign-up-mode:before {
-        transform: translate(-50%, 100%);
-        bottom: 32%;
-        right: initial;
-    }
-
-    .container.sign-up-mode .left-panel .image,
-    .container.sign-up-mode .left-panel .content {
-        transform: translateY(-300px);
-    }
-
-    .container.sign-up-mode .right-panel .image,
-    .container.sign-up-mode .right-panel .content {
-        transform: translateY(0px);
-    }
-
-    .right-panel .image,
-    .right-panel .content {
-        transform: translateY(300px);
+        margin-bottom: 20px;
     }
 
     .container.sign-up-mode .signin-signup {
-        top: 5%;
-        transform: translate(-50%, 0);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    form {
+        padding: 0 2rem;
+        width: 100%;
+    }
+
+    .title {
+        font-size: 3.5rem;
+        margin-bottom: 30px;
+    }
+
+    .input-field {
+        width: 100%;
+        margin: 8px 0;
     }
 }
 
 @media (max-width: 570px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .signin-signup {
+        padding: 0 15px;
+    }
+
     form {
         padding: 0 1.5rem;
     }
@@ -503,31 +500,59 @@ form.sign-in-form {
         padding: 10px 0;
     }
 
-    .container {
-        padding: 1.5rem;
+    .panel h3 {
+        font-size: 2rem;
+        line-height: 2.5rem;
     }
 
-    .container:before {
-        bottom: 72%;
-        left: 50%;
+    .panel p {
+        font-size: 1.2rem;
+        padding: 10px 0;
     }
 
-    .container.sign-up-mode:before {
-        bottom: 28%;
-        left: 50%;
+    .btn.transparent {
+        width: 110px;
+        height: 35px;
+        font-size: 1.4rem;
     }
+
+    .title {
+        font-size: 3rem;
+    }
+
+    .input-field {
+        height: 50px;
+    }
+
+        .input-field input {
+            font-size: 1.6rem;
+        }
+
+        .input-field i {
+            font-size: 1.4rem;
+        }
+
+    .social-icon {
+        height: 40px;
+        width: 40px;
+    }
+
+        .social-icon i {
+            font-size: 1.6rem;
+            line-height: 40px;
+        }
 }
 
 .error-message {
-    font-size: 1.5rem; /* Kích thước lớn hơn */
-    font-weight: bold; /* In đậm */
-    color: #ff4d4d; /* Màu đỏ nổi bật */
-    background-color: #ffe6e6; /* Màu nền nhạt hơn để dễ đọc */
-    border: 2px solid #ff3333; /* Đường viền đỏ đậm */
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff4d4d;
+    background-color: #ffe6e6;
+    border: 2px solid #ff3333;
     padding: 15px;
     border-radius: 10px;
     text-align: center;
-    animation: shake 0.3s ease-in-out; /* Hiệu ứng shake khi xuất hiện */
+    animation: shake 0.3s ease-in-out;
 }
 
 @keyframes shake {
@@ -550,10 +575,4 @@ form.sign-in-form {
     100% {
         transform: translateX(0);
     }
-}
-
-.btn-OTP {
-    background-color: var(--text-light-color);  
-    max-height : 50px;
-    max-width : 100px
 }
