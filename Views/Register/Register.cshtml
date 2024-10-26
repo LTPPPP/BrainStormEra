@@ -1,4 +1,4 @@
-﻿@model BrainStormEra.Views.Register.RegisterModel
+﻿@model BrainStormEra.ViewModels.RegisterModel
 @{
     ViewData["Title"] = "Register";
     Layout = null;
@@ -57,12 +57,11 @@
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
 
-                    <!-- OTP Input Field -->
+                    <!-- CAPTCHA Field -->
                     <div class="input-field">
-                        <input type="text" id="OTP" name="OTP" placeholder="OTP" />
+                        <input asp-for="CAPTCHA" id="CAPTCHA" placeholder="@ViewBag.CaptchaQuestion" autocomplete="off" />
+                        <span asp-validation-for="CAPTCHA" class="text-danger"></span>
                     </div>
-                    <button type="button" id="sendOTPButton" class="btn btn-primary btn-OTP" onclick="sendOTP()">Send Code</button>
-                    <span id="otpErrorMessage" class="text-danger"></span>
 
                     <input type="submit" value="Register" class="btn btn-submit solid"
                            style="background-color: white; font-family: Poppins; font-size: 1.6rem; border-radius: 10px;" />
@@ -108,50 +107,6 @@
                 }
             });
         });
-
-        function sendOTP() {
-            const email = document.querySelector('input[name="Email"]').value;
-            const username = document.querySelector('input[name="Username"]').value;
-            const password = document.querySelector('input[name="Password"]').value;
-            const confirmPassword = document.querySelector('input[name="ConfirmPassword"]').value;
-            const otpErrorMessage = document.getElementById("otpErrorMessage");
-
-            // Kiểm tra nếu các trường cần thiết bị bỏ trống
-            if (!username || !email || !password || !confirmPassword) {
-                otpErrorMessage.textContent = "Vui lòng điền đầy đủ các thông tin trước khi gửi OTP.";
-                return;
-            }
-
-            // Gửi yêu cầu OTP
-            fetch('/Register/SendOTP', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            })
-                .then(response => {
-                    if (response.ok) {
-                        let sendButton = document.getElementById("sendOTPButton");
-                        sendButton.disabled = true;
-                        otpErrorMessage.textContent = "OTP đã được gửi đến email của bạn.";
-
-                        let timer = 90;
-                        let interval = setInterval(() => {
-                            timer--;
-                            sendButton.textContent = `Send Code (${timer}s)`;
-                            if (timer <= 0) {
-                                clearInterval(interval);
-                                sendButton.textContent = "Send Code";
-                                sendButton.disabled = false;
-                            }
-                        }, 1000);
-                    } else {
-                        otpErrorMessage.textContent = "Đã xảy ra lỗi khi gửi OTP. Vui lòng thử lại.";
-                    }
-                })
-                .catch(() => {
-                    otpErrorMessage.textContent = "Đã xảy ra lỗi khi gửi OTP. Vui lòng thử lại.";
-                });
-        }
     </script>
 </body>
 

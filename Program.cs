@@ -12,9 +12,10 @@ namespace BrainStormEra
         {
             var builder = WebApplication.CreateBuilder(args);
             // Đăng ký EmailService
-            builder.Services.AddSingleton<EmailService>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<GeminiApiService>();
+
+            builder.Services.AddSession();
 
             builder.Services.AddControllersWithViews();
 
@@ -47,7 +48,6 @@ namespace BrainStormEra
             app.UseStaticFiles();
 
             app.UseRouting();
-
             // Enable cookie authentication
             app.UseAuthentication();
 
