@@ -25,6 +25,8 @@ public partial class Lesson
 
     public virtual Chapter? Chapter { get; set; }
 
+    public virtual ICollection<LessonCompletion> LessonCompletions { get; set; } = new List<LessonCompletion>();
+
     public virtual Status? LessonStatusNavigation { get; set; }
 
     public virtual LessonType? LessonType { get; set; }

@@ -6,9 +6,9 @@ namespace BrainStormEra.Controllers.Account
 {
     public class InstructorController : Controller
     {
-        private readonly SwpMainFpContext _context;
+        private readonly SwpMainContext _context;
 
-        public InstructorController(SwpMainFpContext context)
+        public InstructorController(SwpMainContext context)
         {
             _context = context;
         }

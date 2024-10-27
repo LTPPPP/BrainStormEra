@@ -6,9 +6,9 @@ namespace BrainStormEra.Controllers.Account
 {
     public class ProfileController : Controller
     {
-        private readonly SwpMainFpContext _context;
+        private readonly SwpMainContext _context;
 
-        public ProfileController(SwpMainFpContext context)
+        public ProfileController(SwpMainContext context)
         {
             _context = context;
         }

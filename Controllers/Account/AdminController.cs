@@ -7,9 +7,9 @@ namespace BrainStormEra.Controllers.Account
 {
     public class AdminController : Controller
     {
-        private readonly SwpMainFpContext _context;
+        private readonly SwpMainContext _context;
 
-        public AdminController(SwpMainFpContext context)
+        public AdminController(SwpMainContext context)
         {
             _context = context;
         }

@@ -8,9 +8,9 @@ namespace BrainStormEra.Controllers.Lessons
     public class LessonController : Controller
     {
 
-        private readonly SwpMainFpContext _context;
+        private readonly SwpMainContext _context;
 
-        public LessonController(SwpMainFpContext context)
+        public LessonController(SwpMainContext context)
         {
             _context = context;
         }

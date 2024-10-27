@@ -39,6 +39,8 @@ public partial class Account
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
+    public virtual ICollection<LessonCompletion> LessonCompletions { get; set; } = new List<LessonCompletion>();
+
     public virtual ICollection<Notification> NotificationCreatedByNavigations { get; set; } = new List<Notification>();
 
     public virtual ICollection<Notification> NotificationUsers { get; set; } = new List<Notification>();

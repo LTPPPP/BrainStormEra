@@ -11,9 +11,9 @@ namespace BrainStormEra.Controllers.Achievement
 {
     public class AchievementController : Controller
     {
-        private readonly SwpMainFpContext _context;
+        private readonly SwpMainContext _context;
 
-        public AchievementController(SwpMainFpContext context)
+        public AchievementController(SwpMainContext context)
         {
             _context = context;
         }

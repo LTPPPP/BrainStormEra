@@ -10,8 +10,8 @@ namespace BrainStormEra.Controllers.Course
     {
 
 
-        private readonly SwpMainFpContext _context;
-        public CourseController(SwpMainFpContext context)
+        private readonly SwpMainContext _context;
+        public CourseController(SwpMainContext context)
         {
             _context = context;
         }

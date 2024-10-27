@@ -14,10 +14,10 @@ namespace BrainStormEra.Controllers
 {
     public class RegisterController : Controller
     {
-        private readonly SwpMainFpContext _context;
+        private readonly SwpMainContext _context;
         private readonly ILogger<RegisterController> _logger;
 
-        public RegisterController(SwpMainFpContext context, ILogger<RegisterController> logger)
+        public RegisterController(SwpMainContext context, ILogger<RegisterController> logger)
         {
             _context = context;
             _logger = logger;

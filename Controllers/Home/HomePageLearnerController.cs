@@ -6,10 +6,10 @@ namespace BrainStormEra.Controllers
 {
     public class HomePageLearnerController : Controller
     {
-        private readonly SwpMainFpContext _dbContext;
+        private readonly SwpMainContext _dbContext;
         private readonly ILogger<HomePageLearnerController> _logger;
 
-        public HomePageLearnerController(SwpMainFpContext dbContext, ILogger<HomePageLearnerController> logger)
+        public HomePageLearnerController(SwpMainContext dbContext, ILogger<HomePageLearnerController> logger)
         {
             _dbContext = dbContext;
             _logger = logger;

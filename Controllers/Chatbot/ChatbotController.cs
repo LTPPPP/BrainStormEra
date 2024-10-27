@@ -12,9 +12,9 @@ namespace BrainStormEra.Controllers
     public class ChatbotController : Controller
     {
         private readonly GeminiApiService _geminiApiService;
-        private readonly SwpMainFpContext _dbContext;
+        private readonly SwpMainContext _dbContext;
 
-        public ChatbotController(GeminiApiService geminiApiService, SwpMainFpContext dbContext)
+        public ChatbotController(GeminiApiService geminiApiService, SwpMainContext dbContext)
         {
             _geminiApiService = geminiApiService;
             _dbContext = dbContext;
