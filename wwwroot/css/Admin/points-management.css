@@ -1,0 +1,142 @@
+﻿
+h2 {
+    color: var(--primary-color);
+    text-align: center;
+    font-weight: bold;
+}
+
+.table-cl{
+    font-size : 2rem;
+}
+
+.input-group {
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+}
+
+    .input-group .form-control {
+        border-right: 0;
+    }
+
+    .input-group .search-btn {
+        background-color: var(--secondary-primary-color);
+        color: var(--text-color-light);
+        border-left: 0;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .input-group .search-btn i {
+            font-size: 16px; /* Adjust size if needed */
+        }
+
+        .input-group .search-btn:hover {
+            background-color: var(--hover-color-primary);
+        }
+
+.table-container {
+    max-width: 90%;
+    margin: auto;
+}
+
+.table {
+    width: 100%;
+    margin-top: 20px;
+    background-color: var(--background-light);
+    border-collapse: collapse;
+    box-shadow: 0px 4px 8px var(--box-shadow-color);
+}
+
+    .table th {
+        background-color: var(--btn-create);
+        color: var(--text-color-light);
+        padding: 15px;
+        text-align: center;
+        font-size: 1.2rem;
+        border-bottom: 2px solid var(--light-gray-color);
+    }
+
+    .table td {
+        padding: 12px;
+        text-align: center;
+        font-size: 1.4rem;
+        font-weight : bold;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--very-light-gray);
+    }
+
+        .table td input[type="number"] {
+            max-width: 100px; /* Narrower input field for Payment Points */
+            text-align: right;
+        }
+
+    .table tbody tr:hover {
+        background-color: var(--light-blue-color);
+    }
+
+.update-btn {
+    background-color: var(--secondary-primary-color);
+    color: var(--text-color-light);
+    border: none;
+    transition: background-color 0.3s ease;
+    padding: 6px 12px;
+}
+
+    .update-btn:hover {
+        background-color: var(--hover-color-primary);
+    }
+
+.btn-primary {
+    background-color: var(--button-blue);
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: var(--blue-hover-color);
+    }
+
+.text-muted {
+    font-style: italic;
+    color: var(--shadow-color);
+}
+/* Responsive Adjustments for Small Screens */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table thead {
+        display: none; /* Hide table header */
+    }
+
+    .table tr {
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 0.5rem;
+    }
+
+        .table td::before {
+            content: attr(data-label); /* Display label */
+            flex: 1;
+            font-weight: bold;
+            text-align: left;
+            color: var(--text-muted);
+        }
+
+    .btn-primary {
+        width: 100%;
+        max-width: 100px;
+        font-size: 0.9rem;
+    }
+}
