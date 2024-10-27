@@ -1,9 +1,8 @@
 ﻿@{
     var showProfile = (string)ViewContext.RouteData.Values["action"] == "HomepageAdmin"
-                      || (string)ViewContext.RouteData.Values["action"] == "HomePageInstructor"
-                      || (string)ViewContext.RouteData.Values["action"] == "HomePageLearner";
+                    || (string)ViewContext.RouteData.Values["action"] == "HomePageInstructor"
+                    || (string)ViewContext.RouteData.Values["action"] == "HomePageLearner";
 }
-
 <header class="container-fluid sticky-header" style="background-color: white;">
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
