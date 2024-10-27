@@ -1,9 +1,11 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.ViewModels;
+using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,17 +26,7 @@ namespace BrainStormEra.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            // Generate CAPTCHA
-            var random = new Random();
-            int num1 = random.Next(1, 10);
-            int num2 = random.Next(1, 10);
-            string captchaQuestion = $"{num1} + {num2} = ?";
-            int captchaAnswer = num1 + num2;
-
-            // Store CAPTCHA in ViewBag and TempData
-            ViewBag.CaptchaQuestion = captchaQuestion;
-            TempData["CaptchaAnswer"] = captchaAnswer;
-
+            GenerateCaptcha();
             return View();
         }
 
@@ -43,6 +35,7 @@ namespace BrainStormEra.Controllers
         {
             if (!ModelState.IsValid)
             {
+                GenerateCaptcha(); // Generate new CAPTCHA question for retry
                 return View(model);
             }
 
@@ -51,9 +44,8 @@ namespace BrainStormEra.Controllers
                 TempData["CaptchaAnswer"].ToString() != model.CAPTCHA)
             {
                 ViewBag.ErrorMessage = "CAPTCHA is incorrect, please try again.";
-
-                // Regenerate CAPTCHA for retry
-                return RedirectToAction("Register");
+                GenerateCaptcha(); // Generate new CAPTCHA question for retry
+                return View(model);
             }
 
             // Check if Username already exists
@@ -61,6 +53,7 @@ namespace BrainStormEra.Controllers
             if (usernameExists)
             {
                 ModelState.AddModelError("Username", "Username is already taken. Please choose another one.");
+                GenerateCaptcha();
                 return View(model);
             }
 
@@ -69,6 +62,7 @@ namespace BrainStormEra.Controllers
             if (emailExists)
             {
                 ModelState.AddModelError("Email", "Email is already in use. Please use a different email.");
+                GenerateCaptcha();
                 return View(model);
             }
 
@@ -138,6 +132,19 @@ namespace BrainStormEra.Controllers
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
                 return string.Concat(hashBytes.Select(b => b.ToString("X2")));
             }
+        }
+
+        private void GenerateCaptcha()
+        {
+            var random = new Random();
+            int num1 = random.Next(1, 10);
+            int num2 = random.Next(1, 10);
+            string captchaQuestion = $"{num1} + {num2} = ?";
+            int captchaAnswer = num1 + num2;
+
+            // Store CAPTCHA question and answer in ViewBag and TempData for access on the view and on postback
+            ViewBag.CaptchaQuestion = captchaQuestion;
+            TempData["CaptchaAnswer"] = captchaAnswer.ToString();
         }
     }
 }

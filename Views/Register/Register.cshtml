@@ -31,36 +31,45 @@
                     @Html.AntiForgeryToken()
                     <h2 class="title">Sign Up</h2>
 
-                    <!-- Hiển thị lỗi nếu có -->
+                    <!-- Hiển thị lỗi toàn bộ nếu có -->
                     @if (ViewBag.ErrorMessage != null)
                     {
-                        <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+                        <div class="alert alert-danger">
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+                    @* Duyệt qua các lỗi trong ModelState *@
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
                     }
 
                     <div class="input-field">
                         <input asp-for="Username" id="RegisterUsername" name="Username" type="text" placeholder="👤Username" autocomplete="username" />
-                        <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
 
                     <div class="input-field">
                         <input asp-for="Email" id="RegisterEmail" name="Email" type="email" placeholder="📧Email" autocomplete="email" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="input-field">
                         <input asp-for="Password" id="RegisterPassword" name="Password" type="password" placeholder="🔒Password" autocomplete="new-password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
                     <div class="input-field">
                         <input asp-for="ConfirmPassword" id="RegisterConfirmPassword" name="ConfirmPassword" type="password" placeholder="🔒Confirm password" autocomplete="new-password" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
 
                     <!-- CAPTCHA Field -->
                     <div class="input-field">
                         <input asp-for="CAPTCHA" id="CAPTCHA" placeholder="@ViewBag.CaptchaQuestion" autocomplete="off" />
-                        <span asp-validation-for="CAPTCHA" class="text-danger"></span>
                     </div>
 
                     <input type="submit" value="Register" class="btn btn-submit solid"
