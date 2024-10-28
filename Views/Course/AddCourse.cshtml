@@ -1,5 +1,6 @@
-﻿@model BrainStormEra.Views.Course.EditCourseViewModel
-
+﻿@model BrainStormEra.Views.Course.CreateCourseViewModel
+@{
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,17 +13,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/Course/EditCourse.css">
-    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+    <link rel="stylesheet" href="~/css/Course/CreateCourse.css">
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous" defer></script>
+
 </head>
 
-<body class="Edit-course-page">
-    @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+<body>
 
+    @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
 
     <div class="container-fluid">
         <div class="row">
@@ -36,7 +39,7 @@
                 </div>
                 <div class="offcanvas-body">
                     <div class="nav flex-column">
-                        <a href="#" class="nav-link text-secondary fw-bold mb-2">Edit Course</a>
+                        <a href="@Url.Action("HomePageInstructor", "HomePageInstructor")" class="nav-link text-secondary fw-bold mb-2">Add Course</a>
                         <a href="#" class="nav-link text-secondary">Home</a>
                     </div>
                 </div>
@@ -46,24 +49,14 @@
             <nav class="col-md-2 d-none d-md-block sidebar py-2">
                 <div class="nav flex-column">
                     <a href="#" class="nav-link text-secondary">Home</a>
-                    <a href="#" class="nav-link text-secondary fw-bold mb-2">Edit Course</a>
+                    <a href="#" class="nav-link text-secondary fw-bold mb-2">Add Course</a>
                 </div>
             </nav>
 
-            <main class="col-md-9">
-                @{
-
-                    string courseId = Context.Request.Cookies["CourseId"];
-
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <h2 class="main-header mt-3">Edit COURSE</h2>
-                        <a href="@Url.Action("ChapterManagement", "Chapter")"
-                           class="btn btn-primary" id="add-chapter-button">
-                            <i class="fas fa-plus"></i> Add Chapter
-                        </a>
-                    </div>
-
-                }
+            <main class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="main-header mt-3">ADD COURSE</h2>
+                </div>
                 <div class="card mb-4">
                     <div class="card-header">
                         Basic Info
@@ -71,7 +64,6 @@
                     <div class="card-body">
                         <!-- Start form -->
                         <form method="post" enctype="multipart/form-data">
-
 
                             <input type="hidden" asp-for="CourseId" />
 
@@ -95,17 +87,9 @@
                                         </li>
                                     }
                                 </ul>
-                                <ul id="selectedCategories" class="mt-2">
-                                    @foreach (var selectedCategory in Model.SelectedCategories)
-                                    {
-                                        <li class="list-group-item">
-                                            @selectedCategory.CourseCategoryName
-                                            <input type="hidden" name="CategoryIds" value="@selectedCategory.CourseCategoryId">
-                                            <button type="button" class="btn-close ms-2" aria-label="Remove"></button>
-                                        </li>
-                                    }
-                                </ul>
+                                <ul id="selectedCategories" class="mt-2"></ul>
                             </div>
+
 
                             <div class="mb-3">
                                 <label for="coursePrice" class="form-label">Price:</label>
@@ -116,7 +100,7 @@
 
 
                             <div class="mb-3">
-                                <label for="courseDescription" class="form-label">Description</label>
+                                <label for="CourseDescription" class="form-label">Description</label>
                                 <textarea asp-for="CourseDescription" class="form-control" id="courseDescription" rows="5"></textarea>
                                 <span asp-validation-for="CourseDescription" class="text-danger"></span>
                             </div>
@@ -129,10 +113,16 @@
                                 </div>
                                 <div class="card-body d-flex justify-content-center">
                                     <div class="mb-3 d-flex flex-column align-items-center">
-                                        <img id="previewImage" src="@Model.CoursePictureFile" for-asp="CoursePicture" alt="Edit Photo" class="img-fluid mb-2">
-                                        <span class="fw-bold text-primary">Edit Photo</span>
+                                        @if (Model.CoursePicture != null && !string.IsNullOrEmpty(Model.CoursePicture.FileName))
+                                        {
+                                            <img id="previewImage" src="@Model.CoursePicture.FileName" alt="Uploaded Photo" class="img-fluid mb-2">
+                                        }
+                                        else
+                                        {
+                                            <img id="previewImage" src="https://cdn-icons-png.flaticon.com/512/1160/1160358.png" alt="Default Photo" class="img-fluid mb-2">
+                                        }                                   <span class="fw-bold text-primary">Add Photo</span>
                                         <input asp-for="CoursePicture" class="form-control mt-2" type="file" id="formFile" accept="image/*">
-                                        <span class="text-danger"></span>
+                                        <span asp-validation-for="CoursePicture" class="text-danger"></span>
 
                                     </div>
                                 </div>
@@ -140,12 +130,11 @@
 
                             <!-- Submit Button -->
                             <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-success">Update</button>
+                                <button type="submit" class="btn btn-success">Create</button>
                             </div>
                         </form>
                     </div>
                 </div>
-
             </main>
         </div>
     </div>
@@ -157,22 +146,28 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8QySsHqKWu"
             crossorigin="anonymous"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script src="~/js/Course/EditCourse.js"></script>
+    @*      <script src="~/js/Course/CreateCourse.js"> </script>
+    *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 
     <script>
+
+        // thêm caterogy
         document.addEventListener('DOMContentLoaded', () => {
-            const selectedCategories = Array.from(document.querySelectorAll('input[name="CategoryIds"]')).map(input => input.value);
+            const selectedCategories = [];
             const selectedCategoriesList = document.getElementById('selectedCategories');
             const categoryInput = document.getElementById('categoryInput');
             const categorySuggestions = document.getElementById('categorySuggestions');
             const categoryError = document.getElementById('categoryError');
-            const form = document.querySelector('form');
 
-            // Xử lý khi người dùng nhập để gợi ý danh mục
+            // Hiển thị gợi ý khi người dùng nhập
             categoryInput.addEventListener('input', () => {
                 const inputValue = categoryInput.value.toLowerCase();
                 let hasSuggestions = false;
 
+                // Lọc danh sách gợi ý
                 Array.from(categorySuggestions.children).forEach(option => {
                     if (option.textContent.toLowerCase().includes(inputValue) && inputValue.length > 0) {
                         option.style.display = 'block';
@@ -193,48 +188,28 @@
 
                 if (!selectedCategories.includes(categoryId)) {
                     selectedCategories.push(categoryId);
-                    categoryError.style.display = 'none';
+                    categoryError.style.display = 'none'; // Ẩn lỗi khi có danh mục
 
                     const li = document.createElement('li');
                     li.classList.add("list-group-item");
                     li.innerHTML = `${categoryName}
-                            <input type="hidden" name="CategoryIds" value="${categoryId}">
-                            <button type="button" class="btn-close ms-2" aria-label="Remove"></button>`;
+                                <input type="hidden" name="CategoryIds" value="${categoryId}">
+                                <button type="button" class="btn-close ms-2" aria-label="Remove"></button>`;
                     selectedCategoriesList.appendChild(li);
 
                     // Thêm sự kiện xóa cho nút close
-                    li.querySelector(".btn-close").addEventListener('click', () => removeCategory(li, categoryId));
-                    categoryInput.value = '';
+                    li.querySelector(".btn-close").addEventListener('click', () => {
+                        selectedCategoriesList.removeChild(li);
+                        selectedCategories.splice(selectedCategories.indexOf(categoryId), 1);
+                        if (selectedCategories.length === 0) {
+                            categoryError.style.display = 'block'; // Hiện lỗi nếu không có danh mục nào
+                        }
+                    });
+
+                    categoryInput.value = ''; // Xóa nội dung sau khi chọn
                     categorySuggestions.style.display = 'none';
                 }
             });
-
-            // Kiểm tra khi gửi form
-            form.addEventListener('submit', (event) => {
-                if (selectedCategories.length === 0) {
-                    event.preventDefault();
-                    categoryError.style.display = 'block';
-                    categoryError.textContent = 'Please select at least one category.';
-                }
-            });
-
-            // Thêm sự kiện xóa cho tất cả các nút xóa của danh mục đã có sẵn khi trang tải
-            document.querySelectorAll('#selectedCategories .btn-close').forEach(button => {
-                button.addEventListener('click', () => {
-                    const li = button.parentElement;
-                    const categoryId = li.querySelector('input[name="CategoryIds"]').value;
-                    removeCategory(li, categoryId);
-                });
-            });
-
-            // Hàm xóa danh mục khỏi danh sách
-            function removeCategory(li, categoryId) {
-                selectedCategoriesList.removeChild(li);
-                selectedCategories.splice(selectedCategories.indexOf(categoryId), 1);
-                if (selectedCategories.length === 0) {
-                    categoryError.style.display = 'block';
-                }
-            }
 
             // Ẩn gợi ý khi nhấp ra ngoài
             document.addEventListener('click', (e) => {
@@ -242,8 +217,31 @@
                     categorySuggestions.style.display = 'none';
                 }
             });
+
+            // Kiểm tra danh mục khi gửi form
+            document.querySelector('form').addEventListener('submit', (e) => {
+                if (selectedCategories.length === 0) {
+                    e.preventDefault();
+                    categoryError.style.display = 'block';
+                }
+            });
         });
+
+
+        document.getElementById("formFile").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("previewImage").src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
     </script>
+
+
 
 </body>
 

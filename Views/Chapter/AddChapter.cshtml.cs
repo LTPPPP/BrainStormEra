@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BrainStormEra.Views.Lesson
+namespace BrainStormEra.Views.Chapter
 {
-    public class CreateLessonModel : PageModel
+    public class AddChapterModel : PageModel
     {
         public void OnGet()
         {

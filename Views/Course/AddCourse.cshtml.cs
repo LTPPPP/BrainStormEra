@@ -35,9 +35,9 @@ namespace BrainStormEra.Views.Course
         [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive value")]
         public decimal Price { get; set; }
 
-        public string CourseCategoryId { get; set; }
+		public List<string> CategoryIds { get; set; } = new List<string>(); // Ch?a nhi?u category ID
 
-        public List<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
+		public List<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
 
 
 

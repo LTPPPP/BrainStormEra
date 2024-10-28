@@ -1,12 +1,50 @@
 /* Gradient Header */
 .gradient-header {
-    background: linear-gradient(to right,var(--main-color),
-        var(--secondary-color));
+    background: linear-gradient(to right,var(--main-color), var(--secondary-color));
     font-weight: bold;
 }
 
-/* Sidebar buttons customization */
+body {
+    padding-top: 70px !important;
+    background-color: var(--white-corlor) !important;
+}
 
+
+/* Sidebar buttons customization */
+.sidebar .btn {
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+/* Form and card styling */
+.card-body {
+    padding: 2rem;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+input[type="text"],
+textarea {
+    border-radius: 5px;
+}
+/* Gradient Header */
+.gradient-header {
+    background: linear-gradient(to right,var(--main-color), var(--secondary-color));
+    font-weight: bold;
+    font-size: 1.7rem;
+}
+
+body {
+    padding-top: 70px !important;
+    background-color: var(--white-corlor) !important;
+}
+/* Sidebar buttons customization */
+.sidebar .btn {
+    font-weight: bold;
+    border-radius: 8px;
+}
 
 /* Ensure the card has full height */
 .card {
@@ -16,19 +54,46 @@
 
 .card-body {
     padding: 2rem;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Chapter Management */
-h5 {
-    font-weight: bold;
-}
-
-/* Manage Lessons button and Edit button styling */
-button.btn {
+/* Input fields and button styling */
+input[type="text"],
+textarea {
     border-radius: 5px;
+}
+
+.btn {
+    background-color: var(--main-color);
+    color: var(--white-color);
+}
+
+/* Reduce space between the form and the button */
+.mt-2 {
+    margin-top: 80%;
+    /* Reduce the margin to bring the button closer */
 }
 
 button.btn-outline-primary {
-    border-radius: 5px;
-    padding: 3px 10px;
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+
+button.btn {
+    width: 120px;
+}
+
+.main-content {
+    height: 100vh;
+}
+
+
+.back-to-course-btn {
+    background-color: var(--text-muted);
+    color: var(--white-color);
+    font-size: 0.8rem;
+    border-color: var(--text-muted);
 }

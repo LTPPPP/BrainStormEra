@@ -1,108 +1,133 @@
-﻿@model BrainStormEra.Models.Lesson
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
-@{
-    var displayVideoSection = Model.LessonTypeId == 1 ? "block" : "none";
-    var displayReadingSection = Model.LessonTypeId == 2 ? "block" : "none";
-}
+﻿@model List<BrainStormEra.Models.Lesson>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BrainStormEra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    <link rel="stylesheet" href="~/css/Lesson/DeleteLesson.css" />
-    <link rel="stylesheet" href="~/css/base.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Lesson</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/Lesson/DeleteLesson.css">
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="content flex-grow-1">
-        <div class="content-header" id="content-header">
-            <h5>DELETE LESSON</h5>
+    @{
+        string userRole = Context.Request.Cookies["user_role"];
+    }
+
+    @if (userRole == "2")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    }
+    else if (userRole == "1")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+    }
+
+    <div class="container-fluid pb-5" style="padding-bottom: 10px;">
+        <div class="row">
+            <div class="col-md-3 bg-light sidebar p-3">
+                <div class="text-start mb-3">
+                    <button type="button" onclick="window.location.href='@Url.Action("ChapterManagement", "Chapter")'"
+                            class="btn btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Course
+                    </button>
+                </div>
+                <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddLesson", "Lesson")">Add Lesson</a>
+                <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete Lesson</a>
+                <a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View Lesson</a>
+            </div>
+
+            <div class="col-md-9 d-flex align-items-start" style="min-height: 100vh;">
+                <div class="container mt-3">
+                    <div class="card w-100">
+                        <div class="card-header gradient-header">
+                            DELETE LESSON
+                        </div>
+                        <div class="card-body">
+                            <form method="post" id="deleteForm">
+                                <!-- Checkbox "Select All" -->
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                    <label class="form-check-label" for="selectAll">Select All</label>
+                                </div>
+
+                                <!-- List of lessons with conditional checkboxes -->
+                                @foreach (var lesson in Model)
+                                {
+                                    <div class="form-check mb-3">
+                                        <!-- Chỉ hiển thị checkbox nếu là bài học có LessonOrder cao nhất hoặc khi "Select All" được chọn -->
+                                        <input class="form-check-input lesson-checkbox" type="checkbox"
+                                               name="LessonIds" value="@lesson.LessonId"
+                                               id="lesson@lesson.LessonId"
+                                               style="display: @(lesson.LessonId == (string)ViewBag.MaxOrderLessonId ? "inline" : "none");">
+
+                                        <label class="form-check-label" for="lesson@lesson.LessonId">
+                                            <h3>@lesson.LessonName</h3>
+                                            <p>@lesson.LessonDescription</p>
+                                        </label>
+                                        <p>@(lesson.LessonCreatedAt != DateTime.MinValue ? lesson.LessonCreatedAt.ToString("yyyy-MM-dd") : "N/A")</p>
+                                        @if (lesson.LessonTypeId == 1)
+                                        {
+                                            <a href="@lesson.LessonContent" target="_blank">View Video</a>
+                                        }
+                                        else if (lesson.LessonTypeId == 2)
+                                        {
+                                            <a href="@lesson.LessonContent" target="_blank">Download Document</a>
+                                        }
+                                        else
+                                        {
+                                            <p>No content available for this lesson.</p>
+                                        }
+                                    </div>
+                                    <hr />
+                                }
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <form asp-action="DeleteLesson" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="LessonId" />
-
-            <!-- Lesson ID -->
-            <div class="mb-3">
-                <label for="lessonId" class="form-label">Lesson ID</label>
-                <input type="text" asp-for="LessonId" class="form-control" id="lessonId" readonly />
-            </div>
-
-            <!-- Chapter ID -->
-            <div class="mb-3">
-                <label for="chapterId" class="form-label">Chapter ID</label>
-                <input type="text" asp-for="ChapterId" class="form-control" id="chapterId" readonly />
-            </div>
-
-            <!-- Lesson Name -->
-            <div class="mb-3">
-                <label for="LessonName" class="form-label">Lesson Name</label>
-                <input type="text" asp-for="LessonName" class="form-control" id="LessonName" readonly />
-            </div>
-
-            <!-- Lesson Description -->
-            <div class="mb-3">
-                <label for="LessonDescription" class="form-label">Lesson Description</label>
-                <textarea asp-for="LessonDescription" class="form-control" id="LessonDescription" rows="3" readonly></textarea>
-            </div>
-
-            <!-- Lesson Order -->
-            <div class="mb-3">
-                <label for="LessonOrder" class="form-label">Lesson Order</label>
-                <input type="number" asp-for="LessonOrder" class="form-control" id="LessonOrder" readonly />
-            </div>
-
-            <!-- Lesson Type -->
-            <div class="mb-3">
-                <label for="LessonTypeId" class="form-label">Lesson Type</label>
-                <select asp-for="LessonTypeId" class="form-select" id="LessonTypeId" disabled>
-                    <option value="1">Video</option>
-                    <option value="2">Reading</option>
-                </select>
-            </div>
-
-            <!-- Video Section -->
-            <div class="mb-3" id="videoSection" style="display:@displayVideoSection;">
-                <label for="LessonLink" class="form-label">YouTube Video Link</label>
-                <input type="url" asp-for="LessonContent" class="form-control" id="LessonLink" readonly />
-            </div>
-
-            <!-- Reading Section -->
-            <div class="mb-3" id="readingSection" style="display:@displayReadingSection;">
-                <label for="LessonContentFile" class="form-label">Lesson Document</label>
-                <input type="text" asp-for="LessonContent" class="form-control" id="LessonContentFile" readonly />
-            </div>
-
-            <!-- Lesson Status -->
-            <div class="mb-3">
-                <label for="LessonStatus" class="form-label">Lesson Status</label>
-                <select asp-for="LessonStatus" class="form-select" readonly disabled>
-                    <option value="1">Inactive</option>
-                    <option value="2">Active</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="LessonCreatedAt" class="form-label">Lesson Created At</label>
-                <input asp-for="LessonCreatedAt" class="form-control" readonly />
-            </div>
-
-            <!-- Delete Button -->
-            <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">Delete</button>
-            <a href="@Url.Action("ViewLesson")" class="btn btn-secondary">Cancel</a>
-        </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function confirmDelete() {
-            return confirm("Are you sure you want to delete this lesson?");
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle checkboxes visibility on Select All
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const lessonCheckboxes = document.querySelectorAll('.lesson-checkbox');
+
+            selectAllCheckbox.addEventListener('change', function () {
+                lessonCheckboxes.forEach(checkbox => {
+                    checkbox.style.display = this.checked ? 'inline' : (checkbox.value === '@ViewBag.MaxOrderLessonId' ? 'inline' : 'none');
+                    checkbox.checked = this.checked;
+                });
+            });
+
+            document.getElementById('deleteForm').addEventListener('submit', function (event) {
+                const checkboxes = document.querySelectorAll('input[name="LessonIds"]:checked');
+                if (checkboxes.length === 0) {
+                    alert('Please select at least one lesson to delete.');
+                    event.preventDefault();
+                    return;
+                }
+
+                const confirmDelete = confirm('Are you sure you want to delete the selected lessons? This action cannot be undone.');
+                if (!confirmDelete) {
+                    event.preventDefault();  // Prevent form submission if the user cancels
+                }
+            });
+        });
     </script>
 </body>
 </html>

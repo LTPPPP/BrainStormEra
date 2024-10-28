@@ -1,187 +1,51 @@
-﻿body {
-    background-color: var(--white-color);
+﻿/* Gradient Header */
+.gradient-header {
+    background: linear-gradient(to right,var(--main-color), var(--secondary-color));
+    font-weight: bold;
+    font-size: 1.7rem;
 }
 
-h5 {
-    color: var(--primary-color);
+body {
+    padding-top: 70px !important;
+    background-color: var(--white-corlor) !important;
+}
+/* Sidebar buttons customization */
+.sidebar .btn {
+    font-weight: bold;
+    border-radius: 8px;
 }
 
-.sidebar {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    height: 100vh;
-    padding: 30px 20px;
-    color: var(--white-color);
+/* Ensure the card has full height */
+.card {
+    border-radius: 15px;
+    height: 100%;
+}
+
+.card-body {
+    padding: 2rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-    .sidebar h4 {
-        color: var(--white-color);
-        text-align: center;
-        margin-bottom: 40px;
-    }
-
-    .sidebar ul {
-        list-style: none;
-        padding: 0;
-    }
-
-        .sidebar ul li {
-            margin-bottom: 15px;
-        }
-
-            .sidebar ul li a {
-                display: block;
-                text-align: center;
-                padding: 15px;
-                background-color: rgba(255, 255, 255, 0.2);
-                color: var(--white-color);
-                border-radius: 8px;
-                transition: background-color 0.3s ease;
-                text-decoration: none;
-                font-weight: bold;
-            }
-
-                .sidebar ul li a:hover {
-                    background-color: rgba(255, 255, 255, 0.4);
-                }
-
-.content {
-    padding: 20px;
-}
-
-.content-header {
-    background-color: var(--secondary-color);
-    padding: 10px;
+/* Input fields and button styling */
+input[type="text"],
+textarea {
     border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.upload-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed var(--light-gay-color);
-    padding: 20px;
-    text-align: center;
-    margin: 20px auto;
-    width: 500px;
-    height: 200px;
-}
-
-    .upload-box i {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-
-
-
-.btn-success {
-    background-color: var(--btn-create);
-    border: none;
-    width: 200px;
-    height: 50px;
-    display: block;
-    margin: 20px auto;
-    transition: background-color 0.3s;
-    border-radius: 10px;
-}
-
-    .btn-success:hover {
-        background-color: var(--btn-create-hover);
-        color: var(--white-color);
-    }
-
-.add-more {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: var(--link-color);
-    margin-bottom: 10px;
-}
-
-    .add-more i {
-        margin-right: 5px;
-    }
-
-.form-control {
-    margin-bottom: 10px;
-}
-
-.editor-toolbar {
-    border: 1px solid var(--light-gay-color);
-    border-bottom: none;
-    padding: 5px;
-    background-color: var(--white-color);
-}
-
-    .editor-toolbar button {
-        border: none;
-        background: none;
-        cursor: pointer;
-    }
-
-.editor {
-    border: 1px solid var(--light-gray-color);
-    border-top: none;
-    padding: 10px;
-    min-height: 100px;
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--light-gay-color);
-    }
-
-    .content {
-        padding: 10px;
-    }
 }
 
 .btn {
-    margin-bottom: 10px;
+    background-color: var(--main-color);
+    color: var(--white-color);
 }
 
-.modal-title {
-    font-weight: bold;
-    text-transform: uppercase;
+/* Reduce space between the form and the button */
+.mt-2 {
+    margin-top: 80%;
+    /* Reduce the margin to bring the button closer */
 }
 
-.form-check {
-    margin-bottom: 15px;
-}
-
-#fileDetails {
-    font-size: 14px;
-    color: #333;
-}
-
-#videoFile {
-    margin-top: 10px;
-}
-
-.modal-dialog-centered {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-}
-
-.modal-dialog {
-    max-width: 400px;
-    width: 100%;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
+button.btn-outline-primary {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
 }

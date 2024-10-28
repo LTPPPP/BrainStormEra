@@ -1,8 +1,8 @@
-body {
-    font-family: 'Outfit', sans-serif;
-    background-color: var(--light-blue-color);
-    padding-add : 0;
+﻿body {
+    padding-top: 70px !important;
+    background-color: var(--white-corlor) !important;
 }
+
 
 .sidebar {
     background-color: var(--white-color);
@@ -34,17 +34,55 @@ body {
     border: none;
 }
 
-.btn-success:hover {
-    background-color:var(--green-color);
-}
+    .btn-success:hover {
+        background-color: var(--green-color);
+    }
 
 
-.img-fluid{
-    width: 150px; 
-    height: 150px; 
-    object-fit: cover; 
+.img-fluid {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
     border-radius: 10px;
 }
-#editor-container{
+
+#editor-container {
     height: 150px;
+}
+
+
+
+.selected-categories-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#selectedCategories {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+    #selectedCategories li {
+        z-index: 1050;
+        display: inline-flex;
+        align-items: center;
+        margin: 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        background-color: #f0f0f0;
+    }
+
+        #selectedCategories li .btn-close {
+            margin-left: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+
+.list-group-item + .list-group-item {
+    border-top-width: 0;
+    z-index: 1070;
 }

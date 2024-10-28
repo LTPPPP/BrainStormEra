@@ -1,85 +1,119 @@
-﻿@model Chapter
-@{
+﻿@{
 }
+@model List<Chapter>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Chapter</title>
+    <title>View Chapter</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/baseChapter.css">
-    <link rel="stylesheet" href="~/css/Chapter/AddNewChapter.css">
+    <!-- Base CSS (Common Styles) -->
+    <!-- Page-Specific Styles -->
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+    <link rel="stylesheet" href="~/css/Chapter/ViewChapter.css">
+    <link rel="stylesheet" href="~/css/base.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
 </head>
 
 <body>
+    @{
+        string userRole = Context.Request.Cookies["user_role"];
+    }
 
-    @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    @if (userRole == "2")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    }
+    else if (userRole == "1")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
 
-    <div class="container-fluid ">
-        <div class="row ">
-            <!-- Sidebar -->
-            @{
+    }
+    <div class="row">
+        <!-- Sidebar -->
+        @{
+            var courseName = Context.Request.Cookies["CourseName"];
 
-                string userRole = Context.Request.Cookies["user_role"];
-
-
-                string courseId = Context.Request.Cookies["CourseId"];
+            string courseId = Context.Request.Cookies["CourseId"];
 
 
-                <div class="col-md-3 bg-SECONDARY sidebar p-3">
-                    <a class="btn btn-primary w-100 mb-3" href="@Url.Action("ChapterManagement", "Chapter", new { courseId = courseId })">Add Chapter</a>
-                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter",new { courseId = courseId })">Delete Chapter</a>
-                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ViewChapters", "Chapter", new { courseId = courseId })">View Chapter</a>
+            <div class="col-md-3 bg-SECONDARY sidebar p-3">
+
+                <div class="text-start mb-3">
+                    <button type="button" onclick="window.location.href='@Url.Action("EditCourse", "Course")'"
+                            class="btn btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Course
+                    </button>
                 </div>
-            }
+                <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddChapter", "Chapter")">Add Chapter</a>
+                <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete Chapter</a>
+                <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")">Chapter Management</a>
+            </div>
+        }
 
-            <!-- Main Content for Add Chapter -->
-            <div class="col-md-9 d-flex align-items-start vh-100">
-                <div class="card w-100 ">
-                    <div class="card-header gradient-header">
-                        ADD NEW CHAPTER
-                    </div>
-                    <div class="card-body">
-                        <form method="post">
-
-                            <div class="mb-3">
-                                <label for="chapterID" class="form-label">chapter ID</label>
-                                <input asp-for="ChapterId" type="text" class="form-control" id="chapterTitle"
-                                       placeholder="Enter Chapter Title">
-                                <span asp-validation-for="ChapterId" class="text-danger"></span>
+        <!-- Main Content for View Chapter -->
+        <div class="col-md-9 d-flex align-items-start vh-100">
+            <div class="card w-100">
+                <div class="card-header gradient-header">
+                    @courseName >  CHAPTER MANAGEMENT
+                </div>
+                <div class="card-body">
+                    <!-- List of chapters with edit and manage lessons buttons -->
+                    @foreach (var c in Model)
+                    {
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5>@c.ChapterName</h5>
+                                <!-- Thêm thuộc tính data-chapterid vào nút "Edit" -->
+                                <a class="btn btn-outline-primary btn-sm edit-chapter" href="javascript:void(0);" data-chapterid="@c.ChapterId">Edit</a>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="chapterTitle" class="form-label">Title Chapter</label>
-                                <input asp-for="ChapterName" type="text" class="form-control" id="chapterTitle"
-                                       placeholder="Enter Chapter Title">
-                                <span asp-validation-for="ChapterName" class="text-danger"></span>
-
-                            </div>
-                            <div class="mb-3">
-                                <label for="chapterDescription" class="form-label">Chapter Description</label>
-                                <textarea asp-for="ChapterDescription" class="form-control" id="chapterDescription" rows="5"
-                                          placeholder="Enter Chapter Description"></textarea>
-                                <span asp-validation-for="ChapterDescription" class="text-danger"></span>
-
-                            </div>
-
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Create</button>
-                            </div>
-                        </form>
-                    </div>
+                            <p>@c.ChapterDescription</p>
+                            <a class="btn btn-primary manage-lessons" href="javascript:void(0);" data-chapterid="@c.ChapterId">Manage Lessons</a>
+                        </div>
+                        <hr />
+                    }
                 </div>
             </div>
         </div>
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Hàm lưu cookie
+        function setCookie(name, value) {
+            document.cookie = `${name}=${value}; path=/`;
+        }
+
+        // Xử lý sự kiện cho nút "Edit" để điều hướng đến trang chỉnh sửa chương
+        document.querySelectorAll('.edit-chapter').forEach(button => {
+            button.addEventListener('click', function () {
+                var chapterId = this.getAttribute('data-chapterid');
+                setCookie('ChapterId', chapterId);
+                window.location.href = "@Url.Action("EditChapter", "Chapter")";
+            });
+        });
+
+        // Xử lý sự kiện cho nút "Manage Lessons" để điều hướng đến trang LessonManagement
+        document.querySelectorAll('.manage-lessons').forEach(button => {
+            button.addEventListener('click', function () {
+                var chapterId = this.getAttribute('data-chapterid');
+                setCookie('ChapterId', chapterId);  // Lưu ChapterId vào cookie
+                window.location.href = "@Url.Action("LessonManagement", "Lesson")";  // Điều hướng đến LessonManagement
+            });
+        });
+    </script>
+
 </body>
 
 </html>

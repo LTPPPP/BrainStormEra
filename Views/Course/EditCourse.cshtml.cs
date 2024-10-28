@@ -36,8 +36,10 @@ namespace BrainStormEra.Views.Course
         [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive value")]
         public decimal Price { get; set; }
 
-        public string CourseCategoryId { get; set; }
+        public List<string> CategoryIds { get; set; } = new List<string>(); // Chứa ID các category đã chọn
+        public List<CourseCategory> SelectedCategories { get; set; } = new List<CourseCategory>(); // Danh sách các category đã chọn
 
+        public List<int> ExistingCategories { get; set; } // Danh sách các ID category đã có từ trước
         public List<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
 
     }

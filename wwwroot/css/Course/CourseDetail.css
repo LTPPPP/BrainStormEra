@@ -1,11 +1,11 @@
-body {
+﻿body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--white-color);
 }
 
 .main-header {
     font-size: 1.8rem;
-    color: var(--primary-color);
+    color: var(--main-color-);
     background-color: var(--light-blue);
     padding: 10px;
     border-radius: 10px;
@@ -41,18 +41,18 @@ body {
     margin-bottom: 15px;
 }
 
-.feedback-section .stars i {
-    color: var(--star-default-color);
-    cursor: pointer;
-}
+    .feedback-section .stars i {
+        color: var(--star-default-color);
+        cursor: pointer;
+    }
 
-.feedback-section .stars i.selected {
-    color: var(--star-color);
-}
+        .feedback-section .stars i.selected {
+            color: var(--star-color);
+        }
 
 .header {
-    background-color: var(--primary-color);
-    color: var(--white-color);
+    background-color: var(--secondary-primary-color);
+    color: var(--main-color-);
     padding: 30px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -63,9 +63,9 @@ body {
     color: var(--star-default-color);
 }
 
-.stars i.selected {
-    color: var(--star-color);
-}
+    .stars i.selected {
+        color: var(--star-color);
+    }
 
 .pagination .page-item.active .page-link {
     background-color: var(--star-color);
@@ -76,10 +76,10 @@ body {
     color: var(--star-default-color);
 }
 
-.pagination .page-item.active .page-link,
-.pagination .page-item .page-link:hover {
-    color: var(--white-color);
-}
+    .pagination .page-item.active .page-link,
+    .pagination .page-item .page-link:hover {
+        color: var(--white-color);
+    }
 
 a {
     text-decoration: none;
@@ -99,15 +99,68 @@ a {
     left: auto;
 }
 
-.price  {
+.price {
     color: var(--white-color);
 }
-.btn{
+
+.btn {
     font-size: large;
 }
 
+#adminRequestMessage {
+    color: red;
+    margin-top: 10px;
+    text-align: center;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.nav-introduction {
+    background-color: var(--secondary-primary-color);
+    color: white;
+}
 
 
+.btn-approve {
+    background-color: var(--create-btn-bg-color);
+    color: white;
+    border: none;
+}
+
+    .btn-approve:hover {
+        background-color: var(--btn-create-hover);
+    }
 
 
+.btn-reject {
+    background-color: var(--delete-btn-bg-color);
+    color: white;
+    border: none;
+}
 
+    .btn-reject:hover {
+        background-color: var(--delete-btn-hover-bg-color);
+    }
+
+
+.btn-request {
+    background-color: var(--yellow-color);
+    color: black;
+    border: none;
+}
+
+    .btn-request:hover {
+        background-color: #e0a800;
+    }
+
+
+.btn-delete {
+    background-color: var(--delete-btn-bg-color);
+    color: white;
+    border: none;
+}
+
+    .btn-delete:hover {
+        background-color: var(--delete-btn-hover-bg-color);
+    }

@@ -1,133 +1,213 @@
-﻿@model BrainStormEra.Models.Lesson
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
-@{
-    var displayVideoSection = Model.LessonTypeId == 1 ? "block" : "none";
-    var displayReadingSection = Model.LessonTypeId == 2 ? "block" : "none";
-}
+﻿@model Lesson
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
+@{
+}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BrainStormEra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    <link rel="stylesheet" href="~/css/Lesson/EditLesson.css" />
-    <link rel="stylesheet" href="~/css/base.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Lesson</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Base CSS (Common Styles) -->
+    <link rel="stylesheet" href="~/css/Lesson/EditLesson.css">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
 </head>
 
 <body>
-    <div class="content flex-grow-1">
-        <div class="content-header" id="content-header">
-            <h5>EDIT LESSON</h5>
+
+    @{
+
+        string userRole = Context.Request.Cookies["user_role"];
+    }
+
+    @if (userRole == "2")
+
+    {
+        @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    }
+
+    else if (userRole == "1")
+
+    {
+        @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+
+    }
+
+    <div class="container-fluid pb-5" style="padding-bottom: 10px;">
+        <div class="row">
+            <!-- Sidebar -->
+            @{
+
+                <div class="col-md-3 bg-SECONDARY sidebar p-3">
+                    <div class="text-start mb-3">
+                        <button type="button" onclick="window.location.href='@Url.Action("ChapterManagement", "Chapter")'"
+                                class="btn btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Course
+                        </button>
+                    </div>
+                    <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddLesson", "Lesson")">Add Lesson</a>
+                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete Lesson</a>
+                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View Lesson</a>
+                </div>
+            }
+            <!-- Main Content for Edit Chapter -->
+            <div class="col-md-9 d-flex align-items-starts" style="min-height: 100vh;">
+                <div class="card w-100 ">
+                    <div class="card-header gradient-header">
+                        EDIT LESSON
+                    </div>
+                    <div class="card-body">
+
+                        <form method="post" enctype="multipart/form-data">
+                            <!-- Lesson Name -->
+                            <input type="hidden" asp-for="LessonId" />
+
+                            <div class="mb-3">
+                                <label asp-for="LessonName" class="form-label">Lesson Name</label>
+                                <input asp-for="LessonName" type="text" class="form-control" id="lessonName">
+                                <span asp-validation-for="LessonName" class="text-danger"></span>
+                            </div>
+                            <!-- Lesson Description -->
+                            <div class="mb-3">
+                                <label asp-for="LessonDescription" class="form-label">Lesson Description</label>
+                                <textarea asp-for="LessonDescription" class="form-control" id="lessonDescription"
+                                          rows="5"></textarea>
+                                <span asp-validation-for="LessonDescription" class="text-danger"></span>
+
+                            </div>
+                            <!-- Lesson Type Id -->
+                            <div class="mb-3">
+                                <label asp-for="LessonTypeId" class="form-label">Lesson Type</label>
+                                <select asp-for="LessonTypeId" class="form-select" id="lessonTypeId" onchange="toggleLessonContent()">
+                                    <option value="0">Type of Lesson</option>
+                                    <option value="1">Video</option>
+                                    <option value="2">Reading</option>
+                                </select>
+                                <span asp-validation-for="LessonTypeId" class="text-danger"></span>
+                            </div>
+                            <!-- Video Section -->
+                            <div class="mb-3" id="videoSection" style="display: @(Model.LessonTypeId == 1 ? "block" : "none")">
+                                <div class="mt-3" id="youtubeLinkSection">
+                                    <label for="lessonLink" class="form-label">YouTube Video Link</label>
+                                    <input type="url" name="LessonLink" class="form-control" placeholder="https://www.youtube.com/watch?v=example" value="@(Model.LessonTypeId == 1 ? Model.LessonContent : "")">
+                                    <span asp-validation-for="LessonContent" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <!-- Reading Section -->
+                            <div class="mb-3" id="readingSection" style="display: @(Model.LessonTypeId == 2 ? "block" : "none")">
+                                <label for="lessonContentFile" class="form-label">Upload Lesson Content (Reading)</label>
+                                <input type="file" name="LessonContentFile" class="form-control" id="lessonContentFile" accept=".pdf" />
+                                @if (!string.IsNullOrEmpty(Model.LessonContent))
+                                {
+                                    <p>Current File: <a href="@Model.LessonContent" target="_blank">View Document</a></p>
+                                }
+                                @Html.ValidationMessageFor(model => model.LessonContent, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Save Button -->
+                            <div class="text-center mt-2">
+                                <button type="submit" class="btn btn-primary" style="z-index: 1000;">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-        <form asp-action="EditLesson" method="post" enctype="multipart/form-data">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="LessonId" />
-
-            <!-- Lesson ID -->
-            <div class="mb-3">
-                <label for="lessonId" class="form-label">Lesson ID</label>
-                <input type="text" asp-for="LessonId" class="form-control" id="lessonId" readonly />
-            </div>
-
-            <!-- Chapter ID -->
-            <div class="mb-3">
-                <label for="chapterId" class="form-label">Chapter ID</label>
-                <input type="text" asp-for="ChapterId" class="form-control" id="chapterId" readonly />
-            </div>
-
-            <!-- Lesson Name -->
-            <div class="mb-3">
-                <label for="LessonName" class="form-label">Lesson Name</label>
-                <input type="text" asp-for="LessonName" class="form-control" id="LessonName" required />
-                @Html.ValidationMessageFor(model => model.LessonName, "", new { @class = "text-danger" })
-            </div>
-
-            <!-- Lesson Description -->
-            <div class="mb-3">
-                <label for="LessonDescription" class="form-label">Lesson Description</label>
-                <textarea asp-for="LessonDescription" class="form-control" id="LessonDescription" rows="3"></textarea>
-            </div>
-
-            <!-- Lesson Order -->
-            <div class="mb-3">
-                <label for="LessonOrder" class="form-label">Lesson Order</label>
-                <input type="number" asp-for="LessonOrder" class="form-control" id="LessonOrder" required min="1" />
-            </div>
-
-            <!-- Lesson Type -->
-            <div class="mb-3">
-                <label for="LessonTypeId" class="form-label">Lesson Type</label>
-                <select asp-for="LessonTypeId" class="form-select" id="LessonTypeId" onchange="toggleLessonContent()">
-                    <option value="1">Video</option>
-                    <option value="2">Reading</option>
-                </select>
-            </div>
-
-            <div class="mb-3" id="videoSection" style="display:@displayVideoSection;">
-                <label for="LessonLink" class="form-label">YouTube Video Link</label>
-                <input type="url" asp-for="LessonContent" class="form-control" id="LessonLink"
-                       placeholder="https://www.youtube.com/watch?v=example" />
-            </div>
-
-            <div class="mb-3" id="readingSection" style="display:@displayReadingSection;">
-                <label for="LessonContentFile" class="form-label">Upload Lesson Content (Reading)</label>
-                <input type="file" name="LessonContentFile" class="form-control" id="LessonContentFile" accept=".pdf,.doc,.docx,.txt" />
-                @Html.ValidationMessageFor(model => model.LessonContent, "", new { @class = "text-danger" })
-            </div>
-
-            <!-- Lesson Status -->
-            <div class="mb-3">
-                <label for="LessonStatus" class="form-label">Lesson Status</label>
-                <select asp-for="LessonStatus" class="form-select">
-                    <option value="1">Inactive</option>
-                    <option value="2">Active</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="LessonCreatedAt" class="form-label">Lesson Created At</label>
-                <input asp-for="LessonCreatedAt" class="form-control" readonly />
-                @Html.ValidationMessageFor(model => model.LessonCreatedAt, "", new { @class = "text-danger" })
-            </div>
-
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="@Url.Action("ViewLesson")" class="btn btn-secondary">Cancel</a>
-        </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
+
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
     <script>
         function toggleLessonContent() {
-            const lessonType = parseInt(document.getElementById('LessonTypeId').value);
+            const lessonType = parseInt(document.getElementById('lessonTypeId').value);
             const videoSection = document.getElementById('videoSection');
             const readingSection = document.getElementById('readingSection');
-            const lessonLink = document.getElementById('LessonLink');
-            const fileInput = document.getElementById('LessonContentFile');
+            const lessonLink = document.querySelector("input[name='LessonLink']");
+            const fileInput = document.getElementById('lessonContentFile');
 
-            if (lessonType === 1) {  // Video
+            if (lessonType === 1) {
                 videoSection.style.display = 'block';
                 readingSection.style.display = 'none';
-
                 lessonLink.removeAttribute('disabled');
                 lessonLink.setAttribute('required', 'required');
-
                 fileInput.setAttribute('disabled', 'disabled');
                 fileInput.removeAttribute('required');
-            } else if (lessonType === 2) {  // Reading
+            } else if (lessonType === 2) {
                 videoSection.style.display = 'none';
                 readingSection.style.display = 'block';
-
                 lessonLink.setAttribute('disabled', 'disabled');
                 lessonLink.removeAttribute('required');
-
                 fileInput.removeAttribute('disabled');
                 fileInput.setAttribute('required', 'required');
+            } else {
+                videoSection.style.display = 'none';
+                readingSection.style.display = 'none';
+                lessonLink.setAttribute('disabled', 'disabled');
+                fileInput.setAttribute('disabled', 'disabled');
             }
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            toggleLessonContent(); // Gọi ngay khi trang được tải
+            document.getElementById('lessonTypeId').addEventListener('change', toggleLessonContent);
+        });
+
+        $(document).ready(function () {
+            $("form").submit(function (event) {
+                // Lấy giá trị của các trường nhập
+                var lessonName = $("#lessonName").val().trim();
+                var lessonDescription = $("#lessonDescription").val().trim();
+                var lessonType = $("#lessonTypeId").val();
+                var status = $("#LessonStatus").val();
+                var isValid = true;
+
+                // Validate Lesson Name
+                if (lessonName === "") {
+                    $("#lessonName").addClass("is-invalid");
+                    $("#lessonName").next(".text-danger").text("Please enter the lesson name.");
+                    isValid = false;
+                } else {
+                    $("#lessonName").removeClass("is-invalid");
+                    $("#lessonName").next(".text-danger").text("");
+                }
+
+                // Validate Lesson Description
+                if (lessonDescription === "") {
+                    $("#lessonDescription").addClass("is-invalid");
+                    $("#lessonDescription").next(".text-danger").text("Please enter the lesson description.");
+                    isValid = false;
+                } else {
+                    $("#lessonDescription").removeClass("is-invalid");
+                    $("#lessonDescription").next(".text-danger").text("");
+                }
+
+                // Validate Lesson Type
+                if (lessonType === "0") {
+                    $("#lessonTypeId").addClass("is-invalid");
+                    $("#lessonTypeId").next(".text-danger").text("Please select a lesson type.");
+                    isValid = false;
+                } else {
+                    $("#lessonTypeId").removeClass("is-invalid");
+                    $("#lessonTypeId").next(".text-danger").text("");
+                }
+
+                if (!isValid) {
+                    event.preventDefault(); // Ngăn không cho submit nếu có lỗi
+                }
+            });
+        });
     </script>
 </body>
 

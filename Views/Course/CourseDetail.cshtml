@@ -1,84 +1,89 @@
-﻿@page
-@model BrainStormEra.Views.Course.CourseDetailModel
-@{
-}
+﻿@model BrainStormEra.Models.Course
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C++ Programming Full Course</title>
+    <title>@Model.CourseName</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
     <link rel="stylesheet" href="~/css/Course/CourseDetail.css">
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
-    <link rel="stylesheet" href="~/css/HomePage/homePage.css">
-
 </head>
 <body>
-    <header class="container-fluid">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#">DASHBOARD</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">ACHIEVEMENT</a>  </li>
-                        <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">CHATBOT</a></li>
-                    </ul>
-                    <div class="profile d-flex align-items-center">
-                        <i class="fas fa-bell icon"></i>
-                        <img src="../assests/img/landing_page/user.jpg" alt="Profile Picture" class="user_img">
-                        <span class="d-none d-md-inline">User</span>
-                        <i class="fas fa-chevron-down d-none d-md-inline"></i>
-                        <i class="fa-solid fa-arrow-right-from-bracket exit_icon"></i>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
 
+    @{
+        string userRole = Context.Request.Cookies["user_role"];
+    }
 
+    <!-- Phần Header tùy theo userRole -->
+    @if (userRole == "2")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    }
+    else if (userRole == "1")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+    }
+    else if (userRole == "3")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
+    }
 
-
+    <!-- Thông tin khóa học -->
     <div class="header">
         <div class="container">
             <div class="row py-5">
                 <div class="col-md-8">
-                    <h1 class="display-4">C++ Programming Full Course</h1>
-                    <p class="lead">The course provides a solid foundation in C++ for beginners, helping them develop basic programming skills and apply them to real projects.</p>
-
+                    <h1 class="display-4">@Model.CourseName</h1>
+                    <p class="lead">@Model.CourseDescription</p>
                     <div class="d-flex mb-2 mt-5">
-                        <h3 class="price  "> $199.99</h3>
+                        <h3 class="price">$@Model.Price</h3>
                     </div>
                     <div class="d-flex mb-4 mt-2">
-                        <button class="btn btn-success me-3">Enroll</button>
-                    </div>
-                    <div class="d-flex text-white mt-3">
-                        <div class="me-4"><i class="fas fa-clock me-2"></i>30 hours</div>
-                        <div class="me-4"><i class="fas fa-book me-2"></i>125 lessons</div>
-                        <div class="me-4"><i class="fas fa-users me-2"></i>120 learners</div>
-                        <div class="me-4"><i class="fas fa-certificate me-2"></i>Certificate</div>
-                        <div><i class="fas fa-star me-2"></i>5.0 (200 comments)</div>
+                        @if (userRole == "3")
+                        {
+                            if (ViewBag.IsBanned)
+                            {
+                                <div class="alert alert-danger">You have been banned from enrolling in this course.</div>
+                            }
+                            else if (ViewBag.IsEnrolled)
+                            {
+                                <button class="btn btn-primary" onclick="window.location.href='@Url.Action("ViewLessonLearner", "Lesson")'">Go to Course</button>
+
+                            }
+                            else
+                            {
+                                <form id="enrollForm" method="post" action="@Url.Action("Enroll", "Course")">
+                                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                                    <button type="button" class="btn btn-success" onclick="confirmEnroll()">Enroll</button>
+                                </form>
+
+
+                            }
+                        }
                     </div>
 
+
+                    <div class="d-flex text-white mt-3">
+                        <div class="me-4">
+                            <i class="fas fa-tags me-2"></i> Category:
+                            @foreach (var category in ViewBag.CourseCategories as List<string>)
+                            {
+                                <span class="badge bg-primary me-1">@category</span>
+                            }
+                        </div>
+                        <div class="me-4"><i class="fas fa-users me-2"></i> Students: @ViewBag.LearnersCount</div>
+                        <div class="me-4"><i class="fas fa-user me-2"></i> Created by: @ViewBag.CreatedBy</div>
+                        <div class="me-4"><i class="fas fa-star me-2"></i> @ViewBag.AverageRating.ToString("0.0") (@ViewBag.TotalComments comments)</div>
+                    </div>
                 </div>
-                <div class="col-md-3 ">
-                    <img src="../assests/img/img_course.png" alt="C++ Logo" class="img-fluid">
+                <div class="col-md-3">
+                    <img src="@Model.CoursePicture" alt="Course Image" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -86,282 +91,224 @@
 
     <div class="container">
         <nav class="nav nav-pills nav-fill mb-4">
-            <a class="nav-link active" href="#introduction">Introduction</a>
+            <a class="nav-link nav-introduction active" href="#introduction">Introduction</a>
             <a class="nav-link" href="#curriculum">Curriculum</a>
             <a class="nav-link" href="#rating">Rating</a>
-            <a class="nav-link" href="#certificate">Certificate</a>
-            <a class="nav-link" href="#comment">Comment (100)</a>
         </nav>
 
         <div class="card mb-4">
             <div class="card-body">
-                <p>C++ is one of the most popular programming languages, especially in competitive programming. Currently, most young people prioritize learning C++ to build a foundation and programming mindset when first starting to explore programming. The basic C++ course is designed with the most basic and easy-to-understand knowledge to help you access it easily.</p>
-                <h2 id="introduction">Course goal:</h2>
-                <ul>
-                    <li>Helps you learn C++ from scratch quickly and easily.</li>
-                    <li>Equips you with the necessary knowledge and skills to write simple C++ programs.</li>
-                    <li>Helps you understand and use important concepts in C++.</li>
-                    <li>Creates a foundation for you to self-study and develop more complex C++ programs.</li>
-                </ul>
-                <h2 id="curriculum">Target audience:</h2>
-                <ul>
-                    <li>This course is for beginners who have absolutely no programming knowledge, or those who have lost the basics and want to regain basic programming knowledge, specifically C++.</li>
-                </ul>
-                <h2 id="rating">Teaching method:</h2>
-                <ul>
-                    <li>The course combines theory and practice.</li>
-                    <li>Students will learn through video lectures, theoretical readings, practice exercises, and theory tests.</li>
-                    <li>Students will be able to ask and answer questions directly with their classmates and the course manager.</li>
-                </ul>
-                <div class="learning-outcome">
-                    <h2 id="certificate">What will you learn?</h2>
-                    <ul>
-                        <li>After completing the course, students will have enough knowledge and skills to write simple C++ programs.</li>
-                        <li>Students will understand and use important concepts in C++ easily.</li>
-                        <li>Students will have a solid foundation to self-study and develop more complex C++ programs.</li>
-                        <li>The course will help students improve their logical thinking, problem-solving, and programming skills effectively.</li>
-                    </ul>
-                </div>
+                <h2 id="introduction">Course Description</h2>
+                <p>@Model.CourseDescription</p> <!-- Hiển thị mô tả khóa học -->
             </div>
         </div>
-
         <div class="card mb-4">
             <div class="card-body">
                 <h3>Course Content</h3>
-                <p>36 Chapters • 125 Lectures • 30 hours and 40 minutes</p>
+                <p>@Model.Chapters.Count Chapters • @ViewBag.TotalLessons Lessons</p>
                 <div class="accordion" id="courseContentAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                Part 1: Overview of C++ Programming
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#courseContentAccordion">
-                            <div class="accordion-body">
-                                <a href="lesson1.html" target="_blank">Lesson 1: Introduction to C++ (5 minutes)</a>
-                                <a href="lesson2.html" target="_blank">Lesson 2: Variables and Data Types (10 minutes)</a>
+                    @foreach (var chapter in Model.Chapters)
+                    {
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingChapter@(chapter.ChapterId)">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChapter@(chapter.ChapterId)" aria-expanded="false" aria-controls="collapseChapter@(chapter.ChapterId)">
+                                    @chapter.ChapterName
+                                </button>
+                            </h2>
+                            <div id="collapseChapter@(chapter.ChapterId)" class="accordion-collapse collapse" aria-labelledby="headingChapter@(chapter.ChapterId)" data-bs-parent="#courseContentAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        @foreach (var lesson in chapter.Lessons)
+                                        {
+                                            <li class="list-group-item">
+                                                @if (lesson.LessonTypeId == 2)
+                                                {
+                                                    <i class="fa-solid fa-book-open"></i> @lesson.LessonName
+                                                }
+                                                else if (lesson.LessonTypeId == 1)
+                                                {
+                                                    <i class="fa-regular fa-circle-play"></i> @lesson.LessonName
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-file"></i> @lesson.LessonName
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Part 2: Functions and Control Flow
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#courseContentAccordion">
-                            <div class="accordion-body">
-                                <a href="lesson3.html" target="_blank">Lesson 1: Functions in C++ (15 minutes)</a>
-                                <a href="lesson4.html" target="_blank">Lesson 2: Control Structures (20 minutes)</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingThree">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Part 3: Object-Oriented Programming
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#courseContentAccordion">
-                            <div class="accordion-body">
-                                <a href="lesson5.html" target="_blank">Lesson 1: Classes and Objects (25 minutes)</a>
-                                <a href="lesson6.html" target="_blank">Lesson 2: Inheritance and Polymorphism (30 minutes)</a>
-                            </div>
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
-
+        <!-- Phần Rating -->
         <div class="card rating-box mb-4">
             <div class="card-body">
                 <h3>Rating</h3>
                 <div class="d-flex align-items-center mb-4">
-                    <div class="rating-value display-4 me-3">5.0</div>
-                    <div class="stars">
-                        <i class="fas fa-star selected"></i>
-                        <i class="fas fa-star selected"></i>
-                        <i class="fas fa-star selected"></i>
-                        <i class="fas fa-star selected"></i>
-                        <i class="fas fa-star selected"></i>
+                    <i class="fas fa-star me-2"></i> @ViewBag.AverageRating.ToString("0.0") (@ViewBag.TotalComments comments)
+                    <div class="stars ms-3">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fas fa-star @(i <= @ViewBag.AverageRating ? "selected" : "")"></i>
+                        }
                     </div>
-                    <div class="comments ms-3">(300 comments)</div>
                 </div>
                 <div class="rating-breakdown">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="stars"><i class="fas fa-star selected"></i> 5 stars</div>
-                        <div class="progress flex-fill mx-3">
-                            <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="stars"><i class="fas fa-star selected"></i> @i stars</div>
+                            <div class="progress flex-fill mx-3">
+                                <div class="progress-bar" role="progressbar" style="width: @(ViewBag.RatingPercentages[i] * 100)%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div>@(ViewBag.RatingPercentages[i] * 100)%</div>
                         </div>
-                        <div>50%</div>
-                    </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="stars"><i class="fas fa-star selected"></i> 4 stars</div>
-                        <div class="progress flex-fill mx-3">
-                            <div class="progress-bar" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <div>30%</div>
-                    </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="stars"><i class="fas fa-star selected"></i> 3 stars</div>
-                        <div class="progress flex-fill mx-3">
-                            <div class="progress-bar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <div>20%</div>
-                    </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="stars"><i class="fas fa-star selected"></i> 2 stars</div>
-                        <div class="progress flex-fill mx-3">
-                            <div class="progress-bar" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <div>10%</div>
-                    </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="stars"><i class="fas fa-star selected"></i> 1 star</div>
-                        <div class="progress flex-fill mx-3">
-                            <div class="progress-bar" role="progressbar" style="width: 5%;" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <div>5%</div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
 
+        <!-- Comment section -->
         <div class="card mb-4">
             <div class="card-body">
                 <h3>Comment</h3>
-                <div class="comment mb-4 d-flex">
-                    <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
-                    <div class="flex-fill">
-                        <div class="d-flex align-items-center">
-                            <div class="fw-bold me-2">Nguyen Van Teo</div>
-                            <div class="stars">
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
+                @foreach (var comment in ViewBag.Comments)
+                {
+                    <div class="comment mb-4 d-flex border-bottom pb-3">
+                        <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
+                        <div class="flex-fill">
+                            <div class="d-flex align-items-center">
+                                <div class="fw-bold me-2">@comment.User.FullName</div>
+                                <div class="stars me-3">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fas fa-star @(i <= comment.StarRating ? "selected" : "")"></i>
+                                    }
+                                </div>
                             </div>
-                            <div class="ms-auto dropdown">
-                                <i class="fas fa-ellipsis-v" onclick="toggleOptionsMenu(this)"></i>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Edit</a></li>
-                                    <li><a class="dropdown-item" href="#">Delete</a></li>
-                                </ul>
-                            </div>
+                            <div class="text-muted">@comment.Comment</div>
                         </div>
-                        <div class="text-muted">The best course.</div>
                     </div>
-                </div>
-                <div class="comment mb-4 d-flex">
-                    <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
-                    <div class="flex-fill">
-                        <div class="d-flex align-items-center">
-                            <div class="fw-bold me-2">Nguyen Van Kha</div>
-                            <div class="stars">
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                            </div>
-                            <div class="ms-auto dropdown">
-                                <i class="fas fa-ellipsis-v" onclick="toggleOptionsMenu(this)"></i>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Edit</a></li>
-                                    <li><a class="dropdown-item" href="#">Delete</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="text-muted">Very helpful and well explained.</div>
-                    </div>
-                </div>
-                <div class="comment mb-4 d-flex">
-                    <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
-                    <div class="flex-fill">
-                        <div class="d-flex align-items-center">
-                            <div class="fw-bold me-2">Nguyen Van Banh</div>
-                            <div class="stars">
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                                <i class="fas fa-star selected"></i>
-                            </div>
-                            <div class="ms-auto dropdown">
-                                <i class="fas fa-ellipsis-v" onclick="toggleOptionsMenu(this)"></i>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Edit</a></li>
-                                    <li><a class="dropdown-item" href="#">Delete</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="text-muted">Amazing course for beginners.</div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
 
-        <nav aria-label="Page navigation" class="mb-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                <li class="page-item"><a class="page-link" href="#">5</a></li>
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-            </ul>
-        </nav>
-
-        <div class="card feedback-section mb-4 text-center">
-            <div class="card-body">
-                <img alt="Robot image" src="/assests/img/certi.png" class="img-fluid mb-4" />
-                <div class="stars">
-                    <i class="fas fa-star" onclick="selectStar(this)"></i>
-                    <i class="fas fa-star" onclick="selectStar(this)"></i>
-                    <i class="fas fa-star" onclick="selectStar(this)"></i>
-                    <i class="fas fa-star" onclick="selectStar(this)"></i>
-                    <i class="fas fa-star" onclick="selectStar(this)"></i>
-                </div>
-                <div class="comment-input">
-                    <textarea class="form-control w-50" placeholder="Comment..."></textarea>
-                    <button class="btn btn-primary">Submit</button>
+        @if (Model.CourseStatus == 2)
+        {
+            <div class="card feedback-section mb-4 text-center">
+                <div class="card-body">
+                    <img alt="Robot image" src="" class="img-fluid mb-4" />
+                    <div class="stars">
+                        <i class="fas fa-star" onclick="selectStar(this)"></i>
+                        <i class="fas fa-star" onclick="selectStar(this)"></i>
+                        <i class="fas fa-star" onclick="selectStar(this)"></i>
+                        <i class="fas fa-star" onclick="selectStar(this)"></i>
+                        <i class="fas fa-star" onclick="selectStar(this)"></i>
+                    </div>
+                    <div class="comment-input">
+                        <textarea class="form-control w-50" placeholder="Comment..."></textarea>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
                 </div>
             </div>
+        }
+
+        <!-- Các nút Approve, Reject, Request to Admin và Delete -->
+        <div class="d-flex justify-content-center mt-4">
+            @if (userRole == "1" && Model.CourseStatus == 1)
+            {
+                <form asp-action="ChangeStatus" method="post">
+                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                    <input type="hidden" name="status" value="2" />
+                    <button class="btn btn-approve me-2">Approve</button>
+                </form>
+                <form asp-action="ChangeStatus" method="post">
+                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                    <input type="hidden" name="status" value="0" />
+                    <button class="btn btn-reject">Reject</button>
+                </form>
+            }
+            @if (userRole == "2" && Model.CourseStatus == 3)
+            {
+                <button id="requestToAdminBtn" class="btn btn-request ms-2" onclick="requestToAdmin('@Model.CourseId')">Request to Admin</button>
+            }
+            @if (userRole == "2" && Model.CourseStatus == 0)
+            {
+                <form asp-action="DeleteCourse" method="post" onsubmit="return confirmDelete();" class="ms-2">
+                    <button type="submit" class="btn btn-delete">Delete</button>
+                </form>
+            }
         </div>
 
+
+        <!-- Thông báo Request to Admin -->
+        <div id="adminRequestMessage" class="d-flex justify-content-center text-center mt-2 d-inline-block "></div>
 
     </div>
 
-    <footer class="bg-secondary text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h3>BrainStormEra</h3>
-                    <div class="social-icons my-2">
-                        <i class="fab fa-facebook me-2"></i>
-                        <i class="fab fa-instagram me-2"></i>
-                        <i class="fab fa-x-twitter"></i>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h4>Contact Us</h4>
-                    <p class="mb-1">Tel: 123-456-789</p>
-                    <p>Email: brainstormera@edu.vn</p>
-                </div>
-                <div class="col-md-4">
-                    <h4>Address</h4>
-                    <p class="mb-1">123 Nguyen Van Cu, Cai Rang</p>
-                    <p>District, Cantho, Vietnam</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/js/Course/CourseDetail.js"></script>
+    <script>
+        function confirmEnroll() {
+            if (confirm("Are you sure you want to enroll in this course?")) {
+                $.ajax({
+                    url: '@Url.Action("Enroll", "Course")',
+                    type: 'POST',
+                    data: { courseId: '@Model.CourseId' },
+                    success: function (response) {
+                        if (response.success) {
+                            // Chuyển hướng sau khi thành công
+                            window.location.href = '@Url.Action("CourseDetail", "Course")';
+                        } else {
+                            // Hiển thị thông báo lỗi nếu không đủ điểm
+                            alert(response.message || "Enrollment failed.");
+                        }
+                    },
+                    error: function () {
+                        alert("An error occurred while processing your enrollment.");
+                    }
+                });
+            }
+        }
+
+        function setCourseCookieAndRedirect(courseId) {
+            document.cookie = `CourseId=${courseId}; path=/;`;
+            window.location.href = '@Url.Action("ViewLessonLearner", "Lesson")';
+        }
 
 
 
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this course?");
+        }
+
+        function requestToAdmin(courseId) {
+            if (confirm("Are you sure you want to request approval from admin?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("RequestToAdmin", "Course")",
+                    data: { courseId: courseId },
+                    success: function (response) {
+                        let adminRequestMessage = document.getElementById("adminRequestMessage");
+                        if (response.success) {
+                            adminRequestMessage.innerHTML = `<div class="alert alert-success d-inline-block">${response.message}</div>`;
+                            document.getElementById("requestToAdminBtn").disabled = true;
+                        } else {
+                            adminRequestMessage.innerHTML = `<div class="alert alert-danger d-inline-block">${response.message}</div>`;
+                        }
+                    },
+                    error: function () {
+                        document.getElementById("adminRequestMessage").innerHTML = `<div class="alert alert-danger d-inline-block">An error occurred while sending the request.</div>`;
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,203 @@
+﻿body {
+    background-color: var(--white-corlor) !important;
+}
+
+.banner img {
+    margin-top: 100Px;
+    width: 100%;
+    max-width: 1200px; /* Giới hạn chiều ngang cho phù hợp với laptop */
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .banner img {
+        max-width: 390px; /* Giới hạn chiều ngang cho phù hợp với màn hình iPhone 12 */
+    }
+}
+
+
+/*
+.course-card .card {
+    position: relative;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 230px;  Giảm kích thước của course card 
+    margin: auto;
+}*/
+
+.card-img-top {
+    width: 100%; /* Đảm bảo hình ảnh lấp đầy chiều ngang của card */
+    max-width: 100%; /* Giới hạn kích thước tối đa của hình ảnh */
+    height: 200px; /* Để tỷ lệ chiều cao tự điều chỉnh theo chiều rộng */
+    object-fit: cover; /* Cắt ảnh nếu cần để phù hợp với khung hình */
+    margin-left: auto; /* Căn giữa theo chiều ngang */
+    margin-right: auto; /* Căn giữa theo chiều ngang */
+    display: block; /* Chuyển hình ảnh thành block để đảm bảo căn giữa hoạt động */
+}
+
+.course-card .card-body {
+    padding: 7px;
+}
+
+.course-card .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.course-card .remove {
+    width: 27px;
+    height: 27px;
+    border-radius: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.course-card .edit {
+    padding: 8px 10px; /* Increase padding for better touch target size */
+    font-size: 10px; /* Adjust font size for readability */
+    border-radius: 5px; /* Add border-radius for smooth edges */
+    background-color: var(--primary-color); /* Set a background color that matches your design */
+    color: var(--white-color ); /* White text for better contrast */
+    border: none; /* Remove border */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the icon and text */
+    gap: 5px; /* Space between the icon and text */
+    transition: background-color 0.3s ease; /* Smooth hover transition */
+}
+
+
+
+.remove-button {
+    top: 10px;
+    right: 10px;
+    width: auto; /* Đảm bảo không chiếm không gian ngoài dự kiến */
+    height: auto;
+    position: absolute;
+    z-index: 1; /* Giữ z-index thấp để không bao phủ các phần khác */
+}
+
+.add-course-btn {
+    border-radius: 30px;
+}
+
+
+#add-chapter-button {
+    padding: 12px 24px; /* Make button larger */
+    font-size: 16px; /* Increase font size */
+    border-radius: 50px; /* Round the edges */
+    background-color: var(--primary-color); /* Standard Bootstrap primary color */
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+
+
+.categories {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn {
+    display: flex;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #555;
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    position: relative;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+    .filter-btn.active {
+        color: #4e6ef2; /* Màu xanh dương cho tab active */
+    }
+
+        .filter-btn.active::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: #4e6ef2;
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+        }
+
+    .filter-btn:hover {
+        color: #4e6ef2; /* Màu hover giống với màu active */
+    }
+
+/* Search bar */
+.search-bar {
+    margin-top: 15px;
+    position: relative;
+    max-width: 500px;
+    width: 50%;
+}
+
+.search-input {
+    width: calc(100% - 40px);
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #4e6ef2;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+    .search-btn i {
+        font-size: 20px;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .categories {
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        margin-bottom: 10px;
+    }
+}
+
+
+
+a {
+    text-decoration: none; /* Loại bỏ gạch chân */
+}
+
+    a:hover {
+        text-decoration: none; /* Giữ không gạch chân khi hover */
+    }

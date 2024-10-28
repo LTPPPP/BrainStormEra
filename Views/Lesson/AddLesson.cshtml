@@ -1,0 +1,223 @@
+﻿@model Lesson
+@{
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Add Lesson</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="~/css/base.css">
+	<link rel="stylesheet" href="~/css/Lesson/AddLesson.css">
+	<link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body>
+
+	@{
+		string userRole = Context.Request.Cookies["user_role"];
+	}
+
+	@if (userRole == "2")
+
+	{
+		@await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+	}
+
+	else if (userRole == "1")
+
+	{
+		@await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+
+	}
+
+	<div class="container-fluid pb-5" style="padding-bottom: 10px;">
+		<div class="row ">
+			<!-- Sidebar -->
+			@{
+				<div class="col-md-3 bg-SECONDARY sidebar p-3">
+					<div class="text-start mb-3">
+						<button type="button" onclick="window.location.href='@Url.Action("ChapterManagement", "Chapter")'"
+								class="btn btn-sm">
+							<i class="fas fa-arrow-left"></i> Back to Chapter
+						</button>
+					</div>
+					<a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddLesson", "Lesson")">Add Lesson</a>
+					<a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete Lesson</a>
+					<a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View Lesson</a>
+				</div>
+			}
+
+			<!-- Main Content for Add Chapter -->
+			<div class="col-md-9 d-flex align-items-start" style="min-height: 100vh;">
+				<div class="container mt-3">
+					<div class="card w-100 ">
+						<div class="card-header gradient-header">
+							ADD NEW LESSON
+						</div>
+						<div class="card-body mb-5">
+							<form method="post" enctype="multipart/form-data">
+								<input type="hidden" asp-for="LessonId" />
+
+								<div class="mb-3">
+									<label for="lessonName" class="form-label">Lesson Name</label>
+									<input asp-for="LessonName" type="text" class="form-control" id="lessonName"
+										   placeholder="Enter Lesson Name">
+									<span asp-validation-for="LessonName" class="text-danger"></span>
+
+								</div>
+								<div class="mb-3">
+									<label for="lessonDescription" class="form-label">Lesson Description</label>
+									<textarea asp-for="LessonDescription" class="form-control" id="lessonDescription" rows="5"
+											  placeholder="Enter Lesson Description"></textarea>
+									<span asp-validation-for="LessonDescription" class="text-danger"></span>
+
+								</div>
+								<div class="mb-3">
+									<label for="lessonTypeId" class="form-label">Lesson Type</label>
+									<select asp-for="LessonTypeId" class="form-select" id="lessonTypeId" onchange="toggleLessonContent()">
+										<option value="0">Type of Lesson</option>
+										<option value="1">Video</option>
+										<option value="2">Reading</option>
+									</select>
+									<span class="text-danger"></span>
+								</div>
+								<div class="mb-3" id="videoSection" style="display: none;">
+									<div class="mt-3" id="youtubeLinkSection">
+										<label for="lessonLink" class="form-label">YouTube Video Link</label>
+										<input type="url" name="LessonLink" class="form-control" placeholder="https://www.youtube.com/watch?v=example">
+										<span class="text-danger"></span>
+									</div>
+								</div>
+								<div class="mb-3" id="readingSection" style="display: none;">
+									<label for="lessonContentFile" class="form-label">Upload Lesson Content (Reading)</label>
+									<input type="file" name="LessonContentFile" class="form-control" id="lessonContentFile" accept=".pdf" />
+									@Html.ValidationMessageFor(model => model.LessonContent, "", new { @class = "text-danger" })
+								</div>
+
+
+								<div class="text-center">
+									<button type="submit" class="btn ">Create</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
+	<!-- Bootstrap JS -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script>
+		function toggleLessonContent() {
+			const lessonType = parseInt(document.getElementById('lessonTypeId').value);
+			const videoSection = document.getElementById('videoSection');
+			const readingSection = document.getElementById('readingSection');
+			const lessonLink = document.querySelector("input[name='LessonLink']");
+			const fileInput = document.getElementById('lessonContentFile');
+
+			if (lessonType === 1) {
+				videoSection.style.display = 'block';
+				readingSection.style.display = 'none';
+				lessonLink.removeAttribute('disabled');
+				lessonLink.setAttribute('required', 'required');
+				fileInput.setAttribute('disabled', 'disabled');
+				fileInput.removeAttribute('required');
+			} else if (lessonType === 2) {
+				videoSection.style.display = 'none';
+				readingSection.style.display = 'block';
+				lessonLink.setAttribute('disabled', 'disabled');
+				lessonLink.removeAttribute('required');
+				fileInput.removeAttribute('disabled');
+				fileInput.setAttribute('required', 'required');
+			} else {
+				videoSection.style.display = 'none';
+				readingSection.style.display = 'none';
+				lessonLink.setAttribute('disabled', 'disabled');
+				fileInput.setAttribute('disabled', 'disabled');
+			}
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			toggleLessonContent(); // Gọi ngay khi trang được tải
+			document.getElementById('lessonTypeId').addEventListener('change', toggleLessonContent);
+		});
+
+		$(document).ready(function () {
+			$("form").submit(function (event) {
+				// Bắt các giá trị nhập
+				var name = $("#lessonName").val().trim();
+				var description = $("#lessonDescription").val().trim();
+				var lessonType = $("#lessonTypeId").val();
+				var lessonLink = $("input[name='LessonLink']").val().trim();
+				var fileInput = $("#lessonContentFile").val();
+				var status = $("#LessonStatus").val();
+				var isValid = true;
+
+				// Validate Lesson Name
+				if (name === "") {
+					$("#lessonName").addClass("is-invalid");
+					$("#lessonName").next(".text-danger").text("Please enter the lesson name.");
+					isValid = false;
+				} else {
+					$("#lessonName").removeClass("is-invalid");
+					$("#lessonName").next(".text-danger").text("");
+				}
+
+				// Validate Lesson Description
+				if (description === "") {
+					$("#lessonDescription").addClass("is-invalid");
+					$("#lessonDescription").next(".text-danger").text("Please enter the lesson description.");
+					isValid = false;
+				} else {
+					$("#lessonDescription").removeClass("is-invalid");
+					$("#lessonDescription").next(".text-danger").text("");
+				}
+
+
+				// Validate Lesson Type
+				if (lessonType === "0") {
+					$("#lessonTypeId").addClass("is-invalid");
+					$("#lessonTypeId").next(".text-danger").text("Please select a lesson type.");
+					isValid = false;
+				} else {
+					$("#lessonTypeId").removeClass("is-invalid");
+					$("#lessonTypeId").next(".text-danger").text("");
+				}
+				// Validate YouTube Link if Lesson Type is Video
+				if (lessonType === "1" && lessonLink === "") {
+					$("input[name='LessonLink']").addClass("is-invalid");
+					$("input[name='LessonLink']").next(".text-danger").text("Please enter a valid YouTube video link.");
+					isValid = false;
+				} else {
+					$("input[name='LessonLink']").removeClass("is-invalid");
+					$("input[name='LessonLink']").next(".text-danger").text("");
+				}
+
+				// Validate File Upload if Lesson Type is Reading
+				if (lessonType === "2" && fileInput === "") {
+					$("#lessonContentFile").addClass("is-invalid");
+					$("#lessonContentFile").next(".text-danger").text("Please upload a document for reading.");
+					isValid = false;
+				} else {
+					$("#lessonContentFile").removeClass("is-invalid");
+					$("#lessonContentFile").next(".text-danger").text("");
+				}
+
+				if (!isValid) {
+					event.preventDefault(); // Ngăn không cho submit nếu có lỗi
+				}
+			});
+		});
+
+	</script>
+</body>
+
+</html>

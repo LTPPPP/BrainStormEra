@@ -1,27 +1,14 @@
-html,
-body {
-    height: 100%;
-    margin: 0;
-}
-
-.main-content {
-    min-height: calc(100vh - 100px);
-}
-
-footer {
-    background-color: var(--gray-color);
-    color: var(--white-color);
-    position: relative;
-    bottom: 0;
-    width: 100%;
-}
-
 /* Gradient Header */
 .gradient-header {
-    background: linear-gradient(to right, var(--main-color), var(--secondary-color));
+    background: linear-gradient(to right,var(--main-color), var(--secondary-color));
     font-weight: bold;
+    font-size: 1.7rem;
 }
 
+body {
+    padding-top: 70px !important;
+    background-color: var(--white-corlor) !important;
+}
 /* Sidebar buttons customization */
 .sidebar .btn {
     font-weight: bold;
@@ -31,29 +18,13 @@ footer {
 /* Ensure the card has full height */
 .card {
     border-radius: 15px;
-    height: auto;
+    height: 100%;
 }
 
 .card-body {
     padding: 2rem;
-}
-
-/* Custom File Upload Button */
-.upload-area {
-    width: 100%;
-    height: 100px;
-    border-radius: 8px;
-    border: 2px dashed var(--secondary-color);
-    position: relative;
-    cursor: pointer;
-}
-
-.upload-area i {
-    color: var(--main-color);
-}
-
-.upload-area:hover {
-    border-color: var(--main-color);
+    display: flex;
+    flex-direction: column;
 }
 
 /* Input fields and button styling */
@@ -62,12 +33,19 @@ textarea {
     border-radius: 5px;
 }
 
-button.btn {
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-weight: bold;
+.btn {
+    background-color: var(--main-color);
+    color: var(--white-color);
 }
 
-.btn-success {
-    width: 120px;
+/* Reduce space between the form and the button */
+.mt-2 {
+    margin-top: 80%;
+    /* Reduce the margin to bring the button closer */
+}
+
+button.btn-outline-primary {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
 }

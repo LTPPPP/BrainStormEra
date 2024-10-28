@@ -11,32 +11,54 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Base CSS (Common Styles) -->
-    <link rel="stylesheet" href="~/css/baseChapter.css">
     <!-- Page-Specific Styles -->
+    <link rel="stylesheet" href="~/css/base.css">
+
     <link rel="stylesheet" href="~/css/Chapter/DeleteChapter.css">
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
 </head>
 
 <body>
 
-    @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    @{
 
+        string userRole = Context.Request.Cookies["user_role"];
+    }
+    @if (userRole == "2")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+    }
+    else if (userRole == "1")
+    {
+        @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+
+    }
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
             @{
-
-                string userRole = Context.Request.Cookies["user_role"];
+                var courseName = Context.Request.Cookies["CourseName"];
 
 
                 string courseId = Context.Request.Cookies["CourseId"];
 
 
                 <div class="col-md-3 bg-SECONDARY sidebar p-3">
-                    <a class="btn btn-primary w-100 mb-3" href="@Url.Action("ChapterManagement", "Chapter", new { courseId = courseId })">Add Chapter</a>
-                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter",new { courseId = courseId })">Delete Chapter</a>
-                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ViewChapters", "Chapter", new { courseId = courseId })">View Chapter</a>
+
+                    <div class="text-start mb-3">
+
+
+                        <button type="button" onclick="window.location.href='@Url.Action("EditCourse", "Course")'"
+                                class="btn btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Course
+                        </button>
+                    </div>
+
+                    <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddChapter", "Chapter")">Add Chapter</a>
+                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete Chapter</a>
+                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")">Chapter Management</a>
 
                 </div>
             }
@@ -44,22 +66,35 @@
             <div class="col-md-9 d-flex align-items-start vh-100">
                 <div class="card w-100 ">
                     <div class="card-header gradient-header">
-                        DELETE CHAPTER
+                        @courseName > DELETE CHAPTER
                     </div>
                     <div class="card-body">
                         <form method="post" id="deleteForm">
-                            <!-- Example of chapters with checkboxes -->
-                            @foreach (var c in Model)
+                            <!-- Checkbox "Select All" -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="selectAll">
+                                <label class="form-check-label" for="selectAll">Select All</label>
+                            </div>
+
+                            <!-- List of chapters with conditional checkboxes -->
+                            @foreach (var chapter in Model)
                             {
-                                <input type="hidden" name="CourseId" value="@ViewBag.CourseId" />
-
-
                                 <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="ChapterIds" value="@c.ChapterId" id="chapter@c.ChapterId">
-                                    <label class="form-check-label" for="chapter1">@c.ChapterName</label>
-                                </div>
+                                    <!-- Chỉ hiển thị checkbox nếu là chapter có ChapterOrder cao nhất hoặc khi "Select All" được chọn -->
+                                    <input class="form-check-input chapter-checkbox" type="checkbox"
+                                           name="ChapterIds" value="@chapter.ChapterId"
+                                           id="chapter@chapter.ChapterId"
+                                           style="display: @(chapter.ChapterId == (string)ViewBag.MaxOrderChapterId ? "inline" : "none");">
 
+                                    <label class="form-check-label" for="chapter@chapter.ChapterId">
+                                        <h3>@chapter.ChapterName</h3>
+                                        <p>@chapter.ChapterDescription</p>
+                                    </label>
+                                    <p>@(chapter.ChapterCreatedAt != DateTime.MinValue ? chapter.ChapterCreatedAt.ToString("yyyy-MM-dd") : "N/A")</p>
+                                </div>
+                                <hr />
                             }
+
                             <div class="text-center">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </div>
@@ -71,12 +106,49 @@
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
-
     <!-- bootstrap js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Link to external delete.js -->
     <script src="~/js/Chapter/DeleteChapter.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle checkboxes visibility on Select All
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const chapterCheckboxes = document.querySelectorAll('.chapter-checkbox');
+
+            selectAllCheckbox.addEventListener('change', function () {
+                chapterCheckboxes.forEach(checkbox => {
+                    checkbox.style.display = this.checked ? 'inline' : (checkbox.value === '@ViewBag.MaxOrderChapterId' ? 'inline' : 'none');
+                    checkbox.checked = this.checked;
+                });
+            });
+
+            document.getElementById('deleteForm').addEventListener('submit', function (event) {
+                const checkboxes = document.querySelectorAll('input[name="ChapterIds"]:checked');
+                if (checkboxes.length === 0) {
+                    alert('Please select at least one chapter to delete.');
+                    event.preventDefault();
+                    return;
+                }
+
+                const confirmDelete = confirm('Are you sure you want to delete the selected chapters? This action cannot be undone.');
+                if (!confirmDelete) {
+                    event.preventDefault();  // Prevent form submission if the user cancels
+                    return;
+                }
+
+                // Prevent default submit to avoid triggering the submit twice.
+                event.preventDefault();
+
+                // After preventing default submission, use JavaScript to submit the form.
+                this.submit();
+            });
+        });
+    </script>
+
+
 </body>
 
 </html>

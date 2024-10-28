@@ -101,3 +101,25 @@ h3 {
 .container-fluid {
     background-color: var(--white-color);
 }
+
+#markCompletedButton {
+    font-size: 1.2em; /* Tăng kích thước chữ */
+    padding: 10px 20px; /* Tăng kích thước padding */
+    margin-right: 20px; /* Thêm khoảng cách nếu cần */
+    height: 50px; /* Đặt chiều cao cụ thể cho nút */
+    border-radius: 30px;
+}
+
+.lesson-completed i.fa-check-circle {
+    color: green;
+    margin-left: 5px;
+}
+
+#lesson-media iframe {
+    width: 100%;
+    height: 500px;
+}
+
+.accordion-button::after {
+    margin-left: auto;
+}

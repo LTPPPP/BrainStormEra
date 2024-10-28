@@ -35,6 +35,13 @@ namespace BrainStormEra.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                ViewBag.ErrorMessage = string.Join(". ", errors); // Sử dụng <br/> để xuống dòng
+
                 GenerateCaptcha(); // Generate new CAPTCHA question for retry
                 return View(model);
             }
