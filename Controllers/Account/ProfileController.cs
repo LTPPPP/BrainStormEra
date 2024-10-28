@@ -1,13 +1,16 @@
 ﻿using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.IO;
+using System.Net.Mail;
+using System.Text;
 
 namespace BrainStormEra.Controllers.Account
 {
     public class ProfileController : Controller
     {
         private readonly SwpMainContext _context;
-
+        private readonly IConfiguration _configuration;
         public ProfileController(SwpMainContext context)
         {
             _context = context;
@@ -125,7 +128,7 @@ namespace BrainStormEra.Controllers.Account
                         return View(model); // Không lưu file và trả về view với lỗi
                     }
 
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads","User-img");
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "User-img");
 
                     if (!Directory.Exists(uploadsFolder))
                     {
@@ -178,5 +181,58 @@ namespace BrainStormEra.Controllers.Account
 
             return RedirectToAction("LoginPage", "Login");
         }
+
+        private async Task SendPaymentConfirmationEmail(string filePath, string userId, string userEmail)
+        {
+
+            var smtpSettings = _configuration.GetSection("SmtpSettings");
+            var fromAddress = new MailAddress(smtpSettings["UserName"], "BrainStormEra User");
+            var toAddress = new MailAddress("llttpp.dev@gmail.com", "Admin");
+            const string subject = "[BRAINSTORMERA] PAYMENT CONFIRMATION";
+
+            // Nội dung email bao gồm userId và email của người dùng
+            string body = $@"
+    <html>
+        <body style='font-family: Arial, sans-serif; color: #333;'>
+            <h2 style='color: #2c3e50;'>Xác nhận thanh toán từ người dùng</h2>
+            <p>Xin chào Admin,</p>
+            <p>Người dùng với thông tin sau đã gửi xác nhận thanh toán:</p>
+            <table style='border-collapse: collapse; width: 100%; max-width: 500px;'>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>User ID</td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{userId}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>Email</td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{userEmail}</td>
+                </tr>
+            </table>
+            <p style='margin-top: 20px;'>Xin vui lòng kiểm tra hình ảnh đính kèm để xác nhận thanh toán.</p>
+            <p>Trân trọng,<br>Đội ngũ BrainStormEra</p>
+            <hr style='border-top: 1px solid #ddd; margin-top: 20px;' />
+            <p style='font-size: 12px; color: #888;'>Đây là email tự động từ hệ thống. Vui lòng không trả lời email này.</p>
+        </body>
+    </html>";
+
+            using (var smtp = new SmtpClient
+            {
+                Host = smtpSettings["Host"],
+                Port = int.Parse(smtpSettings["Port"]),
+                EnableSsl = bool.Parse(smtpSettings["EnableSsl"]),
+                Credentials = new System.Net.NetworkCredential(smtpSettings["UserName"], smtpSettings["Password"])
+            })
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = "[BRAINSTORMERA] PAYMENT CONFIRMATION",
+                Body = "<email_body_here>",
+                IsBodyHtml = true
+            })
+            {
+                message.Attachments.Add(new Attachment(filePath));
+                await smtp.SendMailAsync(message);
+            }
+        }
+
+
     }
 }
