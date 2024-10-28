@@ -1,7 +1,7 @@
 # BrainStormEra Project
 
 ## Overview
-BrainStormEra is a hotel management system built using WPF and LINQ, following a 3-layer architecture and MVVM pattern. The backend is developed in ASP.NET MVC, with the Entity Framework Database First approach. This project also includes session management and database operations with SQL Server.
+BrainStormEra is a Course and Certificate management system built using ASP.NET, following a 3-layer architecture and MVVM pattern. The backend is developed in ASP.NET MVC, with the Entity Framework Database First approach. This project also includes session management and database operations with SQL Server.
 
 ## Prerequisites
 - [.NET SDK](https://dotnet.microsoft.com/download) (version 6.0 or higher)
