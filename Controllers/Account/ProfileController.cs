@@ -1,6 +1,8 @@
 ﻿using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
+using System.Net.Mail;
+using System.Text;
 
 namespace BrainStormEra.Controllers.Account
 {
@@ -178,5 +180,116 @@ namespace BrainStormEra.Controllers.Account
 
             return RedirectToAction("LoginPage", "Login");
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmPayment(IFormFile paymentImage)
+        {
+            var userId = Request.Cookies["user_id"];
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "Người dùng không xác định.";
+                return RedirectToAction("Index");
+            }
+
+            // Lấy thông tin tài khoản của người dùng từ database
+            var account = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
+            if (account == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy tài khoản của người dùng.";
+                return RedirectToAction("Index");
+            }
+
+            if (paymentImage != null && paymentImage.Length > 0)
+            {
+                // Kiểm tra loại file ảnh (chỉ cho phép .png và .jpeg)
+                var allowedTypes = new[] { "image/png", "image/jpeg" };
+                if (!allowedTypes.Contains(paymentImage.ContentType))
+                {
+                    ModelState.AddModelError("paymentImage", "Chỉ chấp nhận tệp PNG và JPEG.");
+                    return RedirectToAction("Index");
+                }
+
+                // Lưu trữ ảnh tải lên trong thư mục `uploads`
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "PaymentProof");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = Path.GetFileName(paymentImage.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await paymentImage.CopyToAsync(stream);
+                }
+
+                // Gửi email xác nhận thanh toán với thông tin userId và email của người dùng
+                await SendPaymentConfirmationEmail(filePath, account.UserId, account.UserEmail);
+
+                TempData["SuccessMessage"] = "Xác nhận thanh toán đã được gửi. Chúng tôi sẽ kiểm tra và thông báo cho bạn.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["ErrorMessage"] = "Vui lòng tải lên hình ảnh xác nhận thanh toán.";
+            return RedirectToAction("Index");
+        }
+
+
+
+        private async Task SendPaymentConfirmationEmail(string filePath, string userId, string userEmail)
+        {
+          
+            var fromAddress = new MailAddress("NhanTDCE181526@fpt.edu.vn", "BrainStormEra User"); // thay doi mail, luong nhu sau (mail he thong gui mail den nguoi quan ly thanh toan)
+            var toAddress = new MailAddress("anhnnce181780@fpt.edu.vn", "Admin"); 
+            const string subject = "[BRAINSTORMERA] PAYMENT CONFIRMATION";
+
+            // Nội dung email bao gồm userId và email của người dùng
+            string body = $@"
+    <html>
+        <body style='font-family: Arial, sans-serif; color: #333;'>
+            <h2 style='color: #2c3e50;'>Xác nhận thanh toán từ người dùng</h2>
+            <p>Xin chào Admin,</p>
+            <p>Người dùng với thông tin sau đã gửi xác nhận thanh toán:</p>
+            <table style='border-collapse: collapse; width: 100%; max-width: 500px;'>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>User ID</td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{userId}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>Email</td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{userEmail}</td>
+                </tr>
+            </table>
+            <p style='margin-top: 20px;'>Xin vui lòng kiểm tra hình ảnh đính kèm để xác nhận thanh toán.</p>
+            <p>Trân trọng,<br>Đội ngũ BrainStormEra</p>
+            <hr style='border-top: 1px solid #ddd; margin-top: 20px;' />
+            <p style='font-size: 12px; color: #888;'>Đây là email tự động từ hệ thống. Vui lòng không trả lời email này.</p>
+        </body>
+    </html>";
+
+            using (var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com", // Thay đổi thành SMTP server phù hợp
+                Port = 587,
+                EnableSsl = true,
+                Credentials = new System.Net.NetworkCredential("NhanTDCE181526@fpt.edu.vn", "iwvo fxxo gfgt ioeu")
+            })
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body,
+                BodyEncoding = Encoding.UTF8,
+                IsBodyHtml = true
+            })
+            {
+                message.Attachments.Add(new Attachment(filePath));
+                await smtp.SendMailAsync(message);
+            }
+        }
+
+
     }
 }
