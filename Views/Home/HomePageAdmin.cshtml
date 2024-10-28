@@ -54,6 +54,14 @@
                 <canvas id="userChart" width="400" height="200"></canvas>
             </div>
         </div>
+        <div class="chart-section row">
+            <div class="chart-container col-md-6">
+                <canvas id="courseCreatedChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container col-md-6">
+                <canvas id="courseRequestedChart" width="400" height="200"></canvas>
+            </div>
+        </div>
     </div>
 
     @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml")
@@ -153,6 +161,46 @@
                     })
                     .catch(error => console.error('Error fetching user statistics:', error));
             });
+        fetch('@Url.Action("GetCourseStatistics", "HomePageAdmin")')
+            .then(response => response.json())
+            .then(data => {
+                const requestChartData = {
+                    labels: data.requests.map(item => new Date(item.Date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Course Requests',
+                        data: data.requests.map(item => item.Count),
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                };
+
+                const approvalChartData = {
+                    labels: data.approvals.map(item => new Date(item.Date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Course Approvals',
+                        data: data.approvals.map(item => item.Count),
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                };
+
+                new Chart(document.getElementById('courseRequestedChart').getContext('2d'), {
+                    type: 'line',
+                    data: requestChartData,
+                    options: { scales: { y: { beginAtZero: true } } }
+                });
+
+                new Chart(document.getElementById('courseCreatedChart').getContext('2d'), {
+                    type: 'line',
+                    data: approvalChartData,
+                    options: { scales: { y: { beginAtZero: true } } }
+                });
+            })
+            .catch(error => console.error('Error fetching course statistics:', error));
+
+
 
         $(document).ready(function () {
             $('#notificationsModal').on('shown.bs.modal', function () {

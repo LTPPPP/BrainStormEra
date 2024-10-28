@@ -74,5 +74,22 @@ namespace BrainStormEra.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving user statistics." });
             }
         }
+        public JsonResult GetCourseStatistics()
+        {
+            var requests = _context.Courses
+                                   .Where(c => c.CourseStatus == 1)
+                                   .GroupBy(c => c.CourseCreatedAt.Date)
+                                   .Select(g => new { Date = g.Key, Count = g.Count() })
+                                   .ToList();
+
+            var approvals = _context.Courses
+                                    .Where(c => c.CourseStatus == 4)
+                                    .GroupBy(c => c.CourseCreatedAt.Date)
+                                    .Select(g => new { Date = g.Key, Count = g.Count() })
+                                    .ToList();
+
+            return Json(new { requests, approvals });
+        }
+
     }
 }

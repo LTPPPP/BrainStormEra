@@ -108,5 +108,41 @@ namespace BrainStormEra.Controllers
             return View("~/Views/Shared/Chatbot/ConversationHistory.cshtml", viewModel);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteConversations([FromBody] List<string> conversationIds)
+        {
+            if (conversationIds == null || !conversationIds.Any())
+            {
+                return BadRequest(new { error = "No conversations selected" });
+            }
+
+            var conversationsToDelete = _dbContext.ChatbotConversations
+                .Where(c => conversationIds.Contains(c.ConversationId))
+                .ToList();
+
+            if (conversationsToDelete.Any())
+            {
+                _dbContext.ChatbotConversations.RemoveRange(conversationsToDelete);
+                await _dbContext.SaveChangesAsync();
+                return Ok(new { success = "Selected conversations deleted successfully" });
+            }
+
+            return NotFound(new { error = "No matching conversations found" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllConversations()
+        {
+            var allConversations = _dbContext.ChatbotConversations.ToList();
+            if (allConversations.Any())
+            {
+                _dbContext.ChatbotConversations.RemoveRange(allConversations);
+                await _dbContext.SaveChangesAsync();
+                return Ok(new { success = "All conversations deleted successfully" });
+            }
+
+            return NotFound(new { error = "No conversations found to delete" });
+        }
+
     }
 }

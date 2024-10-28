@@ -16,17 +16,26 @@
     @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
     <div class="container mt-4">
         <h2 class="text-center header-his">Chatbot Conversation History</h2>
+        <div class="d-flex justify-content-between mb-3">
+            <button id="delete-selected" class="btn" style="background-color : #ff6347">Delete Selected</button>
+        </div>
+        <div class="form-check mb-3">
+            <input type="checkbox" id="select-all" class="form-check-input" />
+            <label class="form-check-label" for="select-all">Select All</label>
+        </div>
         <div class="row">
             @foreach (var conversation in Model.Conversations)
             {
                 <div class="col-12 mb-4">
                     <div class="card shadow-sm h-100 border-0 rounded-lg hover-zoom">
+                        <!-- Checkbox để chọn từng cuộc hội thoại -->
                         <div class="card-header text-white d-flex align-items-center rounded-top title-chat">
                             <i class="fas fa-user-circle me-2"></i>
                             <span>@conversation.UserName</span>
                         </div>
                         <div class="card-body">
                             <h6 class="card-subtitle mb-2 text-muted">@conversation.ConversationTime.ToString("f")</h6>
+                            <input type="checkbox" class="select-conversation form-check-input" data-id="@conversation.ConversationId" />
                             <p class="card-text">@conversation.ConversationContent</p>
                         </div>
                         <div class="card-footer text-end bg-light rounded-bottom">
@@ -63,5 +72,40 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("select-all").addEventListener("change", function () {
+            const isChecked = this.checked;
+            document.querySelectorAll(".select-conversation").forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+        });
+
+        document.getElementById("delete-selected").addEventListener("click", function () {
+            const selectedIds = Array.from(document.querySelectorAll(".select-conversation:checked"))
+                .map(checkbox => checkbox.getAttribute("data-id"));
+
+            if (selectedIds.length === 0) {
+                alert("Please select at least one conversation to delete.");
+                return;
+            }
+
+            fetch("/Chatbot/DeleteConversations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(selectedIds)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload(); // Reload the page to update the conversation list
+                    } else {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        });
+
+
+    </script>
 </body>
 </html>
