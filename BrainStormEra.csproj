@@ -33,6 +33,12 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Repo\Course\" />
+    <Folder Include="Repo\Chapter\" />
+    <Folder Include="Repo\Lesson\" />
+    <Folder Include="Repo\Chatbot\" />
+    <Folder Include="Repo\Achivements\" />
+    <Folder Include="Repo\Notification\" />
     <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />
     <Folder Include="wwwroot\lib\document\" />

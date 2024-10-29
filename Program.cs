@@ -3,7 +3,7 @@ using BrainStormEra.Models;
 using BrainStormEra.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-
+using BrainStormEra.Repo;
 namespace BrainStormEra
 {
     public class Program
@@ -18,7 +18,7 @@ namespace BrainStormEra
             builder.Services.AddSession();
 
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddScoped<AccountRepo>();
             // Configure DbContext with SQL Server
             builder.Services.AddDbContext<SwpMainContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));

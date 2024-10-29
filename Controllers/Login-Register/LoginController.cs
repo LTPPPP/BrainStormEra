@@ -1,20 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
+using BrainStormEra.Repo;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using BrainStormEra.Views.Login;
 using System.Text;
+using System.Threading.Tasks;
+using BrainStormEra.Views.Login;
 
-namespace BrainStormEra.Controllers
+namespace BrainStormEra.Controllers 
 {
     public class LoginController : Controller
     {
-        private readonly SwpMainContext _context;
+        private readonly AccountRepo _accountRepository;
 
-        public LoginController(SwpMainContext context)
+        public LoginController(AccountRepo accountRepository)
         {
-            _context = context;
+            _accountRepository = accountRepository;
         }
 
         [HttpGet]
@@ -31,18 +33,18 @@ namespace BrainStormEra.Controllers
                 // Hash the password using MD5
                 string hashedPassword = GetMd5Hash(model.Password);
 
-                // Check if the user exists in the database
-                var user = _context.Accounts.FirstOrDefault(u => u.Username == model.Username && u.Password == hashedPassword);
+                // Check if the user exists in the database using AccountRepository
+                var user = await _accountRepository.Login(model.Username, hashedPassword);
 
                 if (user != null)
                 {
                     // Create the user claims (data about the user)
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Role, user.UserRole.ToString())
-            };
+                    {
+                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                        new Claim(ClaimTypes.Role, user.UserRole.ToString())
+                    };
 
                     // Create the identity and principal
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -57,17 +59,7 @@ namespace BrainStormEra.Controllers
                     Response.Cookies.Append("user_role", user.UserRole.ToString(), new CookieOptions { Expires = DateTime.Now.AddHours(1) });
 
                     // Redirect based on user role
-                    switch (user.UserRole)
-                    {
-                        case 1:
-                            return RedirectToAction("HomepageAdmin", "HomePageAdmin");
-                        case 2:
-                            return RedirectToAction("HomePageInstructor", "HomePageInstructor");
-                        case 3:
-                            return RedirectToAction("HomePageLearner", "HomePageLearner");
-                        default:
-                            return RedirectToAction("LoginPage", "Login");
-                    }
+                    return RedirectToRoleSpecificPage(user.UserRole);
                 }
                 else
                 {
@@ -77,12 +69,27 @@ namespace BrainStormEra.Controllers
             return View("LoginPage", model);
         }
 
+        private IActionResult RedirectToRoleSpecificPage(int? userRole)
+        {
+            switch (userRole)
+            {
+                case 1:
+                    return RedirectToAction("HomepageAdmin", "HomePageAdmin");
+                case 2:
+                    return RedirectToAction("HomePageInstructor", "HomePageInstructor");
+                case 3:
+                    return RedirectToAction("HomePageLearner", "HomePageLearner");
+                default:
+                    return RedirectToAction("LoginPage", "Login");
+            }
+        }
+
         // Helper method to hash password with MD5
         private string GetMd5Hash(string input)
         {
             using (var md5 = System.Security.Cryptography.MD5.Create())
             {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] inputBytes = Encoding.ASCII.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
@@ -94,7 +101,6 @@ namespace BrainStormEra.Controllers
                 return sb.ToString();
             }
         }
-
 
         public async Task<IActionResult> Logout()
         {
@@ -109,6 +115,7 @@ namespace BrainStormEra.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("LoginPage", "Login");
         }
+
         public IActionResult RedirectToHome()
         {
             var userIdCookie = Request.Cookies["user_id"];
@@ -117,22 +124,10 @@ namespace BrainStormEra.Controllers
             if (userIdCookie != null && userRoleCookie != null)
             {
                 int userRole = int.Parse(userRoleCookie);
-
-                switch (userRole)
-                {
-                    case 1:
-                        return RedirectToAction("HomepageAdmin", "HomePageAdmin");
-                    case 2:
-                        return RedirectToAction("HomePageInstructor", "HomePageInstructor");
-                    case 3:
-                        return RedirectToAction("HomePageLearner", "HomePageLearner");
-                    default:
-                        return RedirectToAction("LoginPage", "Login");
-                }
+                return RedirectToRoleSpecificPage(userRole);
             }
 
             return RedirectToAction("LoginPage", "Login");
         }
-
     }
 }
