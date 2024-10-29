@@ -17,12 +17,14 @@ namespace BrainStormEra
 
             builder.Services.AddSession();
 
-            builder.Services.AddControllersWithViews();
-            builder.Services.AddScoped<AccountRepo>();
             // Configure DbContext with SQL Server
             builder.Services.AddDbContext<SwpMainContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
 
+
+            builder.Services.AddScoped<SwpMainContext>();
+            builder.Services.AddScoped<AccountRepo>();
+            builder.Services.AddControllersWithViews();
             // Add authentication services for cookies
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

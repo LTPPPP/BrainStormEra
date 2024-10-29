@@ -76,40 +76,6 @@ namespace BrainStormEra.Repo
             }
         }
 
-        // Kiểm tra nếu Username đã tồn tại
-        public async Task<bool> IsUsernameExists(string username)
-        {
-            bool exists = false;
-            using (var connection = _context.Database.GetDbConnection())
-            {
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT COUNT(1) FROM account WHERE username = @username";
-                    command.Parameters.Add(new SqlParameter("@username", SqlDbType.NVarChar) { Value = username });
 
-                    exists = (int)await command.ExecuteScalarAsync() > 0;
-                }
-            }
-            return exists;
-        }
-
-        // Kiểm tra nếu Email đã tồn tại
-        public async Task<bool> IsEmailExists(string email)
-        {
-            bool exists = false;
-            using (var connection = _context.Database.GetDbConnection())
-            {
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT COUNT(1) FROM account WHERE user_email = @userEmail";
-                    command.Parameters.Add(new SqlParameter("@userEmail", SqlDbType.NVarChar) { Value = email });
-
-                    exists = (int)await command.ExecuteScalarAsync() > 0;
-                }
-            }
-            return exists;
-        }
     }
 }
