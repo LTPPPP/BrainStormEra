@@ -34,7 +34,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="@Url.Action("Index", "Home" )">DASHBOARD</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("CourseManagement", "Course")">COURSE</a></li>
                     </ul>
                     <div class="profile d-flex align-items-center">
                         <a href="@Url.Action("LoginPage", "Login" )" class="btn_login">Log In</a>
@@ -79,34 +79,37 @@
     <!-- Recommend Course Section -->
 
     <div class="row justify-content-center mb-5">
-        @foreach (var c in Model.RecommendedCourses)
+        @if (Model?.RecommendedCourses != null && Model.RecommendedCourses.Any())
         {
-
-            <div class="col-md-3 col-sm-6 mb-4">
-                <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
-
-                    <div class="card course-card h-100">
-                        <img src="@c.CoursePicture" class="card-img-top" alt="Course Image">
-                        <div class="card-body">
-                            <h5 class="card-title">@c.CourseName</h5>
-                            <p class="card-text">Price: @c.Price ₫</p>
-                            <p class="card-text">By @c.CreatedBy</p>
-                            <div class="rating">
-                                <span class="stars" data-rating="@c.StarRating"></span>
+            @foreach (var c in Model.RecommendedCourses)
+            {
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
+                        <div class="card course-card h-100">
+                            <img src="@c.CoursePicture" class="card-img-top" alt="Course Image">
+                            <div class="card-body">
+                                <h5 class="card-title">@c.CourseName</h5>
+                                <p class="card-text">Price: @c.Price ₫</p>
+                                <p class="card-text">By @c.CreatedBy</p>
+                                <div class="rating">
+                                    <span class="stars" data-rating="@c.StarRating"></span>
+                                </div>
+                                <div>
+                                    <i class="fas fa-tags me-2"></i> Categories:
+                                    @foreach (var category in c.CourseCategories)
+                                    {
+                                        <span class="badge bg-primary me-1">@category.CourseCategoryName</span>
+                                    }
+                                </div>
                             </div>
-                            <div>
-                                <i class="fas fa-tags me-2"></i> Categories:
-                                @foreach (var category in c.CourseCategories)
-                                {
-                                    <span class="badge bg-primary me-1">@category.CourseCategoryName</span>
-                                }
-                            </div>
-
                         </div>
-                    </div>
-                </a>
-
-            </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No recommended courses are available at this time.</p>
         }
     </div>
 

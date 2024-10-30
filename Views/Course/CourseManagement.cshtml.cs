@@ -22,8 +22,6 @@ namespace BrainStormEra.Views.Course
 
         public string? CreatedBy { get; set; }
 
-        
-
         public byte? StarRating { get; set; }
 
         

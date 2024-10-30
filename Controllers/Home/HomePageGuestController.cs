@@ -21,7 +21,6 @@ namespace BrainStormEra.Controllers.Home
         public IActionResult HomePageGuest()
         {
 
-
             var recommendedCourses = _dbContext.Courses
          .Include(c => c.CourseCategories)        // Include danh mục khóa học
          .Include(c => c.Enrollments)             // Include danh sách Enrollments
@@ -47,7 +46,6 @@ namespace BrainStormEra.Controllers.Home
          })
          .ToList();
 
-            // Nếu userRanking không null, ta có thể lấy Rank của người dùng hiện tại
 
             var viewModel = new HomePageGuestViewtModel
             {
@@ -55,7 +53,7 @@ namespace BrainStormEra.Controllers.Home
 
                 RecommendedCourses = recommendedCourses
             };
-
+            Console.WriteLine("Number of recommended courses: " + recommendedCourses.Count);
             return View("~/Views/Home/Index.cshtml", viewModel);
 
         }
