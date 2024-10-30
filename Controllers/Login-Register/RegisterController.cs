@@ -1,25 +1,23 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.ViewModels;
-using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using BrainStormEra.Repo;
 
 namespace BrainStormEra.Controllers
 {
     public class RegisterController : Controller
     {
-        private readonly SwpMainContext _context;
+        private readonly AccountRepo _accountRepo;
         private readonly ILogger<RegisterController> _logger;
 
-        public RegisterController(SwpMainContext context, ILogger<RegisterController> logger)
+        public RegisterController(AccountRepo accountRepo, ILogger<RegisterController> logger)
         {
-            _context = context;
+            _accountRepo = accountRepo;
             _logger = logger;
         }
 
@@ -40,9 +38,8 @@ namespace BrainStormEra.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                ViewBag.ErrorMessage = string.Join(". ", errors); // Sử dụng <br/> để xuống dòng
-
-                GenerateCaptcha(); // Generate new CAPTCHA question for retry
+                ViewBag.ErrorMessage = string.Join(". ", errors);
+                GenerateCaptcha();
                 return View(model);
             }
 
@@ -51,13 +48,12 @@ namespace BrainStormEra.Controllers
                 TempData["CaptchaAnswer"].ToString() != model.CAPTCHA)
             {
                 ViewBag.ErrorMessage = "CAPTCHA is incorrect, please try again.";
-                GenerateCaptcha(); // Generate new CAPTCHA question for retry
+                GenerateCaptcha();
                 return View(model);
             }
 
             // Check if Username already exists
-            bool usernameExists = await _context.Accounts.AnyAsync(a => a.Username == model.Username);
-            if (usernameExists)
+            if (await _accountRepo.IsUsernameTakenAsync(model.Username))
             {
                 ModelState.AddModelError("Username", "Username is already taken. Please choose another one.");
                 GenerateCaptcha();
@@ -65,8 +61,7 @@ namespace BrainStormEra.Controllers
             }
 
             // Check if Email already exists
-            bool emailExists = await _context.Accounts.AnyAsync(a => a.UserEmail == model.Email);
-            if (emailExists)
+            if (await _accountRepo.IsEmailTakenAsync(model.Email))
             {
                 ModelState.AddModelError("Email", "Email is already in use. Please use a different email.");
                 GenerateCaptcha();
@@ -74,13 +69,13 @@ namespace BrainStormEra.Controllers
             }
 
             // Generate unique user ID based on user role
-            int userRole = 3; // Assume default role (e.g., learner)
-            string userId = await GenerateUniqueUserId(userRole);
+            int userRole = 3; // Default role (e.g., learner)
+            string userId = await _accountRepo.GenerateUniqueUserIdAsync(userRole);
 
             // Hash password before saving
             string hashedPassword = HashPasswordMD5(model.Password);
 
-            // Create new account and save to the database
+            // Create new account
             var newAccount = new Models.Account
             {
                 UserId = userId,
@@ -91,44 +86,11 @@ namespace BrainStormEra.Controllers
                 AccountCreatedAt = DateTime.UtcNow
             };
 
-            _context.Accounts.Add(newAccount);
-            await _context.SaveChangesAsync();
+            // Register new account
+            await _accountRepo.RegisterAsync(newAccount);
 
             // Redirect to login page upon successful registration
             return RedirectToAction("LoginPage", "Login");
-        }
-
-        private async Task<string> GenerateUniqueUserId(int userRole)
-        {
-            string prefix = userRole switch
-            {
-                1 => "AD",
-                2 => "IN",
-                3 => "LN",
-                _ => throw new ArgumentException("Invalid user role", nameof(userRole))
-            };
-
-            var lastId = await _context.Accounts
-                .Where(a => a.UserRole == userRole)
-                .Select(a => a.UserId)
-                .OrderByDescending(id => id)
-                .FirstOrDefaultAsync();
-
-            int nextNumber = 1;
-            if (lastId != null && int.TryParse(lastId[2..], out int lastNumber))
-            {
-                nextNumber = lastNumber + 1;
-            }
-
-            string newId = $"{prefix}{nextNumber:D3}";
-
-            while (await _context.Accounts.AnyAsync(u => u.UserId == newId))
-            {
-                nextNumber++;
-                newId = $"{prefix}{nextNumber:D3}";
-            }
-
-            return newId;
         }
 
         private string HashPasswordMD5(string password)
@@ -149,7 +111,7 @@ namespace BrainStormEra.Controllers
             string captchaQuestion = $"{num1} + {num2} = ?";
             int captchaAnswer = num1 + num2;
 
-            // Store CAPTCHA question and answer in ViewBag and TempData for access on the view and on postback
+            // Store CAPTCHA question and answer in ViewBag and TempData
             ViewBag.CaptchaQuestion = captchaQuestion;
             TempData["CaptchaAnswer"] = captchaAnswer.ToString();
         }

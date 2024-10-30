@@ -1,8 +1,8 @@
 ﻿using BrainStormEra.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -11,30 +11,144 @@ namespace BrainStormEra.Repo
     public class AccountRepo
     {
         private readonly SwpMainContext _context;
+        private readonly ILogger<AccountRepo> _logger;
 
-        public AccountRepo(SwpMainContext context)
+        public AccountRepo(SwpMainContext context, ILogger<AccountRepo> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        // Đăng nhập người dùng
+        // Check if a username is already taken
+        public async Task<bool> IsUsernameTakenAsync(string username)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT COUNT(*) FROM account WHERE username = @Username", connection);
+                    command.Parameters.AddWithValue("@Username", username);
+
+                    var count = (int)await command.ExecuteScalarAsync();
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking username availability.");
+                throw;
+            }
+        }
+
+        // Check if an email is already taken
+        public async Task<bool> IsEmailTakenAsync(string email)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT COUNT(*) FROM account WHERE user_email = @UserEmail", connection);
+                    command.Parameters.AddWithValue("@UserEmail", email);
+
+                    var count = (int)await command.ExecuteScalarAsync();
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking email availability.");
+                throw;
+            }
+        }
+
+        // Generate a unique User ID based on user role
+        public async Task<string> GenerateUniqueUserIdAsync(int userRole)
+        {
+            string prefix = userRole switch
+            {
+                1 => "AD",
+                2 => "IN",
+                3 => "LN",
+                _ => throw new ArgumentException("Invalid user role", nameof(userRole))
+            };
+
+            try
+            {
+                string lastId = null;
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT TOP 1 user_id FROM account WHERE user_role = @UserRole ORDER BY user_id DESC", connection);
+                    command.Parameters.AddWithValue("@UserRole", userRole);
+
+                    lastId = await command.ExecuteScalarAsync() as string;
+                }
+
+                int nextNumber = 1;
+                if (!string.IsNullOrEmpty(lastId) && int.TryParse(lastId[2..], out int lastNumber))
+                {
+                    nextNumber = lastNumber + 1;
+                }
+
+                string newId = $"{prefix}{nextNumber:D3}";
+
+                // Ensure generated ID is unique
+                while (await IsUserIdExistsAsync(newId))
+                {
+                    nextNumber++;
+                    newId = $"{prefix}{nextNumber:D3}";
+                }
+
+                return newId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating unique User ID.");
+                throw;
+            }
+        }
+
+        // Check if a User ID already exists
+        private async Task<bool> IsUserIdExistsAsync(string userId)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT COUNT(*) FROM account WHERE user_id = @UserId", connection);
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    int count = (int)await command.ExecuteScalarAsync();
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if User ID exists.");
+                throw;
+            }
+        }
+
+        // Login method
         public async Task<Account?> Login(string username, string hashedPassword)
         {
-            Account? user = null;
-            using (var connection = _context.Database.GetDbConnection())
+            try
             {
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand())
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
                 {
-                    command.CommandText = "SELECT * FROM account WHERE username = @username AND password = @password";
-                    command.Parameters.Add(new SqlParameter("@username", SqlDbType.NVarChar) { Value = username });
-                    command.Parameters.Add(new SqlParameter("@password", SqlDbType.NVarChar) { Value = hashedPassword });
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT * FROM account WHERE username = @Username AND password = @Password", connection);
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Password", hashedPassword);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         if (await reader.ReadAsync())
                         {
-                            user = new Account
+                            return new Account
                             {
                                 UserId = reader["user_id"].ToString(),
                                 UserRole = reader["user_role"] as int?,
@@ -48,34 +162,42 @@ namespace BrainStormEra.Repo
                         }
                     }
                 }
+                return null;
             }
-            return user;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during user login.");
+                throw;
+            }
         }
 
-        // Đăng ký tài khoản mới
-        public async Task Register(Account newAccount)
+        // Register a new account
+        public async Task RegisterAsync(Account newAccount)
         {
-            using (var connection = _context.Database.GetDbConnection())
+            try
             {
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand())
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
                 {
-                    command.CommandText = @"INSERT INTO account (user_id, user_role, username, password, user_email, full_name, account_created_at)
-                                            VALUES (@UserId, @UserRole, @Username, @Password, @UserEmail, @FullName, @AccountCreatedAt)";
+                    await connection.OpenAsync();
+                    var command = new SqlCommand(@"INSERT INTO account (user_id, user_role, username, password, user_email, full_name, account_created_at)
+                                                  VALUES (@UserId, @UserRole, @Username, @Password, @UserEmail, @FullName, @AccountCreatedAt)", connection);
 
-                    command.Parameters.Add(new SqlParameter("@UserId", SqlDbType.NVarChar) { Value = newAccount.UserId });
-                    command.Parameters.Add(new SqlParameter("@UserRole", SqlDbType.Int) { Value = newAccount.UserRole ?? (object)DBNull.Value });
-                    command.Parameters.Add(new SqlParameter("@Username", SqlDbType.NVarChar) { Value = newAccount.Username });
-                    command.Parameters.Add(new SqlParameter("@Password", SqlDbType.NVarChar) { Value = newAccount.Password });
-                    command.Parameters.Add(new SqlParameter("@UserEmail", SqlDbType.NVarChar) { Value = newAccount.UserEmail });
-                    command.Parameters.Add(new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = newAccount.FullName ?? (object)DBNull.Value });
-                    command.Parameters.Add(new SqlParameter("@AccountCreatedAt", SqlDbType.DateTime) { Value = newAccount.AccountCreatedAt });
+                    command.Parameters.AddWithValue("@UserId", newAccount.UserId);
+                    command.Parameters.AddWithValue("@UserRole", newAccount.UserRole ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@Username", newAccount.Username);
+                    command.Parameters.AddWithValue("@Password", newAccount.Password);
+                    command.Parameters.AddWithValue("@UserEmail", newAccount.UserEmail);
+                    command.Parameters.AddWithValue("@FullName", newAccount.FullName ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@AccountCreatedAt", newAccount.AccountCreatedAt);
 
                     await command.ExecuteNonQueryAsync();
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error registering new account.");
+                throw;
+            }
         }
-
-
     }
 }
