@@ -108,7 +108,7 @@
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ UserId: userId, NewPoints: parseFloat(newPoints).toFixed(2) }),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         alert(response.message);
                         location.reload();
@@ -116,7 +116,7 @@
                         alert(response.message);
                     }
                 },
-                error: function() {
+                error: function () {
                     alert('Error updating points.');
                 }
             });

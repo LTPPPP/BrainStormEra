@@ -20,13 +20,16 @@
                         <a class="nav-link" href="@Url.Action("HomepageAdmin", "HomePageAdmin")">DASHBOARD</a>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("CourseAcceptance", "Course")">COURSE</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("UpdateManagement", "Points")">USER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("UpdateManagement", "Points")">PAYMENT</a></li>
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("AdminAchievements", "Achievement")">ACHIEVEMENT</a>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("ConversationHistory", "Chatbot")">CHATBOT</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("ViewUsers", "ManageProfile")">USER</a>
                     </li>
                 </ul>
                 @if (showProfile)

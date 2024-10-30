@@ -38,6 +38,7 @@
     <Folder Include="Repo\Lesson\" />
     <Folder Include="Repo\Chatbot\" />
     <Folder Include="Repo\Feedback\" />
+    <Folder Include="Repo\Admin\" />
     <Folder Include="Repo\Notification\" />
     <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />

@@ -1,51 +1,180 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@model List<BrainStormEra.Models.Account>
+﻿@model List<BrainStormEra.Views.Profile.UserDetailsViewModel>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/Profile/profile.css">
+</head>
+<body>
+    @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+    <main class="container mt-5">
+        <h2>Manage Users</h2>
 
-<h1>Admin_manage-user</h1>
+        <div class="search-container mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by User ID, Username, or Full Name" onkeyup="filterTable()">
+            <button id="searchButton" onclick="filterTable()">Search</button>
+        </div>
+        <table class="table table-bordered table-striped mt-3" id="userTable">
+            <thead class="table">
+                <tr>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
 
-<table>
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Full Name</th>
-            <th>Payment Points</th>
-            <th>Date of birth</th>
-            <th>Gender</th>
-            <th>Created at</th>
-            <th>Roles</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.UserEmail</td>
-                <td>@user.FullName</td>
-                <td>@user.PaymentPoint</td>
-                <td>@user.DateOfBirth</td>
-                <td>@user.Gender</td>
-                <td>@user.AccountCreatedAt</td>
-                @if (@user.UserRole == 1)
                 {
-                    <td>Admin</td>
+                    <tr onclick="showUserDetails('@user.UserId')" style="cursor: pointer;">
+                        <td class="userId">@user.UserId</td>
+                        <td class="username">@user.Username</td>
+                        <td class="fullName">@user.FullName</td> <!-- Add Full Name column -->
+                        <td>@(user.UserRole == 1 ? "Admin" : user.UserRole == 2 ? "Instructor" : "Learner")</td>
+                    </tr>
                 }
-                @if (@user.UserRole == 2)
-                {
-                    <td>Instructor</td>
-                }
-                @if (@user.UserRole == 3)
-                {
-                    <td>Learner</td>
+            </tbody>
+        </table>
+    </main>
 
-                }
-            </tr>
+    <!-- Modal for User Details with Ban/Unban and Promote functionality -->
+    <div class="modal fade user-details-modal" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Full Name:</strong> <span id="modalFullName"></span></p>
+                    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                    <p><strong>Date of Birth:</strong> <span id="modalDateOfBirth"></span></p>
+                    <p><strong>Gender:</strong> <span id="modalGender"></span></p>
+                    <p><strong>Phone Number:</strong> <span id="modalPhoneNumber"></span></p>
+                    <p><strong>Address:</strong> <span id="modalAddress"></span></p>
+                    <p><strong>Account Created At:</strong> <span id="modalAccountCreatedAt"></span></p>
+
+                    <!-- Approved Status for Learners Only -->
+                    <p id="approvedStatus" style="display: none;"><strong>Approved:</strong> <span id="modalApproved"></span></p>
+
+                    <!-- Button Row for Ban/Unban and Promote -->
+                    <div class="button-row">
+                        <div id="banButtonContainer" style="display: none;">
+                            <button id="banButton" class="btn btn-danger" onclick="banUser()">Ban</button>
+                            <button id="unbanButton" class="btn btn-success" onclick="unbanUser()">Unban</button>
+                        </div>
+                        <div id="promoteButtonContainer" style="display: none;">
+                            <button class="btn btn-warning" onclick="promoteLearner()">Promote to Instructor</button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="modalUserId" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showUserDetails(userId) {
+            fetch(`/api/users/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modalFullName').innerText = data.fullName || 'N/A';
+                    document.getElementById('modalEmail').innerText = data.userEmail || 'N/A';
+                    document.getElementById('modalDateOfBirth').innerText = data.dateOfBirth || 'N/A';
+                    document.getElementById('modalGender').innerText = data.gender || 'N/A';
+                    document.getElementById('modalPhoneNumber').innerText = data.phoneNumber || 'N/A';
+                    document.getElementById('modalAddress').innerText = data.userAddress || 'N/A';
+                    document.getElementById('modalAccountCreatedAt').innerText = new Date(data.accountCreatedAt).toLocaleString();
+
+                    // Display specific controls for Learner role
+                    if (data.userRole === 3) { // Learner
+                        document.getElementById('approvedStatus').style.display = 'block';
+                        document.getElementById('modalApproved').innerText = data.approved ? "Approved" : "Not Approved";
+                        document.getElementById('banButtonContainer').style.display = 'flex';
+                        document.getElementById('banButton').style.display = data.approved ? 'inline-block' : 'none';
+                        document.getElementById('unbanButton').style.display = !data.approved ? 'inline-block' : 'none';
+                        document.getElementById('promoteButtonContainer').style.display = 'block';
+                    } else {
+                        document.getElementById('approvedStatus').style.display = 'none';
+                        document.getElementById('banButtonContainer').style.display = 'none';
+                        document.getElementById('promoteButtonContainer').style.display = 'none';
+                    }
+
+                    document.getElementById('modalUserId').value = userId;
+                    var modal = new bootstrap.Modal(document.getElementById('userDetailsModal'), {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    modal.show();
+                })
+                .catch(error => console.error('Error fetching user details:', error));
         }
-    </tbody>
-</table>
+        function banUser() {
+            const userId = document.getElementById('modalUserId').value;
+            fetch(`/api/ban/${userId}`, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('User banned successfully.');
+                        location.reload();
+                    } else {
+                        alert('Failed to ban user.');
+                    }
+                })
+                .catch(error => console.error('Error banning user:', error));
+        }
+
+        function unbanUser() {
+            const userId = document.getElementById('modalUserId').value;
+            fetch(`/api/unban/${userId}`, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('User unbanned successfully.');
+                        location.reload();
+                    } else {
+                        alert('Failed to unban user, Learner has not enrolled any course yet!');
+                    }
+                })
+                .catch(error => console.error('Error unbanning user:', error));
+        }
+
+        function promoteLearner() {
+            const userId = document.getElementById('modalUserId').value;
+            fetch(`/api/promote/${userId}`, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Learner promoted successfully.');
+                        location.reload();
+                    } else {
+                        response.text().then(text => alert(text));
+                    }
+                })
+                .catch(error => console.error('Error promoting learner:', error));
+        }
+        function filterTable() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#userTable tbody tr');
+
+            rows.forEach(row => {
+                const userId = row.querySelector('.userId').textContent.toLowerCase();
+                const username = row.querySelector('.username').textContent.toLowerCase();
+                const fullName = row.querySelector('.fullName').textContent.toLowerCase();
+
+                row.style.display = userId.includes(searchInput) || username.includes(searchInput) || fullName.includes(searchInput) ? '' : 'none';
+            });
+        }
+
+
+    </script>
+</body>
+@await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
+</html>

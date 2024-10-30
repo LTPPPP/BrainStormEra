@@ -19,7 +19,9 @@
                         <a class="nav-link" href="@Url.Action("HomePageInstructor", "HomePageInstructor")">DASHBOARD</a>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("CourseManagement", "Course")">COURSE</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">USER</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("ViewUsers", "ManageProfile")">USER</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
                 </ul>
                 @if (showProfile)
