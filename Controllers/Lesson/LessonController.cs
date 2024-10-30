@@ -46,6 +46,10 @@ namespace BrainStormEra.Controllers.Lesson
             }
         }
 
+
+
+
+
         // GET: Delete Lesson
         [HttpGet]
         public IActionResult DeleteLesson()
@@ -90,7 +94,7 @@ namespace BrainStormEra.Controllers.Lesson
 
         // GET: Create Lesson
         [HttpGet]
-        public IActionResult AddLesson()
+        public IActionResult CreateLesson()
         {
             ViewBag.Chapters = new SelectList(_context.Chapters, "ChapterId", "ChapterName");
             return View();
@@ -99,7 +103,7 @@ namespace BrainStormEra.Controllers.Lesson
         // POST: Create Lesson
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
+        public IActionResult CreateLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
         {
             // Lấy ChapterId từ cookie nếu model không có giá trị
             if (string.IsNullOrEmpty(model.ChapterId) && Request.Cookies.TryGetValue("ChapterId", out string chapterIdFromCookie))
@@ -225,6 +229,7 @@ namespace BrainStormEra.Controllers.Lesson
             ViewBag.Chapters = new SelectList(_context.Chapters, "ChapterId", "ChapterName");
             return View(model);
         }
+
 
 
         // GET: Edit Lesson
@@ -420,6 +425,8 @@ namespace BrainStormEra.Controllers.Lesson
             return View(lesson);
         }
 
+
+
         // Hàm định dạng URL của YouTube nếu là video
         private string FormatYoutubeUrl(string url)
         {
@@ -433,6 +440,8 @@ namespace BrainStormEra.Controllers.Lesson
             }
             return url;
         }
+
+
 
         [HttpPost]
         public JsonResult MarkLessonCompleted([FromBody] LessonCompletionRequest request)
@@ -488,5 +497,7 @@ namespace BrainStormEra.Controllers.Lesson
         {
             public string LessonId { get; set; }
         }
+
+
     }
 }

@@ -1,8 +1,10 @@
 ﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
 }
+@model BrainStormEra.Views.Home.HomePageLearnerViewModel
+
 @inject IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en">
@@ -18,144 +20,108 @@
     <link rel="stylesheet" href="~/css/HomePage/homePage.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
-    <link href="~/css/Achievement/LearnerAchievement.css" rel="stylesheet" />
-
-
+    <link href="~/css/HomePage/Learner/HomePageLearner.css" rel="stylesheet" />
 </head>
 
 <body>
     @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
 
+
+    @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml", Model.Notifications)
+    @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml", Model.Notifications)
+    @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml", Model.Notifications)
+    @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
+
     <div class="container mt-5">
         <!-- Header Section -->
         <div class="header-section mb-5 w-100 d-flex">
-            <h1>Hello <span style="color: var(--orange);">UserName</span>, Welcome to BrainStormEra. Let's study now!</h1>
-
+            <h1>
+                Hello <span style="color: var(--orange);">@Model.FullName</span>, Welcome to BrainStormEra. Let's study
+                now!
+            </h1>
             <div class="column col-avatar">
-                <img src="" alt="Profile Picture" class="profile-pic">
+                <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="Profile Picture" class="profile-pic"> @*
+                @Model.UserPicture *@
                 <div class="header-content">
                     <div class="info">
-                        <div>Level 30</div>
+                        <h1>Ranking: @Model.Ranking</h1>
                     </div>
                 </div>
             </div>
             <div class="column col-course">
-                <div>Course: 12/30 (6 certificates)</div>
+                <div>Course: @Model.CompletedCoursesCount/@Model.TotalCoursesEnrolled </div>
                 <div class="mt-2">Achievements:</div>
                 <div class="d-flex align-items-center mt-1 achievementPic">
-                    <img src="../assests/img/achievement1.png" alt="Achievement 1" class="img-fluid ms-2" style="width: 30px;">
-                    <img src="../assests/img/achievement2.png" alt="Achievement 2" class="img-fluid ms-2" style="width: 30px;">
-                    <img src="../assests/img/achievement3.png" alt="Achievement 3" class="img-fluid ms-2" style="width: 30px;">
+                    @foreach (var achievement in Model.Achievements)
+                    {
+                        <img src="@achievement.AchievementIcon" alt="@achievement.AchievementName" class="img-fluid ms-2"
+                             style="width: 30px;">
+                    }
                 </div>
             </div>
-            <div class="column col-training trainingBar">
-                <div>Training: 0/1500</div>
-                <div class="d-flex align-items-center justify-content-center mt-3">
-                    <div class="progress me-3" style="width: 150px;">
-                        <div class="progress-bar" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">70/100</div>
-                    </div>
-                </div>
-            </div>
+
             <div class="column col-ranking">
-                <div>Ranking: 600</div>
             </div>
-            <img src="/assests/img/robotlearner.png" alt="Robot Welcome" class="robot-img">
+            <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="Robot Welcome" class="robot-img">
 
         </div>
 
-        @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml")
-        @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml")
-        @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml")
-        @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
 
-        <!-- Recommend Course Section -->
-        <div class="text-center mb-4 mt-6" style="margin-top: 50px;">
-            <h3>Recommend Course</h3>
+        <!-- Filters Section -->
+        <div class="container">
+            <div class="filters mb-3">
+                <!-- Filter Categories -->
+                <div class="categories d-flex justify-content-start p-2 rounded">
+                    <button class="btn filter-btn active">All courses</button>
+                    <button class="btn filter-btn">Business</button>
+                    <button class="btn filter-btn">IT &amp; Software</button>
+                    <button class="btn filter-btn">Design</button>
+                    <button class="btn filter-btn">Health</button>
+                    <button class="btn filter-btn">Math and Logic</button>
+                </div>
+                <!-- Search Bar -->
+                <div class="search-bar mt-2 d-flex justify-content-center">
+                    <input class="form-control search-input" placeholder="Search..." type="text" />
+                    <button class="btn search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
         </div>
+
+
         <div class="row justify-content-center mb-5">
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="card course-card">
-                    <img src="../assests/img/C-example.png" class="card-img-top" alt="Course Image">
-                    <div class="card-body">
-                        <h5 class="card-title">C Programming Full Course</h5>
-                        <p class="card-text">Price: 700,000₫</p>
-                        <p class="card-text">By Phuc Nguyen</p>
-                    </div>
+            @foreach (var c in Model.RecommendedCourses)
+            {
+
+                <div class="col-md-2 col-sm-6 mb-4">
+                    <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
+
+                        <div class="card course-card h-100">
+                            <img src="@c.CoursePicture" class="card-img-top" alt="Course Image">
+                            <div class="card-body">
+                                <h5 class="card-title">@c.CourseName</h5>
+                                <p class="card-text">Price: @c.Price ₫</p>
+                                <p class="card-text">By @c.CreatedBy</p>
+                                <div class="rating">
+                                    <span class="stars" data-rating="@c.StarRating"></span>
+                                </div>
+                                <div>
+                                    <i class="fas fa-tags me-2"></i> Categories:
+                                    @foreach (var category in c.CourseCategories)
+                                    {
+                                        <span class="badge bg-primary me-1">@category.CourseCategoryName</span>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    </a>
+
                 </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="card course-card">
-                    <img src="../assests/img/java-example.png" class="card-img-top" alt="Course Image">
-                    <div class="card-body">
-                        <h5 class="card-title">Java Programming Full Course</h5>
-                        <p class="card-text">Price: 700,000₫</p>
-                        <p class="card-text">By Microsoft</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="card course-card">
-                    <img src="../assests/img/C2-example.png" class="card-img-top" alt="Course Image">
-                    <div class="card-body">
-                        <h5 class="card-title">C# Programming Full Course</h5>
-                        <p class="card-text">Price: 700,000₫</p>
-                        <p class="card-text">By Meta</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="card course-card">
-                    <img src="../assests/img/java2-exmaple.png" class="card-img-top" alt="Course Image">
-                    <div class="card-body">
-                        <h5 class="card-title">JavaScript Full Course</h5>
-                        <p class="card-text">Price: 700,000₫</p>
-                        <p class="card-text">Created by WIT</p>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
 
-        <!-- Teach By Big Companies Section -->
-        <div class="text-center mb-4 companies">
-            <h3>Teach By Big Companies</h3>
-        </div>
-        <div class="d-flex justify-content-around align-items-center mb-5 companies-pic">
-            <img src="../assests/img/window.png" alt="Company 1" class="img-fluid" style="max-width: 100px;">
-            <img src="../assests/img/gg.png" alt="Company 2" class="img-fluid" style="max-width: 100px;">
-            <img src="../assests/img/amazon.png" alt="Company 3" class="img-fluid" style="max-width: 100px;">
-        </div>
-
-        <!-- Diverse Course Section -->
-        <div class="text-center mb-4">
-            <h3>Diverse Course</h3>
-        </div>
-        <div class="row text-center mb-5 diverse-course">
-            <div class="col-md-4 col-sm-6 mb-3">
-                <img src="../assests/img/design.png" alt="Design Image" class="img-fluid mb-2">
-                <h5>Design</h5>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <img src="../assests/img/IT.png" alt="IT and Software Image" class="img-fluid mb-2">
-                <h5>IT and Software</h5>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <img src="../assests/img/invest.png" alt="Invest Image" class="img-fluid mb-2">
-                <h5>Invest</h5>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <img src="../assests/img/photo.png" alt="Photography Image" class="img-fluid mb-2">
-                <h5>Photography</h5>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <img src="../assests/img/marketing.png" alt="Marketing Image" class="img-fluid mb-2">
-                <h5>Marketing</h5>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <img src="../assests/img/bussiness.png" alt="Business Image" class="img-fluid mb-2">
-                <h5>Business</h5>
-            </div>
-        </div>
     </div>
+
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
@@ -163,32 +129,53 @@
     <script src="~/js/Notification/notification.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Hàm chuyển đến trang chi tiết khóa học
+        function viewDetailCourse(courseId) {
+            // Lưu courseId vào cookie
+            document.cookie = "CourseId=" + courseId + "; path=/";
+
+            // Chuyển hướng đến trang chi tiết khóa học với courseId
+            window.location.href = "@Url.Action("CourseDetail", "Course")";
+        }
+
+        // Sử dụng $(document).ready() để chắc chắn rằng mã sẽ được thực thi khi tài liệu đã sẵn sàng
         $(document).ready(function () {
+            // Hiển thị đánh giá sao cho các khóa học
+            const starElements = document.querySelectorAll('.stars');
+            starElements.forEach(starElement => {
+                const rating = parseInt(starElement.getAttribute('data-rating'));
+                starElement.innerHTML = '★★★★★'.split('').map((star, index) => {
+                    return `<span style="color: ${index < rating ? '#ff9800' : '#ccc'}">${star}</span>`;
+                }).join('');
+            });
+
+            // Xử lý khi mở modal thông báo
             $('#notificationsModal').on('shown.bs.modal', function () {
                 $.get('@Url.Action("Notifications", "Notification")', function (data) {
-                    // Thay thế nội dung của modal-body bằng dữ liệu trả về
+                    // Cập nhật nội dung của modal-body bằng dữ liệu trả về
                     $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
                     console.log('User Role:', '@ViewBag.UserRole');
                     console.log('User id:', '@ViewBag.UserId');
-
                 });
             });
-        });
-        $(document).on('click', '.add-notification', function () {
-            console.log('Add Notification button clicked');
-            $('#notificationsModal').modal('hide');
-            $('#addNotificationModal').modal('show');
+
+            // Xử lý khi nhấn nút thêm thông báo
+            $(document).on('click', '.add-notification', function () {
+                console.log('Add Notification button clicked');
+                $('#notificationsModal').modal('hide');
+                $('#addNotificationModal').modal('show');
+            });
         });
 
+        // Hàm xác nhận đăng xuất
         function confirmLogout() {
             var result = confirm("Are you sure you want to logout?");
-
             if (result) {
                 window.location.href = '@Url.Action("Logout", "Login")';
             }
         }
-
     </script>
+
 </body>
 
 </html>

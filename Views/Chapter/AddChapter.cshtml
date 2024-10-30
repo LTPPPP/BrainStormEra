@@ -37,9 +37,15 @@
         <div class="row ">
             <!-- Sidebar -->
             @{
+
+
                 var courseName = Context.Request.Cookies["CourseName"];
 
+
                 string courseId = Context.Request.Cookies["CourseId"];
+
+
+
 
                 <div class="col-md-3 bg-SECONDARY sidebar p-3">
 
@@ -98,6 +104,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
+
+
+
+
+
 
         $(document).ready(function () {
             $("form").submit(function (event) {

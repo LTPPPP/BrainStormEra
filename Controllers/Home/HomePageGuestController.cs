@@ -1,44 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BrainStormEra.Models;
-using Microsoft.Extensions.Logging;
-using BrainStormEra.Views.Home;
+﻿using BrainStormEra.Models;
 using BrainStormEra.Views.Course;
+using BrainStormEra.Views.Home;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BrainStormEra.Controllers
+namespace BrainStormEra.Controllers.Home
 {
-    public class HomePageInstructorController : Controller
+    public class HomePageGuestController : Controller
     {
-        private readonly SwpMainContext _dbContext;
-        private readonly ILogger<HomePageInstructorController> _logger;
 
-        public HomePageInstructorController(SwpMainContext dbContext, ILogger<HomePageInstructorController> logger)
+
+        private readonly SwpMainContext _dbContext;
+
+        public HomePageGuestController(SwpMainContext context)
         {
-            _dbContext = dbContext;
-            _logger = logger;
+            _dbContext = context;
         }
 
         [HttpGet]
-        public IActionResult HomePageInstructor()
+        public IActionResult HomePageGuest()
         {
-            var userId = Request.Cookies["user_id"];
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction("LoginPage", "Login");
-            }
-
-            var account = _dbContext.Accounts.FirstOrDefault(a => a.UserId.ToString() == userId);
-
-            if (account == null)
-            {
-                _logger.LogWarning($"User with ID {userId} not found.");
-                return RedirectToAction("ErrorPage");
-            }
-
-            // Set data in ViewBag
-            ViewBag.FullName = account.FullName;
-            ViewBag.UserPicture = string.IsNullOrEmpty(account.UserPicture) ? "~/lib/img/User-img/default_user.png" : account.UserPicture;
 
             var recommendedCourses = _dbContext.Courses
          .Include(c => c.CourseCategories)        // Include danh mục khóa học
@@ -67,15 +49,15 @@ namespace BrainStormEra.Controllers
 
             // Nếu userRanking không null, ta có thể lấy Rank của người dùng hiện tại
 
-            var viewModel = new HomePageInstructorViewModel
+            var viewModel = new HomePageGuestViewtModel
             {
 
 
                 RecommendedCourses = recommendedCourses
             };
 
+            return View("~/Views/Home/Index.cshtml", viewModel);
 
-            return View("~/Views/Home/HomePageInstructor.cshtml", viewModel);
         }
     }
 }

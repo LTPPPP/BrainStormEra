@@ -94,7 +94,6 @@ namespace BrainStormEra.Controllers.Chapter
             return View(chapters);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> CreateChapter(string courseId)
         {
@@ -104,7 +103,6 @@ namespace BrainStormEra.Controllers.Chapter
                 .ToListAsync();
             return View(existingChapters);
         }
-
 
         // GET DELETE
         [HttpGet]
@@ -190,12 +188,13 @@ namespace BrainStormEra.Controllers.Chapter
                 ChapterStatus = 0
             };
 
-
             _context.Chapters.Add(newChapter);
             _context.SaveChanges();
 
             return RedirectToAction("ChapterManagement");
         }
+
+
 
     }
 }

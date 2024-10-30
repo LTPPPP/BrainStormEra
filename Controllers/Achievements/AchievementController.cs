@@ -47,7 +47,7 @@ namespace BrainStormEra.Controllers.Achievement
                 return Json(new { success = false, message = "Achievement not found" });
             }
 
-            return View("~/Views/Achievements/AdminAchievements.cshtml");
+            return Json(new { success = true, data = achievement });
         }
     }
 }

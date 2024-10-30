@@ -1,5 +1,5 @@
-﻿@page
-@model BrainStormEra.Models.Account
+﻿@model BrainStormEra.Views.Home.HomePageInstructorViewModel
+
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     var userId = HttpContextAccessor.HttpContext.Request.Cookies["user_id"];
@@ -18,31 +18,87 @@
     <link href="~/css/base.css" rel="stylesheet" />
     <link href="~/css/HomePage/homePage.css" rel="stylesheet" />
     <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
+    <link href="~/css/HomePage/Instructor-css/HomePageInstructor.css" rel="stylesheet" />
+    <link href="~/css/" rel="stylesheet" />
     <title>BrainStormEra</title>
 </head>
 
 <body>
     @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
 
-    @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml")
-    @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml")
-    @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml")
+    @* @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml",Model.Notifications)
+    @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml", Model.Notifications)
+    @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml", Model.Notifications) *@
     @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
-    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
-    <div class="container mt-5">
-        <div class="text-center" style="margin-top: 150px;">
-            <h4>REPORT AND ANALYZE</h4>
-        </div>
 
-        <div class="chart-section row">
-            <div class="chart-container col-md-6">
-                <canvas id="conversationChart" width="400" height="200"></canvas>
+    <div class="container mt-5">
+        <!-- Header Section -->
+        <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
+            <img src="~/lib/img/WelcomeHeader.png" class="img-welcomeheader" alt="Welcome Header">
+            <img src="~/lib/img/Bot/bot-icon.png" class="robotwelcome" alt="Bot Icon">
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="container">
+        <div class="filters mb-3">
+            <!-- Filter Categories -->
+            <div class="categories d-flex justify-content-start p-2 rounded">
+                <button class="btn filter-btn active">All courses</button>
+                <button class="btn filter-btn">Business</button>
+                <button class="btn filter-btn">IT &amp; Software</button>
+                <button class="btn filter-btn">Design</button>
+                <button class="btn filter-btn">Health</button>
+                <button class="btn filter-btn">Math and Logic</button>
             </div>
-            <div class="chart-container col-md-6">
-                <canvas id="userChart" width="400" height="200"></canvas>
+            <!-- Search Bar -->
+            <div class="search-bar mt-2 d-flex justify-content-center">
+                <input class="form-control search-input" placeholder="Search..." type="text" />
+                <button class="btn search-btn"><i class="fas fa-search"></i></button>
             </div>
         </div>
     </div>
+
+
+
+
+    <!-- Recommend Course Section -->
+
+    <div class="row justify-content-center mb-5">
+        @foreach (var c in Model.RecommendedCourses)
+        {
+
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
+
+                    <div class="card course-card h-100">
+                        <img src="@c.CoursePicture" class="card-img-top" alt="Course Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@c.CourseName</h5>
+                            <p class="card-text">Price: @c.Price ₫</p>
+                            <p class="card-text">By @c.CreatedBy</p>
+                            <div class="rating">
+                                <span class="stars" data-rating="@c.StarRating"></span>
+                            </div>
+                            <div>
+                                <i class="fas fa-tags me-2"></i> Categories:
+                                @foreach (var category in c.CourseCategories)
+                                {
+                                    <span class="badge bg-primary me-1">@category.CourseCategoryName</span>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        }
+    </div>
+
+
+
+    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
@@ -52,20 +108,32 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/js/Notification/notification.js"></script>
     <script>
+
         $(document).ready(function () {
+            // Hiển thị đánh giá sao cho các khóa học
+            const starElements = document.querySelectorAll('.stars');
+            starElements.forEach(starElement => {
+                const rating = parseInt(starElement.getAttribute('data-rating'));
+                starElement.innerHTML = '★★★★★'.split('').map((star, index) => {
+                    return `<span style="color: ${index < rating ? '#ff9800' : '#ccc'}">${star}</span>`;
+                }).join('');
+            });
+
+
+
+            // Notifications Modal
             $('#notificationsModal').on('shown.bs.modal', function () {
                 var userId = $('#userInfo').data('user-id');
 
                 $.get('@Url.Action("Notifications", "Notification")', function (data) {
                     $('#notificationsModal .modal-body').html($(data).find('.modal-body').html());
 
-                    var currenrUser = '@userId';
+                    var currentUser = '@userId';
                     $('#selectAll').on('change', function () {
                         if (this.checked) {
                             $('.notification-item').each(function () {
                                 var createdBy = $(this).data('createdby');
-
-                                if (createdBy === currenrUser) {
+                                if (createdBy === currentUser) {
                                     $(this).find('.select-notification').show().prop('checked', true);
                                 }
                             });
@@ -77,20 +145,27 @@
                     });
                 });
             });
+
+            // Add Notification Modal
+            $(document).on('click', '.add-notification', function () {
+                console.log('Add Notification button clicked');
+                $('#notificationsModal').modal('hide');
+                $('#addNotificationModal').modal('show');
+            });
         });
 
-        $(document).on('click', '.add-notification', function () {
-            console.log('Add Notification button clicked');
-            $('#notificationsModal').modal('hide');
-            $('#addNotificationModal').modal('show');
-        });
-
+        // Logout confirmation
         function confirmLogout() {
             var result = confirm("Are you sure you want to logout?");
-
             if (result) {
                 window.location.href = '@Url.Action("Logout", "Login")';
             }
+        }
+
+        // View course details
+        function viewDetailCourse(courseId) {
+            document.cookie = "CourseId=" + courseId + "; path=/";
+            window.location.href = "@Url.Action("CourseDetail", "Course")";
         }
 
     </script>

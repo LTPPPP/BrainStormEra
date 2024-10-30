@@ -1,7 +1,9 @@
+﻿
+
 .img-welcomeheader {
     display: flex;
-    width: 100%;
-    height: 40%;
+    width: auto;
+    height: 25%;
 }
 
 .course-card {
@@ -20,7 +22,7 @@
     }
 
 .card-body {
-    background-color: var(--background-light);
+    background-color: var(--white-color);
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
 }
@@ -31,17 +33,17 @@
 }
 
 .card-text {
-    color: var(--text-muted);
+    color: var(--text-color);
 }
 
 .companies {
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--text-color);
     padding-top: 20px;
     padding-bottom: 20px;
 }
 
 .companies-pic {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--text-color);
     padding-top: 20px;
     padding-bottom: 20px;
 }
@@ -56,34 +58,128 @@
         transform: scale(1.1);
     }
 
-.robotwelcome {
-    width: 250px;
-    position: absolute;
-    top: 85%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+a {
+    text-decoration: none; /* Loại bỏ gạch chân */
 }
 
-@media (max-width: 390px) { /* iPhone 12 màn hình rộng 390px */
-    .img-welcomeheader {
-        height: 200px;
+    a:hover {
+        text-decoration: none; /* Giữ không gạch chân khi hover */
     }
 
-    .text-center {
+.header-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+    padding: 20px;
+    border-radius: 15px;
+    position: relative;
+}
+
+.column {
+    flex: 1;
+    min-width: 200px;
+}
+
+.col-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.header-content h1 {
+    font-size: 18px;
+    text-align: center;
+}
+
+.robot-img {
+    width: 50px;
+    position: absolute;
+    margin-bottom: 200px;
+    margin-top: 150px;
+    right: 20px;
+}
+
+@media (max-width: 576px) {
+    .header-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .robot-img {
+        width: 50px;
+        margin-top: 475px;
+        position: absolute;
+        right: 1px;
+    }
+
+    .header-section h1 {
+        font-size: 1.2rem;
+    }
+
+    .column {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .diverse-course img {
+        width: 100px;
+        height: 100px;
+    }
+
+        .diverse-course img:hover {
+            transform: scale(1.1);
+        }
+
+    .course-card:hover {
+        transform: scale(1.05);
+    }
+
+    .achievementPic {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .trainingBar {
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 390px) {
+    .header-section {
+        padding: 10px;
+        gap: 5px;
+    }
+
+    .column {
+        margin-bottom: 10px;
+    }
+
+    .robot-img {
+        width: 50px;
+    }
+
+    .header-section h1 {
         font-size: 1rem;
     }
 
     .course-card {
-        margin: 0 auto;
-        width: 90%;
+        margin-bottom: 20px;
     }
 
-        .course-card img {
-            height: auto;
-        }
-
-    .card-body {
-        padding: 10px;
+    .profile-pic {
+        width: 60px;
+        height: 60px;
     }
 
     .card-title {
@@ -94,48 +190,10 @@
         font-size: 0.8rem;
     }
 
-    .companies-pic img {
-        max-width: 80px;
-    }
-
-    .diverse-course img {
-        width: 100px;
-        height: 100px;
-    }
-
-    .diverse-course h5 {
-        font-size: 0.9rem;
-    }
-
-    .container {
-        padding: 15px;
-    }
-
-    .row {
-        margin: 0;
-    }
-
-    .robotwelcome {
-        max-width: 50% !important;
-        height: auto !important;
-        position: relative !important;
-        transform: none !important;
-    }
-
-    .img-fluid {
-        width: 150px;
+    .progress-bar {
+        font-size: 0.7rem;
     }
 }
-
-a {
-    text-decoration: none; /* Loại bỏ gạch chân */
-}
-
-    a:hover {
-        text-decoration: none; /* Giữ không gạch chân khi hover */
-    }
-
-
 
 .course-card {
     border: 1px solid #ddd; /* Đặt màu viền nhạt */

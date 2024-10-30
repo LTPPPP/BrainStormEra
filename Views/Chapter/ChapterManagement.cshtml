@@ -24,6 +24,7 @@
 
 <body>
     @{
+
         string userRole = Context.Request.Cookies["user_role"];
     }
 
@@ -39,6 +40,9 @@
     <div class="row">
         <!-- Sidebar -->
         @{
+
+
+
             var courseName = Context.Request.Cookies["CourseName"];
 
             string courseId = Context.Request.Cookies["CourseId"];

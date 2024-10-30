@@ -24,9 +24,9 @@ body {
     border-radius: 15px;
 }
 
-.categories  {
+.categories {
     background-color: #e0e0e0;
-     border-radius: 15px;
+    border-radius: 15px;
 }
 
 .course-card .card {
@@ -78,10 +78,12 @@ body {
     top: 10px;
     right: 10px;
 }
+
 .search-input {
     max-width: 300px;
     border-radius: 30px;
 }
+
 .add-course-btn {
     border-radius: 30px;
 }

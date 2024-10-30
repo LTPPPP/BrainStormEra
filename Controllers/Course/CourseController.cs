@@ -29,6 +29,7 @@ namespace BrainStormEra.Controllers.Course
             return View(viewModel);
         }
 
+
         //CREATE 
         [HttpPost]
         public ActionResult AddCourse(CreateCourseViewModel viewmodel)
@@ -121,7 +122,6 @@ namespace BrainStormEra.Controllers.Course
             return RedirectToAction("CourseManagement");
 
         }
-
 
         // EditCourse
         [HttpGet]
@@ -272,6 +272,8 @@ namespace BrainStormEra.Controllers.Course
             {
                 // Role Instructor
                 case "2":
+                    // Lấy thông tin người tạo khóa học
+
                     var instructorCourses = _context.Courses
                         .Include(c => c.CourseCategories)
                         .Include(c => c.Enrollments)
@@ -290,7 +292,7 @@ namespace BrainStormEra.Controllers.Course
                             CoursePicture = course.CoursePicture,
                             Price = course.Price,
                             CourseCreatedAt = course.CourseCreatedAt,
-                            CreatedBy = course.CreatedBy,  // Lấy thông tin người tạo
+                            CreatedBy = course.CreatedByNavigation.FullName,  // Lấy thông tin người tạo
                             CourseCategories = course.CourseCategories.ToList(),
                             StarRating = (byte?)Math.Round(
                                 _context.Feedbacks
@@ -298,6 +300,8 @@ namespace BrainStormEra.Controllers.Course
                                 .Average(f => (double?)f.StarRating) ?? 0)
                         })
                         .ToList();
+
+
 
                     return View("CourseManagement", instructorCourses);
 
@@ -317,7 +321,7 @@ namespace BrainStormEra.Controllers.Course
                             CoursePicture = course.CoursePicture,
                             Price = course.Price,
                             CourseCreatedAt = course.CourseCreatedAt,
-                            CreatedBy = course.CreatedBy,  // Lấy thông tin người tạo
+                            CreatedBy = course.CreatedByNavigation.FullName,  // Lấy thông tin người tạo
                             CourseCategories = course.CourseCategories.ToList(),
                             StarRating = (byte?)Math.Round(
                                 _context.Feedbacks
@@ -330,6 +334,8 @@ namespace BrainStormEra.Controllers.Course
             }
         }
 
+
+        //DELETE
         public ActionResult ConfirmDelete()
         {
             var courseId = HttpContext.Request.Cookies["CourseId"];
@@ -349,6 +355,8 @@ namespace BrainStormEra.Controllers.Course
             };
             return View("DeleteCourse", viewModel);
         }
+
+
 
         [HttpPost]
         public ActionResult DeleteCourse()
@@ -382,6 +390,7 @@ namespace BrainStormEra.Controllers.Course
 
             return RedirectToAction("ErrorPage", "Home");
         }
+
 
         [HttpGet]
         public IActionResult CourseDetail(int page = 1, int pageSize = 4)
@@ -495,6 +504,95 @@ namespace BrainStormEra.Controllers.Course
             return View("CourseAcceptance", pendingCourses);
         }
 
+        [HttpGet]
+        public IActionResult ReviewCourse(int page = 1, int pageSize = 4)
+        {
+            try
+            {
+                var courseId = Request.Cookies["CourseId"];
+
+                if (string.IsNullOrEmpty(courseId))
+                {
+                    _logger.LogWarning("Course ID is null or empty.");
+                    return View("ErrorPage", "Course ID not found in cookies.");
+                }
+
+                // Lấy thông tin khóa học
+                var course = _context.Courses
+                                     .Include(c => c.Chapters)
+                                     .ThenInclude(ch => ch.Lessons)
+                                     .FirstOrDefault(c => c.CourseId == courseId);
+
+                if (course == null)
+                {
+                    _logger.LogError($"Course not found with ID: {courseId}");
+                    return View("ErrorPage", "Course not found.");
+                }
+
+                // Tính toán số lượng học viên đã đăng ký (enrollments)
+                var learnersCount = _context.Enrollments
+                                            .Where(e => e.CourseId == courseId && e.Approved == true)
+                                            .Count();
+                ViewBag.LearnersCount = learnersCount;
+
+                // Lấy danh sách feedback (comment và rating) theo phân trang
+                var feedbacks = _context.Feedbacks
+                                        .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
+                                        .Include(f => f.User)
+                                        .OrderByDescending(f => f.FeedbackDate) // Sắp xếp feedback mới nhất lên trên
+                                        .Skip((page - 1) * pageSize)
+                                        .Take(pageSize)
+                                        .ToList();
+
+                // Tính tổng số comment và rating trung bình
+                var totalComments = _context.Feedbacks.Count(f => f.CourseId == courseId && f.HiddenStatus == false);
+                var averageRating = totalComments > 0 ? _context.Feedbacks
+                                                        .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
+                                                        .Average(f => f.StarRating) : 0;
+
+                ViewBag.TotalComments = totalComments;
+                ViewBag.AverageRating = averageRating;
+                ViewBag.Comments = feedbacks;
+
+                // Phân trang
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
+
+                // Lấy thông tin người tạo khóa học
+                var createdBy = _context.Accounts.FirstOrDefault(a => a.UserId == course.CreatedBy);
+                if (createdBy != null)
+                {
+                    ViewBag.CreatedBy = createdBy.FullName;
+                }
+                else
+                {
+                    ViewBag.CreatedBy = "Unknown";
+                }
+
+                // Truyền CourseStatus vào ViewBag
+                ViewBag.CourseStatus = course.CourseStatus;
+
+                // Tính phần trăm mỗi mức rating (1-5 sao)
+                var ratingPercentages = new Dictionary<int, double>();
+
+                for (int i = 1; i <= 5; i++)
+                {
+                    var count = feedbacks.Count(f => f.StarRating == i);
+                    ratingPercentages[i] = feedbacks.Count > 0 ? (double)count / feedbacks.Count() : 0;
+                }
+
+                ViewBag.RatingPercentages = ratingPercentages;
+
+                return View(course);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while loading the course.");
+                return View("ErrorPage", "An unexpected error occurred.");
+            }
+        }
+
+
         [HttpPost]
         public IActionResult ChangeStatus(string courseId, int status)
         {
@@ -510,6 +608,8 @@ namespace BrainStormEra.Controllers.Course
         }
 
 
+        ///
+
         [HttpPost]
         public IActionResult Enroll(string courseId)
         {
@@ -517,7 +617,7 @@ namespace BrainStormEra.Controllers.Course
 
             if (string.IsNullOrEmpty(userId))
             {
-                return Json(new { success = false, message = "Please log in to enroll in this course." });
+                return RedirectToAction("Login", "Account"); // Chuyển hướng đến trang login nếu chưa đăng nhập
             }
 
             // Lấy thông tin người dùng và khóa học
@@ -526,7 +626,7 @@ namespace BrainStormEra.Controllers.Course
 
             if (user == null || course == null)
             {
-                return Json(new { success = false, message = "User or Course not found." });
+                return View("ErrorPage", "User or Course not found.");
             }
 
             // Kiểm tra nếu điểm của người dùng đủ để đăng ký khóa học
@@ -565,14 +665,16 @@ namespace BrainStormEra.Controllers.Course
                 user.PaymentPoint -= course.Price;
                 _context.SaveChanges();
 
-                return Json(new { success = true });
+                return RedirectToAction("CourseDetail", new { id = courseId });
             }
             else
             {
                 // Nếu không đủ điểm, trả về thông báo lỗi
-                return Json(new { success = false, message = "You do not have enough points to enroll in this course." });
+                TempData["ErrorMessage"] = "You do not have enough points to enroll in this course.";
+                return RedirectToAction("CourseDetail", new { id = courseId });
             }
         }
+
 
 
         [HttpPost]
@@ -598,8 +700,6 @@ namespace BrainStormEra.Controllers.Course
                 return Json(new { success = false, message = "The course must have at least 1 chapter and 1 lesson. Back to edit and add more" });
             }
         }
-
-
 
     }
 }
