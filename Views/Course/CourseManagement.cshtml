@@ -1,8 +1,6 @@
 ﻿@model List<BrainStormEra.Views.Course.ManagementCourseViewModel>
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -122,15 +120,6 @@
                 <div class="course-card col-12 col-md-6 col-lg-3 mb-4">
 
                     <div class="card h-100 ">
-
-                        @*   @if (userRole == "2")
-                    {
-                    <div class="position-absolute remove-button" style="top: 10px; right: 10px;">
-                    <button class="btn btn-danger btn-sm remove course-action" data-action="delete" data-courseid="@c.CourseId">
-                    <i class="fas fa-times"></i>
-                    </button>
-                    </div>
-                    } *@
                         <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
                             <img class="card-img-top" src="@c.CoursePicture" alt="Course Image"> @* src="@c.CoursePicture" *@
                             <div class="card-body">

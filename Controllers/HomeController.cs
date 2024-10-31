@@ -1,3 +1,4 @@
+using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
 
 public class HomeController : Controller
@@ -6,6 +7,13 @@ public class HomeController : Controller
     {
         return View();
     }
+
+    public IActionResult Error()
+    {
+        var errorModel = new ErrorViewModel { /* set properties */ };
+        return View(errorModel);
+    }
+
     [HttpGet]
     public IActionResult Privacy()
     {

@@ -19,22 +19,6 @@ namespace BrainStormEra.Views.Home
         public int Ranking { get; set; }
         public byte? StarRating { get; set; }
 
-
-        public partial class Achievement
-        {
-            public string AchievementId { get; set; } = null!;
-
-            public string AchievementName { get; set; } = null!;
-
-            public string? AchievementDescription { get; set; }
-
-            public string? AchievementIcon { get; set; }
-
-            public DateTime AchievementCreatedAt { get; set; }
-
-            public virtual ICollection<UserAchievement> UserAchievements { get; set; } = new List<UserAchievement>();
-        }
-
         public virtual ICollection<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
         public List<BrainStormEra.Models.Course> EnrolledCourses { get; set; } = new List<BrainStormEra.Models.Course>();
 
@@ -46,11 +30,6 @@ namespace BrainStormEra.Views.Home
         public List<Models.Notification> Notifications { get; set; }
         public CreateNotificationModel CreateNotificationModel { get; set; }
 
-        public HomePageLearnerViewModel()
-        {
-            Notifications = new List<Models.Notification>();
-            CreateNotificationModel = new CreateNotificationModel();
-        }
 
     }
 }
