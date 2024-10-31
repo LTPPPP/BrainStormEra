@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Services;
 using BrainStormEra.Models;
+using BrainStormEra.Repo.Chatbot;
+using BrainStormEra.ViewModels;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using System;
-using Microsoft.EntityFrameworkCore;
-using BrainStormEra.ViewModels;
 
 namespace BrainStormEra.Controllers
 {
     public class ChatbotController : Controller
     {
         private readonly GeminiApiService _geminiApiService;
-        private readonly SwpMainContext _dbContext;
+        private readonly ChatbotRepo _chatbotRepo;
 
-        public ChatbotController(GeminiApiService geminiApiService, SwpMainContext dbContext)
+        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo)
         {
             _geminiApiService = geminiApiService;
-            _dbContext = dbContext;
+            _chatbotRepo = chatbotRepo;
         }
 
         [HttpPost]
@@ -30,26 +31,22 @@ namespace BrainStormEra.Controllers
 
             try
             {
-                var userConversationCount = _dbContext.ChatbotConversations
-                    .Where(c => c.UserId == chatbotConversation.UserId)
-                    .Count();
+                var userConversationCount = await _chatbotRepo.GetUserConversationCountAsync(chatbotConversation.UserId);
 
-                chatbotConversation.ConversationId = chatbotConversation.UserId + "-" + (userConversationCount + 1);
+                chatbotConversation.ConversationId = $"{chatbotConversation.UserId}-{userConversationCount + 1}";
                 chatbotConversation.ConversationTime = DateTime.Now;
-                _dbContext.ChatbotConversations.Add(chatbotConversation);
-                await _dbContext.SaveChangesAsync();
+                await _chatbotRepo.AddConversationAsync(chatbotConversation);
 
                 var reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent);
 
                 var botConversation = new ChatbotConversation
                 {
                     UserId = chatbotConversation.UserId,
-                    ConversationId = chatbotConversation.UserId + "-" + (userConversationCount + 2),
+                    ConversationId = $"{chatbotConversation.UserId}-{userConversationCount + 2}",
                     ConversationTime = DateTime.Now,
                     ConversationContent = reply
                 };
-                _dbContext.ChatbotConversations.Add(botConversation);
-                await _dbContext.SaveChangesAsync();
+                await _chatbotRepo.AddConversationAsync(botConversation);
 
                 return Json(new { reply });
             }
@@ -60,52 +57,56 @@ namespace BrainStormEra.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetConversationStatistics()
+        public async Task<IActionResult> GetConversationStatistics()
         {
-            var conversationData = _dbContext.ChatbotConversations
-                .GroupBy(c => c.ConversationTime.Date) // Group by Date, ignoring the time
-                .Select(g => new
+            try
+            {
+                var conversationData = await _chatbotRepo.GetConversationStatisticsAsync();
+                var formattedData = conversationData.Select(d => new
                 {
-                    Date = g.Key,  // Group by the raw DateTime first
-                    Count = g.Count()
-                })
-                .OrderBy(d => d.Date)
-                .ToList()
-                .Select(d => new  // After retrieving the data, format the date on the client side
-                {
-                    Date = d.Date.ToString("yyyy-MM-dd"),  // Format the date as "yyyy-MM-dd"
-                    Count = d.Count
-                })
-                .ToList();
+                    Date = d.Date.ToString("yyyy-MM-dd"),
+                    d.Count
+                });
 
-            return Json(conversationData);
+                return Json(formattedData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve conversation statistics", details = ex.Message });
+            }
         }
-        public IActionResult ConversationHistory(int page = 1, int pageSize = 10)
-        {
-            var totalConversations = _dbContext.ChatbotConversations.Count();
-            var totalPages = (int)Math.Ceiling((double)totalConversations / pageSize);
 
-            var conversations = _dbContext.ChatbotConversations
-                .OrderByDescending(c => c.ConversationTime)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(c => new ConversationViewModel
+        public async Task<IActionResult> ConversationHistory(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                var totalConversations = await _chatbotRepo.GetTotalConversationCountAsync();
+                var totalPages = (int)Math.Ceiling((double)totalConversations / pageSize);
+                var offset = (page - 1) * pageSize;
+
+                var conversations = await _chatbotRepo.GetPaginatedConversationsAsync(offset, pageSize);
+                var conversationViewModels = conversations.Select(c => new ConversationViewModel
                 {
                     ConversationId = c.ConversationId,
-                    UserName = c.User != null ? c.User.FullName : "Guest",
+                    UserName = c.User?.FullName ?? "Guest",
                     ConversationTime = c.ConversationTime,
                     ConversationContent = c.ConversationContent
-                })
-                .ToList();
+                }).ToList();
 
-            var viewModel = new ConversationViewModel
+                var viewModel = new ConversationHistoryViewModel
+                {
+                    Conversations = conversationViewModels,
+                    CurrentPage = page,
+                    TotalPages = totalPages
+                };
+
+                return View("~/Views/Shared/Chatbot/ConversationHistory.cshtml", viewModel);
+            }
+            catch (Exception ex)
             {
-                Conversations = conversations,
-                CurrentPage = page,
-                TotalPages = totalPages
-            };
-
-            return View("~/Views/Shared/Chatbot/ConversationHistory.cshtml", viewModel);
+                // Log the error here if you have logging configured
+                return View("Error", new ErrorViewModel { Message = "Failed to load conversation history." });
+            }
         }
 
         [HttpPost]
@@ -116,33 +117,37 @@ namespace BrainStormEra.Controllers
                 return BadRequest(new { error = "No conversations selected" });
             }
 
-            var conversationsToDelete = _dbContext.ChatbotConversations
-                .Where(c => conversationIds.Contains(c.ConversationId))
-                .ToList();
-
-            if (conversationsToDelete.Any())
+            try
             {
-                _dbContext.ChatbotConversations.RemoveRange(conversationsToDelete);
-                await _dbContext.SaveChangesAsync();
+                await _chatbotRepo.DeleteConversationsByIdsAsync(conversationIds);
                 return Ok(new { success = "Selected conversations deleted successfully" });
             }
-
-            return NotFound(new { error = "No matching conversations found" });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to delete conversations", details = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteAllConversations()
         {
-            var allConversations = _dbContext.ChatbotConversations.ToList();
-            if (allConversations.Any())
+            try
             {
-                _dbContext.ChatbotConversations.RemoveRange(allConversations);
-                await _dbContext.SaveChangesAsync();
+                await _chatbotRepo.DeleteAllConversationsAsync();
                 return Ok(new { success = "All conversations deleted successfully" });
             }
-
-            return NotFound(new { error = "No conversations found to delete" });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to delete conversations", details = ex.Message });
+            }
         }
+    }
 
+    // Add this class to your ViewModels folder
+    public class ConversationHistoryViewModel
+    {
+        public List<ConversationViewModel> Conversations { get; set; }
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
     }
 }
