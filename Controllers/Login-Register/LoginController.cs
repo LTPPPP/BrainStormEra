@@ -113,7 +113,7 @@ namespace BrainStormEra.Controllers
             }
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("LoginPage", "Login");
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult RedirectToHome()

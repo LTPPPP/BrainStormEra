@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link rel="stylesheet" href="~/css/Course/ManagementCourse.css">
     <link rel="stylesheet" href="~/css/HomePage/Guest/HomePageGuest.css">
-
+    <link rel="stylesheet" href="~/css/HomePage/homePage.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-wEmeIV1mKuiNp12S5ZgFv3qdn7mQbso5mZlDR5A8P75jph8qf7ST8f7nU5V0WLFp" crossorigin="anonymous" defer></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
@@ -32,48 +32,48 @@
     @{
         string userRole = Context.Request.Cookies["user_role"];
     }
-    @*
+
     @if (userRole == "2")
     {
-    @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
     }
     else if (userRole == "1")
     {
-    @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
 
     }
     else if (userRole == "3")
     {
-    @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
 
-    } *@
-    @* @if (userRole == null || userRole == "")
-    { *@
-    <header class="container-fluid sticky-header">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-                    <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Index", "Home")">DASHBOARD</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
-                    </ul>
-                    <div class="profile d-flex align-items-center">
-                        <a href="@Url.Action("LoginPage", "Login")" class="btn_login">Log In</a>
+    }
+    @if (userRole == null || userRole == "")
+    {
+        <header class="container-fluid sticky-header">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                        <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Home")">DASHBOARD</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#">COURSE</a></li>
+                        </ul>
+                        <div class="profile d-flex align-items-center">
+                            <a href="@Url.Action("LoginPage", "Login" )" class="btn_login">Log In</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    @* } *@
+            </nav>
+        </header>
+    }
 
 
     <!-- Banner Section -->
