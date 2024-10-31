@@ -24,6 +24,7 @@ namespace BrainStormEra
 
             builder.Services.AddScoped<SwpMainContext>();
             builder.Services.AddScoped<AccountRepo>();
+            builder.Services.AddScoped<AchievementRepo>();
             builder.Services.AddControllersWithViews();
             // Add authentication services for cookies
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -59,7 +60,7 @@ namespace BrainStormEra
             // Map the controller routes with default route settings
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Login}/{action=LoginPage}/{id?}");
 
             app.Run();
         }

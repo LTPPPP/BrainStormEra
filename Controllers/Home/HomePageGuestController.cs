@@ -18,7 +18,7 @@ namespace BrainStormEra.Controllers.Home
         }
 
         [HttpGet]
-        public IActionResult HomePageGuest()
+        public IActionResult Index()
         {
 
             var recommendedCourses = _dbContext.Courses

@@ -39,7 +39,7 @@
                         </div>
                     }
                     @* Duyệt qua các lỗi trong ModelState *@
-                    @if (!ViewData.ModelState.IsValid)
+                    @* @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger">
                             <ul>
@@ -49,7 +49,7 @@
                                 }
                             </ul>
                         </div>
-                    }
+                    } *@
 
                     <div class="input-field">
                         <input asp-for="Username" id="RegisterUsername" name="Username" type="text" placeholder="👤Username" autocomplete="username" />
