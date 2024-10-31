@@ -67,7 +67,9 @@
                             <h3 class="course-title">@c.CourseName</h3>
                             <p class="course-description">@c.CourseDescription</p>
                             <p class="course-price">Price: @c.Price</p>
-                            <p class="course-creator">Created by: @c.CreatedByNavigation.FullName</p>
+                            <p class="course-creator">
+                                Created by: @(c.CreatedByNavigation?.FullName ?? "Unknown")
+                            </p>
                             <p class="course-created-at">Created at: @c.CourseCreatedAt.ToString("yyyy-MM-dd")</p>
                         </div>
                     </div>

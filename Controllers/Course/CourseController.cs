@@ -1,29 +1,49 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.Views.Course;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Security.Claims;
 
 namespace BrainStormEra.Controllers.Course
 {
     public class CourseController : Controller
     {
-        private readonly SwpMainContext _context;
+        private readonly string _connectionString;
         private readonly ILogger<CourseController> _logger;
 
-        public CourseController(SwpMainContext context, ILogger<CourseController> logger)
+        public CourseController(IConfiguration configuration, ILogger<CourseController> logger)
         {
-            _context = context;
+            _connectionString = configuration.GetConnectionString("SwpMainContext");
             _logger = logger;
         }
 
         public ActionResult AddCourse()
         {
-            var viewModel = new CreateCourseViewModel
+            var viewModel = new CreateCourseViewModel();
+
+            // Retrieve course categories using raw SQL
+            using (var connection = new SqlConnection(_connectionString))
             {
-                CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList()
-            };
+                var query = "SELECT * FROM course_category";
+                var command = new SqlCommand(query, connection);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                var categories = new List<CourseCategory>();
+                while (reader.Read())
+                {
+                    categories.Add(new CourseCategory
+                    {
+                        CourseCategoryId = reader["course_category_id"].ToString(),
+                        CourseCategoryName = reader["course_category_name"].ToString(),
+                        // Map other properties if necessary
+                    });
+                }
+                viewModel.CourseCategories = categories;
+            }
+
             return View(viewModel);
         }
 
@@ -32,162 +52,53 @@ namespace BrainStormEra.Controllers.Course
         public ActionResult AddCourse(CreateCourseViewModel viewmodel)
         {
             var userId = Request.Cookies["user_id"];
-            var lastCourse = _context.Courses
-                .FromSqlRaw("SELECT TOP 1 * FROM course ORDER BY course_id DESC")
-                .FirstOrDefault();
 
-            var newCourseId = lastCourse == null ? "CO001" : "CO" + (int.Parse(lastCourse.CourseId.Substring(2)) + 1).ToString("D3");
+            // Generate new Course ID
+            string newCourseId;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT TOP 1 course_id FROM course ORDER BY course_id DESC";
+                var command = new SqlCommand(query, connection);
+                connection.Open();
+                var lastCourseId = command.ExecuteScalar()?.ToString();
+                newCourseId = lastCourseId == null ? "CO001" : "CO" + (int.Parse(lastCourseId.Substring(2)) + 1).ToString("D3");
+            }
             viewmodel.CourseId = newCourseId;
 
-            if (!ModelState.IsValid)
+            // Check for duplicate course name
+            using (var connection = new SqlConnection(_connectionString))
             {
-                // Check for duplicate course name
-                var existingCourse = _context.Courses
-                    .FromSqlInterpolated($"SELECT * FROM course WHERE course_name = {viewmodel.CourseName} AND course_id != {viewmodel.CourseId}")
-                    .FirstOrDefault();
-
-                if (existingCourse != null)
+                var query = "SELECT * FROM course WHERE course_name = @CourseName AND course_id != @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
+                command.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                if (reader.HasRows)
                 {
                     ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
-                    viewmodel.CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList();
+
+                    // Reload categories
+                    viewmodel.CourseCategories = GetCourseCategories();
                     return View(viewmodel);
                 }
-
-                // Check if category is selected
-                if (viewmodel.CategoryIds == null || !viewmodel.CategoryIds.Any())
-                {
-                    ModelState.AddModelError("CategoryIds", "Please select at least one category.");
-                    viewmodel.CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList();
-                    return View(viewmodel);
-                }
-
-                var obj = new Models.Course
-                {
-                    CourseId = newCourseId,
-                    CourseName = viewmodel.CourseName,
-                    CourseDescription = viewmodel.CourseDescription,
-                    CourseStatus = 3,
-                    CreatedBy = userId,
-                    CoursePicture = viewmodel.CoursePicture.FileName,
-                    Price = viewmodel.Price,
-                };
-
-                // Handle file upload for CoursePicture
-                if (viewmodel.CoursePicture != null && viewmodel.CoursePicture.Length > 0)
-                {
-                    if (viewmodel.CoursePicture.Length > 2 * 1024 * 1024) // Limit file size to 2MB
-                    {
-                        ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
-                        return View(viewmodel);
-                    }
-
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "Course-img");
-
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-
-                    var fileName = Path.GetFileName(viewmodel.CoursePicture.FileName);
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        viewmodel.CoursePicture.CopyTo(stream);
-                    }
-
-                    obj.CoursePicture = $"/uploads/Course-img/{fileName}";
-                }
-
-                // Add selected categories to course
-                foreach (var categoryId in viewmodel.CategoryIds)
-                {
-                    var category = _context.CourseCategories
-                        .FromSqlInterpolated($"SELECT * FROM course_category WHERE course_category_id = {categoryId}")
-                        .FirstOrDefault();
-                    if (category != null)
-                    {
-                        obj.CourseCategories.Add(category);
-                    }
-                }
-
-                _context.Courses.Add(obj);
-                _context.SaveChanges();
-                return RedirectToAction("CourseManagement");
-            }
-            return RedirectToAction("CourseManagement");
-        }
-
-        // Edit Course
-        [HttpGet]
-        public ActionResult EditCourse()
-        {
-            var courseId = HttpContext.Request.Cookies["CourseId"];
-
-            var course = _context.Courses
-                .FromSqlInterpolated($"SELECT * FROM course WHERE course_id = {courseId}")
-                .Include(c => c.CourseCategories)
-                .FirstOrDefault();
-
-            if (course == null)
-            {
-                return RedirectToAction("CourseManagement");
             }
 
-            var viewModel = new EditCourseViewModel
-            {
-                CourseId = course.CourseId,
-                CourseName = course.CourseName,
-                CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList(),
-                SelectedCategories = course.CourseCategories.ToList(),
-                CourseDescription = course.CourseDescription,
-                CoursePictureFile = course.CoursePicture,
-                Price = course.Price
-            };
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditCourse(EditCourseViewModel viewmodel)
-        {
-            var course = _context.Courses
-                .FromSqlInterpolated($"SELECT * FROM course WHERE course_id = {viewmodel.CourseId}")
-                .Include(c => c.CourseCategories)
-                .FirstOrDefault();
-
-            if (course == null)
-            {
-                return RedirectToAction("CourseManagement");
-            }
-
-            var existingCourse = _context.Courses
-                .FromSqlInterpolated($"SELECT * FROM course WHERE course_name = {viewmodel.CourseName} AND course_id != {viewmodel.CourseId}")
-                .FirstOrDefault();
-
-            if (existingCourse != null)
-            {
-                ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
-                viewmodel.CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList();
-            }
-
+            // Check if category is selected
             if (viewmodel.CategoryIds == null || !viewmodel.CategoryIds.Any())
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
-                viewmodel.CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList();
+                viewmodel.CourseCategories = GetCourseCategories();
                 return View(viewmodel);
             }
 
-            course.CourseName = viewmodel.CourseName;
-            course.CourseDescription = viewmodel.CourseDescription;
-            course.Price = viewmodel.Price;
-
+            // Handle file upload for CoursePicture
+            string coursePicturePath = null;
             if (viewmodel.CoursePicture != null && viewmodel.CoursePicture.Length > 0)
             {
-                if (viewmodel.CoursePicture.Length > 2 * 1024 * 1024)
+                if (viewmodel.CoursePicture.Length > 2 * 1024 * 1024) // Limit file size to 2MB
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
-                    viewmodel.CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList();
                     return View(viewmodel);
                 }
 
@@ -206,107 +117,378 @@ namespace BrainStormEra.Controllers.Course
                     viewmodel.CoursePicture.CopyTo(stream);
                 }
 
-                course.CoursePicture = $"/uploads/Course-img/{fileName}";
+                coursePicturePath = $"/uploads/Course-img/{fileName}";
             }
 
-            var selectedCategoryIds = viewmodel.CategoryIds ?? new List<string>();
-            var existingCategoryIds = course.CourseCategories.Select(c => c.CourseCategoryId).ToList();
-
-            foreach (var categoryId in existingCategoryIds)
+            // Insert new course using raw SQL
+            using (var connection = new SqlConnection(_connectionString))
             {
-                if (!selectedCategoryIds.Contains(categoryId))
+                var query = "INSERT INTO course (course_id, course_name, course_description, course_status, created_by, course_picture, price) " +
+                            "VALUES (@CourseId, @CourseName, @CourseDescription, @CourseStatus, @CreatedBy, @CoursePicture, @Price)";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", newCourseId);
+                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
+                command.Parameters.AddWithValue("@CourseDescription", viewmodel.CourseDescription ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@CourseStatus", 3);
+                command.Parameters.AddWithValue("@CreatedBy", userId);
+                command.Parameters.AddWithValue("@CoursePicture", coursePicturePath ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Price", viewmodel.Price);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+
+            // Add selected categories to course
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                foreach (var categoryId in viewmodel.CategoryIds)
                 {
-                    var categoryToRemove = course.CourseCategories.FirstOrDefault(c => c.CourseCategoryId == categoryId);
-                    if (categoryToRemove != null)
-                    {
-                        course.CourseCategories.Remove(categoryToRemove);
-                    }
+                    var query = "INSERT INTO course_category_mapping (course_id, course_category_id) VALUES (@CourseId, @CategoryId)";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", newCourseId);
+                    command.Parameters.AddWithValue("@CategoryId", categoryId);
+                    command.ExecuteNonQuery();
                 }
             }
 
-            foreach (var categoryId in selectedCategoryIds)
-            {
-                if (!existingCategoryIds.Contains(categoryId))
-                {
-                    var categoryToAdd = _context.CourseCategories
-                        .FromSqlInterpolated($"SELECT * FROM course_category WHERE course_category_id = {categoryId}")
-                        .FirstOrDefault();
-                    if (categoryToAdd != null)
-                    {
-                        course.CourseCategories.Add(categoryToAdd);
-                    }
-                }
-            }
-
-            _context.SaveChanges();
             return RedirectToAction("CourseManagement");
+        }
+
+        // Helper method to get course categories
+        private List<CourseCategory> GetCourseCategories()
+        {
+            var categories = new List<CourseCategory>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM course_category";
+                var command = new SqlCommand(query, connection);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    categories.Add(new CourseCategory
+                    {
+                        CourseCategoryId = reader["course_category_id"].ToString(),
+                        CourseCategoryName = reader["course_category_name"].ToString(),
+                    });
+                }
+            }
+            return categories;
+        }
+
+        // Edit Course
+        [HttpGet]
+        public ActionResult EditCourse()
+        {
+            var courseId = HttpContext.Request.Cookies["course_id"];
+
+            if (string.IsNullOrEmpty(courseId))
+            {
+                return RedirectToAction("CourseManagement");
+            }
+
+            var course = GetCourseById(courseId);
+
+            if (course == null)
+            {
+                return RedirectToAction("CourseManagement");
+            }
+
+            var selectedCategories = GetCourseCategoriesByCourseId(courseId);
+
+            var viewModel = new EditCourseViewModel
+            {
+                CourseId = course.CourseId,
+                CourseName = course.CourseName,
+                CourseCategories = GetCourseCategories(),
+                SelectedCategories = selectedCategories,
+                CourseDescription = course.CourseDescription,
+                CoursePictureFile = course.CoursePicture,
+                Price = course.Price
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditCourse(EditCourseViewModel viewmodel)
+        {
+            var course = GetCourseById(viewmodel.CourseId);
+
+            if (course == null)
+            {
+                return RedirectToAction("CourseManagement");
+            }
+
+            // Check for duplicate course name
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM course WHERE course_name = @CourseName AND course_id != @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
+                command.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
+                    viewmodel.CourseCategories = GetCourseCategories();
+                    return View(viewmodel);
+                }
+            }
+
+            // Check if category is selected
+            if (viewmodel.CategoryIds == null || !viewmodel.CategoryIds.Any())
+            {
+                ModelState.AddModelError("CategoryIds", "Please select at least one category.");
+                viewmodel.CourseCategories = GetCourseCategories();
+                return View(viewmodel);
+            }
+
+            // Handle file upload for CoursePicture
+            string coursePicturePath = course.CoursePicture;
+            if (viewmodel.CoursePicture != null && viewmodel.CoursePicture.Length > 0)
+            {
+                if (viewmodel.CoursePicture.Length > 2 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
+                    viewmodel.CourseCategories = GetCourseCategories();
+                    return View(viewmodel);
+                }
+
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "Course-img");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = Path.GetFileName(viewmodel.CoursePicture.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    viewmodel.CoursePicture.CopyTo(stream);
+                }
+
+                coursePicturePath = $"/uploads/Course-img/{fileName}";
+            }
+
+            // Update course using raw SQL
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "UPDATE course SET course_name = @CourseName, course_description = @CourseDescription, price = @Price, course_picture = @CoursePicture WHERE course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
+                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
+                command.Parameters.AddWithValue("@CourseDescription", viewmodel.CourseDescription ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Price", viewmodel.Price);
+                command.Parameters.AddWithValue("@CoursePicture", coursePicturePath ?? (object)DBNull.Value);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+
+            // Update course categories
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                // Delete existing categories
+                var deleteQuery = "DELETE FROM course_category_mapping WHERE course_id = @CourseId";
+                var deleteCommand = new SqlCommand(deleteQuery, connection);
+                deleteCommand.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
+                deleteCommand.ExecuteNonQuery();
+
+                // Insert new categories
+                foreach (var categoryId in viewmodel.CategoryIds)
+                {
+                    var insertQuery = "INSERT INTO course_category_mapping (course_id, course_category_id) VALUES (@CourseId, @CategoryId)";
+                    var insertCommand = new SqlCommand(insertQuery, connection);
+                    insertCommand.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
+                    insertCommand.Parameters.AddWithValue("@CategoryId", categoryId);
+                    insertCommand.ExecuteNonQuery();
+                }
+            }
+
+            return RedirectToAction("CourseManagement");
+        }
+
+        // Helper method to get a course by ID
+        private Models.Course GetCourseById(string courseId)
+        {
+            Models.Course course = null;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM course WHERE course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    course = new Models.Course
+                    {
+                        CourseId = reader["course_id"].ToString(),
+                        CourseName = reader["course_name"].ToString(),
+                        CourseDescription = reader["course_description"].ToString(),
+                        CoursePicture = reader["course_picture"]?.ToString(),
+                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0
+                        // Map other properties if necessary
+                    };
+                }
+            }
+            return course;
+        }
+
+        // Helper method to get selected course categories
+        private List<CourseCategory> GetCourseCategoriesByCourseId(string courseId)
+        {
+            var categories = new List<CourseCategory>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT cc.* FROM course_category cc INNER JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id WHERE ccm.course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    categories.Add(new CourseCategory
+                    {
+                        CourseCategoryId = reader["course_category_id"].ToString(),
+                        CourseCategoryName = reader["course_category_name"].ToString(),
+                        // Map other properties if necessary
+                    });
+                }
+            }
+            return categories;
         }
 
         // Course Management
         public ActionResult CourseManagement()
         {
             var userId = Request.Cookies["user_id"];
-            var user_role = Request.Cookies["user_role"];
+            var userRole = Request.Cookies["user_role"];
 
-            switch (user_role)
+            List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
+
+            switch (userRole)
             {
                 case "2":
-                    // SQL query for instructor courses, filtered by the created_by field
-                    var instructorCourses = _context.Courses
-                        .FromSqlInterpolated($"SELECT * FROM course WHERE created_by = {userId}")
-                        .ToList();
-
-                    // Create the management view models and calculate the StarRating using raw SQL
-                    var instructorCoursesViewModel = instructorCourses.Select(course => new ManagementCourseViewModel
+                    // Instructor courses
+                    using (var connection = new SqlConnection(_connectionString))
                     {
-                        CourseId = course.CourseId,
-                        CourseName = course.CourseName,
-                        CourseDescription = course.CourseDescription,
-                        CourseStatus = course.CourseStatus,
-                        CoursePicture = course.CoursePicture,
-                        Price = course.Price,
-                        CourseCreatedAt = course.CourseCreatedAt,
-                        StarRating = (byte?)_context.Feedbacks
-                            .FromSqlInterpolated($"SELECT * FROM feedback WHERE course_id = {course.CourseId}")
-                            .Average(f => (double?)f.StarRating) ?? 0
-                    }).ToList();
+                        var query = "SELECT * FROM course WHERE created_by = @UserId";
+                        var command = new SqlCommand(query, connection);
+                        command.Parameters.AddWithValue("@UserId", userId);
+                        connection.Open();
+                        var reader = command.ExecuteReader();
+                        var courses = new List<Models.Course>();
+                        while (reader.Read())
+                        {
+                            courses.Add(new Models.Course
+                            {
+                                CourseId = reader["course_id"].ToString(),
+                                CourseName = reader["course_name"].ToString(),
+                                CourseDescription = reader["course_description"].ToString(),
+                                CourseStatus = Convert.ToInt32(reader["course_status"]),
+                                CoursePicture = reader["course_picture"]?.ToString(),
+                                Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
+                                CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
+                            });
+                        }
 
-                    return View("CourseManagement", instructorCoursesViewModel);
+                        foreach (var course in courses)
+                        {
+                            // Calculate average rating
+                            decimal averageRating = GetAverageRating(course.CourseId);
+                            coursesViewModel.Add(new ManagementCourseViewModel
+                            {
+                                CourseId = course.CourseId,
+                                CourseName = course.CourseName,
+                                CourseDescription = course.CourseDescription,
+                                CourseStatus = course.CourseStatus,
+                                CoursePicture = course.CoursePicture,
+                                Price = course.Price,
+                                CourseCreatedAt = course.CourseCreatedAt,
+                                StarRating = (byte)averageRating
+                            });
+                        }
+                    }
+                    break;
 
                 default:
-                    // SQL query for all active courses with status = 2, ordered by creation date descending
-                    var courseList = _context.Courses
-                        .FromSqlRaw("SELECT * FROM course WHERE course_status = 2 ORDER BY course_created_at DESC")
-                        .ToList();
-
-                    // Map courses to ManagementCourseViewModel
-                    var courseListViewModel = courseList.Select(course => new ManagementCourseViewModel
+                    // All active courses with status = 2
+                    using (var connection = new SqlConnection(_connectionString))
                     {
-                        CourseId = course.CourseId,
-                        CourseName = course.CourseName,
-                        CourseDescription = course.CourseDescription,
-                        CourseStatus = course.CourseStatus,
-                        CoursePicture = course.CoursePicture,
-                        Price = course.Price,
-                        CourseCreatedAt = course.CourseCreatedAt,
-                        StarRating = (byte?)_context.Feedbacks
-                            .FromSqlInterpolated($"SELECT * FROM feedback WHERE course_id = {course.CourseId}")
-                            .Average(f => (double?)f.StarRating) ?? 0
-                    }).ToList();
+                        var query = "SELECT * FROM course WHERE course_status = 2 ORDER BY course_created_at DESC";
+                        var command = new SqlCommand(query, connection);
+                        connection.Open();
+                        var reader = command.ExecuteReader();
+                        var courses = new List<Models.Course>();
+                        while (reader.Read())
+                        {
+                            courses.Add(new Models.Course
+                            {
+                                CourseId = reader["course_id"].ToString(),
+                                CourseName = reader["course_name"].ToString(),
+                                CourseDescription = reader["course_description"].ToString(),
+                                CourseStatus = Convert.ToInt32(reader["course_status"]),
+                                CoursePicture = reader["course_picture"]?.ToString(),
+                                Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
+                                CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
+                            });
+                        }
 
-                    return View("CourseManagement", courseListViewModel);
+                        foreach (var course in courses)
+                        {
+                            // Calculate average rating
+                            decimal averageRating = GetAverageRating(course.CourseId);
+                            coursesViewModel.Add(new ManagementCourseViewModel
+                            {
+                                CourseId = course.CourseId,
+                                CourseName = course.CourseName,
+                                CourseDescription = course.CourseDescription,
+                                CourseStatus = course.CourseStatus,
+                                CoursePicture = course.CoursePicture,
+                                Price = course.Price,
+                                CourseCreatedAt = course.CourseCreatedAt,
+                                StarRating = (byte)averageRating
+                            });
+                        }
+                    }
+                    break;
             }
+
+            return View("CourseManagement", coursesViewModel);
+        }
+
+        // Helper method to get average rating
+        private decimal GetAverageRating(string courseId)
+        {
+            decimal averageRating = 0;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT AVG(CAST(star_rating AS FLOAT)) FROM feedback WHERE course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var result = command.ExecuteScalar();
+                if (result != DBNull.Value)
+                {
+                    averageRating = Convert.ToDecimal(result);
+                }
+            }
+            return averageRating;
         }
 
         // DELETE
         public ActionResult ConfirmDelete()
         {
-            var courseId = HttpContext.Request.Cookies["CourseId"];
+            var courseId = HttpContext.Request.Cookies["course_id"];
 
-            var course = _context.Courses
-                .FromSqlInterpolated($"SELECT * FROM course WHERE course_id = {courseId}")
-                .Include(c => c.CourseCategories)
-                .FirstOrDefault();
+            var course = GetCourseById(courseId);
 
             if (course == null) return RedirectToAction("ErrorPage", "Home");
 
@@ -314,8 +496,8 @@ namespace BrainStormEra.Controllers.Course
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
-                CourseCategories = _context.CourseCategories.FromSqlRaw("SELECT * FROM course_category").ToList(),
-                CourseCategoryId = course.CourseCategories.FirstOrDefault()?.CourseCategoryId,
+                CourseCategories = GetCourseCategories(),
+                CourseCategoryId = GetCourseCategoriesByCourseId(courseId).FirstOrDefault()?.CourseCategoryId,
                 CourseDescription = course.CourseDescription,
                 CoursePictureFile = course.CoursePicture,
                 Price = course.Price
@@ -326,15 +508,20 @@ namespace BrainStormEra.Controllers.Course
         [HttpPost]
         public ActionResult DeleteCourse()
         {
-            var courseId = HttpContext.Request.Cookies["CourseId"];
-            var course = _context.Courses
-                .FromSqlInterpolated($"SELECT * FROM course WHERE course_id = {courseId}")
-                .FirstOrDefault();
+            var courseId = HttpContext.Request.Cookies["course_id"];
+            var course = GetCourseById(courseId);
 
             if (course != null)
             {
-                _context.Courses.Remove(course);
-                _context.SaveChanges();
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    // Delete course
+                    var query = "DELETE FROM course WHERE course_id = @CourseId";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
 
                 var userRole = HttpContext.Request.Cookies["user_role"];
                 if (userRole == "1")
@@ -349,14 +536,218 @@ namespace BrainStormEra.Controllers.Course
             return RedirectToAction("ErrorPage", "Home");
         }
 
+        // ... Continue rewriting other methods similarly 
+
         [HttpGet]
         public IActionResult CourseDetail(int page = 1, int pageSize = 4)
         {
+
+
+            var courseId = Request.Cookies["CourseId"];
+            var userId = Request.Cookies["user_id"];
+            var userRole = Request.Cookies["user_role"];
+
+            if (string.IsNullOrEmpty(courseId))
+            {
+                _logger.LogWarning("Course ID is null or empty.");
+                return View("ErrorPage", "Course ID not found in cookies.");
+            }
+
+            var course = GetCourseById(courseId);
+
+            if (course == null)
+            {
+                _logger.LogError($"Course not found with ID: {courseId}");
+                return View("ErrorPage", "Course not found.");
+            }
+
+            // Get Course Categories
+            var categories = new List<string>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT cc.course_category_name FROM course_category cc " +
+                            "JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id " +
+                            "WHERE ccm.course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    categories.Add(reader["course_category_name"].ToString());
+                }
+            }
+            ViewBag.CourseCategories = categories;
+
+            // Check if user is enrolled
+            bool isEnrolled = false;
+            if (userRole == "3" && !string.IsNullOrEmpty(userId))
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT * FROM enrollment WHERE user_id = @UserId AND course_id = @CourseId";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        isEnrolled = true;
+                    }
+                }
+            }
+            ViewBag.IsEnrolled = isEnrolled;
+
+            // Get learners count
+            int learnersCount = 0;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM enrollment WHERE course_id = @CourseId AND approved = 1";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                learnersCount = (int)command.ExecuteScalar();
+            }
+            ViewBag.LearnersCount = learnersCount;
+
+            // Get feedbacks
+            var feedbacks = new List<Feedback>();
+            int offset = (page - 1) * pageSize;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT f.*, a.full_name FROM feedback f " +
+                            "JOIN account a ON f.user_id = a.user_id " +
+                            "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
+                            "ORDER BY f.feedback_date DESC " +
+                            "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                command.Parameters.AddWithValue("@Offset", offset);
+                command.Parameters.AddWithValue("@PageSize", pageSize);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var feedback = new Feedback
+                    {
+                        FeedbackId = reader["feedback_id"].ToString(),
+                        CourseId = reader["course_id"].ToString(),
+                        UserId = reader["user_id"].ToString(),
+                        StarRating = reader["star_rating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["star_rating"]) : null,
+                        Comment = reader["comment"].ToString(),
+                        FeedbackDate = reader["feedback_date"] != DBNull.Value
+           ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
+           : DateOnly.MinValue, // Hoặc một giá trị mặc định nào đó
+                        User = new Models.Account
+                        {
+                            FullName = reader["full_name"].ToString()
+                        }
+                    };
+                    feedbacks.Add(feedback);
+                }
+            }
+            ViewBag.Comments = feedbacks;
+
+            // Get total comments
+            int totalComments = 0;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                totalComments = (int)command.ExecuteScalar();
+            }
+            ViewBag.TotalComments = totalComments;
+
+            // Get average rating
+            double averageRating = 0;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT AVG(CAST(star_rating AS FLOAT)) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var result = command.ExecuteScalar();
+                averageRating = result != DBNull.Value ? Convert.ToDouble(result) : 0.0;
+            }
+            ViewBag.AverageRating = averageRating;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
+
+            // Get created by
+            string createdBy = "Unknown";
+            if (!string.IsNullOrEmpty(course.CreatedBy))
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT full_name FROM account WHERE user_id = @UserId";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@UserId", course.CreatedBy);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        createdBy = result.ToString();
+                    }
+                }
+            }
+            ViewBag.CreatedBy = createdBy;
+
+            // Get rating percentages
+            var ratingPercentages = new Dictionary<int, double>();
+            for (int i = 1; i <= 5; i++)
+            {
+                int count = 0;
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    command.Parameters.AddWithValue("@Rating", i);
+                    connection.Open();
+                    count = (int)command.ExecuteScalar();
+                }
+                ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
+            }
+            ViewBag.RatingPercentages = ratingPercentages;
+
+            return View(course);
+        }
+
+        public ActionResult CourseAcceptance()
+        {
+            var pendingCourses = new List<Models.Course>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM course WHERE course_status IN (0, 1, 2) ORDER BY " +
+                            "CASE WHEN course_status = 1 THEN 0 ELSE 1 END, course_created_at";
+                var command = new SqlCommand(query, connection);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var course = new Models.Course
+                    {
+                        CourseId = reader["course_id"].ToString(),
+                        CourseName = reader["course_name"].ToString(),
+                        CourseStatus = Convert.ToInt32(reader["course_status"]),
+                        CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
+                    };
+                    pendingCourses.Add(course);
+                }
+            }
+            return View("CourseAcceptance", pendingCourses);
+        }
+
+        [HttpGet]
+        public IActionResult ReviewCourse(int page = 1, int pageSize = 4)
+        {
             try
             {
-                var courseId = Request.Cookies["CourseId"];
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userRole = Request.Cookies["user_role"];
+                var courseId = Request.Cookies["course_id"];
 
                 if (string.IsNullOrEmpty(courseId))
                 {
@@ -364,12 +755,7 @@ namespace BrainStormEra.Controllers.Course
                     return View("ErrorPage", "Course ID not found in cookies.");
                 }
 
-                var course = _context.Courses
-                    .FromSqlInterpolated($"SELECT * FROM course WHERE course_id = {courseId}")
-                    .Include(c => c.Chapters)
-                        .ThenInclude(ch => ch.Lessons)
-                    .Include(c => c.CourseCategories)
-                    .FirstOrDefault();
+                var course = GetCourseById(courseId);
 
                 if (course == null)
                 {
@@ -377,59 +763,114 @@ namespace BrainStormEra.Controllers.Course
                     return View("ErrorPage", "Course not found.");
                 }
 
-                var categories = _context.CourseCategories
-                    .FromSqlInterpolated($"SELECT cc.course_category_name FROM course_category cc JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id WHERE ccm.course_id = {courseId}")
-                    .Select(cc => cc.CourseCategoryName)
-                    .ToList();
-                ViewBag.CourseCategories = categories;
-
-                bool isEnrolled = false;
-                if (userRole == "3" && !string.IsNullOrEmpty(userId))
+                // Get learners count
+                int learnersCount = 0;
+                using (var connection = new SqlConnection(_connectionString))
                 {
-                    isEnrolled = _context.Enrollments
-                        .FromSqlInterpolated($"SELECT * FROM enrollment WHERE user_id = {userId} AND course_id = {courseId}")
-                        .Any();
+                    var query = "SELECT COUNT(*) FROM enrollment WHERE course_id = @CourseId AND approved = 1";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    learnersCount = (int)command.ExecuteScalar();
                 }
-                ViewBag.IsEnrolled = isEnrolled;
-
-                var learnersCount = _context.Enrollments
-                    .FromSqlInterpolated($"SELECT * FROM enrollment WHERE course_id = {courseId} AND approved = 1")
-                    .Count();
                 ViewBag.LearnersCount = learnersCount;
 
-                var feedbacks = _context.Feedbacks
-                    .FromSqlInterpolated($"SELECT * FROM feedback WHERE course_id = {courseId} AND hidden_status = 0 ORDER BY feedback_date DESC OFFSET {(page - 1) * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY")
-                    .Include(f => f.User)
-                    .ToList();
-
-                var totalComments = _context.Feedbacks
-                    .FromSqlInterpolated($"SELECT * FROM feedback WHERE course_id = {courseId} AND hidden_status = 0")
-                    .Count();
-
-                var averageRating = _context.Feedbacks
-                    .FromSqlInterpolated($"SELECT * FROM feedback WHERE course_id = {courseId} AND hidden_status = 0")
-                    .Select(f => (double?)f.StarRating)
-                    .Average() ?? 0.0;
-
-                ViewBag.TotalComments = totalComments;
-                ViewBag.AverageRating = averageRating;
+                // Get feedbacks
+                var feedbacks = new List<Feedback>();
+                int offset = (page - 1) * pageSize;
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT f.*, a.full_name FROM feedback f " +
+                                "JOIN account a ON f.user_id = a.user_id " +
+                                "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
+                                "ORDER BY f.feedback_date DESC " +
+                                "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    command.Parameters.AddWithValue("@Offset", offset);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var feedback = new Feedback
+                        {
+                            FeedbackId = reader["feedback_id"].ToString(),
+                            CourseId = reader["course_id"].ToString(),
+                            UserId = reader["user_id"].ToString(),
+                            StarRating = reader["star_rating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["star_rating"]) : null,
+                            Comment = reader["comment"].ToString(),
+                            FeedbackDate = reader["feedback_date"] != DBNull.Value
+               ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
+               : DateOnly.MinValue, // Hoặc một giá trị mặc định nào đó
+                            User = new Models.Account
+                            {
+                                FullName = reader["full_name"].ToString()
+                            }
+                        };
+                        feedbacks.Add(feedback);
+                    }
+                }
                 ViewBag.Comments = feedbacks;
+
+                // Get total comments
+                int totalComments = 0;
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    totalComments = (int)command.ExecuteScalar();
+                }
+                ViewBag.TotalComments = totalComments;
+
+                // Get average rating
+                double averageRating = 0;
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT AVG(CAST(star_rating AS FLOAT)) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    averageRating = result != DBNull.Value ? Convert.ToDouble(result) : 0.0;
+                }
+                ViewBag.AverageRating = averageRating;
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
 
-                var createdBy = _context.Accounts
-                    .FromSqlInterpolated($"SELECT full_name FROM account WHERE user_id = {course.CreatedBy}")
-                    .Select(a => a.FullName)
-                    .FirstOrDefault() ?? "Unknown";
+                // Get created by
+                string createdBy = "Unknown";
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT full_name FROM account WHERE user_id = @UserId";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@UserId", course.CreatedBy);
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        createdBy = result.ToString();
+                    }
+                }
                 ViewBag.CreatedBy = createdBy;
 
+                // Get rating percentages
                 var ratingPercentages = new Dictionary<int, double>();
                 for (int i = 1; i <= 5; i++)
                 {
-                    var count = _context.Feedbacks
-                        .FromSqlInterpolated($"SELECT * FROM feedback WHERE course_id = {courseId} AND star_rating = {i}")
-                        .Count();
+                    int count = 0;
+                    using (var connection = new SqlConnection(_connectionString))
+                    {
+                        var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
+                        var command = new SqlCommand(query, connection);
+                        command.Parameters.AddWithValue("@CourseId", courseId);
+                        command.Parameters.AddWithValue("@Rating", i);
+                        connection.Open();
+                        count = (int)command.ExecuteScalar();
+                    }
                     ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
                 }
                 ViewBag.RatingPercentages = ratingPercentages;
@@ -439,12 +880,173 @@ namespace BrainStormEra.Controllers.Course
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while loading the course.");
-                var errorViewModel = new ErrorViewModel
-                {
-                    RequestId = "An unexpected error occurred."
-                };
-                return View("Error", errorViewModel);
+                return View("ErrorPage", "An unexpected error occurred.");
             }
         }
+
+        [HttpPost]
+        public IActionResult ChangeStatus(string courseId, int status)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "UPDATE course SET course_status = @Status WHERE course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                command.Parameters.AddWithValue("@Status", status);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+            return RedirectToAction("CourseAcceptance", "Course");
+        }
+
+        [HttpPost]
+        public IActionResult Enroll(string courseId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            Models.Account user = null;
+            Models.Course course = null;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                // Get user
+                var userQuery = "SELECT * FROM account WHERE user_id = @UserId";
+                var userCommand = new SqlCommand(userQuery, connection);
+                userCommand.Parameters.AddWithValue("@UserId", userId);
+
+                // Get course
+                var courseQuery = "SELECT * FROM course WHERE course_id = @CourseId";
+                var courseCommand = new SqlCommand(courseQuery, connection);
+                courseCommand.Parameters.AddWithValue("@CourseId", courseId);
+
+                connection.Open();
+
+                using (var reader = userCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = new Models.Account
+                        {
+                            UserId = reader["user_id"].ToString(),
+                            PaymentPoint = Convert.ToDecimal(reader["payment_point"])
+                        };
+                    }
+                }
+
+                // Reset connection to execute the second command
+                connection.Close();
+                connection.Open();
+
+                using (var reader = courseCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        course = new Models.Course
+                        {
+                            CourseId = reader["course_id"].ToString(),
+                            Price = Convert.ToDecimal(reader["price"])
+                        };
+                    }
+                }
+            }
+
+            if (user == null || course == null)
+            {
+                return View("ErrorPage", "User or Course not found.");
+            }
+
+            if (user.PaymentPoint >= course.Price)
+            {
+                string newEnrollmentId = GenerateNewEnrollmentId();
+
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Insert into enrollment
+                    var enrollmentQuery = "INSERT INTO enrollment (enrollment_id, user_id, course_id, enrollment_status, approved, enrollment_created_at) " +
+                                          "VALUES (@EnrollmentId, @UserId, @CourseId, 1, 1, @CreatedAt)";
+                    var enrollmentCommand = new SqlCommand(enrollmentQuery, connection);
+                    enrollmentCommand.Parameters.AddWithValue("@EnrollmentId", newEnrollmentId);
+                    enrollmentCommand.Parameters.AddWithValue("@UserId", userId);
+                    enrollmentCommand.Parameters.AddWithValue("@CourseId", courseId);
+                    enrollmentCommand.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+                    enrollmentCommand.ExecuteNonQuery();
+
+                    // Update user payment_point
+                    var updateUserQuery = "UPDATE account SET payment_point = payment_point - @Price WHERE user_id = @UserId";
+                    var updateUserCommand = new SqlCommand(updateUserQuery, connection);
+                    updateUserCommand.Parameters.AddWithValue("@Price", course.Price);
+                    updateUserCommand.Parameters.AddWithValue("@UserId", userId);
+                    updateUserCommand.ExecuteNonQuery();
+                }
+
+                return RedirectToAction("CourseDetail", new { id = courseId });
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "You do not have enough points to enroll in this course.";
+                return RedirectToAction("CourseDetail", new { id = courseId });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult RequestToAdmin(string courseId)
+        {
+            bool hasChaptersAndLessons = false;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM chapter ch JOIN lesson l ON ch.chapter_id = l.chapter_id WHERE ch.course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                hasChaptersAndLessons = Convert.ToInt32(command.ExecuteScalar()) > 0;
+            }
+
+            if (hasChaptersAndLessons)
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "UPDATE course SET course_status = 1 WHERE course_id = @CourseId";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                return Json(new { success = true, message = "Request sent to Admin successfully." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "The course must have at least 1 chapter and 1 lesson. Back to edit and add more" });
+            }
+        }
+
+        // Helper method to generate new enrollment ID
+        private string GenerateNewEnrollmentId()
+        {
+            string maxEnrollmentId = null;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT TOP 1 enrollment_id FROM enrollment ORDER BY enrollment_id DESC";
+                var command = new SqlCommand(query, connection);
+                connection.Open();
+                maxEnrollmentId = command.ExecuteScalar()?.ToString();
+            }
+
+            int newIdNumber = 1;
+            if (!string.IsNullOrEmpty(maxEnrollmentId) && maxEnrollmentId.Length > 2)
+            {
+                newIdNumber = int.Parse(maxEnrollmentId.Substring(2)) + 1;
+            }
+
+            string newEnrollmentId = "EN" + newIdNumber.ToString("D3");
+            return newEnrollmentId;
+        }
+
+        // ... Other helper methods ...
     }
 }
