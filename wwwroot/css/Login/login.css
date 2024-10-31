@@ -576,3 +576,13 @@ form {
         transform: translateX(0);
     }
 }
+
+.back-to-login {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #000; /* Adjust color as needed */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
