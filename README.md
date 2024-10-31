@@ -19,3 +19,4 @@ dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.AspNetCore.Session
 dotnet add package Newtonsoft.Json
 dotnet add package Markdig
+dotnet add package System.Data.SqlClient
