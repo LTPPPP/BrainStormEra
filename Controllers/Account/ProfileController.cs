@@ -1,22 +1,24 @@
 ﻿using BrainStormEra.Models;
+using BrainStormEra.Repo;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 using System.Net.Mail;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers.Account
 {
     public class ProfileController : Controller
     {
-        private readonly SwpMainContext _context;
+        private readonly AccountRepo _accountRepo;
         private readonly IConfiguration _configuration;
-        public ProfileController(SwpMainContext context)
+
+        public ProfileController(AccountRepo accountRepo, IConfiguration configuration)
         {
-            _context = context;
+            _accountRepo = accountRepo;
+            _configuration = configuration;
         }
 
-        // Định nghĩa ViewModel ngay bên trong Controller
         public class ProfileEditViewModel
         {
             public string UserId { get; set; }
@@ -29,18 +31,16 @@ namespace BrainStormEra.Controllers.Account
             public string? UserPicture { get; set; }
         }
 
-        // Action để hiển thị trang profile
-        public IActionResult Index()
+        // Display profile page
+        public async Task<IActionResult> Index()
         {
             var userId = Request.Cookies["user_id"];
-
             if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var account = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
-
+            var account = await _accountRepo.GetAccountByUserIdAsync(userId);
             if (account == null)
             {
                 return NotFound();
@@ -49,25 +49,22 @@ namespace BrainStormEra.Controllers.Account
             return View(account);
         }
 
-        // Action để chỉnh sửa hồ sơ
+        // Edit profile (GET)
         [HttpGet]
-        public IActionResult Edit()
+        public async Task<IActionResult> Edit()
         {
             var userId = Request.Cookies["user_id"];
-
             if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var account = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
-
+            var account = await _accountRepo.GetAccountByUserIdAsync(userId);
             if (account == null)
             {
                 return NotFound();
             }
 
-            // Khởi tạo ViewModel và map dữ liệu từ Account
             var model = new ProfileEditViewModel
             {
                 UserId = account.UserId,
@@ -80,15 +77,15 @@ namespace BrainStormEra.Controllers.Account
                 UserPicture = account.UserPicture
             };
 
-            return View(model);  // Trả về View cùng với model
+            return View(model);
         }
 
+        // Edit profile (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(ProfileEditViewModel model, IFormFile avatar)
+        public async Task<IActionResult> Edit(ProfileEditViewModel model, IFormFile avatar)
         {
             var userId = Request.Cookies["user_id"];
-
             if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("LoginPage", "Login");
@@ -96,77 +93,50 @@ namespace BrainStormEra.Controllers.Account
 
             if (ModelState.IsValid || avatar == null)
             {
-                var accountInDb = _context.Accounts.FirstOrDefault(a => a.UserId == userId);
-                if (accountInDb == null)
+                var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+                if (account == null)
                 {
                     return NotFound();
                 }
 
-                // Cập nhật thông tin từ ViewModel vào Account
-                accountInDb.FullName = model.FullName;
-                accountInDb.UserEmail = model.UserEmail;
-                accountInDb.PhoneNumber = model.PhoneNumber;
-                accountInDb.Gender = model.Gender;
-                accountInDb.UserAddress = model.UserAddress;
-                accountInDb.DateOfBirth = model.DateOfBirth;
+                await _accountRepo.UpdateAccountAsync(userId, model.FullName, model.UserEmail, model.PhoneNumber, model.Gender, model.UserAddress, model.DateOfBirth);
 
-                // Xử lý việc upload avatar nếu có
                 if (avatar != null)
                 {
-                    // Kiểm tra loại file (chỉ cho phép .png, .jpeg)
                     var validTypes = new[] { "image/png", "image/jpeg" };
                     if (!validTypes.Contains(avatar.ContentType))
                     {
-                        ModelState.AddModelError("avatar", "Chỉ chấp nhận tệp PNG và JPEG.");
-                        return View(model); // Không lưu file và trả về view với lỗi
+                        ModelState.AddModelError("avatar", "Only PNG and JPEG files are accepted.");
+                        return View(model);
                     }
 
-                    // Kiểm tra kích thước file (giới hạn 2MB)
-                    if (avatar.Length > 2 * 1024 * 1024) // 2MB
+                    if (avatar.Length > 2 * 1024 * 1024)
                     {
-                        ModelState.AddModelError("avatar", "Kích thước tệp không được vượt quá 2MB.");
-                        return View(model); // Không lưu file và trả về view với lỗi
+                        ModelState.AddModelError("avatar", "File size must not exceed 2MB.");
+                        return View(model);
                     }
 
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "User-img");
-
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-
-                    var fileName = Path.GetFileName(avatar.FileName);
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        avatar.CopyTo(stream);
-                    }
-
-                    // Cập nhật đường dẫn ảnh vào database
-                    accountInDb.UserPicture = $"/uploads/User-img/{fileName}";
-
+                    var fileName = await _accountRepo.SaveAvatarAsync(userId, avatar);
+                    await _accountRepo.UpdateUserPictureAsync(userId, fileName);
                 }
 
-                // Lưu thay đổi vào database
-                _context.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(model);  // Trả về view cùng với model nếu có lỗi
+            return View(model);
         }
 
-        // Action để điều hướng về trang chủ dựa trên vai trò của user
-        public IActionResult RedirectToHome()
+        // Redirect to home based on role
+        public async Task<IActionResult> RedirectToHome()
         {
             var userIdCookie = Request.Cookies["user_id"];
             var userRoleCookie = Request.Cookies["user_role"];
 
-            if (userIdCookie != null && userRoleCookie != null)
+            if (!string.IsNullOrEmpty(userIdCookie) && int.TryParse(userRoleCookie, out var userRole))
             {
-                int userRole = int.Parse(userRoleCookie);
+                var userRoleFromDb = await _accountRepo.GetUserRoleByUserIdAsync(userIdCookie);
 
-                switch (userRole)
+                switch (userRoleFromDb)
                 {
                     case 1:
                         return RedirectToAction("HomepageAdmin", "HomePageAdmin");
@@ -174,8 +144,6 @@ namespace BrainStormEra.Controllers.Account
                         return RedirectToAction("HomePageInstructor", "HomePageInstructor");
                     case 3:
                         return RedirectToAction("HomePageLearner", "HomePageLearner");
-                    default:
-                        return RedirectToAction("LoginPage", "Login");
                 }
             }
 
@@ -184,35 +152,33 @@ namespace BrainStormEra.Controllers.Account
 
         private async Task SendPaymentConfirmationEmail(string filePath, string userId, string userEmail)
         {
-
             var smtpSettings = _configuration.GetSection("SmtpSettings");
             var fromAddress = new MailAddress(smtpSettings["UserName"], "BrainStormEra User");
             var toAddress = new MailAddress("llttpp.dev@gmail.com", "Admin");
             const string subject = "[BRAINSTORMERA] PAYMENT CONFIRMATION";
 
-            // Nội dung email bao gồm userId và email của người dùng
             string body = $@"
-    <html>
-        <body style='font-family: Arial, sans-serif; color: #333;'>
-            <h2 style='color: #2c3e50;'>Xác nhận thanh toán từ người dùng</h2>
-            <p>Xin chào Admin,</p>
-            <p>Người dùng với thông tin sau đã gửi xác nhận thanh toán:</p>
-            <table style='border-collapse: collapse; width: 100%; max-width: 500px;'>
-                <tr>
-                    <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>User ID</td>
-                    <td style='padding: 8px; border: 1px solid #ddd;'>{userId}</td>
-                </tr>
-                <tr>
-                    <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>Email</td>
-                    <td style='padding: 8px; border: 1px solid #ddd;'>{userEmail}</td>
-                </tr>
-            </table>
-            <p style='margin-top: 20px;'>Xin vui lòng kiểm tra hình ảnh đính kèm để xác nhận thanh toán.</p>
-            <p>Trân trọng,<br>Đội ngũ BrainStormEra</p>
-            <hr style='border-top: 1px solid #ddd; margin-top: 20px;' />
-            <p style='font-size: 12px; color: #888;'>Đây là email tự động từ hệ thống. Vui lòng không trả lời email này.</p>
-        </body>
-    </html>";
+                <html>
+                    <body style='font-family: Arial, sans-serif; color: #333;'>
+                        <h2 style='color: #2c3e50;'>Payment Confirmation from User</h2>
+                        <p>Hello Admin,</p>
+                        <p>The user with the following details has submitted a payment confirmation:</p>
+                        <table style='border-collapse: collapse; width: 100%; max-width: 500px;'>
+                            <tr>
+                                <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>User ID</td>
+                                <td style='padding: 8px; border: 1px solid #ddd;'>{userId}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 8px; border: 1px solid #ddd; font-weight: bold;'>Email</td>
+                                <td style='padding: 8px; border: 1px solid #ddd;'>{userEmail}</td>
+                            </tr>
+                        </table>
+                        <p style='margin-top: 20px;'>Please check the attached image for payment verification.</p>
+                        <p>Best Regards,<br>BrainStormEra Team</p>
+                        <hr style='border-top: 1px solid #ddd; margin-top: 20px;' />
+                        <p style='font-size: 12px; color: #888;'>This is an automated email from the system. Please do not reply.</p>
+                    </body>
+                </html>";
 
             using (var smtp = new SmtpClient
             {
@@ -223,8 +189,8 @@ namespace BrainStormEra.Controllers.Account
             })
             using (var message = new MailMessage(fromAddress, toAddress)
             {
-                Subject = "[BRAINSTORMERA] PAYMENT CONFIRMATION",
-                Body = "<email_body_here>",
+                Subject = subject,
+                Body = body,
                 IsBodyHtml = true
             })
             {
@@ -232,7 +198,5 @@ namespace BrainStormEra.Controllers.Account
                 await smtp.SendMailAsync(message);
             }
         }
-
-
     }
 }

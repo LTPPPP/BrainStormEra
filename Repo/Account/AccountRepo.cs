@@ -451,5 +451,73 @@ namespace BrainStormEra.Repo
 
             return learners;
         }
+        public async Task<Account?> GetAccountByUserIdAsync(string userId)
+        {
+            try
+            {
+                return await _context.Accounts
+                    .FromSqlRaw("SELECT * FROM account WHERE user_id = @p0", userId)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving account by User ID.");
+                throw;
+            }
+        }
+
+        public async Task<int?> GetUserRoleByUserIdAsync(string userId)
+        {
+            try
+            {
+                return await _context.Accounts
+                    .Where(a => a.UserId == userId)
+                    .Select(a => a.UserRole)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user role by User ID.");
+                throw;
+            }
+        }
+
+        public async Task UpdateAccountAsync(string userId, string? fullName, string? userEmail, string? phoneNumber, string? gender, string? userAddress, DateOnly? dateOfBirth)
+        {
+            var updateSql = @"
+                UPDATE account
+                SET full_name = @p1, user_email = @p2, phone_number = @p3, gender = @p4,
+                    user_address = @p5, date_of_birth = @p6
+                WHERE user_id = @p0";
+
+            await _context.Database.ExecuteSqlRawAsync(
+                updateSql,
+                userId, fullName, userEmail, phoneNumber, gender, userAddress, dateOfBirth
+            );
+        }
+
+        public async Task<string> SaveAvatarAsync(string userId, IFormFile avatar)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "User-img");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = Path.GetFileName(avatar.FileName);
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await avatar.CopyToAsync(stream);
+            }
+
+            return $"/uploads/User-img/{fileName}";
+        }
+
+        public async Task UpdateUserPictureAsync(string userId, string filePath)
+        {
+            var updatePictureSql = "UPDATE account SET user_picture = @p1 WHERE user_id = @p0";
+            await _context.Database.ExecuteSqlRawAsync(updatePictureSql, userId, filePath);
+        }
     }
 }
