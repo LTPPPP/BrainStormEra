@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BrainStormEra.Models;
 using BrainStormEra.Views.Course;
+using BrainStormEra.Views.Notification;
 
 namespace BrainStormEra.Views.Home
 {
@@ -13,28 +14,43 @@ namespace BrainStormEra.Views.Home
         public string? UserPicture { get; set; }
 
 
-        // Th�ng tin kh�a h?c ?� ??ng k�
         public int CompletedCoursesCount { get; set; }
         public int TotalCoursesEnrolled { get; set; }
         public int Ranking { get; set; }
         public byte? StarRating { get; set; }
 
 
+        public partial class Achievement
+        {
+            public string AchievementId { get; set; } = null!;
 
+            public string AchievementName { get; set; } = null!;
+
+            public string? AchievementDescription { get; set; }
+
+            public string? AchievementIcon { get; set; }
+
+            public DateTime AchievementCreatedAt { get; set; }
+
+            public virtual ICollection<UserAchievement> UserAchievements { get; set; } = new List<UserAchievement>();
+        }
 
         public virtual ICollection<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
         public List<BrainStormEra.Models.Course> EnrolledCourses { get; set; } = new List<BrainStormEra.Models.Course>();
 
-        // Kh�a h?c ?? xu?t
         public List<ManagementCourseViewModel> RecommendedCourses { get; set; } = new List<ManagementCourseViewModel>();
 
         // Th�ng tin th�nh t�ch
         public List<BrainStormEra.Models.Achievement> Achievements { get; set; } = new List<BrainStormEra.Models.Achievement>();
 
-        public IEnumerable<BrainStormEra.Models.Notification> Notifications { get; set; }
+        public List<Models.Notification> Notifications { get; set; }
+        public CreateNotificationModel CreateNotificationModel { get; set; }
 
-
-
+        public HomePageLearnerViewModel()
+        {
+            Notifications = new List<Models.Notification>();
+            CreateNotificationModel = new CreateNotificationModel();
+        }
 
     }
 }

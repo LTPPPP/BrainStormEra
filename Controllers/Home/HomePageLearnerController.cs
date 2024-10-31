@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
 using Microsoft.Extensions.Logging;
-using BrainStormEra.Views.Home;
 using Microsoft.EntityFrameworkCore;
-using OpenQA.Selenium.BiDi.Modules.Script;
+using Microsoft.Data.SqlClient;
+using BrainStormEra.Views.Home;
 using BrainStormEra.Views.Course;
 
 namespace BrainStormEra.Controllers
@@ -20,7 +20,7 @@ namespace BrainStormEra.Controllers
         }
 
         [HttpGet]
-        public IActionResult HomePageLearner()
+        public async Task<IActionResult> HomePageLearner()
         {
             var userId = Request.Cookies["user_id"];
 
@@ -30,90 +30,197 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var user = _dbContext.Accounts.FirstOrDefault(u => u.UserId.ToString() == userId);
+            
+            Models.Account user = null;
+            int completedCoursesCount = 0;
+            int totalCoursesEnrolled = 0;
+            int userRank = 0;
+            var achievements = new List<Models.Achievement>();
+            var recommendedCourses = new List<ManagementCourseViewModel>();
+            var notifications = new List<Notification>();
 
-            if (user == null)
+            using (var connection = _dbContext.Database.GetDbConnection())
             {
-                _logger.LogWarning($"User with ID {userId} not found.");
-                return RedirectToAction("LoginPage", "Login");
+                await connection.OpenAsync();
+
+                // Get user information
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM account WHERE user_id = @userId";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    using var reader = await command.ExecuteReaderAsync();
+                    if (await reader.ReadAsync())
+                    {
+                        user = new Models.Account
+                        {
+                            UserId = reader["user_id"].ToString(),
+                            FullName = reader["full_name"].ToString(),
+                            UserPicture = reader["user_picture"]?.ToString()
+                        };
+                    }
+                }
+
+                if (user == null)
+                {
+                    _logger.LogWarning($"User with ID {userId} not found.");
+                    return RedirectToAction("LoginPage", "Login");
+                }
+
+                // Get completed courses count
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT COUNT(*) 
+                FROM enrollment 
+                WHERE user_id = @userId AND enrollment_status = 5";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    completedCoursesCount = Convert.ToInt32(await command.ExecuteScalarAsync());
+                }
+
+                // Get total courses enrolled
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT COUNT(*) 
+                FROM enrollment 
+                WHERE user_id = @userId";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    totalCoursesEnrolled = Convert.ToInt32(await command.ExecuteScalarAsync());
+                }
+
+                // Get achievements
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT TOP 3
+                    a.achievement_id,
+                    a.achievement_name,
+                    a.achievement_description,
+                    a.achievement_icon,
+                    a.achievement_created_at
+                FROM user_achievement ua
+                INNER JOIN achievement a ON ua.achievement_id = a.achievement_id
+                WHERE ua.user_id = @userId
+                ORDER BY a.achievement_created_at DESC";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    using var reader = await command.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        achievements.Add(new Models.Achievement
+                        {
+                            AchievementId = reader["achievement_id"].ToString(),
+                            AchievementName = reader["achievement_name"].ToString(),
+                            AchievementDescription = reader["achievement_description"].ToString(),
+                            AchievementIcon = reader["achievement_icon"].ToString(),
+                            AchievementCreatedAt = Convert.ToDateTime(reader["achievement_created_at"])
+                        });
+                    }
+                }
+
+                // Get user rank
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                WITH RankedUsers AS (
+                    SELECT 
+                        user_id,
+                        DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) as rank
+                    FROM enrollment
+                    WHERE enrollment_status = 5
+                    GROUP BY user_id
+                )
+                SELECT COALESCE(rank, 0) as rank
+                FROM RankedUsers
+                WHERE user_id = @userId";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    var result = await command.ExecuteScalarAsync();
+                    userRank = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                }
+
+                // Get recommended courses
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT TOP 4 
+                    c.course_id, 
+                    c.course_name, 
+                    c.course_description, 
+                    c.course_status, 
+                    c.course_picture, 
+                    c.price, 
+                    c.course_created_at, 
+                    a.full_name AS CreatedBy,
+                    COALESCE(AVG(CAST(f.star_rating AS FLOAT)), 0) as StarRating
+                FROM course AS c 
+                LEFT JOIN enrollment AS e ON c.course_id = e.course_id 
+                INNER JOIN account AS a ON c.created_by = a.user_id 
+                LEFT JOIN feedback AS f ON c.course_id = f.course_id
+                WHERE c.course_status = 2 
+                AND (e.user_id IS NULL OR e.user_id != @userId) 
+                GROUP BY 
+                    c.course_id, 
+                    c.course_name, 
+                    c.course_description, 
+                    c.course_status, 
+                    c.course_picture, 
+                    c.price, 
+                    c.course_created_at, 
+                    a.full_name 
+                ORDER BY COUNT(e.user_id) DESC";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    using var reader = await command.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        recommendedCourses.Add(new ManagementCourseViewModel
+                        {
+                            CourseId = reader["course_id"].ToString(),
+                            CourseName = reader["course_name"].ToString(),
+                            CourseDescription = reader["course_description"].ToString(),
+                            CourseStatus = Convert.ToInt32(reader["course_status"]),
+                            CoursePicture = reader["course_picture"].ToString(),
+                            Price = Convert.ToDecimal(reader["price"]),
+                            CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"]),
+                            CreatedBy = reader["CreatedBy"].ToString(),
+                            StarRating = (byte)Math.Round(Convert.ToDouble(reader["StarRating"]))
+                        });
+                    }
+                }
+
+                // Get notifications
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT *
+                FROM notification
+                WHERE user_id = @userId
+                ORDER BY notification_created_at DESC";
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+
+                    using var reader = await command.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        notifications.Add(new Notification
+                        {
+                            NotificationId = reader["notification_id"].ToString(),
+                            UserId = reader["user_id"].ToString(),
+                            NotificationContent = reader["notification_content"].ToString(),
+                            NotificationType = reader["notification_type"].ToString(),
+                            NotificationCreatedAt = Convert.ToDateTime(reader["notification_created_at"])
+                        });
+                    }
+                }
             }
 
-            // Set data in ViewBag
-            ViewBag.FullName = user?.FullName ?? "Learner";
-            ViewBag.UserPicture = string.IsNullOrEmpty(user?.UserPicture) ? "~/lib/img/User-img/default_user.png" : user.UserPicture;
-
-            // xử lí dữ liệu để đẩy lên page 
-            // Lấy các khóa học có nhiều người tham gia nhất
-            var completedCoursesCount = _dbContext.Enrollments
-          .Where(e => e.UserId == userId && e.EnrollmentStatus == 5)
-          .Count();
-
-            var totalCoursesEnrolled = _dbContext.Enrollments
-                .Where(e => e.UserId == userId)
-                .Count();
-
-
-            // Lấy thông tin thành tích của người dùng
-            var achievements = _dbContext.UserAchievements
-                .Where(ua => ua.UserId == userId)
-                .Include(ua => ua.Achievement) // Load related Achievements
-                .OrderByDescending(ua => ua.Achievement.AchievementCreatedAt) // Sort by AchievementCreatedAt
-                .Take(3) // Limit to 3 latest achievements
-                .Select(ua => new BrainStormEra.Models.Achievement
-                {
-                    AchievementName = ua.Achievement.AchievementName,
-                    AchievementIcon = ua.Achievement.AchievementIcon,
-                })
-                .ToList();
-
-
-
-            // Tính số khóa học đã hoàn thành cho mỗi người dùng và xếp hạng
-            var userRanking = _dbContext.Enrollments
-                .Where(e => e.EnrollmentStatus == 5) // Chỉ tính những khóa học đã hoàn thành
-                .GroupBy(e => e.UserId)
-                .Select(g => new
-                {
-                    UserId = g.Key,
-                    CompletedCoursesCount = g.Count()
-                })
-                .OrderByDescending(u => u.CompletedCoursesCount)
-                .ToList()
-                .Select((u, index) => new
-                {
-                    u.UserId,
-                    u.CompletedCoursesCount,
-                    Rank = index + 1 // Xếp hạng bắt đầu từ 1
-                })
-                .FirstOrDefault(u => u.UserId == userId);
-
-            var recommendedCourses = _dbContext.Courses
-         .Include(c => c.CourseCategories)        // Include danh mục khóa học
-         .Include(c => c.Enrollments)             // Include danh sách Enrollments
-         .Include(c => c.CreatedByNavigation)     // Include thông tin người tạo từ bảng Account
-         .Where(c => c.CourseStatus == 2) // Chỉ lấy các khóa học có CourseStatus = 2, chưa đăng ký bởi người dùng
-         .OrderByDescending(c => c.Enrollments.Count) // Sắp xếp giảm dần theo số lượng người đăng ký (Enrollments)
-         .Take(4) // Lấy top 4 khóa học có lượt Enrollments cao nhất
-         .Select(course => new ManagementCourseViewModel
-         {
-             CourseId = course.CourseId,
-             CourseName = course.CourseName,
-             CourseDescription = course.CourseDescription,
-             CourseStatus = course.CourseStatus,
-             CoursePicture = course.CoursePicture,
-             Price = course.Price,
-             CourseCreatedAt = course.CourseCreatedAt,
-             CreatedBy = course.CreatedByNavigation.FullName,  // Lấy thông tin người tạo
-             CourseCategories = course.CourseCategories.ToList(),
-             StarRating = (byte?)Math.Round(
-                 _dbContext.Feedbacks
-                     .Where(f => f.CourseId == course.CourseId)
-                     .Average(f => (double?)f.StarRating) ?? 0) // Tính trung bình StarRating
-         })
-         .ToList();
-
-            // Nếu userRanking không null, ta có thể lấy Rank của người dùng hiện tại
-            int userRank = userRanking != null ? userRanking.Rank : 0;
+            ViewBag.FullName = user.FullName ?? "Learner";
+            ViewBag.UserPicture = string.IsNullOrEmpty(user.UserPicture)
+                ? "~/lib/img/User-img/default_user.png"
+                : user.UserPicture;
 
             var viewModel = new HomePageLearnerViewModel
             {
@@ -123,12 +230,11 @@ namespace BrainStormEra.Controllers
                 TotalCoursesEnrolled = totalCoursesEnrolled,
                 Achievements = achievements,
                 Ranking = userRank,
-                RecommendedCourses = recommendedCourses
+                RecommendedCourses = recommendedCourses,
+                Notifications = notifications
             };
-
 
             return View("~/Views/Home/HomePageLearner.cshtml", viewModel);
         }
-
     }
 }
