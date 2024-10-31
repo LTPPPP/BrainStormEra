@@ -38,42 +38,82 @@ namespace BrainStormEra.Controllers
 
             // Set data in ViewBag
             ViewBag.FullName = account.FullName;
-            ViewBag.UserPicture = string.IsNullOrEmpty(account.UserPicture) ? "~/lib/img/User-img/default_user.png" : account.UserPicture;
+            ViewBag.UserPicture = string.IsNullOrEmpty(account.UserPicture)
+                ? "~/lib/img/User-img/default_user.png"
+                : account.UserPicture;
 
-            var recommendedCourses = _dbContext.Courses
-         .Include(c => c.CourseCategories)        // Include danh mục khóa học
-         .Include(c => c.Enrollments)             // Include danh sách Enrollments
-         .Include(c => c.CreatedByNavigation)     // Include thông tin người tạo từ bảng Account
-         .Where(c => c.CourseStatus == 2) // Chỉ lấy các khóa học có CourseStatus = 2, chưa đăng ký bởi người dùng
-         .OrderByDescending(c => c.Enrollments.Count) // Sắp xếp giảm dần theo số lượng người đăng ký (Enrollments)
-         .Take(4) // Lấy top 4 khóa học có lượt Enrollments cao nhất
-         .Select(course => new ManagementCourseViewModel
-         {
-             CourseId = course.CourseId,
-             CourseName = course.CourseName,
-             CourseDescription = course.CourseDescription,
-             CourseStatus = course.CourseStatus,
-             CoursePicture = course.CoursePicture,
-             Price = course.Price,
-             CourseCreatedAt = course.CourseCreatedAt,
-             CreatedBy = course.CreatedByNavigation.FullName,  // Lấy thông tin người tạo
-             CourseCategories = course.CourseCategories.ToList(),
-             StarRating = (byte?)Math.Round(
-                 _dbContext.Feedbacks
-                     .Where(f => f.CourseId == course.CourseId)
-                     .Average(f => (double?)f.StarRating) ?? 0) // Tính trung bình StarRating
-         })
-         .ToList();
+            // SQL query to fetch recommended courses
+            string sqlQuery = @"
+        SELECT TOP 4
+            c.course_id AS CourseId,
+            c.course_name AS CourseName,
+            c.course_description AS CourseDescription,
+            c.course_status AS CourseStatus,
+            c.course_picture AS CoursePicture,
+            c.price AS Price,
+            c.course_created_at AS CourseCreatedAt,
+            a.full_name AS CreatedBy,
+            COALESCE(ROUND(AVG(f.star_rating), 0), 0) AS StarRating,
+            cc.course_category_name AS CourseCategory
+        FROM 
+            course c
+            LEFT JOIN account a ON c.created_by = a.user_id
+            LEFT JOIN enrollment e ON c.course_id = e.course_id
+            LEFT JOIN feedback f ON c.course_id = f.course_id
+            LEFT JOIN course_category_mapping ccm ON c.course_id = ccm.course_id
+            LEFT JOIN course_category cc ON ccm.course_category_id = cc.course_category_id
+        WHERE 
+            c.course_status = 2
+        GROUP BY 
+            c.course_id, c.course_name, c.course_description, c.course_status, 
+            c.course_picture, c.price, c.course_created_at, a.full_name, cc.course_category_name
+        ORDER BY 
+            COUNT(e.enrollment_id) DESC;
+    ";
 
-            // Nếu userRanking không null, ta có thể lấy Rank của người dùng hiện tại
+            var recommendedCourses = new List<ManagementCourseViewModel>();
 
+            // Execute SQL query manually
+            using (var connection = _dbContext.Database.GetDbConnection())
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sqlQuery;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var course = new ManagementCourseViewModel
+                            {
+                                CourseId = reader["CourseId"].ToString(),
+                                CourseName = reader["CourseName"].ToString(),
+                                CourseDescription = reader["CourseDescription"].ToString(),
+                                CourseStatus = reader["CourseStatus"] as int?,
+                                CoursePicture = reader["CoursePicture"].ToString(),
+                                Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                                CourseCreatedAt = reader.GetDateTime(reader.GetOrdinal("CourseCreatedAt")),
+                                CreatedBy = reader["CreatedBy"].ToString(),
+                                StarRating = reader["StarRating"] as byte?,
+                                CourseCategories = new List<CourseCategory>
+                        {
+                            new CourseCategory
+                            {
+                                CourseCategoryName = reader["CourseCategory"].ToString()
+                            }
+                        }
+                            };
+                            recommendedCourses.Add(course);
+                        }
+                    }
+                }
+            }
+
+            // Prepare the view model
             var viewModel = new HomePageInstructorViewModel
             {
-
-
                 RecommendedCourses = recommendedCourses
             };
-
 
             return View("~/Views/Home/HomePageInstructor.cshtml", viewModel);
         }
