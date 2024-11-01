@@ -46,7 +46,7 @@
         @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
 
     }
-    @if (userRole == null || userRole == "")
+    else
     {
         <header class="container-fluid sticky-header">
             <nav class="navbar navbar-expand-lg">
@@ -88,11 +88,6 @@
             <!-- Filter Categories -->
             <div class="categories d-flex justify-content-start p-2 rounded">
                 <button class="btn filter-btn active">All courses</button>
-                <button class="btn filter-btn">Business</button>
-                <button class="btn filter-btn">IT &amp; Software</button>
-                <button class="btn filter-btn">Design</button>
-                <button class="btn filter-btn">Health</button>
-                <button class="btn filter-btn">Math and Logic</button>
             </div>
             <!-- Search Bar -->
             <div class="search-bar mt-2 d-flex justify-content-center">
@@ -113,8 +108,6 @@
 
             @foreach (var c in Model)
             {
-
-
                 Context.Response.Cookies.Append("CourseId", c.CourseId);
 
 

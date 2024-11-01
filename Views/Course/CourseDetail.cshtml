@@ -7,9 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@Model.CourseName</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/Course/CourseDetail.css">
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
@@ -21,7 +23,7 @@
         string userRole = Context.Request.Cookies["user_role"];
     }
 
-    <!-- Phần Header tùy theo userRole -->
+    <!-- Header -->
     @if (userRole == "2")
     {
         @await Html.PartialAsync("~/Views/Shared/Instructor/Header/_Header.cshtml")
@@ -34,8 +36,12 @@
     {
         @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
     }
+    else
+    {
+        @await Html.PartialAsync("~/Views/Shared/Header/_Header.cshtml") <!-- Default header for non-logged-in users -->
+    }
 
-    <!-- Thông tin khóa học -->
+    <!-- Course Information -->
     <div class="header">
         <div class="container">
             <div class="row py-5">
@@ -50,16 +56,14 @@
                         {
                             bool isBanned = ViewBag.IsBanned ?? false;
                             bool isEnrolled = ViewBag.IsEnrolled ?? false;
-                            if (ViewBag.IsBanned)
+                            if (isBanned)
                             {
                                 <div class="alert alert-danger">You have been banned from enrolling in this course.</div>
                             }
-                            else if (ViewBag.IsEnrolled)
+                            else if (isEnrolled)
                             {
                                 <button class="btn btn-primary" onclick="window.location.href='@Url.Action("ViewLessonLearner", "Lesson")'">Go to Course</button>
-
                             }
-
                             else
                             {
                                 <form id="enrollForm" method="post" action="@Url.Action("Enroll", "Course")">
@@ -68,10 +72,10 @@
                                 </form>
                             }
                         }
-                        else if (userRole == null || userRole == "")
+                        else if (string.IsNullOrEmpty(userRole))
                         {
-                            <a href="@Url.Action("LoginPage", "Login") " class="btn btn-success">Enroll</a>
-
+                            <!-- Enroll button for non-logged-in users -->
+                            <button class="btn btn-success" onclick="alert('You need to log in to enroll in this course.');">Enroll</button>
                         }
                     </div>
                     <div class="d-flex text-white mt-3">
@@ -95,63 +99,74 @@
     </div>
 
     <div class="container">
+        <!-- Navigation Tabs -->
         <nav class="nav nav-pills nav-fill mb-4">
             <a class="nav-link nav-introduction active" href="#introduction">Introduction</a>
-            <a class="nav-link" href="#curriculum">Content</a>
+            @if (!string.IsNullOrEmpty(userRole))
+            {
+                <a class="nav-link" href="#curriculum">Content</a>
+            }
             <a class="nav-link" href="#rating">Rating</a>
         </nav>
 
+        <!-- Introduction Section -->
         <div class="card mb-4">
             <div class="card-body">
                 <h2 id="introduction">Course Description</h2>
-                <p>@Model.CourseDescription</p> <!-- Hiển thị mô tả khóa học -->
+                <p>@Model.CourseDescription</p>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-body">
-                <h3>Course Content</h3>
-                <p>@Model.Chapters.Count Chapters • @ViewBag.TotalLessons Lessons</p>
-                <div class="accordion" id="courseContentAccordion">
-                    @foreach (var chapter in Model.Chapters)
-                    {
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingChapter@(chapter.ChapterId)">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChapter@(chapter.ChapterId)" aria-expanded="false" aria-controls="collapseChapter@(chapter.ChapterId)">
-                                    @chapter.ChapterName
-                                </button>
-                            </h2>
-                            <div id="collapseChapter@(chapter.ChapterId)" class="accordion-collapse collapse" aria-labelledby="headingChapter@(chapter.ChapterId)" data-bs-parent="#courseContentAccordion">
-                                <div class="accordion-body">
-                                    <ul class="list-group">
-                                        @foreach (var lesson in chapter.Lessons)
-                                        {
-                                            <li class="list-group-item">
-                                                @if (lesson.LessonTypeId == 2)
-                                                {
-                                                    <i class="fa-solid fa-book-open"></i> @lesson.LessonName
-                                                }
-                                                else if (lesson.LessonTypeId == 1)
-                                                {
-                                                    <i class="fa-regular fa-circle-play"></i> @lesson.LessonName
-                                                }
-                                                else
-                                                {
-                                                    <i class="fas fa-file"></i> @lesson.LessonName
-                                                }
-                                            </li>
-                                        }
-                                    </ul>
+
+        <!-- Course Content Section (Visible only when logged in) -->
+        @if (!string.IsNullOrEmpty(userRole))
+        {
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 id="curriculum">Course Content</h3>
+                    <p>@Model.Chapters.Count Chapters • @ViewBag.TotalLessons Lessons</p>
+                    <div class="accordion" id="courseContentAccordion">
+                        @foreach (var chapter in Model.Chapters)
+                        {
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingChapter@(chapter.ChapterId)">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChapter@(chapter.ChapterId)" aria-expanded="false" aria-controls="collapseChapter@(chapter.ChapterId)">
+                                        @chapter.ChapterName
+                                    </button>
+                                </h2>
+                                <div id="collapseChapter@(chapter.ChapterId)" class="accordion-collapse collapse" aria-labelledby="headingChapter@(chapter.ChapterId)" data-bs-parent="#courseContentAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-group">
+                                            @foreach (var lesson in chapter.Lessons)
+                                            {
+                                                <li class="list-group-item">
+                                                    @if (lesson.LessonTypeId == 2)
+                                                    {
+                                                        <i class="fa-solid fa-book-open"></i> @lesson.LessonName
+                                                    }
+                                                    else if (lesson.LessonTypeId == 1)
+                                                    {
+                                                        <i class="fa-regular fa-circle-play"></i> @lesson.LessonName
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-file"></i> @lesson.LessonName
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- Phần Rating -->
+        }
+
+        <!-- Rating Section -->
         <div class="card rating-box mb-4">
             <div class="card-body">
-                <h3>Rating</h3>
+                <h3 id="rating">Rating</h3>
                 <div class="d-flex align-items-center mb-4">
                     <i class="fas fa-star me-2"></i> @(ViewBag.AverageRating?.ToString("0.0") ?? "0.0") (@(ViewBag.TotalComments ?? 0) comments)
                     <div class="stars ms-3">
@@ -175,7 +190,7 @@
                                      aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
-                            <div>@(ViewBag.RatingPercentages?.ContainsKey(i) == true ? ViewBag.RatingPercentages[i] * 100 : 0)%</div>
+                            <div>@(ViewBag.RatingPercentages?.ContainsKey(i) == true ? (ViewBag.RatingPercentages[i] * 100).ToString("0.0") : "0.0")%</div>
                         </div>
                     }
                 </div>
@@ -183,10 +198,10 @@
             </div>
         </div>
 
-        <!-- Comment section -->
+        <!-- Comment Section -->
         <div class="card mb-4">
             <div class="card-body">
-                <h3>Comment</h3>
+                <h3>Comments</h3>
                 @if (ViewBag.Comments != null)
                 {
                     @foreach (var comment in ViewBag.Comments)
@@ -211,10 +226,12 @@
             </div>
         </div>
 
-        @if (Model.CourseStatus == 2)
+        <!-- Feedback Submission Section (Visible only when logged in) -->
+        @if (Model.CourseStatus == 2 && !string.IsNullOrEmpty(userRole))
         {
             <div class="card feedback-section mb-4 text-center">
                 <div class="card-body">
+                    <!-- Feedback Form Content -->
                     <img alt="Robot image" src="" class="img-fluid mb-4" />
                     <div class="stars">
                         <i class="fas fa-star" onclick="selectStar(this)"></i>
@@ -231,42 +248,44 @@
             </div>
         }
 
+        <!-- Action Buttons (Visible only to specific user roles) -->
+        @if (!string.IsNullOrEmpty(userRole))
+        {
+            <div class="d-flex justify-content-center mt-4">
+                @if (userRole == "1" && Model.CourseStatus == 1)
+                {
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="courseId" value="@Model.CourseId" />
+                        <input type="hidden" name="status" value="2" />
+                        <button class="btn btn-approve me-2">Approve</button>
+                    </form>
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="courseId" value="@Model.CourseId" />
+                        <input type="hidden" name="status" value="0" />
+                        <button class="btn btn-reject">Reject</button>
+                    </form>
+                }
+                @if (userRole == "2" && Model.CourseStatus == 3)
+                {
+                    <button id="requestToAdminBtn" class="btn btn-request ms-2" onclick="requestToAdmin('@Model.CourseId')">Request to Admin</button>
+                }
+                @if (userRole == "2" && Model.CourseStatus == 0)
+                {
+                    <form asp-action="DeleteCourse" method="post" onsubmit="return confirmDelete();" class="ms-2">
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                    </form>
+                }
+            </div>
+        }
 
-        <!-- Các nút Approve, Reject, Request to Admin và Delete -->
-        <div class="d-flex justify-content-center mt-4">
-            @if (userRole == "1" && Model.CourseStatus == 1)
-            {
-                <form asp-action="ChangeStatus" method="post">
-                    <input type="hidden" name="courseId" value="@Model.CourseId" />
-                    <input type="hidden" name="status" value="2" />
-                    <button class="btn btn-approve me-2">Approve</button>
-                </form>
-                <form asp-action="ChangeStatus" method="post">
-                    <input type="hidden" name="courseId" value="@Model.CourseId" />
-                    <input type="hidden" name="status" value="0" />
-                    <button class="btn btn-reject">Reject</button>
-                </form>
-            }
-            @if (userRole == "2" && Model.CourseStatus == 3)
-            {
-                <button id="requestToAdminBtn" class="btn btn-request ms-2" onclick="requestToAdmin('@Model.CourseId')">Request to Admin</button>
-            }
-            @if (userRole == "2" && Model.CourseStatus == 0)
-            {
-                <form asp-action="DeleteCourse" method="post" onsubmit="return confirmDelete();" class="ms-2">
-                    <button type="submit" class="btn btn-delete">Delete</button>
-                </form>
-            }
-        </div>
-
-
-        <!-- Thông báo Request to Admin -->
-        <div id="adminRequestMessage" class="d-flex justify-content-center text-center mt-2 d-inline-block "></div>
+        <!-- Admin Request Message -->
+        <div id="adminRequestMessage" class="d-flex justify-content-center text-center mt-2 d-inline-block"></div>
 
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/js/Course/CourseDetail.js"></script>
@@ -308,11 +327,15 @@
             }
         }
 
+        var isLoggedIn = '@ViewBag.IsLoggedIn' === 'True';
+        var message = '@ViewBag.Message';
 
-        function handleEnroll() {
-            const form = document.getElementById("enrollForm");
-            form.action = "@Url.Action("LoginPage", "Login")";
-            form.submit();
+        if (!isLoggedIn && message) {
+            alert(message);
+        }
+
+        function selectStar(element) {
+            // Implement star rating selection logic
         }
     </script>
 </body>

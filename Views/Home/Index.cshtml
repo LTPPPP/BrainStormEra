@@ -60,11 +60,6 @@
             <!-- Filter Categories -->
             <div class="categories d-flex justify-content-start p-2 rounded">
                 <button class="btn filter-btn active">All courses</button>
-                <button class="btn filter-btn">Business</button>
-                <button class="btn filter-btn">IT &amp; Software</button>
-                <button class="btn filter-btn">Design</button>
-                <button class="btn filter-btn">Health</button>
-                <button class="btn filter-btn">Math and Logic</button>
             </div>
             <!-- Search Bar -->
             <div class="search-bar mt-2 d-flex justify-content-center">
@@ -84,7 +79,7 @@
         {
             @foreach (var c in Model.RecommendedCourses)
             {
-                <div class="col-md-3 col-sm-6 mb-4">
+                <div class="col-md-2 col-sm-6 mb-4">
                     <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
                         <div class="card course-card h-100">
                             <img src="@c.CoursePicture" class="card-img-top" alt="Course Image">
@@ -110,9 +105,10 @@
         }
         else
         {
-            <p>No recommended courses are available at this time.</p>
+            <p>No recommended courses available.</p>
         }
     </div>
+
 
 
 

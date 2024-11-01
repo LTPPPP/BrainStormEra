@@ -550,13 +550,17 @@ namespace BrainStormEra.Controllers.Course
             var courseId = Request.Cookies["CourseId"];
             var userId = Request.Cookies["user_id"];
             var userRole = Request.Cookies["user_role"];
-
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["Message"] = "You need to log in to access the course details.";
+                // Chuyển hướng đến trang đăng nhập nếu người dùng chưa đăng nhập
+                return RedirectToAction("LoginPage", "Login");
+            }
             if (string.IsNullOrEmpty(courseId))
             {
                 _logger.LogWarning("Course ID is null or empty.");
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
-
             // Kiểm tra Enrollment
             bool isEnrolled = false;
             bool isBanned = false;
@@ -1017,6 +1021,5 @@ namespace BrainStormEra.Controllers.Course
             return newEnrollmentId;
         }
 
-        // ... Other helper methods ...
     }
 }
