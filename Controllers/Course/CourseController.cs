@@ -476,10 +476,15 @@ namespace BrainStormEra.Controllers.Course
                 command.Parameters.AddWithValue("@CourseId", courseId);
                 connection.Open();
                 var result = command.ExecuteScalar();
-                if (result != DBNull.Value)
+                if (result == null || result == DBNull.Value)
+                {
+                    averageRating = 0;
+                }
+                else
                 {
                     averageRating = Convert.ToDecimal(result);
                 }
+
             }
             return averageRating;
         }

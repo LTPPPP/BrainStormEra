@@ -153,28 +153,33 @@
             <div class="card-body">
                 <h3>Rating</h3>
                 <div class="d-flex align-items-center mb-4">
-                    <i class="fas fa-star me-2"></i> @ViewBag.AverageRating.ToString("0.0") (@ViewBag.TotalComments comments)
+                    <i class="fas fa-star me-2"></i> @(ViewBag.AverageRating?.ToString("0.0") ?? "0.0") (@(ViewBag.TotalComments ?? 0) comments)
                     <div class="stars ms-3">
                         @for (int i = 1; i <= 5; i++)
                         {
-                            <i class="fas fa-star @(i <= @ViewBag.AverageRating ? "selected" : "")"></i>
+                            <i class="fas fa-star @(i <= (ViewBag.AverageRating ?? 0) ? "selected" : "")"></i>
                         }
                     </div>
                 </div>
-               <div class="rating-breakdown">
-                    @for (int i = 5; i >= 1; i--)
+
+                <div class="rating-breakdown">
+                    @for (int i = 1; i <= 5; i++)
                     {
                         <div class="d-flex align-items-center mb-3">
                             <div class="stars">
                                 <i class="fas fa-star @(i <= (ViewBag.AverageRating ?? 0) ? "selected" : "")"></i>
                             </div>
                             <div class="progress flex-fill mx-3">
-                                <div class="progress-bar" role="progressbar" style="width: @(ViewBag.RatingPercentages?.ContainsKey(i) == true ? ViewBag.RatingPercentages[i] * 100 : 0)%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: @(ViewBag.RatingPercentages?.ContainsKey(i) == true ? ViewBag.RatingPercentages[i] * 100 : 0)%"
+                                     aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                                </div>
                             </div>
-                            <div>@(ViewBag.RatingPercentages[i] * 100)%</div>
+                            <div>@(ViewBag.RatingPercentages?.ContainsKey(i) == true ? ViewBag.RatingPercentages[i] * 100 : 0)%</div>
                         </div>
                     }
                 </div>
+
             </div>
         </div>
 
@@ -182,23 +187,26 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h3>Comment</h3>
-                @foreach (var comment in ViewBag.Comments)
+                @if (ViewBag.Comments != null)
                 {
-                    <div class="comment mb-4 d-flex border-bottom pb-3">
-                        <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
-                        <div class="flex-fill">
-                            <div class="d-flex align-items-center">
-                                <div class="fw-bold me-2">@comment.User.FullName</div>
-                                <div class="stars me-3">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <i class="fas fa-star @(i <= comment.StarRating ? "selected" : "")"></i>
-                                    }
+                    @foreach (var comment in ViewBag.Comments)
+                    {
+                        <div class="comment mb-4 d-flex border-bottom pb-3">
+                            <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
+                            <div class="flex-fill">
+                                <div class="d-flex align-items-center">
+                                    <div class="fw-bold me-2">@comment.User.FullName</div>
+                                    <div class="stars me-3">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= (comment.StarRating ?? 0) ? "selected" : "")"></i>
+                                        }
+                                    </div>
                                 </div>
+                                <div class="text-muted">@comment.Comment</div>
                             </div>
-                            <div class="text-muted">@comment.Comment</div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
         </div>
