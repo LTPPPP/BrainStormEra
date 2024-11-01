@@ -94,7 +94,7 @@ namespace BrainStormEra.Controllers.Lesson
 
         // GET: Create Lesson
         [HttpGet]
-        public IActionResult CreateLesson()
+        public IActionResult AddLesson()
         {
             ViewBag.Chapters = new SelectList(_context.Chapters, "ChapterId", "ChapterName");
             return View();
@@ -103,7 +103,7 @@ namespace BrainStormEra.Controllers.Lesson
         // POST: Create Lesson
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
+        public IActionResult AddLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
         {
             // Lấy ChapterId từ cookie nếu model không có giá trị
             if (string.IsNullOrEmpty(model.ChapterId) && Request.Cookies.TryGetValue("ChapterId", out string chapterIdFromCookie))

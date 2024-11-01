@@ -2,6 +2,7 @@
 using BrainStormEra.Views.Course;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -181,7 +182,7 @@ namespace BrainStormEra.Controllers.Course
         [HttpGet]
         public ActionResult EditCourse()
         {
-            var courseId = HttpContext.Request.Cookies["course_id"];
+            var courseId = HttpContext.Request.Cookies["CourseId"];
 
             if (string.IsNullOrEmpty(courseId))
             {
@@ -333,8 +334,9 @@ namespace BrainStormEra.Controllers.Course
                         CourseName = reader["course_name"].ToString(),
                         CourseDescription = reader["course_description"].ToString(),
                         CoursePicture = reader["course_picture"]?.ToString(),
-                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0
-                        // Map other properties if necessary
+                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
+                        CourseStatus = Convert.ToInt32(reader["course_status"]),
+                        CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
                     };
                 }
             }
@@ -358,7 +360,6 @@ namespace BrainStormEra.Controllers.Course
                     {
                         CourseCategoryId = reader["course_category_id"].ToString(),
                         CourseCategoryName = reader["course_category_name"].ToString(),
-                        // Map other properties if necessary
                     });
                 }
             }
@@ -541,8 +542,6 @@ namespace BrainStormEra.Controllers.Course
         [HttpGet]
         public IActionResult CourseDetail(int page = 1, int pageSize = 4)
         {
-
-
             var courseId = Request.Cookies["CourseId"];
             var userId = Request.Cookies["user_id"];
             var userRole = Request.Cookies["user_role"];
@@ -553,15 +552,36 @@ namespace BrainStormEra.Controllers.Course
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
 
-            var course = GetCourseById(courseId);
+            // Kiểm tra Enrollment
+            bool isEnrolled = false;
+            bool isBanned = false;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT approved FROM enrollment WHERE user_id = @UserId AND course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    isEnrolled = true;
+                    isBanned = !(bool)result;
+                }
+            }
 
+            ViewBag.IsEnrolled = isEnrolled;
+            ViewBag.IsBanned = isBanned;
+
+            // Lấy thông tin Course
+            var course = GetCourseById(courseId);
             if (course == null)
             {
                 _logger.LogError($"Course not found with ID: {courseId}");
                 return View("ErrorPage", "Course not found.");
             }
 
-            // Get Course Categories
+            // Lấy danh sách Category của khóa học
             var categories = new List<string>();
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -579,27 +599,7 @@ namespace BrainStormEra.Controllers.Course
             }
             ViewBag.CourseCategories = categories;
 
-            // Check if user is enrolled
-            bool isEnrolled = false;
-            if (userRole == "3" && !string.IsNullOrEmpty(userId))
-            {
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT * FROM enrollment WHERE user_id = @UserId AND course_id = @CourseId";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    var reader = command.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        isEnrolled = true;
-                    }
-                }
-            }
-            ViewBag.IsEnrolled = isEnrolled;
-
-            // Get learners count
+            // Tính toán số lượng học viên đã đăng ký
             int learnersCount = 0;
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -611,7 +611,7 @@ namespace BrainStormEra.Controllers.Course
             }
             ViewBag.LearnersCount = learnersCount;
 
-            // Get feedbacks
+            // Lấy danh sách feedback
             var feedbacks = new List<Feedback>();
             int offset = (page - 1) * pageSize;
             using (var connection = new SqlConnection(_connectionString))
@@ -637,8 +637,8 @@ namespace BrainStormEra.Controllers.Course
                         StarRating = reader["star_rating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["star_rating"]) : null,
                         Comment = reader["comment"].ToString(),
                         FeedbackDate = reader["feedback_date"] != DBNull.Value
-           ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
-           : DateOnly.MinValue, // Hoặc một giá trị mặc định nào đó
+                            ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
+                            : DateOnly.MinValue,
                         User = new Models.Account
                         {
                             FullName = reader["full_name"].ToString()
@@ -649,7 +649,7 @@ namespace BrainStormEra.Controllers.Course
             }
             ViewBag.Comments = feedbacks;
 
-            // Get total comments
+            // Tính toán tổng số lượng feedback và rating trung bình
             int totalComments = 0;
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -661,7 +661,6 @@ namespace BrainStormEra.Controllers.Course
             }
             ViewBag.TotalComments = totalComments;
 
-            // Get average rating
             double averageRating = 0;
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -677,45 +676,9 @@ namespace BrainStormEra.Controllers.Course
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
 
-            // Get created by
-            string createdBy = "Unknown";
-            if (!string.IsNullOrEmpty(course.CreatedBy))
-            {
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT full_name FROM account WHERE user_id = @UserId";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@UserId", course.CreatedBy);
-                    connection.Open();
-                    var result = command.ExecuteScalar();
-                    if (result != null)
-                    {
-                        createdBy = result.ToString();
-                    }
-                }
-            }
-            ViewBag.CreatedBy = createdBy;
-
-            // Get rating percentages
-            var ratingPercentages = new Dictionary<int, double>();
-            for (int i = 1; i <= 5; i++)
-            {
-                int count = 0;
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    command.Parameters.AddWithValue("@Rating", i);
-                    connection.Open();
-                    count = (int)command.ExecuteScalar();
-                }
-                ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
-            }
-            ViewBag.RatingPercentages = ratingPercentages;
-
             return View(course);
         }
+
 
         public ActionResult CourseAcceptance()
         {
@@ -741,6 +704,7 @@ namespace BrainStormEra.Controllers.Course
             }
             return View("CourseAcceptance", pendingCourses);
         }
+
 
         [HttpGet]
         public IActionResult ReviewCourse(int page = 1, int pageSize = 4)
@@ -913,12 +877,12 @@ namespace BrainStormEra.Controllers.Course
             Models.Course course = null;
             using (var connection = new SqlConnection(_connectionString))
             {
-                // Get user
+                // Lấy thông tin người dùng
                 var userQuery = "SELECT * FROM account WHERE user_id = @UserId";
                 var userCommand = new SqlCommand(userQuery, connection);
                 userCommand.Parameters.AddWithValue("@UserId", userId);
 
-                // Get course
+                // Lấy thông tin khóa học
                 var courseQuery = "SELECT * FROM course WHERE course_id = @CourseId";
                 var courseCommand = new SqlCommand(courseQuery, connection);
                 courseCommand.Parameters.AddWithValue("@CourseId", courseId);
@@ -937,7 +901,7 @@ namespace BrainStormEra.Controllers.Course
                     }
                 }
 
-                // Reset connection to execute the second command
+                // Reset connection để chạy command thứ hai
                 connection.Close();
                 connection.Open();
 
@@ -967,7 +931,7 @@ namespace BrainStormEra.Controllers.Course
                 {
                     connection.Open();
 
-                    // Insert into enrollment
+                    // Tạo bản ghi trong bảng enrollment
                     var enrollmentQuery = "INSERT INTO enrollment (enrollment_id, user_id, course_id, enrollment_status, approved, enrollment_created_at) " +
                                           "VALUES (@EnrollmentId, @UserId, @CourseId, 1, 1, @CreatedAt)";
                     var enrollmentCommand = new SqlCommand(enrollmentQuery, connection);
@@ -977,7 +941,7 @@ namespace BrainStormEra.Controllers.Course
                     enrollmentCommand.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
                     enrollmentCommand.ExecuteNonQuery();
 
-                    // Update user payment_point
+                    // Trừ điểm của người dùng sau khi đăng ký khóa học thành công
                     var updateUserQuery = "UPDATE account SET payment_point = payment_point - @Price WHERE user_id = @UserId";
                     var updateUserCommand = new SqlCommand(updateUserQuery, connection);
                     updateUserCommand.Parameters.AddWithValue("@Price", course.Price);
@@ -993,6 +957,7 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseDetail", new { id = courseId });
             }
         }
+
 
         [HttpPost]
         public IActionResult RequestToAdmin(string courseId)
