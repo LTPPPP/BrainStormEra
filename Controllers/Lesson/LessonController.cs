@@ -2,40 +2,60 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace BrainStormEra.Controllers.Lesson
 {
     public class LessonController : Controller
     {
-        private readonly SwpMainContext _context;
+        private readonly string _connectionString;
 
-        public LessonController(SwpMainContext context)
+        public LessonController(IConfiguration configuration)
         {
-            _context = context;
+            _connectionString = configuration.GetConnectionString("SwpMainContext");
         }
 
-        // GET: View Lessons
         [HttpGet]
         public IActionResult LessonManagement()
         {
             if (Request.Cookies.TryGetValue("ChapterId", out string chapterId))
             {
-                // Lấy danh sách bài học của chương
-                List<BrainStormEra.Models.Lesson> lessons = _context.Lessons
-                    .Where(l => l.ChapterId == chapterId)
-                    .ToList();
+                List<BrainStormEra.Models.Lesson> lessons = new();
+                using (SqlConnection conn = new(_connectionString))
+                {
+                    conn.Open();
 
-                // Lấy tên của Chapter từ database (giả sử bạn có bảng Chapter với cột ChapterName)
-                var chapter = _context.Chapters.FirstOrDefault(c => c.ChapterId == chapterId);
-                if (chapter != null)
-                {
-                    ViewBag.ChapterName = chapter.ChapterName;  // Truyền tên chapter vào ViewBag
-                }
-                else
-                {
-                    ViewBag.ChapterName = "Chapter Not Found";
+                    string lessonsQuery = "SELECT * FROM lesson WHERE chapter_id = @chapterId";
+                    using (SqlCommand cmd = new(lessonsQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@chapterId", chapterId);
+                        using SqlDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            lessons.Add(new BrainStormEra.Models.Lesson
+                            {
+                                LessonId = reader["lesson_id"].ToString(),
+                                ChapterId = reader["chapter_id"].ToString(),
+                                LessonName = reader["lesson_name"].ToString(),
+                                LessonDescription = reader["lesson_description"].ToString(),
+                                LessonContent = reader["lesson_content"].ToString(),
+                                LessonOrder = Convert.ToInt32(reader["lesson_order"]),
+                                LessonTypeId = Convert.ToInt32(reader["lesson_type_id"]),
+                                LessonStatus = Convert.ToInt32(reader["lesson_status"]),
+                                LessonCreatedAt = Convert.ToDateTime(reader["lesson_created_at"])
+                            });
+                        }
+                    }
+
+                    string chapterQuery = "SELECT chapter_name FROM chapter WHERE chapter_id = @chapterId";
+                    using (SqlCommand cmd = new(chapterQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@chapterId", chapterId);
+                        ViewBag.ChapterName = cmd.ExecuteScalar()?.ToString() ?? "Chapter Not Found";
+                    }
                 }
 
                 return View("LessonManagement", lessons);
@@ -46,114 +66,120 @@ namespace BrainStormEra.Controllers.Lesson
             }
         }
 
-
-
-
-
-        // GET: Delete Lesson
         [HttpGet]
         public IActionResult DeleteLesson()
         {
-            // Lấy ChapterId từ cookie
             if (!Request.Cookies.TryGetValue("ChapterId", out string chapterId))
             {
                 return RedirectToAction("LessonManagement");
             }
 
-            // Lấy danh sách bài học thuộc ChapterId từ cookie
-            var lessons = _context.Lessons
-                .Where(l => l.ChapterId == chapterId)
-                .OrderBy(l => l.LessonOrder) // Sắp xếp theo LessonOrder
-                .ToList();
+            List<BrainStormEra.Models.Lesson> lessons = new();
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string lessonsQuery = "SELECT * FROM lesson WHERE chapter_id = @chapterId ORDER BY lesson_order";
+                using (SqlCommand cmd = new(lessonsQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@chapterId", chapterId);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        lessons.Add(new BrainStormEra.Models.Lesson
+                        {
+                            LessonId = reader["lesson_id"].ToString(),
+                            ChapterId = reader["chapter_id"].ToString(),
+                            LessonOrder = Convert.ToInt32(reader["lesson_order"])
+                            // Populate other fields as necessary
+                        });
+                    }
+                }
+            }
 
-            // Xác định Lesson có LessonOrder cao nhất
             var maxOrderLessonId = lessons.OrderByDescending(l => l.LessonOrder).FirstOrDefault()?.LessonId;
             ViewBag.MaxOrderLessonId = maxOrderLessonId;
 
             return View(lessons);
         }
 
-
-        // POST: Delete Lesson
         [HttpPost, ActionName("DeleteLesson")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteLesson(List<string> LessonIds)
         {
             if (LessonIds != null && LessonIds.Any())
             {
-                var lessonsToDelete = _context.Lessons
-                    .Where(l => LessonIds.Contains(l.LessonId))
-                    .ToList();
-
-                _context.Lessons.RemoveRange(lessonsToDelete);
-                _context.SaveChanges();
+                using (SqlConnection conn = new(_connectionString))
+                {
+                    conn.Open();
+                    var ids = string.Join(", ", LessonIds.Select(id => $"'{id}'"));
+                    string deleteQuery = $"DELETE FROM lesson WHERE lesson_id IN ({ids})";
+                    using SqlCommand cmd = new(deleteQuery, conn);
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             return RedirectToAction("DeleteLesson");
         }
 
-        // GET: Create Lesson
         [HttpGet]
         public IActionResult AddLesson()
         {
-            ViewBag.Chapters = new SelectList(_context.Chapters, "ChapterId", "ChapterName");
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                List<SelectListItem> chapters = new();
+                string chaptersQuery = "SELECT chapter_id, chapter_name FROM chapter";
+                using (SqlCommand cmd = new(chaptersQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        chapters.Add(new SelectListItem
+                        {
+                            Value = reader["chapter_id"].ToString(),
+                            Text = reader["chapter_name"].ToString()
+                        });
+                    }
+                }
+                ViewBag.Chapters = chapters;
+            }
+
             return View();
         }
 
-        // POST: Create Lesson
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AddLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
         {
-            // Lấy ChapterId từ cookie nếu model không có giá trị
+            // Set ChapterId if not provided
             if (string.IsNullOrEmpty(model.ChapterId) && Request.Cookies.TryGetValue("ChapterId", out string chapterIdFromCookie))
             {
                 model.ChapterId = chapterIdFromCookie;
             }
 
-            // Kiểm tra lại nếu ChapterId vẫn null sau khi thử lấy từ cookie
             if (string.IsNullOrEmpty(model.ChapterId))
             {
                 ModelState.AddModelError("ChapterId", "Chapter ID is required.");
             }
 
-            // Tìm LessonId lớn nhất hiện có và tăng lên 1 với tiền tố "LE"
-            var maxId = _context.Lessons
-                .AsEnumerable() // Tải dữ liệu vào bộ nhớ để xử lý phía client
-                .Where(l => l.LessonId.StartsWith("LE"))
-                .Select(l => int.TryParse(l.LessonId.Substring(2), out int id) ? id : 0) // Bỏ tiền tố "LE" và chuyển thành số nguyên, nếu không chuyển được thì mặc định là 0
-                .DefaultIfEmpty(0) // Nếu không có LessonId nào, trả về 0
-                .Max();
+            // Generate Lesson ID
+            int maxId;
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string maxIdQuery = "SELECT ISNULL(MAX(CAST(SUBSTRING(lesson_id, 3, LEN(lesson_id) - 2) AS INT)), 0) FROM lesson WHERE lesson_id LIKE 'LE%'";
+                using SqlCommand cmd = new(maxIdQuery, conn);
+                maxId = (int)cmd.ExecuteScalar();
+            }
+            var newLessonId = "LE" + (maxId + 1).ToString("D3");
+            model.LessonId = newLessonId;
 
-            // Tạo LessonId mới với tiền tố "LE" và tăng giá trị số lên 1
-            model.LessonId = "LE" + (maxId + 1).ToString("D3"); // D3 sẽ đảm bảo rằng số có 3 chữ số (ví dụ: 004)
-            ModelState.Remove("LessonId");
-
-            // Thiết lập LessonCreatedAt là thời gian hiện tại
+            // Set default values
             model.LessonCreatedAt = DateTime.Now;
-
-            // Thiết lập LessonStatus mặc định là 4
             model.LessonStatus = 4;
 
-            // Automatically set LessonOrder to the next available order in the same ChapterId
-            model.LessonOrder = _context.Lessons
-                                .Where(l => l.ChapterId == model.ChapterId)
-                                .OrderByDescending(l => l.LessonOrder)
-                                .Select(l => l.LessonOrder)
-                                .FirstOrDefault() + 1;
-            ModelState.Remove("LessonOrder");
-
-            // Check for duplicate LessonName within the same ChapterId
-            var isDuplicateName = _context.Lessons
-                .Any(l => l.ChapterId == model.ChapterId && l.LessonName == model.LessonName);
-
-            if (isDuplicateName)
-            {
-                ModelState.AddModelError("LessonName", "Lesson name already exists in this chapter. Please choose a different name.");
-            }
-
-            // Validate LessonTypeId and lesson content based on type
-            if (model.LessonTypeId == 1) // Video
+            // Process based on LessonType
+            if (model.LessonTypeId == 1) // Video lesson
             {
                 if (string.IsNullOrEmpty(LessonLink))
                 {
@@ -165,11 +191,10 @@ namespace BrainStormEra.Controllers.Lesson
                 }
                 else
                 {
-                    model.LessonContent = LessonLink;
-                    ModelState.Remove("LessonContent");
+                    model.LessonContent = LessonLink; // Set LessonContent as the link for video lessons
                 }
             }
-            else if (model.LessonTypeId == 2) // Reading
+            else if (model.LessonTypeId == 2) // Reading lesson
             {
                 if (LessonContentFile != null && LessonContentFile.Length > 0)
                 {
@@ -183,8 +208,7 @@ namespace BrainStormEra.Controllers.Lesson
                             LessonContentFile.CopyTo(stream);
                         }
 
-                        model.LessonContent = "/lib/document/" + fileName;
-                        ModelState.Remove("LessonContent");
+                        model.LessonContent = "/lib/document/" + fileName; // Set LessonContent as the file path for reading lessons
                     }
                     catch (Exception ex)
                     {
@@ -197,169 +221,127 @@ namespace BrainStormEra.Controllers.Lesson
                 }
             }
 
-            // Ensure all fields are not empty
-            if (string.IsNullOrEmpty(model.LessonName))
-            {
-                ModelState.AddModelError("LessonName", "Please enter a lesson name.");
-            }
-            if (string.IsNullOrEmpty(model.LessonDescription))
-            {
-                ModelState.AddModelError("LessonDescription", "Please enter a lesson description.");
-            }
-            if (model.LessonOrder == 0)
-            {
-                ModelState.AddModelError("LessonOrder", "Please enter a valid lesson order.");
-            }
-
+            // Check for any validation errors before inserting into the database
             if (ModelState.IsValid)
             {
-                try
+                using (SqlConnection conn = new(_connectionString))
                 {
-                    _context.Lessons.Add(model);
-                    _context.SaveChanges();
-                    return RedirectToAction("LessonManagement");
+                    conn.Open();
+                    string insertQuery = "INSERT INTO lesson (lesson_id, chapter_id, lesson_name, lesson_description, lesson_content, lesson_order, lesson_type_id, lesson_status, lesson_created_at) " +
+                                         "VALUES (@lessonId, @chapterId, @lessonName, @lessonDescription, @lessonContent, @lessonOrder, @lessonTypeId, @lessonStatus, @lessonCreatedAt)";
+                    using SqlCommand cmd = new(insertQuery, conn);
+                    cmd.Parameters.AddWithValue("@lessonId", model.LessonId);
+                    cmd.Parameters.AddWithValue("@chapterId", model.ChapterId);
+                    cmd.Parameters.AddWithValue("@lessonName", model.LessonName);
+                    cmd.Parameters.AddWithValue("@lessonDescription", model.LessonDescription);
+                    cmd.Parameters.AddWithValue("@lessonContent", model.LessonContent);
+                    cmd.Parameters.AddWithValue("@lessonOrder", model.LessonOrder);
+                    cmd.Parameters.AddWithValue("@lessonTypeId", model.LessonTypeId);
+                    cmd.Parameters.AddWithValue("@lessonStatus", model.LessonStatus);
+                    cmd.Parameters.AddWithValue("@lessonCreatedAt", model.LessonCreatedAt);
+                    cmd.ExecuteNonQuery();
                 }
-                catch (DbUpdateException ex)
-                {
-                    Console.WriteLine(ex.InnerException?.Message);
-                    ModelState.AddModelError("", "An error occurred while saving the lesson.");
-                }
+                return RedirectToAction("LessonManagement");
             }
 
-            ViewBag.Chapters = new SelectList(_context.Chapters, "ChapterId", "ChapterName");
+            // Return to view with error messages if validation fails
             return View(model);
         }
 
 
-
-        // GET: Edit Lesson
         [HttpGet]
         public IActionResult EditLesson()
         {
-            // Lấy LessonId từ Cookie
             var lessonId = HttpContext.Request.Cookies["LessonId"];
-
             if (string.IsNullOrEmpty(lessonId))
             {
-                // Nếu LessonId không tồn tại trong cookie, chuyển hướng về trang ViewLesson
                 return RedirectToAction("LessonManagement");
             }
 
-            // Lấy dữ liệu bài học dựa trên LessonId
-            var lesson = _context.Lessons.FirstOrDefault(l => l.LessonId == lessonId);
+            BrainStormEra.Models.Lesson lesson = null;
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId";
+                using (SqlCommand cmd = new(lessonQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        lesson = new BrainStormEra.Models.Lesson
+                        {
+                            LessonId = reader["lesson_id"].ToString(),
+                            LessonName = reader["lesson_name"].ToString(),
+                            LessonDescription = reader["lesson_description"].ToString(),
+                            LessonContent = reader["lesson_content"].ToString(),
+                            LessonTypeId = Convert.ToInt32(reader["lesson_type_id"])
+                        };
+                    }
+                }
+            }
 
             if (lesson == null)
             {
-                // Nếu không tìm thấy bài học, trả về lỗi NotFound
                 return NotFound();
             }
 
-            // Trả về dữ liệu đường dẫn tệp nếu có
-            if (!string.IsNullOrEmpty(lesson.LessonContent))
-            {
-                ViewBag.ExistingFilePath = lesson.LessonContent;
-            }
-
+            ViewBag.ExistingFilePath = lesson.LessonContent;
             return View(lesson);
         }
 
-        // POST: Edit Lesson
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult EditLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
         {
-            // Lấy dữ liệu bài học hiện tại từ cơ sở dữ liệu dựa trên LessonId
-            var existingLesson = _context.Lessons.FirstOrDefault(l => l.LessonId == model.LessonId);
+            BrainStormEra.Models.Lesson existingLesson = null;
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId";
+                using (SqlCommand cmd = new(lessonQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@lessonId", model.LessonId);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        existingLesson = new BrainStormEra.Models.Lesson
+                        {
+                            LessonId = reader["lesson_id"].ToString(),
+                            ChapterId = reader["chapter_id"].ToString(),
+                            LessonStatus = Convert.ToInt32(reader["lesson_status"]),
+                            LessonContent = reader["lesson_content"].ToString()
+                        };
+                    }
+                }
+            }
+
             if (existingLesson == null)
             {
                 return NotFound();
             }
 
-            // Nếu ChapterId của model trống, lấy từ cookie
-            if (string.IsNullOrEmpty(model.ChapterId) && Request.Cookies.TryGetValue("ChapterId", out string chapterIdFromCookie))
-            {
-                model.ChapterId = chapterIdFromCookie;
-            }
-            else
-            {
-                // Giữ nguyên ChapterId từ existingLesson nếu không có trong cookie
-                model.ChapterId = existingLesson.ChapterId;
-            }
-
-            // Giữ nguyên LessonStatus
+            model.ChapterId ??= existingLesson.ChapterId;
             model.LessonStatus = existingLesson.LessonStatus;
-
-            // Kiểm tra trùng lặp LessonName trong cùng một chương (ChapterId) khi chỉnh sửa
-            var duplicateLesson = _context.Lessons
-                .FirstOrDefault(l => l.LessonName == model.LessonName
-                                     && l.ChapterId == model.ChapterId
-                                     && l.LessonId != model.LessonId);
-
-            if (duplicateLesson != null)
-            {
-                ModelState.AddModelError("LessonName", "Lesson name already exists in this chapter. Please choose a different name.");
-            }
-
-            // Kiểm tra loại bài học Video
-            if (model.LessonTypeId == 1) // Video
-            {
-                if (string.IsNullOrEmpty(LessonLink))
-                {
-                    ModelState.AddModelError("LessonLink", "Please enter a YouTube link for video lessons.");
-                }
-                else if (!LessonLink.StartsWith("https://www.youtube.com") && !LessonLink.StartsWith("https://youtu.be"))
-                {
-                    ModelState.AddModelError("LessonLink", "Invalid YouTube link.");
-                }
-                else
-                {
-                    model.LessonContent = LessonLink; // Gán URL vào LessonContent
-                    ModelState.Remove("LessonContent"); // Xóa yêu cầu LessonContent
-                }
-            }
-            else if (model.LessonTypeId == 2) // Reading
-            {
-                if (LessonContentFile != null && LessonContentFile.Length > 0)
-                {
-                    try
-                    {
-                        var fileName = Path.GetFileName(LessonContentFile.FileName);
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "lib", "document", fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            LessonContentFile.CopyTo(stream);
-                        }
-
-                        model.LessonContent = "/lib/document/" + fileName;
-                        ModelState.Remove("LessonContent");
-                    }
-                    catch (Exception ex)
-                    {
-                        ModelState.AddModelError("", "Error uploading the file: " + ex.Message);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("LessonContentFile", "Please upload a file for reading lessons.");
-                }
-            }
 
             if (ModelState.IsValid)
             {
-                // Giữ nguyên các thông tin không chỉnh sửa
-                model.LessonCreatedAt = existingLesson.LessonCreatedAt;
-                model.LessonOrder = existingLesson.LessonOrder; // giữ nguyên LessonOrder
-
-                // Cập nhật thực thể với các giá trị đã chỉnh sửa
-                _context.Entry(existingLesson).State = EntityState.Detached; // Gỡ theo dõi thực thể cũ
-                _context.Lessons.Update(model);
-                _context.SaveChanges();
-
+                using (SqlConnection conn = new(_connectionString))
+                {
+                    conn.Open();
+                    string updateQuery = "UPDATE lesson SET lesson_name = @lessonName, lesson_description = @lessonDescription, lesson_content = @lessonContent, lesson_type_id = @lessonTypeId WHERE lesson_id = @lessonId";
+                    using SqlCommand cmd = new(updateQuery, conn);
+                    cmd.Parameters.AddWithValue("@lessonName", model.LessonName);
+                    cmd.Parameters.AddWithValue("@lessonDescription", model.LessonDescription);
+                    cmd.Parameters.AddWithValue("@lessonContent", model.LessonContent);
+                    cmd.Parameters.AddWithValue("@lessonTypeId", model.LessonTypeId);
+                    cmd.Parameters.AddWithValue("@lessonId", model.LessonId);
+                    cmd.ExecuteNonQuery();
+                }
                 return RedirectToAction("LessonManagement");
             }
 
-            return View(model); // Trả về view nếu có lỗi
+            return View(model);
         }
 
         [HttpGet]
@@ -373,120 +355,120 @@ namespace BrainStormEra.Controllers.Lesson
                 return BadRequest("CourseId or UserId is missing.");
             }
 
-            // Nếu không có bài học nào được chọn, lấy bài học đầu tiên trong chương đầu tiên của khóa học
             if (string.IsNullOrEmpty(lessonId))
             {
-                var firstChapter = _context.Chapters
-                    .Where(c => c.CourseId == courseId)
-                    .OrderBy(c => c.ChapterOrder)
-                    .FirstOrDefault();
-
-                if (firstChapter != null)
+                using (SqlConnection conn = new(_connectionString))
                 {
-                    var firstLesson = _context.Lessons
-                        .Where(l => l.ChapterId == firstChapter.ChapterId)
-                        .OrderBy(l => l.LessonOrder)
-                        .FirstOrDefault();
-                    lessonId = firstLesson?.LessonId;
+                    conn.Open();
+                    string firstLessonQuery = "SELECT TOP 1 l.lesson_id FROM lesson l JOIN chapter c ON l.chapter_id = c.chapter_id WHERE c.course_id = @courseId ORDER BY c.chapter_order, l.lesson_order";
+                    using SqlCommand cmd = new(firstLessonQuery, conn);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    lessonId = cmd.ExecuteScalar()?.ToString();
                 }
             }
 
-            // Lấy thông tin bài học được chọn
-            var lesson = _context.Lessons.FirstOrDefault(l => l.LessonId == lessonId && l.Chapter.CourseId == courseId);
-            if (lesson == null) return NotFound();
+            BrainStormEra.Models.Lesson lesson = null;
+            bool isCompleted = false;
+            List<string> completedLessonIds = new();
 
-            // Kiểm tra xem bài học hiện tại đã được đánh dấu hoàn thành chưa
-            bool isCompleted = _context.LessonCompletions.Any(lc => lc.UserId == userId && lc.LessonId == lessonId);
-
-            // Lấy danh sách tất cả các bài học đã hoàn thành của người dùng trong khóa học này
-            var completedLessonIds = _context.LessonCompletions
-                                              .Where(lc => lc.UserId == userId && lc.Lesson.Chapter.CourseId == courseId)
-                                              .Select(lc => lc.LessonId)
-                                              .ToList();
-
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            using (SqlConnection conn = new(_connectionString))
             {
-                return Json(new
+                conn.Open();
+                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId AND chapter_id IN (SELECT chapter_id FROM chapter WHERE course_id = @courseId)";
+                using (SqlCommand cmd = new(lessonQuery, conn))
                 {
-                    lessonName = lesson.LessonName,
-                    lessonDescription = lesson.LessonDescription,
-                    lessonContent = lesson.LessonTypeId == 1 ? FormatYoutubeUrl(lesson.LessonContent) : lesson.LessonContent,
-                    lessonTypeId = lesson.LessonTypeId,
-                    isCompleted = isCompleted
-                });
+                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        lesson = new BrainStormEra.Models.Lesson
+                        {
+                            LessonId = reader["lesson_id"].ToString(),
+                            LessonName = reader["lesson_name"].ToString(),
+                            LessonDescription = reader["lesson_description"].ToString(),
+                            LessonContent = reader["lesson_content"].ToString(),
+                            LessonTypeId = Convert.ToInt32(reader["lesson_type_id"])
+                        };
+                    }
+                }
+
+                string completionQuery = "SELECT COUNT(1) FROM lesson_completion WHERE user_id = @userId AND lesson_id = @lessonId";
+                using (SqlCommand cmd = new(completionQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                    isCompleted = (int)cmd.ExecuteScalar() > 0;
+                }
+
+                string completedLessonsQuery = "SELECT lesson_id FROM lesson_completion lc JOIN lesson l ON lc.lesson_id = l.lesson_id JOIN chapter c ON l.chapter_id = c.chapter_id WHERE lc.user_id = @userId AND c.course_id = @courseId";
+                using (SqlCommand cmd = new(completedLessonsQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        completedLessonIds.Add(reader["lesson_id"].ToString());
+                    }
+                }
             }
 
-            // Truyền dữ liệu tới view
-            ViewBag.Lessons = _context.Lessons.Where(l => l.Chapter.CourseId == courseId).ToList();
-            ViewBag.Chapters = _context.Chapters.Where(c => c.CourseId == courseId).ToList();
-            ViewBag.CompletedLessons = completedLessonIds; // Truyền danh sách các bài học đã hoàn thành
+            if (lesson == null) return NotFound();
+
+            ViewBag.CompletedLessons = completedLessonIds;
             ViewBag.IsCompleted = isCompleted;
 
             return View(lesson);
         }
 
-
-
-        // Hàm định dạng URL của YouTube nếu là video
-        private string FormatYoutubeUrl(string url)
-        {
-            if (url.Contains("youtu.be"))
-            {
-                return url.Replace("youtu.be/", "www.youtube.com/embed/");
-            }
-            else if (url.Contains("watch?v="))
-            {
-                return url.Replace("watch?v=", "embed/");
-            }
-            return url;
-        }
-
-
-
         [HttpPost]
         public JsonResult MarkLessonCompleted([FromBody] LessonCompletionRequest request)
         {
-            // Lấy user_id từ thông tin người dùng đăng nhập
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(userId))
             {
                 return Json(new { success = false, message = "User not logged in." });
             }
 
-            var lessonId = request.LessonId;
-
-            // Kiểm tra xem bài học này đã được đánh dấu hoàn thành chưa
-            var existingCompletion = _context.LessonCompletions
-                                             .FirstOrDefault(lc => lc.UserId == userId && lc.LessonId == lessonId);
-
-            if (existingCompletion == null)
+            bool alreadyCompleted;
+            using (SqlConnection conn = new(_connectionString))
             {
-                // Tạo LessonCompleteId mới
-                var maxCompletionId = _context.LessonCompletions
-                                              .Where(lc => lc.CompletionId.StartsWith("LC"))
-                                              .OrderByDescending(lc => lc.CompletionId)
-                                              .Select(lc => lc.CompletionId)
-                                              .FirstOrDefault();
-
-                int maxId = 0;
-                if (!string.IsNullOrEmpty(maxCompletionId))
+                conn.Open();
+                string checkCompletionQuery = "SELECT COUNT(1) FROM lesson_completion WHERE user_id = @userId AND lesson_id = @lessonId";
+                using (SqlCommand cmd = new(checkCompletionQuery, conn))
                 {
-                    int.TryParse(maxCompletionId.Substring(2), out maxId);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@lessonId", request.LessonId);
+                    alreadyCompleted = (int)cmd.ExecuteScalar() > 0;
                 }
+            }
 
-                var newCompletionId = "LC" + (maxId + 1).ToString("D3");
-
-                // Thêm bản ghi hoàn thành mới
-                _context.LessonCompletions.Add(new LessonCompletion
+            if (!alreadyCompleted)
+            {
+                using (SqlConnection conn = new(_connectionString))
                 {
-                    CompletionId = newCompletionId,
-                    UserId = userId,
-                    LessonId = lessonId,
-                    CompletionDate = DateTime.Now
-                });
-                _context.SaveChanges();
+                    conn.Open();
+                    string maxCompletionIdQuery = "SELECT ISNULL(MAX(CAST(SUBSTRING(completion_id, 3, LEN(completion_id) - 2) AS INT)), 0) + 1 FROM lesson_completion WHERE completion_id LIKE 'LC%'";
+                    string newCompletionId;
 
+                    using (SqlCommand cmd = new(maxCompletionIdQuery, conn))
+                    {
+                        int maxId = (int)cmd.ExecuteScalar();
+                        newCompletionId = "LC" + maxId.ToString("D3");
+                    }
+
+                    string insertCompletionQuery = "INSERT INTO lesson_completion (completion_id, user_id, lesson_id, completion_date) VALUES (@completionId, @userId, @lessonId, @completionDate)";
+                    using (SqlCommand cmd = new(insertCompletionQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@completionId", newCompletionId);
+                        cmd.Parameters.AddWithValue("@userId", userId);
+                        cmd.Parameters.AddWithValue("@lessonId", request.LessonId);
+                        cmd.Parameters.AddWithValue("@completionDate", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 return Json(new { success = true });
             }
 
@@ -497,7 +479,5 @@ namespace BrainStormEra.Controllers.Lesson
         {
             public string LessonId { get; set; }
         }
-
-
     }
 }
