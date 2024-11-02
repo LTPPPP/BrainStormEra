@@ -1,0 +1,183 @@
+﻿/* Header Styles */
+h2 {
+    color: var(--primary-color);
+    font-weight: bold;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+.table {
+    border-collapse: collapse;
+    border: 2px solid var(--black-color); /* Creates a solid border around the table */
+    width: 100%;
+}
+
+    .table thead th {
+        background-color: var(--primary-color); /* Set header background color */
+        color: var(--white-color); /* Set header text color */
+        font-weight: bold;
+        border: none; /* Removes borders from header cells */
+    }
+
+    .table tbody tr {
+        background-color: var(--white-color); /* Set all rows to white background */
+        color: var(--black-color); /* Set text color */
+        font-weight: bold;
+    }
+
+        .table tbody tr td {
+            border: none; /* Remove borders from table cells */
+            padding: 8px; /* Add padding for spacing */
+        }
+/* Modal Styles */
+.user-details-modal .modal-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Vertical centering */
+}
+
+.user-details-modal .modal-content {
+    background-color: var(--secondary-primary-color);
+    color: var(--white-color);
+    border-radius: 8px;
+    max-width: 600px;
+    padding: 15px;
+}
+
+.user-details-modal .modal-header {
+    border-bottom: none;
+    text-align: center;
+}
+
+.user-details-modal .modal-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.user-details-modal .modal-body p {
+    margin: 5px 0;
+}
+
+/* Button Row Styling */
+.button-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Space between buttons */
+    margin-top: 15px;
+}
+
+/* Specific Button Styles */
+.btn-ban {
+    background-color: var(--red-color);
+    color: var(--white-color);
+    border: none;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+.btn-promote {
+    background-color: var(--yellow-color);
+    color: var(--white-color);
+    border: none;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+.btn-unban {
+    background-color: var(--green-color);
+    color: var(--white-color);
+    border: none;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px; /* Space between input and button */
+    max-width: 600px;
+    margin: auto;
+}
+
+#searchButton {
+    background-color: var(--primary-color); /* Initial color */
+    color: var(--white-color); /* Text color */
+    border: 2px solid transparent;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px; /* Rounded corners */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+}
+
+    #searchButton:hover {
+        background-color: var(--secondary-primary-color); /* Change on hover */
+        border-color: var(--secondary-primary-color); /* Border matches hover color */
+    }
+
+.user-details-container {
+    display: flex;
+    gap: 15px; /* Space between picture and user info */
+    align-items: flex-start;
+}
+
+.user-picture img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover; /* Ensures the image is cropped to fit */
+    border-radius: 8px; /* Optional: Adds rounded corners */
+}
+
+.user-info {
+    flex: 1; /* Allows user info to take remaining space */
+}
+
+/* Responsive adjustments for iPhone 12 Pro size (390px width) */
+@media (max-width: 390px) {
+    /* Adjust modal pop-up size */
+    .user-details-modal .modal-dialog {
+        max-width: 90%; /* Shrink the width of modal to 90% of screen */
+    }
+
+    .user-details-modal .modal-content {
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .user-details-modal .modal-title {
+        font-size: 1.2rem; /* Smaller title font */
+    }
+
+    /* Adjust button styling for better alignment */
+    .button-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* Make search input and button responsive */
+    .search-container {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+
+    #searchButton {
+        width: 80%; /* Reduce button width */
+        margin-top: 5px;
+        padding: 8px;
+        font-size: 1rem;
+    }
+
+    .user-details-container {
+        flex-direction: column; /* Stack picture and details vertically on smaller screens */
+        align-items: center;
+    }
+
+    .user-picture img {
+        width: 80px; /* Smaller size for smaller screens */
+        height: 80px;
+    }
+}

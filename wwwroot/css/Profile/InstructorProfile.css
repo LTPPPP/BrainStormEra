@@ -1,0 +1,114 @@
+﻿h2 {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 35px;
+}
+
+.course-container {
+    background-color: var(--primary-color);
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    color: var(--white-color);
+}
+
+.course-header {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: var(--white-color);
+    text-decoration: none;
+}
+
+    .course-header:hover {
+        opacity: 0.8;
+    }
+
+.learners-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding: 5px;
+    display: none;
+    background-color: var(--background-light);
+    border-radius: 5px;
+}
+
+.learner-item {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: var(--white-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--primary-color);
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+    .learner-item:hover {
+        background-color: var(--background-light);
+    }
+
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-modal-content {
+    background-color: var(--secondary-primary-color);
+    color: var(--white-color);
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .custom-modal-header h5 {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+.custom-close-btn {
+    background: none;
+    border: none;
+    color: var(--white-color);
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+    .custom-close-btn:hover {
+        opacity: 0.7;
+    }
+
+.custom-modal-body p {
+    font-weight: bold;
+    color: var(--white-color);
+}
+
+#learnerPicture {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}

@@ -38,7 +38,6 @@
     <Folder Include="Repo\Chapter\" />
     <Folder Include="Repo\Lesson\" />
     <Folder Include="Repo\Feedback\" />
-    <Folder Include="Repo\Admin\" />
     <Folder Include="Repo\Notification\" />
     <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />
@@ -52,6 +51,7 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Login\Register.cshtml" />
     <_ContentIncludedByDefault Remove="wwwroot\css\Achievement\AdminAchievement.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Profile\AdminProfile.css" />
   </ItemGroup>
 
   <ItemGroup>
