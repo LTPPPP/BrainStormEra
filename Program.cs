@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using BrainStormEra.Repo;
 using BrainStormEra.Repo.Chatbot;
+using BrainStormEra.Repo.Admin;
 namespace BrainStormEra
 {
     public class Program
@@ -27,6 +28,7 @@ namespace BrainStormEra
             builder.Services.AddScoped<AccountRepo>();
             builder.Services.AddScoped<AchievementRepo>();
             builder.Services.AddScoped<ChatbotRepo>();
+            builder.Services.AddScoped<ProfileRepo>();
             builder.Services.AddControllersWithViews();
             // Add authentication services for cookies
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
