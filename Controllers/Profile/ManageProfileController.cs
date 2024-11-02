@@ -1,5 +1,8 @@
-﻿using BrainStormEra.Repo;
+﻿using BrainStormEra.Models;
+using BrainStormEra.Repo;
+using BrainStormEra.Views.Profile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers.Profile
@@ -7,10 +10,12 @@ namespace BrainStormEra.Controllers.Profile
     public class ManageProfileController : Controller
     {
         private readonly AccountRepo _profileRepo;
+        private readonly SwpMainContext _context;
 
-        public ManageProfileController(AccountRepo profileRepo)
+        public ManageProfileController(AccountRepo profileRepo, SwpMainContext context)
         {
             _profileRepo = profileRepo;
+            _context = context;
         }
 
         [HttpGet]
@@ -24,12 +29,41 @@ namespace BrainStormEra.Controllers.Profile
             }
             else if (userRole == "2") // Instructor
             {
-                var learners = await _profileRepo.GetLearnersAsync();
-                return View("~/Views/Instructor/ViewLearner.cshtml", learners);
+                // Instead of getting a flat list of learners, get learners grouped by courses
+                var coursesWithLearners = await _context.Courses
+                    .Include(course => course.Enrollments)
+                        .ThenInclude(enrollment => enrollment.User)
+                    .Select(course => new
+                    {
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        Learners = course.Enrollments
+                            .Where(e => e.Approved == true)
+                            .Select(e => new UserDetailsViewModel
+                            {
+                                UserId = e.User.UserId,
+                                Username = e.User.Username,
+                                FullName = e.User.FullName,
+                                UserEmail = e.User.UserEmail,
+                                UserAddress = e.User.UserAddress,
+                                PhoneNumber = e.User.PhoneNumber,
+                                DateOfBirth = e.User.DateOfBirth,
+                                Gender = e.User.Gender,
+                                UserPicture = e.User.UserPicture
+                            }).ToList()
+                    })
+                    .ToListAsync();
+
+                var model = coursesWithLearners.ToDictionary(
+                    c => c.CourseId,
+                    c => (c.CourseName, c.Learners));
+
+                return View("~/Views/Instructor/ViewLearner.cshtml", model);
             }
 
             return Unauthorized();
         }
+
 
         [HttpGet("/api/users/{userId}")]
         public async Task<IActionResult> GetUserDetails(string userId)

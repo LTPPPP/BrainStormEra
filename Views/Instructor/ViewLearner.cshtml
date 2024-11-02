@@ -1,4 +1,4 @@
-﻿@model Dictionary<string, (string CourseName, List<BrainStormEra.Models.Account> Learners)>
+﻿@model Dictionary<string, (string CourseName, List<BrainStormEra.Views.Profile.UserDetailsViewModel> Learners)>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +24,7 @@
                 <div class="course-header" onclick="toggleLearnersList('learners-@course.Key')">
                     Course: @course.Value.CourseName
                 </div>
-                <div id="learners-@course.Key" class="learners-list">
+                <div id="learners-@course.Key" class="learners-list" style="display:none;">
                     @foreach (var learner in course.Value.Learners)
                     {
                         <div class="learner-item" onclick="showLearnerDetails('@learner.UserId')">
@@ -66,9 +66,8 @@
             fetch(`/api/users/${userId}`)
                 .then(response => response.json())
                 .then(data => {
-                    const fullName = data.fullName && data.fullName !== "NULL" ? data.fullName : "Unnamed";
                     document.getElementById('modalUsername').textContent = data.username || 'N/A';
-                    document.getElementById('modalFullName').textContent = fullName;
+                    document.getElementById('modalFullName').textContent = data.fullName || 'Unnamed';
                     document.getElementById('modalEmail').textContent = data.userEmail || 'N/A';
                     document.getElementById('modalPhone').textContent = data.phoneNumber || 'N/A';
                     document.getElementById('modalDOB').textContent = data.dateOfBirth || 'N/A';
