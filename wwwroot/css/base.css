@@ -79,3 +79,20 @@ html {
 .container-fluid{
     width : 100%;
 }
+
+/* Target the main container of the page content */
+.container {
+    flex: 1; /* This will allow the container to expand and push the footer down */
+}
+
+/* Footer styling remains the same */
+footer {
+    background-color: var(--button-color);
+    color: var(--white-color);
+    padding: 20px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    position: relative;
+}
