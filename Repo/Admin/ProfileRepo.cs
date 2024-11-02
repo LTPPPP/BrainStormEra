@@ -18,6 +18,7 @@ namespace BrainStormEra.Repo.Admin
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        // Method to get learners and instructors
         public async Task<List<UserDetailsViewModel>> GetLearnersAndInstructorsAsync()
         {
             var users = new List<UserDetailsViewModel>();
@@ -28,15 +29,14 @@ namespace BrainStormEra.Repo.Admin
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-    SELECT a.user_id, a.user_role, a.username, a.user_email, a.full_name, 
-           a.date_of_birth, a.gender, a.phone_number, a.user_address, 
-           a.account_created_at, a.user_picture,  
-           CASE WHEN EXISTS (
-               SELECT 1 FROM enrollment e WHERE e.user_id = a.user_id AND e.approved = 1
-           ) THEN 1 ELSE 0 END AS Approved
-    FROM account a
-    WHERE a.user_role IN (2, 3)";  // Only get Learners and Instructors
-
+                        SELECT a.user_id, a.user_role, a.username, a.user_email, a.full_name, 
+                               a.date_of_birth, a.gender, a.phone_number, a.user_address, 
+                               a.account_created_at, a.user_picture,  
+                               CASE WHEN EXISTS (
+                                   SELECT 1 FROM enrollment e WHERE e.user_id = a.user_id AND e.approved = 1
+                               ) THEN 1 ELSE 0 END AS Approved
+                        FROM account a
+                        WHERE a.user_role IN (2, 3)";  // Only get Learners and Instructors
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -56,7 +56,6 @@ namespace BrainStormEra.Repo.Admin
                                 AccountCreatedAt = (DateTime)reader["account_created_at"],
                                 UserPicture = reader["user_picture"]?.ToString(),
                                 Approved = Convert.ToInt32(reader["Approved"])
-
                             };
 
                             users.Add(userDetails);
@@ -68,6 +67,7 @@ namespace BrainStormEra.Repo.Admin
             return users;
         }
 
+        // Method to get user details by userId
         public async Task<UserDetailsViewModel?> GetUserDetailsAsync(string userId)
         {
             using (var connection = _context.Database.GetDbConnection())
@@ -76,15 +76,14 @@ namespace BrainStormEra.Repo.Admin
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-    SELECT a.user_id, a.user_role, a.username, a.user_email, a.full_name, 
-           a.date_of_birth, a.gender, a.phone_number, a.user_address, 
-           a.account_created_at, a.user_picture,  -- Include user_picture field
-           CASE WHEN EXISTS (
-               SELECT 1 FROM enrollment e WHERE e.user_id = a.user_id AND e.approved = 1
-           ) THEN 1 ELSE 0 END AS Approved
-    FROM account a
-    LEFT JOIN enrollment e ON a.user_id = e.user_id
-    WHERE a.user_id = @userId";
+                        SELECT a.user_id, a.user_role, a.username, a.user_email, a.full_name, 
+                               a.date_of_birth, a.gender, a.phone_number, a.user_address, 
+                               a.account_created_at, a.user_picture,
+                               CASE WHEN EXISTS (
+                                   SELECT 1 FROM enrollment e WHERE e.user_id = a.user_id AND e.approved = 1
+                               ) THEN 1 ELSE 0 END AS Approved
+                        FROM account a
+                        WHERE a.user_id = @userId";
 
                     command.Parameters.Add(new SqlParameter("@userId", userId));
 
@@ -106,7 +105,6 @@ namespace BrainStormEra.Repo.Admin
                                 UserPicture = reader["user_picture"]?.ToString(),
                                 AccountCreatedAt = (DateTime)reader["account_created_at"],
                                 Approved = Convert.ToInt32(reader["Approved"])
-
                             };
                         }
                     }
@@ -115,6 +113,7 @@ namespace BrainStormEra.Repo.Admin
             return null;
         }
 
+        // Method to ban a learner
         public async Task BanLearnerAsync(string userId)
         {
             using (var connection = _context.Database.GetDbConnection())
@@ -138,6 +137,7 @@ namespace BrainStormEra.Repo.Admin
             }
         }
 
+        // Method to unban a learner
         public async Task UnbanLearnerAsync(string userId)
         {
             using (var connection = _context.Database.GetDbConnection())
@@ -160,6 +160,8 @@ namespace BrainStormEra.Repo.Admin
                 }
             }
         }
+
+        // Method to promote a learner to instructor
         public async Task<string?> PromoteLearnerToInstructorAsync(string userId)
         {
             using (var connection = _context.Database.GetDbConnection())
@@ -229,9 +231,11 @@ namespace BrainStormEra.Repo.Admin
                 return newInstructorId;
             }
         }
-        public async Task<Dictionary<string, (string CourseName, List<Account> Learners)>> GetLearnersByInstructorCoursesAsync(string instructorId)
+
+        // Method to get learners grouped by instructor's courses
+        public async Task<Dictionary<string, (string CourseName, List<UserDetailsViewModel> Learners)>> GetLearnersByInstructorCoursesAsync(string instructorId)
         {
-            var courseLearners = new Dictionary<string, (string CourseName, List<Account> Learners)>();
+            var courseLearners = new Dictionary<string, (string CourseName, List<UserDetailsViewModel> Learners)>();
 
             using (var connection = _context.Database.GetDbConnection())
             {
@@ -239,13 +243,13 @@ namespace BrainStormEra.Repo.Admin
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT c.course_id, c.course_name, a.user_id, a.full_name, a.username, a.user_email, a.phone_number,
-                       a.date_of_birth, a.gender, a.user_address, a.user_picture
-                FROM account a
-                JOIN enrollment e ON e.user_id = a.user_id
-                JOIN course c ON c.course_id = e.course_id
-                WHERE c.created_by = @instructorId AND e.approved = 1 AND a.user_role = 3
-                ORDER BY c.course_name";
+                        SELECT c.course_id, c.course_name, a.user_id, a.full_name, a.username, a.user_email, a.phone_number,
+                               a.date_of_birth, a.gender, a.user_address, a.user_picture
+                        FROM account a
+                        JOIN enrollment e ON e.user_id = a.user_id
+                        JOIN course c ON c.course_id = e.course_id
+                        WHERE c.created_by = @instructorId AND e.approved = 1 AND a.user_role = 3
+                        ORDER BY c.course_name";
 
                     command.Parameters.Add(new SqlParameter("@instructorId", instructorId));
 
@@ -256,14 +260,14 @@ namespace BrainStormEra.Repo.Admin
                             var courseId = reader["course_id"].ToString();
                             var courseName = reader["course_name"].ToString();
 
-                            var learner = new Account
+                            var learner = new UserDetailsViewModel
                             {
                                 UserId = reader["user_id"].ToString(),
                                 FullName = reader["full_name"]?.ToString(),
                                 Username = reader["username"].ToString(),
                                 UserEmail = reader["user_email"].ToString(),
                                 PhoneNumber = reader["phone_number"]?.ToString(),
-                                DateOfBirth = reader["date_of_birth"] == DBNull.Value ? null : DateOnly.FromDateTime((DateTime)reader["date_of_birth"]),
+                                DateOfBirth = reader["date_of_birth"] == DBNull.Value ? (DateOnly?)null : DateOnly.FromDateTime((DateTime)reader["date_of_birth"]),
                                 Gender = reader["gender"]?.ToString(),
                                 UserAddress = reader["user_address"]?.ToString(),
                                 UserPicture = reader["user_picture"]?.ToString()
@@ -271,7 +275,7 @@ namespace BrainStormEra.Repo.Admin
 
                             if (!courseLearners.ContainsKey(courseId))
                             {
-                                courseLearners[courseId] = (courseName, new List<Account>());
+                                courseLearners[courseId] = (courseName, new List<UserDetailsViewModel>());
                             }
 
                             courseLearners[courseId].Learners.Add(learner);
