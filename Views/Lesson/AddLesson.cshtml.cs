@@ -1,12 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using BrainStormEra.Models;
 
-namespace BrainStormEra.Views.Lesson
+public class AddLessonViewModel
 {
-    public class AddLessonModel : PageModel
-    {
-        public void OnGet()
-        {
-        }
-    }
+    public Lesson Lesson { get; set; }
+    public IFormFile LessonContentFile { get; set; }
+    public string LessonLink { get; set; }
 }
