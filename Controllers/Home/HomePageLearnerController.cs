@@ -30,7 +30,7 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            
+
             Models.Account user = null;
             int completedCoursesCount = 0;
             int totalCoursesEnrolled = 0;
@@ -38,10 +38,42 @@ namespace BrainStormEra.Controllers
             var achievements = new List<Models.Achievement>();
             var recommendedCourses = new List<ManagementCourseViewModel>();
             var notifications = new List<Notification>();
+            var categories = new List<CourseCategory>();
 
             using (var connection = _dbContext.Database.GetDbConnection())
             {
                 await connection.OpenAsync();
+
+
+                string categoryQuery = @"
+                SELECT TOP 5
+                    course_category_id AS CourseCategoryId,
+                    course_category_name AS CourseCategoryName
+                FROM
+                    course_category
+                ORDER BY
+                    course_category_name;
+            ";
+                // Execute the category query
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = categoryQuery;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var category = new CourseCategory
+                            {
+                                CourseCategoryId = reader["CourseCategoryId"].ToString(),
+                                CourseCategoryName = reader["CourseCategoryName"].ToString()
+                            };
+                            categories.Add(category);
+                        }
+                    }
+                }
+                ViewBag.Categories = categories; // Pass categories to the view using ViewBag
+
+
 
                 // Get user information
                 using (var command = connection.CreateCommand())

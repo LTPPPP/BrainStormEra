@@ -4,23 +4,68 @@ using BrainStormEra.Views.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace BrainStormEra.Controllers.Home
 {
     public class HomePageGuestController : Controller
     {
+        private readonly string _connectionString;
+
         private readonly SwpMainContext _dbContext;
 
-        public HomePageGuestController(SwpMainContext context)
+        public HomePageGuestController(IConfiguration configuration, SwpMainContext context)
         {
+            _connectionString = configuration.GetConnectionString("SwpMainContext");
+
             _dbContext = context;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            // Định nghĩa truy vấn SQL để lấy top 4 khoá học được đề xuất
-            string sqlQuery = @"
+
+
+
+            string categoryQuery = @"
+                SELECT TOP 5
+                    course_category_id AS CourseCategoryId,
+                    course_category_name AS CourseCategoryName
+                FROM
+                    course_category
+                ORDER BY
+                    course_category_name;
+            ";
+            var categories = new List<CourseCategory>();
+
+            // Execute both SQL queries in a single connection
+            using (var connection = _dbContext.Database.GetDbConnection())
+            {
+                connection.Open();
+
+                // Execute the category query
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = categoryQuery;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var category = new CourseCategory
+                            {
+                                CourseCategoryId = reader["CourseCategoryId"].ToString(),
+                                CourseCategoryName = reader["CourseCategoryName"].ToString()
+                            };
+                            categories.Add(category);
+                        }
+                    }
+                }
+
+                ViewBag.Categories = categories; // Pass categories to the view using ViewBag
+
+
+                // Định nghĩa truy vấn SQL để lấy top 4 khoá học được đề xuất
+                string sqlQuery = @"
                 SELECT TOP 4
                     c.course_id,
                     c.course_name,
@@ -49,44 +94,46 @@ namespace BrainStormEra.Controllers.Home
                 ORDER BY
                     COUNT(e.enrollment_id) DESC;";
 
-            // Tạo danh sách để lưu trữ các khóa học được đề xuất
-            var recommendedCourses = new List<HomePageGuestViewtModel.ManagementCourseViewModel>();
+                // Tạo danh sách để lưu trữ các khóa học được đề xuất
+                var recommendedCourses = new List<HomePageGuestViewtModel.ManagementCourseViewModel>();
 
-            // Mở kết nối đến database và thực hiện truy vấn
-            using (var command = _dbContext.Database.GetDbConnection().CreateCommand())
-            {
-                command.CommandText = sqlQuery;
-                _dbContext.Database.OpenConnection();
-
-                using (var result = command.ExecuteReader())
+                // Mở kết nối đến database và thực hiện truy vấn
+                using (var command = _dbContext.Database.GetDbConnection().CreateCommand())
                 {
-                    // Duyệt qua kết quả truy vấn và ánh xạ sang ManagementCourseViewModel
-                    while (result.Read())
+                    command.CommandText = sqlQuery;
+                    _dbContext.Database.OpenConnection();
+
+                    using (var result = command.ExecuteReader())
                     {
-                        var course = new HomePageGuestViewtModel.ManagementCourseViewModel
+                        // Duyệt qua kết quả truy vấn và ánh xạ sang ManagementCourseViewModel
+                        while (result.Read())
                         {
-                            CourseId = result["course_id"].ToString(),
-                            CourseName = result["course_name"].ToString(),
-                            CourseDescription = result["course_description"].ToString(),
-                            CourseStatus = Convert.ToInt32(result["course_status"]),
-                            CoursePicture = result["course_picture"].ToString(),
-                            Price = Convert.ToDecimal(result["price"]),
-                            CourseCreatedAt = Convert.ToDateTime(result["course_created_at"]),
-                            CreatedBy = result["CreatedBy"].ToString(),
-                            StarRating = result["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(result["StarRating"]) : (byte?)0
-                        };
-                        recommendedCourses.Add(course);
+                            var course = new HomePageGuestViewtModel.ManagementCourseViewModel
+                            {
+                                CourseId = result["course_id"].ToString(),
+                                CourseName = result["course_name"].ToString(),
+                                CourseDescription = result["course_description"].ToString(),
+                                CourseStatus = Convert.ToInt32(result["course_status"]),
+                                CoursePicture = result["course_picture"].ToString(),
+                                Price = Convert.ToDecimal(result["price"]),
+                                CourseCreatedAt = Convert.ToDateTime(result["course_created_at"]),
+                                CreatedBy = result["CreatedBy"].ToString(),
+                                StarRating = result["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(result["StarRating"]) : (byte?)0
+                            };
+                            recommendedCourses.Add(course);
+                        }
                     }
                 }
+
+                // Chuẩn bị view model với danh sách các khóa học được đề xuất
+                var viewModel = new HomePageGuestViewtModel
+                {
+                    RecommendedCourses = recommendedCourses
+                };
+                ViewBag.Categories = categories; // Pass categories to the view using ViewBag
+
+                return View("~/Views/Home/Index.cshtml", viewModel);
             }
-
-            // Chuẩn bị view model với danh sách các khóa học được đề xuất
-            var viewModel = new HomePageGuestViewtModel
-            {
-                RecommendedCourses = recommendedCourses
-            };
-
-            return View("~/Views/Home/Index.cshtml", viewModel);
         }
     }
 }

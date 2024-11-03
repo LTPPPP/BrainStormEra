@@ -6,8 +6,6 @@ using System.Security.Claims;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BrainStormEra.Controllers.Lesson
 {
@@ -29,7 +27,6 @@ namespace BrainStormEra.Controllers.Lesson
                 using (SqlConnection conn = new(_connectionString))
                 {
                     conn.Open();
-
                     string lessonsQuery = "SELECT * FROM lesson WHERE chapter_id = @chapterId";
                     using (SqlCommand cmd = new(lessonsQuery, conn))
                     {
@@ -103,9 +100,7 @@ namespace BrainStormEra.Controllers.Lesson
                 }
             }
 
-            var maxOrderLessonId = lessons.OrderByDescending(l => l.LessonOrder).FirstOrDefault()?.LessonId;
-            ViewBag.MaxOrderLessonId = maxOrderLessonId;
-
+            ViewBag.MaxOrderLessonId = lessons.OrderByDescending(l => l.LessonOrder).FirstOrDefault()?.LessonId;
             return View(lessons);
         }
 
@@ -154,7 +149,6 @@ namespace BrainStormEra.Controllers.Lesson
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AddLesson(AddLessonViewModel viewModel)
@@ -163,31 +157,28 @@ namespace BrainStormEra.Controllers.Lesson
             viewModel.Lesson ??= new BrainStormEra.Models.Lesson();
             viewModel.Lesson.LessonStatus = 0;
             viewModel.Lesson.ChapterId = chapterID;
-            // Tìm LessonId lớn nhất và tạo LessonId mới
+
             using (SqlConnection conn = new(_connectionString))
             {
                 conn.Open();
 
-                string maxOrderQuery = @"
-            SELECT ISNULL(MAX(lesson_order), 0) + 1
-            FROM lesson
-            WHERE chapter_id = @chapterId";
-
+                // Determine Lesson Order
+                string maxOrderQuery = @"SELECT ISNULL(MAX(lesson_order), 0) + 1 FROM lesson WHERE chapter_id = @chapterId";
                 using (SqlCommand cmd = new(maxOrderQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@chapterId", chapterID);
-                    viewModel.Lesson.LessonOrder = (int)cmd.ExecuteScalar(); // Set the lesson order to max + 1
+                    viewModel.Lesson.LessonOrder = (int)cmd.ExecuteScalar();
                 }
 
+                // Determine new Lesson ID
                 string maxIdQuery = "SELECT MAX(lesson_id) FROM lesson WHERE lesson_id LIKE 'LE%'";
                 using (SqlCommand cmd = new(maxIdQuery, conn))
                 {
                     object result = cmd.ExecuteScalar();
                     if (result != DBNull.Value && result != null)
                     {
-                        // Lấy số từ LessonId hiện tại
                         string maxId = result.ToString();
-                        int currentNumber = int.Parse(maxId.Substring(2)); // Bỏ "LE" và chỉ lấy phần số
+                        int currentNumber = int.Parse(maxId.Substring(2));
                         int newNumber = currentNumber + 1;
                         viewModel.Lesson.LessonId = "LE" + newNumber.ToString("D3");
                     }
@@ -197,7 +188,9 @@ namespace BrainStormEra.Controllers.Lesson
                     }
                 }
             }
-            if (viewModel.Lesson.LessonTypeId == 1) // Video
+
+            // Set Lesson Content based on type
+            if (viewModel.Lesson.LessonTypeId == 1)
             {
                 if (string.IsNullOrEmpty(viewModel.LessonLink))
                 {
@@ -208,7 +201,7 @@ namespace BrainStormEra.Controllers.Lesson
                     viewModel.Lesson.LessonContent = viewModel.LessonLink;
                 }
             }
-            else if (viewModel.Lesson.LessonTypeId == 2) // Reading
+            else if (viewModel.Lesson.LessonTypeId == 2)
             {
                 if (viewModel.LessonContentFile == null || viewModel.LessonContentFile.Length == 0)
                 {
@@ -220,7 +213,6 @@ namespace BrainStormEra.Controllers.Lesson
                     var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "lib", "document", uniqueFileName);
 
-                    // Ensure the directory exists
                     Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -236,33 +228,12 @@ namespace BrainStormEra.Controllers.Lesson
                 ModelState.AddModelError("Lesson.LessonTypeId", "Invalid lesson type.");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // Re-populate the chapters in case of an error
-                using (SqlConnection conn = new(_connectionString))
-                {
-                    conn.Open();
-                    List<SelectListItem> chapters = new();
-                    string chaptersQuery = "SELECT chapter_id, chapter_name FROM chapter";
-                    using (SqlCommand cmd = new(chaptersQuery, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            chapters.Add(new SelectListItem
-                            {
-                                Value = reader["chapter_id"].ToString(),
-                                Text = reader["chapter_name"].ToString()
-                            });
-                        }
-                    }
-                    ViewBag.Chapters = chapters;
-                }
-
+                RepopulateChapters();
                 return View(viewModel);
             }
 
-            // Lưu lesson vào cơ sở dữ liệu
             using (SqlConnection conn = new(_connectionString))
             {
                 conn.Open();
@@ -271,26 +242,16 @@ namespace BrainStormEra.Controllers.Lesson
                 try
                 {
                     string insertQuery = @"
-                INSERT INTO lesson (
-                    lesson_id, chapter_id, lesson_name, lesson_description, 
-                    lesson_content, lesson_order, lesson_type_id, 
-                    lesson_status, lesson_created_at
-                ) 
-                VALUES (
-                    @lessonId, @chapterId, @lessonName, @lessonDescription,
-                    @lessonContent, @lessonOrder, @lessonTypeId,
-                    @lessonStatus, @lessonCreatedAt
-                )";
-                    Console.WriteLine("id : "+viewModel.Lesson.LessonId);
-                    Console.WriteLine("chapterid : "+viewModel.Lesson.ChapterId);
-                    Console.WriteLine("lesson name : "+viewModel.Lesson.LessonName);
-                    Console.WriteLine("des : "+viewModel.Lesson.LessonDescription);
-                    Console.WriteLine("content : "+viewModel.Lesson.LessonContent);
-                    Console.WriteLine("order : "+viewModel.Lesson.LessonOrder);
-                    Console.WriteLine("type id : "+viewModel.Lesson.LessonTypeId);
-                    Console.WriteLine("status : "+viewModel.Lesson.LessonStatus);
-                    Console.WriteLine("date : "+DateTime.Now);
-
+                    INSERT INTO lesson (
+                        lesson_id, chapter_id, lesson_name, lesson_description, 
+                        lesson_content, lesson_order, lesson_type_id, 
+                        lesson_status, lesson_created_at
+                    ) 
+                    VALUES (
+                        @lessonId, @chapterId, @lessonName, @lessonDescription,
+                        @lessonContent, @lessonOrder, @lessonTypeId,
+                        @lessonStatus, @lessonCreatedAt
+                    )";
                     using SqlCommand cmd = new(insertQuery, conn, transaction);
                     cmd.Parameters.AddWithValue("@lessonId", viewModel.Lesson.LessonId);
                     cmd.Parameters.AddWithValue("@chapterId", viewModel.Lesson.ChapterId);
@@ -312,35 +273,11 @@ namespace BrainStormEra.Controllers.Lesson
                 {
                     transaction.Rollback();
                     ModelState.AddModelError("", $"Error saving lesson: {ex.Message}");
-
-                    // Re-populate the chapters in case of an error
-                    using (SqlConnection conn2 = new(_connectionString))
-                    {
-                        conn2.Open();
-                        List<SelectListItem> chapters = new();
-                        string chaptersQuery = "SELECT chapter_id, chapter_name FROM chapter";
-                        using (SqlCommand cmd = new(chaptersQuery, conn2))
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                chapters.Add(new SelectListItem
-                                {
-                                    Value = reader["chapter_id"].ToString(),
-                                    Text = reader["chapter_name"].ToString()
-                                });
-                            }
-                        }
-                        ViewBag.Chapters = chapters;
-                    }
-
+                    RepopulateChapters();
                     return View(viewModel);
                 }
             }
         }
-
-
-
 
         [HttpGet]
         public IActionResult EditLesson()
@@ -385,26 +322,7 @@ namespace BrainStormEra.Controllers.Lesson
         [ValidateAntiForgeryToken]
         public IActionResult EditLesson(BrainStormEra.Models.Lesson model, IFormFile? LessonContentFile, string? LessonLink)
         {
-            BrainStormEra.Models.Lesson existingLesson = null;
-            using (SqlConnection conn = new(_connectionString))
-            {
-                conn.Open();
-                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId";
-                using SqlCommand cmd = new(lessonQuery, conn);
-                cmd.Parameters.AddWithValue("@lessonId", model.LessonId);
-                using SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    existingLesson = new BrainStormEra.Models.Lesson
-                    {
-                        LessonId = reader["lesson_id"].ToString(),
-                        ChapterId = reader["chapter_id"].ToString(),
-                        LessonStatus = Convert.ToInt32(reader["lesson_status"]),
-                        LessonContent = reader["lesson_content"].ToString()
-                    };
-                }
-            }
-
+            BrainStormEra.Models.Lesson existingLesson = GetExistingLesson(model.LessonId);
             if (existingLesson == null)
             {
                 return NotFound();
@@ -413,8 +331,7 @@ namespace BrainStormEra.Controllers.Lesson
             model.ChapterId ??= existingLesson.ChapterId;
             model.LessonStatus = existingLesson.LessonStatus;
 
-            // Handle LessonContent based on LessonType
-            if (model.LessonTypeId == 1) // Video
+            if (model.LessonTypeId == 1)
             {
                 if (string.IsNullOrEmpty(LessonLink))
                 {
@@ -425,7 +342,7 @@ namespace BrainStormEra.Controllers.Lesson
                     model.LessonContent = LessonLink;
                 }
             }
-            else if (model.LessonTypeId == 2) // Reading
+            else if (model.LessonTypeId == 2)
             {
                 if (LessonContentFile != null && LessonContentFile.Length > 0)
                 {
@@ -433,7 +350,6 @@ namespace BrainStormEra.Controllers.Lesson
                     var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "lib", "document", uniqueFileName);
 
-                    // Ensure the directory exists
                     Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -445,7 +361,7 @@ namespace BrainStormEra.Controllers.Lesson
                 }
                 else
                 {
-                    model.LessonContent = existingLesson.LessonContent; // Retain existing content if no new file is uploaded
+                    model.LessonContent = existingLesson.LessonContent;
                 }
             }
             else
@@ -453,24 +369,13 @@ namespace BrainStormEra.Controllers.Lesson
                 ModelState.AddModelError("LessonTypeId", "Invalid lesson type.");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                using (SqlConnection conn = new(_connectionString))
-                {
-                    conn.Open();
-                    string updateQuery = "UPDATE lesson SET lesson_name = @lessonName, lesson_description = @lessonDescription, lesson_content = @lessonContent, lesson_type_id = @lessonTypeId WHERE lesson_id = @lessonId";
-                    using SqlCommand cmd = new(updateQuery, conn);
-                    cmd.Parameters.AddWithValue("@lessonName", model.LessonName);
-                    cmd.Parameters.AddWithValue("@lessonDescription", model.LessonDescription);
-                    cmd.Parameters.AddWithValue("@lessonContent", model.LessonContent);
-                    cmd.Parameters.AddWithValue("@lessonTypeId", model.LessonTypeId);
-                    cmd.Parameters.AddWithValue("@lessonId", model.LessonId);
-                    cmd.ExecuteNonQuery();
-                }
-                return RedirectToAction("LessonManagement");
+                return View(model);
             }
 
-            return View(model);
+            UpdateLessonInDatabase(model);
+            return RedirectToAction("LessonManagement");
         }
 
         [HttpGet]
@@ -483,68 +388,14 @@ namespace BrainStormEra.Controllers.Lesson
             {
                 return BadRequest("CourseId or UserId is missing.");
             }
+            List<BrainStormEra.Models.Chapter> courseChapters = GetChaptersForCourse(courseId);
+            List<BrainStormEra.Models.Lesson> chapterLessons = GetLessonsForChapters(courseId);
 
-            if (string.IsNullOrEmpty(lessonId))
-            {
-                using (SqlConnection conn = new(_connectionString))
-                {
-                    conn.Open();
-                    string firstLessonQuery = "SELECT TOP 1 l.lesson_id FROM lesson l JOIN chapter c ON l.chapter_id = c.chapter_id WHERE c.course_id = @courseId ORDER BY c.chapter_order, l.lesson_order";
-                    using SqlCommand cmd = new(firstLessonQuery, conn);
-                    cmd.Parameters.AddWithValue("@courseId", courseId);
-                    lessonId = cmd.ExecuteScalar()?.ToString();
-                }
-            }
-
-            BrainStormEra.Models.Lesson lesson = null;
-            bool isCompleted = false;
-            List<string> completedLessonIds = new();
-
-            using (SqlConnection conn = new(_connectionString))
-            {
-                conn.Open();
-                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId AND chapter_id IN (SELECT chapter_id FROM chapter WHERE course_id = @courseId)";
-                using SqlCommand cmd = new(lessonQuery, conn);
-                cmd.Parameters.AddWithValue("@lessonId", lessonId);
-                cmd.Parameters.AddWithValue("@courseId", courseId);
-                using SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    lesson = new BrainStormEra.Models.Lesson
-                    {
-                        LessonId = reader["lesson_id"].ToString(),
-                        LessonName = reader["lesson_name"].ToString(),
-                        LessonDescription = reader["lesson_description"].ToString(),
-                        LessonContent = reader["lesson_content"].ToString(),
-                        LessonTypeId = Convert.ToInt32(reader["lesson_type_id"])
-                    };
-                }
-
-                string completionQuery = "SELECT COUNT(1) FROM lesson_completion WHERE user_id = @userId AND lesson_id = @lessonId";
-                using (SqlCommand cmdCompletion = new(completionQuery, conn))
-                {
-                    cmdCompletion.Parameters.AddWithValue("@userId", userId);
-                    cmdCompletion.Parameters.AddWithValue("@lessonId", lessonId);
-                    isCompleted = (int)cmdCompletion.ExecuteScalar() > 0;
-                }
-
-                string completedLessonsQuery = "SELECT lesson_id FROM lesson_completion lc JOIN lesson l ON lc.lesson_id = l.lesson_id JOIN chapter c ON l.chapter_id = c.chapter_id WHERE lc.user_id = @userId AND c.course_id = @courseId";
-                using (SqlCommand cmdCompleted = new(completedLessonsQuery, conn))
-                {
-                    cmdCompleted.Parameters.AddWithValue("@userId", userId);
-                    cmdCompleted.Parameters.AddWithValue("@courseId", courseId);
-                    using SqlDataReader readerCompleted = cmdCompleted.ExecuteReader();
-                    while (readerCompleted.Read())
-                    {
-                        completedLessonIds.Add(readerCompleted["lesson_id"].ToString());
-                    }
-                }
-            }
-
+            BrainStormEra.Models.Lesson lesson = FetchLessonData(lessonId, courseId);
             if (lesson == null) return NotFound();
 
-            ViewBag.CompletedLessons = completedLessonIds;
-            ViewBag.IsCompleted = isCompleted;
+            ViewBag.CompletedLessons = GetCompletedLessons(userId, courseId);
+            ViewBag.IsCompleted = CheckLessonCompletion(userId, lessonId);
 
             return View(lesson);
         }
@@ -559,43 +410,9 @@ namespace BrainStormEra.Controllers.Lesson
                 return Json(new { success = false, message = "User not logged in." });
             }
 
-            bool alreadyCompleted;
-            using (SqlConnection conn = new(_connectionString))
+            if (!CheckLessonCompletion(userId, request.LessonId))
             {
-                conn.Open();
-                string checkCompletionQuery = "SELECT COUNT(1) FROM lesson_completion WHERE user_id = @userId AND lesson_id = @lessonId";
-                using (SqlCommand cmd = new(checkCompletionQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@userId", userId);
-                    cmd.Parameters.AddWithValue("@lessonId", request.LessonId);
-                    alreadyCompleted = (int)cmd.ExecuteScalar() > 0;
-                }
-            }
-
-            if (!alreadyCompleted)
-            {
-                using (SqlConnection conn = new(_connectionString))
-                {
-                    conn.Open();
-                    string maxCompletionIdQuery = "SELECT ISNULL(MAX(CAST(SUBSTRING(completion_id, 3, LEN(completion_id) - 2) AS INT)), 0) + 1 FROM lesson_completion WHERE completion_id LIKE 'LC%'";
-                    string newCompletionId;
-
-                    using (SqlCommand cmd = new(maxCompletionIdQuery, conn))
-                    {
-                        int maxId = (int)cmd.ExecuteScalar();
-                        newCompletionId = "LC" + maxId.ToString("D3");
-                    }
-
-                    string insertCompletionQuery = "INSERT INTO lesson_completion (completion_id, user_id, lesson_id, completion_date) VALUES (@completionId, @userId, @lessonId, @completionDate)";
-                    using (SqlCommand cmd = new(insertCompletionQuery, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@completionId", newCompletionId);
-                        cmd.Parameters.AddWithValue("@userId", userId);
-                        cmd.Parameters.AddWithValue("@lessonId", request.LessonId);
-                        cmd.Parameters.AddWithValue("@completionDate", DateTime.Now);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                InsertLessonCompletion(userId, request.LessonId);
                 return Json(new { success = true });
             }
 
@@ -605,6 +422,237 @@ namespace BrainStormEra.Controllers.Lesson
         public class LessonCompletionRequest
         {
             public string LessonId { get; set; }
+        }
+
+        private void RepopulateChapters()
+        {
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                List<SelectListItem> chapters = new();
+                string chaptersQuery = "SELECT chapter_id, chapter_name FROM chapter";
+                using (SqlCommand cmd = new(chaptersQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        chapters.Add(new SelectListItem
+                        {
+                            Value = reader["chapter_id"].ToString(),
+                            Text = reader["chapter_name"].ToString()
+                        });
+                    }
+                }
+                ViewBag.Chapters = chapters;
+            }
+        }
+
+        private BrainStormEra.Models.Lesson GetExistingLesson(string lessonId)
+        {
+            BrainStormEra.Models.Lesson existingLesson = null;
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId";
+                using SqlCommand cmd = new(lessonQuery, conn);
+                cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    existingLesson = new BrainStormEra.Models.Lesson
+                    {
+                        LessonId = reader["lesson_id"].ToString(),
+                        ChapterId = reader["chapter_id"].ToString(),
+                        LessonStatus = Convert.ToInt32(reader["lesson_status"]),
+                        LessonContent = reader["lesson_content"].ToString()
+                    };
+                }
+            }
+            return existingLesson;
+        }
+
+        private void UpdateLessonInDatabase(BrainStormEra.Models.Lesson model)
+        {
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string updateQuery = "UPDATE lesson SET lesson_name = @lessonName, lesson_description = @lessonDescription, lesson_content = @lessonContent, lesson_type_id = @lessonTypeId WHERE lesson_id = @lessonId";
+                using SqlCommand cmd = new(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@lessonName", model.LessonName);
+                cmd.Parameters.AddWithValue("@lessonDescription", model.LessonDescription);
+                cmd.Parameters.AddWithValue("@lessonContent", model.LessonContent);
+                cmd.Parameters.AddWithValue("@lessonTypeId", model.LessonTypeId);
+                cmd.Parameters.AddWithValue("@lessonId", model.LessonId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private List<BrainStormEra.Models.Chapter> GetChaptersForCourse(string courseId)
+        {
+            List<BrainStormEra.Models.Chapter> chapters = new();
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string chaptersQuery = "SELECT * FROM chapter WHERE course_id = @courseId";
+                using (SqlCommand cmd = new(chaptersQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            chapters.Add(new BrainStormEra.Models.Chapter
+                            {
+                                ChapterId = reader["chapter_id"].ToString(),
+                                ChapterName = reader["chapter_name"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return chapters;
+        }
+
+
+        private List<BrainStormEra.Models.Lesson> GetLessonsForChapters(string courseId)
+        {
+            List<BrainStormEra.Models.Lesson> lessons = new();
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string lessonsQuery = "SELECT * FROM lesson WHERE chapter_id IN (SELECT chapter_id FROM chapter WHERE course_id = @courseId)";
+                using (SqlCommand cmd = new(lessonsQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lessons.Add(new BrainStormEra.Models.Lesson
+                            {
+                                LessonId = reader["lesson_id"].ToString(),
+                                ChapterId = reader["chapter_id"].ToString(),
+                                LessonName = reader["lesson_name"].ToString(),
+                                LessonTypeId = Convert.ToInt32(reader["lesson_type_id"])
+                            });
+                        }
+                    }
+                }
+            }
+            return lessons;
+        }
+
+
+        private BrainStormEra.Models.Lesson FetchLessonData(string lessonId, string courseId)
+        {
+            // Check if lessonId or courseId is null or empty
+            if (string.IsNullOrEmpty(lessonId) || string.IsNullOrEmpty(courseId))
+            {
+                throw new ArgumentException("lessonId and courseId must be provided.");
+            }
+
+            BrainStormEra.Models.Lesson lesson = null;
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string lessonQuery = "SELECT * FROM lesson WHERE lesson_id = @lessonId AND chapter_id IN (SELECT chapter_id FROM chapter WHERE course_id = @courseId)";
+
+                using (SqlCommand cmd = new(lessonQuery, conn))
+                {
+                    // Adding parameters to avoid missing parameter issue
+                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            lesson = new BrainStormEra.Models.Lesson
+                            {
+                                LessonId = reader["lesson_id"].ToString(),
+                                LessonName = reader["lesson_name"].ToString(),
+                                LessonDescription = reader["lesson_description"].ToString(),
+                                LessonContent = reader["lesson_content"].ToString(),
+                                LessonTypeId = Convert.ToInt32(reader["lesson_type_id"])
+                            };
+                        }
+                    }
+                }
+            }
+            return lesson;
+        }
+
+
+        private List<string> GetCompletedLessons(string userId, string courseId)
+        {
+            List<string> completedLessonIds = new();
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string completedLessonsQuery = @"
+                    SELECT lc.lesson_id 
+                    FROM lesson_completion lc 
+                    JOIN lesson l ON lc.lesson_id = l.lesson_id 
+                    JOIN chapter c ON l.chapter_id = c.chapter_id 
+                    WHERE lc.user_id = @userId AND c.course_id = @courseId";
+                using (SqlCommand cmd = new(completedLessonsQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            completedLessonIds.Add(reader["lesson_id"].ToString());
+                        }
+                    }
+                }
+            }
+            return completedLessonIds;
+        }
+
+        private bool CheckLessonCompletion(string userId, string lessonId)
+        {
+            bool isCompleted = false;
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string completionQuery = "SELECT COUNT(1) FROM lesson_completion WHERE user_id = @userId AND lesson_id = @lessonId";
+                using (SqlCommand cmdCompletion = new(completionQuery, conn))
+                {
+                    cmdCompletion.Parameters.AddWithValue("@userId", userId);
+                    cmdCompletion.Parameters.AddWithValue("@lessonId", lessonId);
+                    isCompleted = (int)cmdCompletion.ExecuteScalar() > 0;
+                }
+            }
+            return isCompleted;
+        }
+
+        private void InsertLessonCompletion(string userId, string lessonId)
+        {
+            using (SqlConnection conn = new(_connectionString))
+            {
+                conn.Open();
+                string maxCompletionIdQuery = "SELECT ISNULL(MAX(CAST(SUBSTRING(completion_id, 3, LEN(completion_id) - 2) AS INT)), 0) + 1 FROM lesson_completion WHERE completion_id LIKE 'LC%'";
+                string newCompletionId;
+
+                using (SqlCommand cmd = new(maxCompletionIdQuery, conn))
+                {
+                    int maxId = (int)cmd.ExecuteScalar();
+                    newCompletionId = "LC" + maxId.ToString("D3");
+                }
+
+                string insertCompletionQuery = "INSERT INTO lesson_completion (completion_id, user_id, lesson_id, completion_date) VALUES (@completionId, @userId, @lessonId, @completionDate)";
+                using (SqlCommand cmd = new(insertCompletionQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@completionId", newCompletionId);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                    cmd.Parameters.AddWithValue("@completionDate", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

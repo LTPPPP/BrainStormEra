@@ -60,6 +60,13 @@
             <!-- Filter Categories -->
             <div class="categories d-flex justify-content-start p-2 rounded">
                 <button class="btn filter-btn active">All courses</button>
+                @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
+                {
+                    @foreach (var category in categories)
+                    {
+                        <button class="btn filter-btn">@category.CourseCategoryName</button>
+                    }
+                }
             </div>
             <!-- Search Bar -->
             <div class="search-bar mt-2 d-flex justify-content-center">
