@@ -561,6 +561,29 @@ namespace BrainStormEra.Controllers.Course
                 _logger.LogWarning("Course ID is null or empty.");
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
+            string createdByName = "Unknown";
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+            SELECT a.full_name 
+            FROM account a 
+            INNER JOIN course c ON a.user_id = c.created_by 
+            WHERE c.course_id = @CourseId";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseId", courseId);
+                connection.Open();
+                var result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    createdByName = result.ToString();
+                    _logger.LogInformation($"Course created by: {createdByName}"); // Log the retrieved name
+                }
+                else
+                {
+                    _logger.LogWarning("No creator name found for the course.");
+                }
+            }
+            ViewBag.CreatedBy = createdByName;
             // Kiểm tra Enrollment
             bool isEnrolled = false;
             bool isBanned = false;
@@ -818,9 +841,13 @@ namespace BrainStormEra.Controllers.Course
                 string createdBy = "Unknown";
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    var query = "SELECT full_name FROM account WHERE user_id = @UserId";
+                    var query = @"
+            SELECT a.full_name 
+            FROM account a 
+            INNER JOIN course c ON a.user_id = c.created_by 
+            WHERE c.course_id = @CourseId";
                     var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@UserId", course.CreatedBy);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
                     connection.Open();
                     var result = command.ExecuteScalar();
                     if (result != null)
@@ -829,6 +856,23 @@ namespace BrainStormEra.Controllers.Course
                     }
                 }
                 ViewBag.CreatedBy = createdBy;
+
+                var categories = new List<string>();
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT cc.course_category_name FROM course_category cc " +
+                                "JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id " +
+                                "WHERE ccm.course_id = @CourseId";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        categories.Add(reader["course_category_name"].ToString());
+                    }
+                }
+                ViewBag.CourseCategories = categories;
 
                 // Get rating percentages
                 var ratingPercentages = new Dictionary<int, double>();

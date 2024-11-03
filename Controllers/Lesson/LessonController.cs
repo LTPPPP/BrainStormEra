@@ -91,8 +91,13 @@ namespace BrainStormEra.Controllers.Lesson
                         {
                             LessonId = reader["lesson_id"].ToString(),
                             ChapterId = reader["chapter_id"].ToString(),
-                            LessonOrder = Convert.ToInt32(reader["lesson_order"])
-                            // Populate other fields as necessary
+                            LessonName = reader["lesson_name"].ToString(),
+                            LessonDescription = reader["lesson_description"].ToString(),
+                            LessonContent = reader["lesson_content"].ToString(),
+                            LessonOrder = Convert.ToInt32(reader["lesson_order"]),
+                            LessonTypeId = Convert.ToInt32(reader["lesson_type_id"]),
+                            LessonStatus = Convert.ToInt32(reader["lesson_status"]),
+                            LessonCreatedAt = Convert.ToDateTime(reader["lesson_created_at"])
                         });
                     }
                 }
@@ -162,6 +167,18 @@ namespace BrainStormEra.Controllers.Lesson
             using (SqlConnection conn = new(_connectionString))
             {
                 conn.Open();
+
+                string maxOrderQuery = @"
+            SELECT ISNULL(MAX(lesson_order), 0) + 1
+            FROM lesson
+            WHERE chapter_id = @chapterId";
+
+                using (SqlCommand cmd = new(maxOrderQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@chapterId", chapterID);
+                    viewModel.Lesson.LessonOrder = (int)cmd.ExecuteScalar(); // Set the lesson order to max + 1
+                }
+
                 string maxIdQuery = "SELECT MAX(lesson_id) FROM lesson WHERE lesson_id LIKE 'LE%'";
                 using (SqlCommand cmd = new(maxIdQuery, conn))
                 {
