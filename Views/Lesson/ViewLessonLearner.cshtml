@@ -24,7 +24,7 @@
             var chapters = (IEnumerable<BrainStormEra.Models.Chapter>)ViewBag.Chapters;
         }
 
-        <!-- Sidebar -->
+        <!-- Sidebar --> 
         <nav class="sidebar">
 
             <h3> <i class="fas fa-bars"></i> Menu</h3>
@@ -71,10 +71,11 @@
                     </li>
                 </ol>
             </nav>
-
+            <div>@Model.LessonTypeId</div>
             <div id="lesson-media">
                 @if (Model.LessonTypeId == 1)
                 {
+                    <div>@Model.LessonContent</div>
                     <iframe width="560" height="315" src="@Model.LessonContent" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 }
                 else if (Model.LessonTypeId == 2)
