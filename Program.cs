@@ -40,6 +40,7 @@ namespace BrainStormEra
             builder.Services.AddScoped<AchievementRepo>();
             builder.Services.AddScoped<ChatbotRepo>();
             builder.Services.AddScoped<ProfileRepo>();
+            builder.Services.AddScoped<FeedbackRepo>();
             builder.Services.AddControllersWithViews();
             // Add authentication services for cookies
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

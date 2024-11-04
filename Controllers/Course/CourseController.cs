@@ -705,6 +705,23 @@ namespace BrainStormEra.Controllers.Course
             }
             ViewBag.AverageRating = averageRating;
 
+            var ratingPercentages = new Dictionary<int, double>();
+            for (int i = 1; i <= 5; i++)
+            {
+                int count = 0;
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
+                    var command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    command.Parameters.AddWithValue("@Rating", i);
+                    connection.Open();
+                    count = (int)command.ExecuteScalar();
+                }
+                ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
+            }
+            ViewBag.RatingPercentages = ratingPercentages;
+
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
 

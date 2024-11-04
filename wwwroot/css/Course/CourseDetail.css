@@ -36,17 +36,27 @@
     margin-bottom: 20px;
 }
 
-.feedback-section .stars {
+
+
+.feedback-section .stars,
+.stars,
+.edit-stars {
     color: var(--star-default-color);
+    display: inline-flex;
+    align-items: center;
     margin-bottom: 15px;
 }
 
-    .feedback-section .stars i {
-        color: var(--star-default-color);
+    .feedback-section .stars i,
+    .stars i,
+    .edit-stars i {
+        margin-right: 2px;
         cursor: pointer;
+        color: var(--star-default-color);
     }
 
-        .feedback-section .stars i.selected {
+        .stars i.selected,
+        .edit-stars i.selected {
             color: var(--star-color);
         }
 
@@ -57,46 +67,6 @@
     border-radius: 10px;
     margin-bottom: 20px;
     width: auto;
-}
-
-.stars {
-    color: var(--star-default-color);
-}
-
-    .stars i.selected {
-        color: var(--star-color);
-    }
-
-.pagination .page-item.active .page-link {
-    background-color: var(--star-color);
-    border-color: var(--star-color);
-}
-
-.pagination .page-item .page-link {
-    color: var(--star-default-color);
-}
-
-    .pagination .page-item.active .page-link,
-    .pagination .page-item .page-link:hover {
-        color: var(--white-color);
-    }
-
-a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-.feedback-section .comment-input {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-}
-
-.dropdown-menu {
-    right: 0;
-    left: auto;
 }
 
 .price {
@@ -121,7 +91,6 @@ a {
     color: white;
 }
 
-
 .btn-approve {
     background-color: var(--create-btn-bg-color);
     color: white;
@@ -131,7 +100,6 @@ a {
     .btn-approve:hover {
         background-color: var(--btn-create-hover);
     }
-
 
 .btn-reject {
     background-color: var(--delete-btn-bg-color);
@@ -143,7 +111,6 @@ a {
         background-color: var(--delete-btn-hover-bg-color);
     }
 
-
 .btn-request {
     background-color: var(--yellow-color);
     color: black;
@@ -154,7 +121,6 @@ a {
         background-color: #e0a800;
     }
 
-
 .btn-delete {
     background-color: var(--delete-btn-bg-color);
     color: white;
@@ -164,3 +130,89 @@ a {
     .btn-delete:hover {
         background-color: var(--delete-btn-hover-bg-color);
     }
+
+/* Định dạng phần bình luận */
+.comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+}
+
+    .comment .avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #ccc;
+        border-radius: 50%;
+    }
+
+.flex-fill {
+    width: 100%;
+}
+
+/* Định dạng phần chứa tên người dùng, ngôi sao và dấu ba chấm */
+.comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+    .comment-header .fw-bold {
+        margin-right: auto;
+    }
+
+/* Đảm bảo dấu ba chấm ở góc phải */
+.comment-options {
+    position: absolute;
+    right: 0;
+    top: 10px; /* Điều chỉnh theo ý bạn */
+    cursor: pointer;
+}
+
+    .comment-options i {
+        color: #666;
+        font-size: 1.2em;
+    }
+
+/* Menu ba chấm */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 120px;
+    background-color: #333;
+    color: white;
+    border-radius: 4px;
+    padding: 5px 0;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+    .dropdown-menu .dropdown-item {
+        padding: 8px 16px;
+        cursor: pointer;
+        color: #fff;
+        text-align: left;
+        background-color: transparent;
+    }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #555;
+        }
+
+/* Hiển thị menu khi nhấp vào dấu ba chấm */
+.comment-options.show .dropdown-menu {
+    display: block;
+}
+
+.comment-input {
+    display: flex;
+    flex-direction: column; /* Đặt các phần tử con xếp theo chiều dọc */
+    align-items: center; /* Căn giữa theo trục ngang */
+    justify-content: center; /* Căn giữa theo trục dọc */
+    margin: 0 auto; /* Căn giữa phần tử container trong bố cục */
+}

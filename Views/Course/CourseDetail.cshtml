@@ -1,5 +1,7 @@
 ﻿@model BrainStormEra.Models.Course
-
+@{
+    var currentUserId = Context.Request.Cookies["user_id"];
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,7 +70,8 @@
                             {
                                 <form id="enrollForm" method="post" action="@Url.Action("Enroll", "Course")">
                                     <input type="hidden" name="courseId" value="@Model.CourseId" />
-                                    <button type="submit" class="btn btn-success">Enroll</button>
+                                    <button type="button" class="btn btn-success" onclick="confirmEnroll()">Enroll</button>
+
                                 </form>
                             }
                         }
@@ -178,22 +181,19 @@
                 </div>
 
                 <div class="rating-breakdown">
-                    @for (int i = 1; i <= 5; i++)
+                    @for (int i = 5; i >= 1; i--)
                     {
                         <div class="d-flex align-items-center mb-3">
-                            <div class="stars">
-                                <i class="fas fa-star @(i <= (ViewBag.AverageRating ?? 0) ? "selected" : "")"></i>
-                            </div>
+                            <div class="stars"><i class="fas fa-star selected"></i> @i stars</div>
                             <div class="progress flex-fill mx-3">
-                                <div class="progress-bar" role="progressbar"
-                                     style="width: @(ViewBag.RatingPercentages?.ContainsKey(i) == true ? ViewBag.RatingPercentages[i] * 100 : 0)%"
-                                     aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-                                </div>
+                                <div class="progress-bar" role="progressbar" style="width: @(ViewBag.RatingPercentages[i] * 100)%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
-                            <div>@(ViewBag.RatingPercentages?.ContainsKey(i) == true ? (ViewBag.RatingPercentages[i] * 100).ToString("0.0") : "0.0")%</div>
+                            <div>@(ViewBag.RatingPercentages[i] * 100)%</div>
                         </div>
                     }
                 </div>
+
+
 
             </div>
         </div>
@@ -211,14 +211,29 @@
                             <div class="flex-fill">
                                 <div class="d-flex align-items-center">
                                     <div class="fw-bold me-2">@comment.User.FullName</div>
-                                    <div class="stars me-3">
+                                    <div class="stars me-3 edit-stars" id="editStars-@comment.FeedbackId">
                                         @for (int i = 1; i <= 5; i++)
                                         {
-                                            <i class="fas fa-star @(i <= (comment.StarRating ?? 0) ? "selected" : "")"></i>
+                                            <i class="fas fa-star @(i <= comment.StarRating ? "selected" : "")" data-value="@i" onclick="feedbackManager.selectStarForEdit(this, '@comment.FeedbackId')"></i>
                                         }
                                     </div>
+                                    @if (comment.UserId == currentUserId || userRole == "1")
+                                    {
+                                        <div class="comment-options">
+                                            <button class="btn btn-link" onclick="feedbackManager.toggleMenu(event, 'menu-@comment.FeedbackId')">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu" id="menu-@comment.FeedbackId">
+                                                <button class="dropdown-item" onclick="feedbackManager.enableEditMode('@comment.FeedbackId')">Edit</button>
+                                                <button class="dropdown-item text-danger" onclick="feedbackManager.deleteComment('@comment.FeedbackId')">Delete</button>
+                                            </div>
+                                        </div>
+                                    }
+
                                 </div>
-                                <div class="text-muted">@comment.Comment</div>
+                                <div id="commentText-@comment.FeedbackId" class="comment-text">@comment.Comment</div>
+                                <textarea id="editComment-@comment.FeedbackId" class="form-control d-none" rows="3">@comment.Comment</textarea>
+                                <button class="btn btn-primary d-none mt-2" id="saveButton-@comment.FeedbackId" onclick="feedbackManager.saveComment('@comment.FeedbackId')">Save</button>
                             </div>
                         </div>
                     }
@@ -231,21 +246,19 @@
         {
             <div class="card feedback-section mb-4 text-center">
                 <div class="card-body">
-                    <!-- Feedback Form Content -->
-                    <img alt="Robot image" src="" class="img-fluid mb-4" />
                     <div class="stars">
-                        <i class="fas fa-star" onclick="selectStar(this)"></i>
-                        <i class="fas fa-star" onclick="selectStar(this)"></i>
-                        <i class="fas fa-star" onclick="selectStar(this)"></i>
-                        <i class="fas fa-star" onclick="selectStar(this)"></i>
-                        <i class="fas fa-star" onclick="selectStar(this)"></i>
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fas fa-star" data-value="@i" onclick="feedbackManager.selectStarForFeedback(this)"></i>
+                        }
                     </div>
                     <div class="comment-input">
-                        <textarea class="form-control w-50" placeholder="Comment..."></textarea>
-                        <button class="btn btn-primary">Submit</button>
+                        <textarea id="feedbackComment" class="form-control feedback w-50" placeholder="Comment..."></textarea>
+                        <button class="btn btn-primary mt-2" onclick="feedbackManager.submitFeedback('@Model.CourseId')">Submit</button>
                     </div>
                 </div>
             </div>
+            <div id="feedbackMessage" class="mt-2 text-center"></div>
         }
 
         <!-- Action Buttons (Visible only to specific user roles) -->
@@ -290,9 +303,15 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/js/Course/CourseDetail.js"></script>
     <script>
+        // Khởi tạo URL và dữ liệu từ Razor trong biến riêng biệt
+        const viewLessonUrl = '@Url.Action("ViewLessonLearner", "Lesson")';
+        const requestToAdminUrl = '@Url.Action("RequestToAdmin", "Course")';
+        const isLoggedIn = '@ViewBag.IsLoggedIn' === 'True';
+        const message = '@ViewBag.Message';
+
         function setCourseCookieAndRedirect(courseId) {
             document.cookie = `CourseId=${courseId}; path=/;`;
-            window.location.href = '@Url.Action("ViewLessonLearner", "Lesson")';
+            window.location.href = viewLessonUrl;
         }
 
         function confirmEnroll() {
@@ -309,7 +328,7 @@
             if (confirm("Are you sure you want to request approval from admin?")) {
                 $.ajax({
                     type: "POST",
-                    url: "@Url.Action("RequestToAdmin", "Course")",
+                    url: requestToAdminUrl,
                     data: { courseId: courseId },
                     success: function (response) {
                         let adminRequestMessage = document.getElementById("adminRequestMessage");
@@ -327,16 +346,137 @@
             }
         }
 
-        var isLoggedIn = '@ViewBag.IsLoggedIn' === 'True';
-        var message = '@ViewBag.Message';
-
         if (!isLoggedIn && message) {
             alert(message);
         }
 
-        function selectStar(element) {
-            // Implement star rating selection logic
-        }
+        const feedbackManager = {
+            selectedRating: 0,
+            editSelectedRating: {},
+
+            // Chọn sao cho phần feedback khi thêm mới
+            selectStarForFeedback(starElement) {
+                this.selectedRating = parseInt(starElement.getAttribute('data-value'));
+                document.querySelectorAll('.feedback-section .stars .fa-star').forEach((star, index) => {
+                    star.classList.toggle('selected', index < this.selectedRating);
+                });
+            },
+
+            // Chọn sao cho phần chỉnh sửa feedback
+            selectStarForEdit(starElement, feedbackId) {
+                const rating = parseInt(starElement.getAttribute('data-value'));
+                this.editSelectedRating[feedbackId] = rating;
+
+                // Đánh dấu sao được chọn lại khi ở chế độ chỉnh sửa
+                document.querySelectorAll(`#editStars-${feedbackId} .fa-star`).forEach((star, index) => {
+                    star.classList.toggle('selected', index < rating);
+                });
+            },
+
+            toggleMenu(event, menuId) {
+                event.stopPropagation(); // Ngăn không cho sự kiện lan ra ngoài
+                const menu = document.getElementById(menuId);
+                // Đóng các menu khác và chỉ mở menu được nhấp
+                document.querySelectorAll('.dropdown-menu').forEach(m => {
+                    if (m.id !== menuId) {
+                        m.style.display = 'none';
+                    }
+                });
+                // Chuyển đổi trạng thái hiển thị của menu này
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            },
+
+            enableEditMode(feedbackId) {
+                document.getElementById(`commentText-${feedbackId}`).classList.add('d-none');
+                document.getElementById(`editComment-${feedbackId}`).classList.remove('d-none');
+                document.getElementById(`saveButton-${feedbackId}`).classList.remove('d-none');
+                this.editSelectedRating[feedbackId] = this.getCurrentRating(feedbackId);
+            },
+
+            getCurrentRating(feedbackId) {
+                const stars = document.querySelectorAll(`#editStars-${feedbackId} .fa-star.selected`);
+                return stars.length;
+            },
+
+            saveComment(feedbackId) {
+                const newComment = document.getElementById(`editComment-${feedbackId}`).value;
+                const newStarRating = this.editSelectedRating[feedbackId] || 0;
+                if (newStarRating < 1 || newStarRating > 5) {
+                    alert("Star rating must be between 1 and 5.");
+                    return;
+                }
+                fetch(`/Feedback/EditFeedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ FeedbackId: feedbackId, Comment: newComment, StarRating: newStarRating })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById(`commentText-${feedbackId}`).textContent = newComment;
+                            document.getElementById(`commentText-${feedbackId}`).classList.remove('d-none');
+                            document.getElementById(`editComment-${feedbackId}`).classList.add('d-none');
+                            document.getElementById(`saveButton-${feedbackId}`).classList.add('d-none');
+                            const stars = document.querySelectorAll(`#editStars-${feedbackId} .fa-star`);
+                            stars.forEach((star, index) => {
+                                star.classList.toggle('selected', index < newStarRating);
+                            });
+                            alert("Comment updated successfully");
+                        } else {
+                            alert("Failed to update comment");
+                        }
+                    });
+            },
+
+            submitFeedback(courseId) {
+                const comment = document.getElementById("feedbackComment").value;
+                if (this.selectedRating === 0 || comment.trim() === "") {
+                    document.getElementById("feedbackMessage").innerHTML = "<div class='alert alert-warning'>Please provide both a rating and a comment.</div>";
+                    return;
+                }
+                fetch(`/Feedback/CreateFeedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ courseId, starRating: this.selectedRating, comment })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("feedbackMessage").innerHTML = `<div class='alert alert-success'>${data.message}</div>`;
+                            this.selectedRating = 0;
+                            document.querySelectorAll('.feedback-section .stars .fa-star').forEach(star => star.classList.remove('selected'));
+                        } else {
+                            document.getElementById("feedbackMessage").innerHTML = `<div class='alert alert-danger'>${data.message}</div>`;
+                        }
+                    });
+            },
+
+            deleteComment(feedbackId) {
+                if (confirm("Are you sure you want to delete this comment?")) {
+                    fetch(`/Feedback/DeleteFeedback`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(feedbackId)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Comment deleted successfully");
+                                location.reload();
+                            } else {
+                                alert("Failed to delete comment");
+                            }
+                        });
+                }
+            }
+        };
+
+        window.onclick = function (event) {
+            if (!event.target.closest('.comment-options') && !event.target.closest('.dropdown-menu')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => menu.style.display = 'none');
+            }
+        };
     </script>
+
 </body>
 </html>
