@@ -24,6 +24,17 @@ namespace BrainStormEra
     options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
 
 
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.HttpOnly = true;
+            });
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<OtpService>();
+
+
             builder.Services.AddScoped<SwpMainContext>();
             builder.Services.AddScoped<AccountRepo>();
             builder.Services.AddScoped<AchievementRepo>();
@@ -53,6 +64,8 @@ namespace BrainStormEra
             // Enable HTTPS redirection and static file serving
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession();
+            app.MapControllers();
 
             app.UseRouting();
             // Enable cookie authentication

@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="~/css/HomePage/homePage.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
+    <link href="~/css/Login/ForgetPass.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -52,6 +53,7 @@
                     }
                     <input type="submit" value="Login" class="btn btn-submit solid"
                            style="background-color: white; font-family: Poppins; font-size: 1.6rem; border-radius: 10px;" />
+                    <a href="javascript:void(0);" onclick="showForgotPasswordModal()" class="forgot-password-link">Quên mật khẩu?</a>
                 </form>
             </div>
         </div>
@@ -69,13 +71,80 @@
             </div>
         </div>
     </div>
+    <div id="forgotPasswordModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeForgotPasswordModal()">&times;</span>
+            <h3>Quên mật khẩu</h3>
 
+            <!-- Send OTP Form -->
+            <form id="sendOtpForm" onsubmit="sendOtp(event)">
+                <input type="email" id="emailInput" placeholder="Nhập email của bạn" required />
+                <button type="submit">Gửi OTP</button>
+            </form>
+
+            <!-- Verify OTP Form (hidden initially) -->
+            <form id="otpForm" style="display: none;" onsubmit="verifyOtp(event)">
+                <input type="text" id="otpInput" placeholder="Nhập mã OTP" required />
+                <input type="password" id="newPasswordInput" placeholder="Nhập mật khẩu mới" required />
+                <button type="submit">Đặt lại mật khẩu</button>
+            </form>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js" crossorigin="anonymous"></script>
 
     <script>
+        function closeForgotPasswordModal() {
+            document.getElementById("forgotPasswordModal").style.display = "none";
+        }
+        function showForgotPasswordModal() {
+            document.getElementById("forgotPasswordModal").style.display = "flex";
+        }
+
+        async function sendOtp(event) {
+            event.preventDefault();
+            const email = document.getElementById("emailInput").value;
+
+            // Call API to send OTP
+            const response = await fetch('/Login/ForgotPassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            if (response.ok) {
+                alert("OTP đã được gửi đến email của bạn.");
+                document.getElementById("sendOtpForm").style.display = "none";
+                document.getElementById("otpForm").style.display = "block";
+            } else {
+                alert("Gửi OTP không thành công. Hãy thử lại.");
+            }
+        }
+
+        async function verifyOtp(event) {
+            event.preventDefault();
+            const email = document.getElementById("emailInput").value;
+            const otp = document.getElementById("otpInput").value;
+            const newPassword = document.getElementById("newPasswordInput").value;
+
+            // Call API to verify OTP and reset password
+            const response = await fetch('/Login/ResetPassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, newPassword })
+            });
+
+            if (response.ok) {
+                alert("Mật khẩu của bạn đã được đặt lại thành công.");
+                closeForgotPasswordModal();
+            } else {
+                alert("OTP không hợp lệ hoặc đã hết hạn.");
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const sign_in_btn = document.querySelector("#sign-in-btn");
             const sign_up_btn = document.querySelector("#sign-up-btn");

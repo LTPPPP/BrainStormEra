@@ -546,7 +546,7 @@ namespace BrainStormEra.Controllers.Lesson
         private BrainStormEra.Models.Lesson FetchLessonData(string lessonId, string courseId)
         {
             // Check if lessonId or courseId is null or empty
-            if (string.IsNullOrEmpty(lessonId) || string.IsNullOrEmpty(courseId))
+            if (string.IsNullOrEmpty(courseId))
             {
                 throw new ArgumentException("lessonId and courseId must be provided.");
             }

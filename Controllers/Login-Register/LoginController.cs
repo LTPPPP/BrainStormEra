@@ -7,16 +7,21 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text;
 using System.Threading.Tasks;
 using BrainStormEra.Views.Login;
+using BrainStormEra.Services;
 
-namespace BrainStormEra.Controllers 
+namespace BrainStormEra.Controllers
 {
     public class LoginController : Controller
     {
         private readonly AccountRepo _accountRepository;
+        private readonly EmailService _emailService;
+        private readonly OtpService _otpService;
 
-        public LoginController(AccountRepo accountRepository)
+        public LoginController(AccountRepo accountRepository, EmailService emailService, OtpService otpService)
         {
             _accountRepository = accountRepository;
+            _emailService = emailService;
+            _otpService = otpService;
         }
 
         [HttpGet]
@@ -30,15 +35,12 @@ namespace BrainStormEra.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Hash the password using MD5
                 string hashedPassword = GetMd5Hash(model.Password);
 
-                // Check if the user exists in the database using AccountRepository
                 var user = await _accountRepository.Login(model.Username, hashedPassword);
 
                 if (user != null)
                 {
-                    // Create the user claims (data about the user)
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Username),
@@ -46,19 +48,15 @@ namespace BrainStormEra.Controllers
                         new Claim(ClaimTypes.Role, user.UserRole.ToString())
                     };
 
-                    // Create the identity and principal
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
 
-                    // Sign in the user and issue the cookie
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                    // Set cookies for user_id and other details
                     Response.Cookies.Append("user_id", user.UserId.ToString(), new CookieOptions { Expires = DateTime.Now.AddHours(1) });
                     Response.Cookies.Append("username", user.Username, new CookieOptions { Expires = DateTime.Now.AddHours(1) });
                     Response.Cookies.Append("user_role", user.UserRole.ToString(), new CookieOptions { Expires = DateTime.Now.AddHours(1) });
 
-                    // Redirect based on user role
                     return RedirectToRoleSpecificPage(user.UserRole);
                 }
                 else
@@ -71,40 +69,29 @@ namespace BrainStormEra.Controllers
 
         private IActionResult RedirectToRoleSpecificPage(int? userRole)
         {
-            switch (userRole)
+            return userRole switch
             {
-                case 1:
-                    return RedirectToAction("HomepageAdmin", "HomePageAdmin");
-                case 2:
-                    return RedirectToAction("HomePageInstructor", "HomePageInstructor");
-                case 3:
-                    return RedirectToAction("HomePageLearner", "HomePageLearner");
-                default:
-                    return RedirectToAction("LoginPage", "Login");
-            }
+                1 => RedirectToAction("HomepageAdmin", "HomePageAdmin"),
+                2 => RedirectToAction("HomePageInstructor", "HomePageInstructor"),
+                3 => RedirectToAction("HomePageLearner", "HomePageLearner"),
+                _ => RedirectToAction("LoginPage", "Login")
+            };
         }
 
-        // Helper method to hash password with MD5
         private string GetMd5Hash(string input)
         {
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
 
-                // Convert the byte array to hexadecimal string
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("X2"));
-                }
-                return sb.ToString();
-            }
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+                sb.Append(b.ToString("X2"));
+            return sb.ToString();
         }
 
         public async Task<IActionResult> Logout()
         {
-            // Clear cookies and authentication
             if (Request.Cookies["user_id"] != null)
             {
                 Response.Cookies.Delete("user_id");
@@ -129,5 +116,60 @@ namespace BrainStormEra.Controllers
 
             return RedirectToAction("LoginPage", "Login");
         }
+
+        // Quên mật khẩu - Gửi OTP đến email
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var user = await _accountRepository.GetUserByEmailAsync(request.Email);
+            if (user != null)
+            {
+                var otpCode = _otpService.GenerateOtp(request.Email);
+                await _emailService.SendOtpEmailAsync(request.Email, otpCode);
+                return Ok("OTP đã được gửi đến email của bạn.");
+            }
+            return BadRequest("Email không tồn tại trong hệ thống.");
+        }
+
+        // Xác thực OTP
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+        {
+            if (_otpService.VerifyOtp(request.Email, request.Otp))
+            {
+                return Ok("OTP hợp lệ. Hãy nhập mật khẩu mới.");
+            }
+            return BadRequest("OTP không hợp lệ hoặc đã hết hạn.");
+        }
+
+        // Đặt lại mật khẩu
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var user = await _accountRepository.GetUserByEmailAsync(request.Email);
+            if (user != null)
+            {
+                await _accountRepository.UpdatePasswordAsync(user.UserId, GetMd5Hash(request.NewPassword));
+                return Ok("Mật khẩu đã được đặt lại thành công.");
+            }
+            return BadRequest("Không tìm thấy tài khoản với email này.");
+        }
+    }
+
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; }
+    }
+
+    public class VerifyOtpRequest
+    {
+        public string Email { get; set; }
+        public string Otp { get; set; }
+    }
+
+    public class ResetPasswordRequest
+    {
+        public string Email { get; set; }
+        public string NewPassword { get; set; }
     }
 }

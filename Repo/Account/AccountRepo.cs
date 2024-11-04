@@ -519,5 +519,61 @@ namespace BrainStormEra.Repo
             var updatePictureSql = "UPDATE account SET user_picture = @p1 WHERE user_id = @p0";
             await _context.Database.ExecuteSqlRawAsync(updatePictureSql, userId, filePath);
         }
+        // Phương thức để lấy thông tin người dùng dựa trên email
+        public async Task<Account?> GetUserByEmailAsync(string email)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT * FROM account WHERE user_email = @Email", connection);
+                    command.Parameters.AddWithValue("@Email", email);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new Account
+                            {
+                                UserId = reader["user_id"].ToString(),
+                                Username = reader["username"].ToString(),
+                                UserEmail = reader["user_email"].ToString(),
+                                UserRole = reader["user_role"] as int?,
+                                FullName = reader["full_name"]?.ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user by email.");
+                throw;
+            }
+            return null;
+        }
+
+        // Phương thức để cập nhật mật khẩu của người dùng
+        public async Task UpdatePasswordAsync(string userId, string newPassword)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("UPDATE account SET password = @Password WHERE user_id = @UserId", connection);
+                    command.Parameters.AddWithValue("@Password", newPassword);
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating password.");
+                throw;
+            }
+        }
     }
 }
