@@ -388,8 +388,24 @@ namespace BrainStormEra.Controllers.Lesson
             {
                 return BadRequest("CourseId or UserId is missing.");
             }
-            List<BrainStormEra.Models.Chapter> courseChapters = GetChaptersForCourse(courseId);
-            List<BrainStormEra.Models.Lesson> chapterLessons = GetLessonsForChapters(courseId);
+
+            // Populate chapters and lessons
+            ViewBag.Chapters = GetChaptersForCourse(courseId);
+
+            // Get lessons as a strongly typed list
+            var lessons = GetLessonsForChapters(courseId) as List<BrainStormEra.Models.Lesson>;
+            ViewBag.Lessons = lessons;
+
+            // Ensure lessonId has a value
+            if (string.IsNullOrEmpty(lessonId))
+            {
+                lessonId = lessons?.FirstOrDefault()?.LessonId;
+            }
+
+            if (lessonId == null)
+            {
+                return NotFound("No lessons available.");
+            }
 
             BrainStormEra.Models.Lesson lesson = FetchLessonData(lessonId, courseId);
             if (lesson == null) return NotFound();
@@ -399,6 +415,9 @@ namespace BrainStormEra.Controllers.Lesson
 
             return View(lesson);
         }
+
+
+
 
         [HttpPost]
         public JsonResult MarkLessonCompleted([FromBody] LessonCompletionRequest request)
