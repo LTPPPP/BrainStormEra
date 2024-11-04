@@ -24,9 +24,8 @@
             var chapters = (IEnumerable<BrainStormEra.Models.Chapter>)ViewBag.Chapters;
         }
 
-        <!-- Sidebar --> 
+        <!-- Sidebar -->
         <nav class="sidebar">
-
             <h3> <i class="fas fa-bars"></i> Menu</h3>
             <div class="accordion" id="chapterAccordion">
                 @foreach (var chapter in chapters)
@@ -71,24 +70,27 @@
                     </li>
                 </ol>
             </nav>
-            <div>@Model.LessonTypeId</div>
+
+            <h2 id="lesson-title">@Model.LessonName</h2>
+            <p id="lesson-description">@Model.LessonDescription</p>
+
+            <!-- Content area based on LessonTypeId -->
             <div id="lesson-media">
                 @if (Model.LessonTypeId == 1)
                 {
-                    <div>@Model.LessonContent</div>
                     <iframe width="560" height="315" src="@Model.LessonContent" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 }
                 else if (Model.LessonTypeId == 2)
                 {
-                    <iframe width="560" height="315" src="@Model.LessonContent" type="application/pdf" frameborder="0"></iframe>
+                    <iframe width="100%" height="500" src="@Model.LessonContent" type="application/pdf" frameborder="0"></iframe>
                 }
                 else
                 {
                     <p>No content available for this lesson.</p>
                 }
             </div>
-            <h2 id="lesson-title">@Model.LessonName</h2>
-            <p id="lesson-description">@Model.LessonDescription</p>
+
+            <!-- Mark as Completed Button -->
             <button id="markCompletedButton" onclick="markAsCompleted()" class="btn btn-primary btn-lg mt-3 float-end">Mark as Completed</button>
         </div>
     </div>
@@ -99,20 +101,16 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Lấy danh sách các bài học đã hoàn thành từ ViewBag.CompletedLessons
             var completedLessons = @Html.Raw(Json.Serialize(ViewBag.CompletedLessons));
 
-            // Đánh dấu các bài học đã hoàn thành ngay khi tải trang
             completedLessons.forEach(function (lessonId) {
                 $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
                     .removeClass('fa-play-circle fa-book')
                     .addClass('fa-check-circle text-success');
             });
 
-            // Tải nội dung bài học
             loadLessonContent('@Model.LessonId');
 
-            // Xử lý sự kiện khi click vào một bài học
             $('.lesson-link').click(function (e) {
                 e.preventDefault();
                 var lessonId = $(this).data('lesson-id');
@@ -120,7 +118,6 @@
                 loadLessonContent(lessonId);
             });
 
-            // Hàm tải nội dung bài học và cập nhật giao diện
             function loadLessonContent(lessonId) {
                 $.ajax({
                     url: '@Url.Action("ViewLessonLearner", "Lesson")',
@@ -134,7 +131,6 @@
                         const buttonHTML = response.isCompleted
                             ? `<button id="markCompletedButton" class="btn btn-success mt-3 float-end" disabled>✓ Completed</button>`
                             : `<button id="markCompletedButton" class="btn btn-primary mt-3 float-end">Mark as Completed</button>`;
-
                         $('#lesson-content').append(buttonHTML);
 
                         if (!response.isCompleted) {
@@ -143,6 +139,7 @@
                             });
                         }
 
+                        // Display media content based on LessonTypeId
                         if (response.lessonTypeId == 1) {
                             $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>');
                         } else if (response.lessonTypeId == 2) {
@@ -151,7 +148,7 @@
                             $('#lesson-media').text("No content available for this lesson.");
                         }
 
-                        // Đánh dấu bài học là hoàn thành nếu response trả về isCompleted = true
+                        // Mark the lesson as completed if response indicates it
                         if (response.isCompleted) {
                             $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
                                 .removeClass('fa-play-circle fa-book')
@@ -161,7 +158,6 @@
                 });
             }
 
-            // Hàm đánh dấu bài học là hoàn thành
             function markAsCompleted(lessonId) {
                 $.ajax({
                     url: '@Url.Action("MarkLessonCompleted", "Lesson")',
@@ -182,7 +178,40 @@
                 });
             }
         });
-    </script>
 
+        success: function (response) {
+            $('#lesson-title').text(response.lessonName);
+            $('#lesson-description').text(response.lessonDescription);
+
+            $('#markCompletedButton').remove();
+            const buttonHTML = response.isCompleted
+                ? `<button id="markCompletedButton" class="btn btn-success mt-3 float-end" disabled>✓ Completed</button>`
+                : `<button id="markCompletedButton" class="btn btn-primary mt-3 float-end">Mark as Completed</button>`;
+
+            $('#lesson-content').append(buttonHTML);
+
+            if (!response.isCompleted) {
+                $('#markCompletedButton').off('click').on('click', function () {
+                    markAsCompleted(lessonId);
+                });
+            }
+
+            if (response.lessonTypeId == 1) {
+                $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>');
+            } else if (response.lessonTypeId == 2) {
+                $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" type="application/pdf" frameborder="0"></iframe>');
+            } else {
+                $('#lesson-media').text("No content available for this lesson.");
+            }
+
+            // Đánh dấu bài học là hoàn thành nếu response trả về isCompleted = true
+            if (response.isCompleted) {
+                $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
+                    .removeClass('fa-play-circle fa-book')
+                    .addClass('fa-check-circle text-success');
+            }
+        }
+
+    </script>
 </body>
 </html>

@@ -410,11 +410,15 @@ namespace BrainStormEra.Controllers.Lesson
             BrainStormEra.Models.Lesson lesson = FetchLessonData(lessonId, courseId);
             if (lesson == null) return NotFound();
 
+            // Log to check the content
+            Console.WriteLine("Lesson Content: " + lesson.LessonContent);
+
             ViewBag.CompletedLessons = GetCompletedLessons(userId, courseId);
             ViewBag.IsCompleted = CheckLessonCompletion(userId, lessonId);
 
             return View(lesson);
         }
+
 
 
 
@@ -564,7 +568,6 @@ namespace BrainStormEra.Controllers.Lesson
 
         private BrainStormEra.Models.Lesson FetchLessonData(string lessonId, string courseId)
         {
-            // Check if lessonId or courseId is null or empty
             if (string.IsNullOrEmpty(courseId))
             {
                 throw new ArgumentException("lessonId and courseId must be provided.");
@@ -578,7 +581,6 @@ namespace BrainStormEra.Controllers.Lesson
 
                 using (SqlCommand cmd = new(lessonQuery, conn))
                 {
-                    // Adding parameters to avoid missing parameter issue
                     cmd.Parameters.AddWithValue("@lessonId", lessonId);
                     cmd.Parameters.AddWithValue("@courseId", courseId);
 
@@ -591,15 +593,19 @@ namespace BrainStormEra.Controllers.Lesson
                                 LessonId = reader["lesson_id"].ToString(),
                                 LessonName = reader["lesson_name"].ToString(),
                                 LessonDescription = reader["lesson_description"].ToString(),
-                                LessonContent = reader["lesson_content"].ToString(),
+                                LessonContent = reader["lesson_content"].ToString(), // Ensure this is not null
                                 LessonTypeId = Convert.ToInt32(reader["lesson_type_id"])
                             };
+
+                            // Log to check
+                            Console.WriteLine("LessonContent from DB: " + lesson.LessonContent);
                         }
                     }
                 }
             }
             return lesson;
         }
+
 
 
         private List<string> GetCompletedLessons(string userId, string courseId)
