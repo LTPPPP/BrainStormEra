@@ -13,7 +13,7 @@ public partial class Lesson
 
     public string? LessonDescription { get; set; }
 
-    public string LessonContent { get; set; } = null!;
+    public string? LessonContent { get; set; }
 
     public int LessonOrder { get; set; }
 

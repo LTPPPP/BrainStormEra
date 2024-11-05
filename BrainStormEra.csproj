@@ -44,6 +44,7 @@
     <Folder Include="wwwroot\lib\document\" />
     <Folder Include="wwwroot\uploads\Achievement\" />
     <Folder Include="wwwroot\uploads\Course-img\Chapter\Lesson\" />
+    <Folder Include="wwwroot\uploads\NewFolder\" />
     <Folder Include="wwwroot\uploads\QR_Payment\" />
     <Folder Include="wwwroot\uploads\User-img\" />
   </ItemGroup>
