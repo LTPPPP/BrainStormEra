@@ -4,16 +4,20 @@ using System.Security.Claims;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageAdminController : Controller
     {
         private readonly SwpMainContext _context;
+        private readonly string _connectionString;
 
-        public HomePageAdminController(SwpMainContext context)
+        public HomePageAdminController(SwpMainContext context, IConfiguration configuration)
         {
             _context = context;
+            _connectionString = configuration.GetConnectionString("SwpMainContext");
         }
 
         [HttpGet]
@@ -78,50 +82,6 @@ namespace BrainStormEra.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetCourseStatistics()
-        {
-            try
-            {
-                var firstDate = _context.Courses.Min(c => c.CourseCreatedAt).Date;
-                var currentDate = DateTime.Now.Date;
-
-                var statistics = _context.Courses
-                    .GroupBy(c => new { c.CourseCreatedAt.Date, Status = c.CourseStatus })
-                    .Select(g => new
-                    {
-                        Date = g.Key.Date,
-                        Status = g.Key.Status,
-                        Count = g.Count()
-                    })
-                    .ToList();
-
-                var requests = Enumerable.Range(0, (currentDate - firstDate).Days + 1)
-                    .Select(offset => new
-                    {
-                        Date = firstDate.AddDays(offset),
-                        Count = statistics.FirstOrDefault(d => d.Date == firstDate.AddDays(offset) && d.Status == 1)?.Count ?? 0
-                    })
-                    .ToList();
-
-                var approvals = Enumerable.Range(0, (currentDate - firstDate).Days + 1)
-                    .Select(offset => new
-                    {
-                        Date = firstDate.AddDays(offset),
-                        Count = statistics.FirstOrDefault(d => d.Date == firstDate.AddDays(offset) && d.Status == 4)?.Count ?? 0
-                    })
-                    .ToList();
-
-                return Json(new { requests, approvals });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching course statistics: {ex.Message}");
-                return Json(new { message = "An error occurred while retrieving course statistics." });
-            }
-        }
-
-
-        [HttpGet]
         public JsonResult GetConversationStatistics()
         {
             try
@@ -148,6 +108,86 @@ namespace BrainStormEra.Controllers
             {
                 Console.WriteLine($"Error fetching conversation statistics: {ex.Message}");
                 return Json(new { message = "An error occurred while retrieving conversation statistics." });
+            }
+        }
+        [HttpGet]
+        public JsonResult GetCourseCreationStatistics()
+        {
+            try
+            {
+                // Kiểm tra courses
+                if (!_context.Courses.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No courses found",
+                        data = new List<object>()
+                    });
+                }
+
+                // Lấy ngày hiện tại
+                var currentDate = DateTime.Now.Date;
+
+                // Query courses trong phạm vi hợp lệ (quá khứ đến hiện tại)
+                var courses = _context.Courses
+                    .AsNoTracking()
+                    .Where(c => c.CourseCreatedAt.Date <= currentDate)
+                    .Select(c => new { c.CourseId, c.CourseCreatedAt })
+                    .ToList();
+
+                // Group by date và đếm
+                var coursesByDate = courses
+                    .GroupBy(c => c.CourseCreatedAt.Date)
+                    .Select(g => new {
+                        Date = g.Key,
+                        Count = g.Count()
+                    })
+                    .OrderBy(x => x.Date)
+                    .ToList();
+
+                // Lấy ngày bắt đầu từ dữ liệu thực tế
+                var firstDate = coursesByDate.Any()
+                    ? coursesByDate.Min(x => x.Date)
+                    : currentDate.AddDays(-30); // Default 30 ngày nếu không có data
+
+                // Tạo range date hợp lệ
+                var allDates = Enumerable.Range(0, (currentDate - firstDate).Days + 1)
+                    .Select(offset => firstDate.AddDays(offset))
+                    .ToList();
+
+                // Tạo dataset đầy đủ
+                var fullData = allDates.Select(date => new {
+                    Date = date.ToString("yyyy-MM-dd"),
+                    Count = coursesByDate.FirstOrDefault(x => x.Date == date)?.Count ?? 0
+                }).ToList();
+
+                // Debug logging
+                Console.WriteLine($"Data points: {fullData.Count}");
+                Console.WriteLine($"Date range: {firstDate:yyyy-MM-dd} to {currentDate:yyyy-MM-dd}");
+                Console.WriteLine($"Total courses: {courses.Count}");
+
+                return Json(new
+                {
+                    success = true,
+                    data = fullData,
+                    totalCourses = courses.Count,
+                    dateRange = new
+                    {
+                        start = firstDate.ToString("yyyy-MM-dd"),
+                        end = currentDate.ToString("yyyy-MM-dd")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetCourseCreationStatistics: {ex.Message}");
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message,
+                    data = new List<object>()
+                });
             }
         }
 

@@ -230,6 +230,7 @@ namespace BrainStormEra.Controllers.Lesson
 
             if (!ModelState.IsValid)
             {
+                Console.WriteLine(ModelState.IsValid);
                 RepopulateChapters();
                 return View(viewModel);
             }
