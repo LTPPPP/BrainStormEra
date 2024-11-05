@@ -231,6 +231,11 @@ namespace BrainStormEra.Controllers.Lesson
             if (!ModelState.IsValid)
             {
                 Console.WriteLine(ModelState.IsValid);
+                Console.WriteLine(viewModel.LessonContentFile);
+                Console.WriteLine(viewModel.Lesson.LessonName);
+                Console.WriteLine(viewModel.Lesson.LessonId);
+                Console.WriteLine(viewModel.Lesson.LessonTypeId);
+
                 RepopulateChapters();
                 return View(viewModel);
             }
@@ -676,6 +681,7 @@ namespace BrainStormEra.Controllers.Lesson
                     cmd.Parameters.AddWithValue("@userId", userId);
                     cmd.Parameters.AddWithValue("@lessonId", lessonId);
                     cmd.Parameters.AddWithValue("@completionDate", DateTime.Now);
+                    cmd.ExecuteNonQuery();
                     cmd.ExecuteNonQuery();
                 }
             }

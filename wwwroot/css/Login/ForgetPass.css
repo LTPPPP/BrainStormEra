@@ -11,6 +11,9 @@
     align-items: center;
     justify-content: center;
 }
+#forgotPasswordModal {
+    display: none;
+}
 
     #forgotPasswordModal .modal-content {
         width: 100%;
@@ -62,7 +65,14 @@
 .forgot-password-link {
     display: block;
     margin-top: 10px;
-    color: #007bff;
+    color: white;
     text-decoration: underline;
     cursor: pointer;
+    font-size: 1.25rem;
+    text-align: left;
+    transition: color 0.3s; /* Add a transition effect */
 }
+
+    .forgot-password-link:hover {
+        color: #007bff; /* Change the color to green when hovered */
+    }
