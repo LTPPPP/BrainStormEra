@@ -16,7 +16,7 @@
 
 <body>
     @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
-
+    @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
     <div class="container-fluid content-wrapper" style="margin-top: 50px;">
         @{
             var lessons = ViewBag.Lessons as IEnumerable<BrainStormEra.Models.Lesson>;
