@@ -3,10 +3,11 @@ using BrainStormEra.Services;
 using BrainStormEra.Models;
 using BrainStormEra.Repo.Chatbot;
 using BrainStormEra.ViewModels;
+using BrainStormEra.Repo;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers
 {
@@ -14,11 +15,13 @@ namespace BrainStormEra.Controllers
     {
         private readonly GeminiApiService _geminiApiService;
         private readonly ChatbotRepo _chatbotRepo;
+        private readonly LessonRepo _lessonRepo;
 
-        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo)
+        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo, LessonRepo lessonRepo)
         {
             _geminiApiService = geminiApiService;
             _chatbotRepo = chatbotRepo;
+            _lessonRepo = lessonRepo;
         }
 
         [HttpPost]
@@ -31,14 +34,42 @@ namespace BrainStormEra.Controllers
 
             try
             {
+                if (!int.TryParse(Request.Cookies["user_role"], out int userRole))
+                {
+                    userRole = 2;
+                }
+
                 var userConversationCount = await _chatbotRepo.GetUserConversationCountAsync(chatbotConversation.UserId);
 
                 chatbotConversation.ConversationId = $"{chatbotConversation.UserId}-{userConversationCount + 1}";
                 chatbotConversation.ConversationTime = DateTime.Now;
                 await _chatbotRepo.AddConversationAsync(chatbotConversation);
 
-                var reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent);
+                string reply;
+                var lessonId = HttpContext.Request.Cookies["CurrentLessonId"];
+                if (userRole == 3)
+                {
+                    var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
 
+                    if (lesson == null)
+                    {
+                        return BadRequest(new { error = "Lesson not found" });
+                    }
+
+                    reply = await _geminiApiService.GetResponseFromGemini(
+                        chatbotConversation.ConversationContent,
+                        userRole,
+                        lessonId,
+                        lesson.LessonName,
+                        lesson.LessonContent,
+                        lesson.LessonDescription
+                    );
+                }
+                else
+                {
+                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ");
+                }
+                Console.WriteLine("reply : " + reply);
                 var botConversation = new ChatbotConversation
                 {
                     UserId = chatbotConversation.UserId,
@@ -104,7 +135,6 @@ namespace BrainStormEra.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error here if you have logging configured
                 return View("Error", new ErrorViewModel { Message = "Failed to load conversation history." });
             }
         }
@@ -143,7 +173,6 @@ namespace BrainStormEra.Controllers
         }
     }
 
-    // Add this class to your ViewModels folder
     public class ConversationHistoryViewModel
     {
         public List<ConversationViewModel> Conversations { get; set; }

@@ -489,7 +489,8 @@ namespace BrainStormEra.Controllers.Lesson
 			}
 			return url;
 		}
-		public class LessonCompletionRequest
+
+        public class LessonCompletionRequest
 		{
 			public string LessonId { get; set; }
 		}

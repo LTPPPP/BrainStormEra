@@ -36,7 +36,6 @@
     <Folder Include="Data\" />
     <Folder Include="Repo\Course\" />
     <Folder Include="Repo\Chapter\" />
-    <Folder Include="Repo\Lesson\" />
     <Folder Include="Repo\Feedback\" />
     <Folder Include="Repo\Notification\" />
     <Folder Include="Views\Learner\" />
