@@ -386,59 +386,62 @@ namespace BrainStormEra.Controllers.Lesson
 				return BadRequest("CourseId or UserId is missing.");
 			}
 
+			// If no lessonId is specified, load the first lesson in the first chapter for the course
 			if (string.IsNullOrEmpty(lessonId))
 			{
-				using (SqlConnection conn = new SqlConnection(_connectionString))
+				var firstChapter = _context.Chapters
+					.Where(c => c.CourseId == courseId)
+					.OrderBy(c => c.ChapterOrder)
+					.FirstOrDefault();
+
+				if (firstChapter != null)
 				{
-					conn.Open();
-					string query = "SELECT TOP 1 lesson_id FROM lesson INNER JOIN chapter ON lesson.chapter_id = chapter.chapter_id " +
-								   "WHERE chapter.course_id = @course_id ORDER BY chapter.chapter_order, lesson.lesson_order";
-					using (SqlCommand cmd = new SqlCommand(query, conn))
-					{
-						cmd.Parameters.AddWithValue("@course_id", courseId);
-						lessonId = cmd.ExecuteScalar()?.ToString();
-					}
+					var firstLesson = _context.Lessons
+						.Where(l => l.ChapterId == firstChapter.ChapterId)
+						.OrderBy(l => l.LessonOrder)
+						.FirstOrDefault();
+					lessonId = firstLesson?.LessonId;
 				}
 			}
 
-			Models.Lesson lesson = null;
-			bool isCompleted = false;
+			// Fetch the specific lesson based on lessonId and courseId
+			var lesson = _context.Lessons
+				.Include(l => l.Chapter)
+				.FirstOrDefault(l => l.LessonId == lessonId && l.Chapter.CourseId == courseId);
 
-			using (SqlConnection conn = new SqlConnection(_connectionString))
+			if (lesson == null)
 			{
-				conn.Open();
-				string query = "SELECT * FROM lesson WHERE lesson_id = @lesson_id";
-				using (SqlCommand cmd = new SqlCommand(query, conn))
-				{
-					cmd.Parameters.AddWithValue("@lesson_id", lessonId);
-					using (SqlDataReader reader = cmd.ExecuteReader())
-					{
-						if (reader.Read())
-						{
-							lesson = new Models.Lesson
-							{
-								LessonId = reader["lesson_id"].ToString(),
-								LessonName = reader["lesson_name"].ToString(),
-								LessonDescription = reader["lesson_description"].ToString(),
-								LessonContent = reader["lesson_content"].ToString(),
-								LessonTypeId = (int)reader["lesson_type_id"]
-							};
-						}
-					}
-				}
-
-				string completionQuery = "SELECT COUNT(*) FROM lesson_completion WHERE user_id = @user_id AND lesson_id = @lesson_id";
-				using (SqlCommand cmd = new SqlCommand(completionQuery, conn))
-				{
-					cmd.Parameters.AddWithValue("@user_id", userId);
-					cmd.Parameters.AddWithValue("@lesson_id", lessonId);
-					isCompleted = (int)cmd.ExecuteScalar() > 0;
-				}
+				return NotFound();
 			}
 
-			if (lesson == null) return NotFound();
+			// Check if the lesson is already completed by the user
+			bool isCompleted = _context.LessonCompletions.Any(lc => lc.UserId == userId && lc.LessonId == lessonId);
 
+			// Fetch all completed lesson IDs for the current user in this course
+			var completedLessonIds = _context.LessonCompletions
+				.Where(lc => lc.UserId == userId && lc.Lesson.Chapter.CourseId == courseId)
+				.Select(lc => lc.LessonId)
+				.ToList();
+
+			// If the request is AJAX (for dynamic lesson loading), return JSON
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return Json(new
+				{
+					lessonName = lesson.LessonName,
+					lessonDescription = lesson.LessonDescription,
+					lessonContent = FormatYoutubeUrl(lesson.LessonContent, lesson.LessonTypeId),
+					lessonTypeId = lesson.LessonTypeId,
+					isCompleted = isCompleted
+				});
+			}
+
+			// Pass all necessary data to the view
+			ViewBag.Lessons = _context.Lessons.Where(l => l.Chapter.CourseId == courseId).ToList();
+			ViewBag.Chapters = _context.Chapters.Where(c => c.CourseId == courseId).ToList();
+			ViewBag.CompletedLessons = completedLessonIds;
 			ViewBag.IsCompleted = isCompleted;
+
 			return View(lesson);
 		}
 
@@ -471,7 +474,21 @@ namespace BrainStormEra.Controllers.Lesson
 
 			return Json(new { success = true });
 		}
-
+		private string FormatYoutubeUrl(string url, int lessonTypeId)
+		{
+			if (lessonTypeId == 1 && !string.IsNullOrEmpty(url))
+			{
+				if (url.Contains("youtu.be"))
+				{
+					return url.Replace("youtu.be/", "www.youtube.com/embed/");
+				}
+				else if (url.Contains("watch?v="))
+				{
+					return url.Replace("watch?v=", "embed/");
+				}
+			}
+			return url;
+		}
 		public class LessonCompletionRequest
 		{
 			public string LessonId { get; set; }

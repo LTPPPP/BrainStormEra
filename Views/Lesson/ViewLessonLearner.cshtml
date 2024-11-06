@@ -18,40 +18,47 @@
     @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
 
     <div class="container-fluid content-wrapper" style="margin-top: 50px;">
-        @* Lấy dữ liệu chương và bài học *@
         @{
-            var lessons = (IEnumerable<BrainStormEra.Models.Lesson>)ViewBag.Lessons;
-            var chapters = (IEnumerable<BrainStormEra.Models.Chapter>)ViewBag.Chapters;
+            var lessons = ViewBag.Lessons as IEnumerable<BrainStormEra.Models.Lesson>;
+            var chapters = ViewBag.Chapters as IEnumerable<BrainStormEra.Models.Chapter>;
+            var completedLessons = ViewBag.CompletedLessons as List<string> ?? new List<string>();
         }
 
         <!-- Sidebar -->
         <nav class="sidebar">
             <h3> <i class="fas fa-bars"></i> Menu</h3>
             <div class="accordion" id="chapterAccordion">
-                @foreach (var chapter in chapters)
+                @if (chapters != null && lessons != null)
                 {
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading@chapter.ChapterId">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@chapter.ChapterId" aria-expanded="false" aria-controls="collapse@chapter.ChapterId">
-                                @chapter.ChapterName
-                            </button>
-                        </h2>
-                        <div id="collapse@chapter.ChapterId" class="accordion-collapse collapse" aria-labelledby="heading@chapter.ChapterId" data-bs-parent="#chapterAccordion">
-                            <div class="accordion-body">
-                                <ul class="list-unstyled">
-                                    @foreach (var lesson in lessons.Where(l => l.ChapterId == chapter.ChapterId))
-                                    {
-                                        <li>
-                                            <a href="#" class="lesson-link" data-lesson-id="@lesson.LessonId">
-                                                <i class="lesson-icon @(lesson.LessonTypeId == 1 ? "fas fa-play-circle" : "fas fa-book")"></i> @lesson.LessonName
-                                            </a>
-                                            <hr />
-                                        </li>
-                                    }
-                                </ul>
+                    @foreach (var chapter in chapters)
+                    {
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading@chapter.ChapterId">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@chapter.ChapterId" aria-expanded="false" aria-controls="collapse@chapter.ChapterId">
+                                    @chapter.ChapterName
+                                </button>
+                            </h2>
+                            <div id="collapse@chapter.ChapterId" class="accordion-collapse collapse" aria-labelledby="heading@chapter.ChapterId" data-bs-parent="#chapterAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-unstyled">
+                                        @foreach (var lesson in lessons.Where(l => l.ChapterId == chapter.ChapterId))
+                                        {
+                                            <li>
+                                                <a href="#" class="lesson-link" data-lesson-id="@lesson.LessonId">
+                                                    <i class="lesson-icon @(completedLessons.Contains(lesson.LessonId) ? "fa-check-circle text-success" : (lesson.LessonTypeId == 1 ? "fa-play-circle" : "fa-book"))"></i> @lesson.LessonName
+                                                </a>
+                                                <hr />
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
+                }
+                else
+                {
+                    <p>No chapters or lessons available.</p>
                 }
             </div>
         </nav>
@@ -61,13 +68,9 @@
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="#">Introducing about C++</a>
-                    </li>
+                    <li class="breadcrumb-item"><a href="#">Introducing about C++</a></li>
                     <li class="breadcrumb-item"><a href="#">Part 1</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        <a href="#">@Model.LessonName</a>
-                    </li>
+                    <li class="breadcrumb-item active" aria-current="page"><a href="#">@Model.LessonName</a></li>
                 </ol>
             </nav>
 
@@ -75,7 +78,6 @@
             <p id="lesson-description">@Model.LessonDescription</p>
 
             <!-- Content area based on LessonTypeId -->
-            <div>@Model.LessonTypeId</div>
             <div id="lesson-media">
                 @if (Model.LessonTypeId == 1)
                 {
@@ -92,7 +94,7 @@
             </div>
 
             <!-- Mark as Completed Button -->
-            <button id="markCompletedButton" onclick="markAsCompleted()" class="btn btn-primary btn-lg mt-3 float-end">Mark as Completed</button>
+            <button id="markCompletedButton" class="btn btn-primary btn-lg mt-3 float-end">Mark as Completed</button>
         </div>
     </div>
 
@@ -102,23 +104,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            var completedLessons = @Html.Raw(Json.Serialize(ViewBag.CompletedLessons));
-
-            completedLessons.forEach(function (lessonId) {
-                $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
-                    .removeClass('fa-play-circle fa-book')
-                    .addClass('fa-check-circle text-success');
-            });
-
-            loadLessonContent('@Model.LessonId');
-
-            $('.lesson-link').click(function (e) {
-                e.preventDefault();
-                var lessonId = $(this).data('lesson-id');
-                document.cookie = "CurrentLessonId=" + lessonId + "; path=/";
-                loadLessonContent(lessonId);
-            });
-
             function loadLessonContent(lessonId) {
                 $.ajax({
                     url: '@Url.Action("ViewLessonLearner", "Lesson")',
@@ -128,32 +113,20 @@
                         $('#lesson-title').text(response.lessonName);
                         $('#lesson-description').text(response.lessonDescription);
 
-                        $('#markCompletedButton').remove();
-                        const buttonHTML = response.isCompleted
-                            ? `<button id="markCompletedButton" class="btn btn-success mt-3 float-end" disabled>✓ Completed</button>`
-                            : `<button id="markCompletedButton" class="btn btn-primary mt-3 float-end">Mark as Completed</button>`;
-                        $('#lesson-content').append(buttonHTML);
+                        const contentHTML = response.lessonTypeId == 1
+                            ? `<iframe width="100%" height="500" src="${response.lessonContent}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                            : `<iframe width="100%" height="500" src="${response.lessonContent}" type="application/pdf" frameborder="0"></iframe>`;
+
+                        $('#lesson-media').html(contentHTML);
+
+                        $('#markCompletedButton').text(response.isCompleted ? '✓ Completed' : 'Mark as Completed')
+                            .toggleClass('btn-success', response.isCompleted)
+                            .prop('disabled', response.isCompleted);
 
                         if (!response.isCompleted) {
                             $('#markCompletedButton').off('click').on('click', function () {
                                 markAsCompleted(lessonId);
                             });
-                        }
-
-                        // Display media content based on LessonTypeId
-                        if (response.lessonTypeId == 1) {
-                            $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>');
-                        } else if (response.lessonTypeId == 2) {
-                            $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" type="application/pdf" frameborder="0"></iframe>');
-                        } else {
-                            $('#lesson-media').text("No content available for this lesson.");
-                        }
-
-                        // Mark the lesson as completed if response indicates it
-                        if (response.isCompleted) {
-                            $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
-                                .removeClass('fa-play-circle fa-book')
-                                .addClass('fa-check-circle text-success');
                         }
                     }
                 });
@@ -167,7 +140,7 @@
                     data: JSON.stringify({ lessonId: lessonId }),
                     success: function (response) {
                         if (response.success) {
-                            $('#markCompletedButton').text('✓ Completed').removeClass('btn-primary').addClass('btn-success').prop('disabled', true);
+                            $('#markCompletedButton').text('✓ Completed').addClass('btn-success').prop('disabled', true);
                             $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`).removeClass('fa-play-circle fa-book').addClass('fa-check-circle text-success');
                         } else {
                             alert(response.message || "Failed to mark lesson as completed.");
@@ -178,41 +151,17 @@
                     }
                 });
             }
+
+            $('.lesson-link').click(function (e) {
+                e.preventDefault();
+                const lessonId = $(this).data('lesson-id');
+                document.cookie = "CurrentLessonId=" + lessonId + "; path=/";
+                loadLessonContent(lessonId);
+            });
+
+            // Initial load based on Model.LessonId
+            loadLessonContent('@Model.LessonId');
         });
-
-        success: function (response) {
-            $('#lesson-title').text(response.lessonName);
-            $('#lesson-description').text(response.lessonDescription);
-
-            $('#markCompletedButton').remove();
-            const buttonHTML = response.isCompleted
-                ? `<button id="markCompletedButton" class="btn btn-success mt-3 float-end" disabled>✓ Completed</button>`
-                : `<button id="markCompletedButton" class="btn btn-primary mt-3 float-end">Mark as Completed</button>`;
-
-            $('#lesson-content').append(buttonHTML);
-
-            if (!response.isCompleted) {
-                $('#markCompletedButton').off('click').on('click', function () {
-                    markAsCompleted(lessonId);
-                });
-            }
-
-            if (response.lessonTypeId == 1) {
-                $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>');
-            } else if (response.lessonTypeId == 2) {
-                $('#lesson-media').html('<iframe width="100%" height="500" src="' + response.lessonContent + '" type="application/pdf" frameborder="0"></iframe>');
-            } else {
-                $('#lesson-media').text("No content available for this lesson.");
-            }
-
-            // Đánh dấu bài học là hoàn thành nếu response trả về isCompleted = true
-            if (response.isCompleted) {
-                $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
-                    .removeClass('fa-play-circle fa-book')
-                    .addClass('fa-check-circle text-success');
-            }
-        }
-
     </script>
 </body>
 </html>

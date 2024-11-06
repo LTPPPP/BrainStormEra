@@ -17,7 +17,7 @@ public partial class Lesson
 
     public int LessonOrder { get; set; }
 
-    public int? LessonTypeId { get; set; }
+    public int LessonTypeId { get; set; }
 
     public int? LessonStatus { get; set; }
 
