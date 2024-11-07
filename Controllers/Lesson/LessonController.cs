@@ -234,14 +234,23 @@ namespace BrainStormEra.Controllers.Lesson
 				}
 				else
 				{
-					// Save the uploaded file to a designated directory
-					var filePath = Path.Combine("wwwroot/uploads/lessons", LessonContentFile.FileName);
-					using (var stream = new FileStream(filePath, FileMode.Create))
-					{
-						LessonContentFile.CopyTo(stream);
-					}
-					model.LessonContent = "/uploads/lessons/" + LessonContentFile.FileName; // Set LessonContent as file path
-				}
+                    // Save the uploaded file to a designated directory
+                    var allowedExtensions = new[] { ".doc", ".docx", ".pdf" };
+                    var fileExtension = Path.GetExtension(LessonContentFile.FileName).ToLower();
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("LessonContent", "Only .doc, .docx, and .pdf files are allowed.");
+                    }
+                    else
+                    {
+                        var filePath = Path.Combine("wwwroot/uploads/lessons", LessonContentFile.FileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            LessonContentFile.CopyTo(stream);
+                        }
+                        model.LessonContent = "/uploads/lessons/" + LessonContentFile.FileName;
+                    }
+                }
 			}
 			if (!ModelState.IsValid)
 			{
@@ -260,9 +269,21 @@ namespace BrainStormEra.Controllers.Lesson
 				ViewBag.Chapters = new SelectList(_context.Chapters, "chapter_id", "chapter_name");
 				return View(model);
 			}
-
-			// Generate LessonId
-			int maxId = 0;
+            int lessonOrder = 1;
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                string query = "SELECT MAX(lesson_order) FROM lesson WHERE chapter_id = @chapter_id";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@chapter_id", model.ChapterId);
+                    var result = cmd.ExecuteScalar();
+                    lessonOrder = result != DBNull.Value ? ((int)result + 1) : 1;
+                }
+            }
+            model.LessonOrder = lessonOrder;
+            // Generate LessonId
+            int maxId = 0;
 			using (SqlConnection conn = new SqlConnection(_connectionString))
 			{
 				conn.Open();
