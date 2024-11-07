@@ -42,6 +42,7 @@ namespace BrainStormEra.Controllers
                     userRole = 2;
                 }
 
+
                 var userConversationCount = await _chatbotRepo.GetUserConversationCountAsync(chatbotConversation.UserId);
 
                 chatbotConversation.ConversationId = $"{chatbotConversation.UserId}-{userConversationCount + 1}";
