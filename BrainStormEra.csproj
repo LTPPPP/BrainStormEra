@@ -50,6 +50,7 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Login\Register.cshtml" />
     <_ContentIncludedByDefault Remove="wwwroot\css\Achievement\AdminAchievement.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Admin\PointPayment.css" />
     <_ContentIncludedByDefault Remove="wwwroot\css\Profile\AdminProfile.css" />
   </ItemGroup>
 
