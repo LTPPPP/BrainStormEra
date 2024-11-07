@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using BrainStormEra.Repo;
 using BrainStormEra.Repo.Chatbot;
 using BrainStormEra.Repo.Admin;
+using Microsoft.Extensions.Configuration;
+
 namespace BrainStormEra
 {
     public class Program
@@ -13,7 +15,11 @@ namespace BrainStormEra
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            // Đăng ký EmailService
+
+            // Đảm bảo tệp appsettings.json được tải
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            // Đăng ký EmailService và các dịch vụ HTTP và Session
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<GeminiApiService>();
 
@@ -21,8 +27,7 @@ namespace BrainStormEra
 
             // Configure DbContext with SQL Server
             builder.Services.AddDbContext<SwpMainContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
-
+                options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
@@ -30,11 +35,12 @@ namespace BrainStormEra
                 options.IdleTimeout = TimeSpan.FromMinutes(10);
                 options.Cookie.HttpOnly = true;
             });
+
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<OtpService>();
 
-
+            // Đăng ký các lớp Repo
             builder.Services.AddScoped<SwpMainContext>();
             builder.Services.AddScoped<AccountRepo>();
             builder.Services.AddScoped<AchievementRepo>();
@@ -44,40 +50,39 @@ namespace BrainStormEra
             builder.Services.AddScoped<LessonRepo>();
 
             builder.Services.AddControllersWithViews();
-            // Add authentication services for cookies
+
+            // Thêm dịch vụ xác thực bằng cookie
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Login/LoginPage";  // Redirect to login page if unauthorized
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Set cookie expiration time
+                    options.LoginPath = "/Login/LoginPage";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                     options.SlidingExpiration = true;
-                    options.Cookie.HttpOnly = true; // Secure the cookie
-                    options.Cookie.IsEssential = true;  // Ensure it's essential for GDPR compliance
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.IsEssential = true;
                 });
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
-            // Enable HTTPS redirection and static file serving
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSession();
             app.MapControllers();
 
             app.UseRouting();
-            // Enable cookie authentication
-            app.UseAuthentication();
 
-            // Enable authorization middleware
+            // Enable authentication and authorization middleware
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            // Map the controller routes with default route settings
+            // Map controller routes with default route settings
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Login}/{action=LoginPage}/{id?}");
