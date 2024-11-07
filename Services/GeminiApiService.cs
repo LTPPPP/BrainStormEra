@@ -11,7 +11,7 @@ namespace BrainStormEra.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
-        private const string GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
+        private readonly string _apiUrl;
 
         private const string ADMIN_TEMPLATE = @"
 You are an AI assistant named BrainStormEra, created by PhatLam. Your primary function is to assist users with a wide range of tasks and answer their questions to the best of your ability. Please adhere to the following guidelines:
@@ -94,6 +94,7 @@ Your response (in Vietnamese):";
         {
             _httpClient = httpClient;
             _apiKey = configuration["GeminiApiKey"];
+            _apiUrl = configuration["GeminiApiUrl"];
         }
 
         public async Task<string> GetResponseFromGemini(string message, int userRole, string lessonId, string lessonName, string lessonContent, string lessonDescription)
@@ -145,7 +146,7 @@ Lesson Content: {lessonContent}
 
             try
             {
-                var response = await _httpClient.PostAsync($"{GEMINI_API_URL}?key={_apiKey}", content);
+                var response = await _httpClient.PostAsync($"{_apiUrl}?key={_apiKey}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
