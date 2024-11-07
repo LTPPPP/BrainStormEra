@@ -79,6 +79,32 @@ namespace BrainStormEra.Repo.Chatbot
             await _dbContext.ChatbotConversations
                 .ExecuteDeleteAsync();
         }
+
+        public async Task<List<ChatbotConversation>> GetAllConversationsAsync()
+        {
+            return await _dbContext.ChatbotConversations
+                .OrderByDescending(c => c.ConversationTime) // Sắp xếp theo thời gian hội thoại từ mới nhất đến cũ nhất
+                .Include(c => c.User) // Bao gồm thông tin người dùng nếu cần thiết
+                .ToListAsync();
+        }
+        public async Task<List<DateTime>> GetDistinctConversationDatesAsync()
+        {
+            return await _dbContext.ChatbotConversations
+                .Select(c => c.ConversationTime.Date)
+                .Distinct()
+                .OrderByDescending(date => date)
+                .ToListAsync();
+        }
+
+        public async Task<List<ChatbotConversation>> GetConversationsByDateAsync(DateTime date)
+        {
+            return await _dbContext.ChatbotConversations
+                .Where(c => c.ConversationTime.Date == date)
+                .OrderByDescending(c => c.ConversationTime)
+                .Include(c => c.User)
+                .ToListAsync();
+        }
+
     }
 
     // New class to handle statistics

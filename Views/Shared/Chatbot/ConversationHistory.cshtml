@@ -15,20 +15,13 @@
 <body>
     @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
     <div class="container mt-4">
-        <h2 class="text-center header-his">Chatbot Conversation History</h2>
-        <div class="d-flex justify-content-between mb-3">
-            <button id="delete-selected" class="btn" style="background-color : #ff6347">Delete Selected</button>
-        </div>
-        <div class="form-check mb-3">
-            <input type="checkbox" id="select-all" class="form-check-input" />
-            <label class="form-check-label" for="select-all">Select All</label>
-        </div>
+        <h2 class="text-center header-his">Chatbot Conversation History - @Model.DailyConversations[0].Date.ToString("dd/MM/yyyy")</h2>
+
         <div class="row">
-            @foreach (var conversation in Model.Conversations)
+            @foreach (var conversation in Model.DailyConversations[0].Conversations)
             {
                 <div class="col-12 mb-4">
                     <div class="card shadow-sm h-100 border-0 rounded-lg hover-zoom">
-                        <!-- Checkbox để chọn từng cuộc hội thoại -->
                         <div class="card-header text-white d-flex align-items-center rounded-top title-chat">
                             <i class="fas fa-user-circle me-2"></i>
                             <span>@conversation.UserName</span>
@@ -51,20 +44,13 @@
             <ul class="pagination justify-content-center mt-4">
                 <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
                     <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage - 1 })" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
+                        <span aria-hidden="true">&laquo; Previous Day</span>
                     </a>
                 </li>
 
-                @for (int i = 1; i <= Model.TotalPages; i++)
-                {
-                    <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("ConversationHistory", new { page = i })">@i</a>
-                    </li>
-                }
-
                 <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
                     <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage + 1 })" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
+                        <span aria-hidden="true">Next Day &raquo;</span>
                     </a>
                 </li>
             </ul>
