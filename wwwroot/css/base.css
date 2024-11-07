@@ -55,6 +55,13 @@
     --button-bg-color: #ffffff;
 }
 
+@font-face {
+    font-family: 'FiraCodeNF'; /* Replace with the name of your chosen Nerd Font */
+    src: url('fonts/FiraCode-Regular-Nerd-Font.ttf') format('truetype'); /* Adjust the file path */
+    font-weight: normal;
+    font-style: normal;
+}
+
 
 * {
     padding: 0;

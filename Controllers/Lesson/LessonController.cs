@@ -150,7 +150,6 @@ namespace BrainStormEra.Controllers.Lesson
 		}
 
 		// GET: Create Lesson
-		// GET: Create Lesson
 		[HttpGet]
 		public IActionResult AddLesson()
 		{

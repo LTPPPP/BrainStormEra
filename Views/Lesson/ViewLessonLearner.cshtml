@@ -155,7 +155,7 @@
             $('.lesson-link').click(function (e) {
                 e.preventDefault();
                 const lessonId = $(this).data('lesson-id');
-                document.cookie = "CurrentLessonId=" + lessonId + "; path=/";
+                document.cookie = "LessonId=" + lessonId+";path=/";
                 loadLessonContent(lessonId);
             });
 

@@ -7,7 +7,13 @@
     height: 50px; /* Ensure it's square */
     z-index: 10000;
 }
+.new-chat {
+    background-color: #0cab7d;
+}
 
+    .new-chat :hover {
+        background-color: #f7a478;
+    }
 .chat-container {
     position: fixed;
     bottom: 40px;
@@ -27,11 +33,11 @@
 }
 
     #chat-messages p.bot-message {
-        background-color: lightblue; /* Light blue for bot */
-        color: blue; /* Bot message text color */
+        background-color: #d7ecc3;
+        color: #605c5f;
     }
 
     #chat-messages p.user-message {
-        background-color: lightgreen; /* Light green for user */
-        color: green; /* User message text color */
+        background-color: #eddbdb; /* Light green for user */
+        color: #605c5f; /* User message text color */
     }

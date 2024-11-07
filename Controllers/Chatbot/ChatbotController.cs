@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrainStormEra.Repo.Course;
+using BrainStormEra.Repo.Chapter;
 
 namespace BrainStormEra.Controllers
 {
@@ -17,13 +18,15 @@ namespace BrainStormEra.Controllers
         private readonly GeminiApiService _geminiApiService;
         private readonly ChatbotRepo _chatbotRepo;
         private readonly CourseRepo _courseRepo;
+        private readonly ChapterRepo _chapterRepo;
         private readonly LessonRepo _lessonRepo;
 
-        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo,CourseRepo courseRepo, LessonRepo lessonRepo)
+        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
         {
             _geminiApiService = geminiApiService;
             _chatbotRepo = chatbotRepo;
             _courseRepo = courseRepo;
+            _chapterRepo = chapterRepo;
             _lessonRepo = lessonRepo;
         }
 
@@ -51,27 +54,40 @@ namespace BrainStormEra.Controllers
 
                 string reply;
                 var courseId = HttpContext.Request.Cookies["CourseId"];
+                var chapterId = HttpContext.Request.Cookies["ChapterId"];
+                var lessonId = HttpContext.Request.Cookies["LessonId"];
+                Console.WriteLine(" cook :  " + courseId +" "+ chapterId + " "+  lessonId);
                 if (userRole == 3)
                 {
                     var course = await _courseRepo.GetCourseByIdAsync(courseId);
-
+                    Console.WriteLine("course : "+course);
                     if (course == null)
                     {
                         return BadRequest(new { error = "course not found" });
                     }
-
+                    var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
+                    Console.WriteLine("chapter : " + chapter);
+                    if (chapter == null)
+                    {
+                        return BadRequest(new { error = "chapter not found" });
+                    }
+                    var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
                     reply = await _geminiApiService.GetResponseFromGemini(
                         chatbotConversation.ConversationContent,
                         userRole,
-                        courseId,
                         course.CourseName,
+                        course.CreatedBy,
                         course.CourseDescription,
-                        course.CreatedBy
+                        chapter.ChapterName,
+                        chapter.ChapterDescription,
+                        lesson.LessonName,
+                        lesson.LessonDescription,
+                        lesson.LessonContent
                     );
                 }
                 else
                 {
-                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ");
+                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ", " ", " ");
                 }
                 Console.WriteLine("reply : " + reply);
                 var botConversation = new ChatbotConversation
