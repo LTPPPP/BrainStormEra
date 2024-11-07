@@ -54,9 +54,7 @@ namespace BrainStormEra.Controllers
 
                 string reply;
                 var courseId = HttpContext.Request.Cookies["CourseId"];
-                var chapterId = HttpContext.Request.Cookies["ChapterId"];
                 var lessonId = HttpContext.Request.Cookies["LessonId"];
-                Console.WriteLine(" cook :  " + courseId +" "+ chapterId + " "+  lessonId);
                 if (userRole == 3)
                 {
                     var course = await _courseRepo.GetCourseByIdAsync(courseId);
@@ -65,12 +63,6 @@ namespace BrainStormEra.Controllers
                     {
                         return BadRequest(new { error = "course not found" });
                     }
-                    var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
-                    Console.WriteLine("chapter : " + chapter);
-                    if (chapter == null)
-                    {
-                        return BadRequest(new { error = "chapter not found" });
-                    }
                     var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
                     reply = await _geminiApiService.GetResponseFromGemini(
                         chatbotConversation.ConversationContent,
@@ -78,8 +70,6 @@ namespace BrainStormEra.Controllers
                         course.CourseName,
                         course.CreatedBy,
                         course.CourseDescription,
-                        chapter.ChapterName,
-                        chapter.ChapterDescription,
                         lesson.LessonName,
                         lesson.LessonDescription,
                         lesson.LessonContent
@@ -87,7 +77,7 @@ namespace BrainStormEra.Controllers
                 }
                 else
                 {
-                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ", " ", " ");
+                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ");
                 }
                 Console.WriteLine("reply : " + reply);
                 var botConversation = new ChatbotConversation

@@ -394,79 +394,86 @@ namespace BrainStormEra.Controllers.Lesson
 			return RedirectToAction("LessonManagement");
 		}
 
-		// GET: View Lesson Learner
-		[HttpGet]
-		public IActionResult ViewLessonLearner(string lessonId)
-		{
-			string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			string courseId = Request.Cookies["CourseId"];
+        // GET: View Lesson Learner
+        [HttpGet]
+        public IActionResult ViewLessonLearner(string lessonId)
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string courseId = Request.Cookies["CourseId"];
 
-			if (string.IsNullOrEmpty(courseId) || string.IsNullOrEmpty(userId))
-			{
-				return BadRequest("CourseId or UserId is missing.");
-			}
+            if (string.IsNullOrEmpty(courseId) || string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("CourseId or UserId is missing.");
+            }
 
-			// If no lessonId is specified, load the first lesson in the first chapter for the course
-			if (string.IsNullOrEmpty(lessonId))
-			{
-				var firstChapter = _context.Chapters
-					.Where(c => c.CourseId == courseId)
-					.OrderBy(c => c.ChapterOrder)
-					.FirstOrDefault();
+            // If no lessonId is specified, load the first lesson in the first chapter for the course
+            if (string.IsNullOrEmpty(lessonId))
+            {
+                var firstChapter = _context.Chapters
+                    .Where(c => c.CourseId == courseId)
+                    .OrderBy(c => c.ChapterOrder)
+                    .FirstOrDefault();
 
-				if (firstChapter != null)
-				{
-					var firstLesson = _context.Lessons
-						.Where(l => l.ChapterId == firstChapter.ChapterId)
-						.OrderBy(l => l.LessonOrder)
-						.FirstOrDefault();
-					lessonId = firstLesson?.LessonId;
-				}
-			}
+                if (firstChapter != null)
+                {
+                    var firstLesson = _context.Lessons
+                        .Where(l => l.ChapterId == firstChapter.ChapterId)
+                        .OrderBy(l => l.LessonOrder)
+                        .FirstOrDefault();
+                    lessonId = firstLesson?.LessonId;
 
-			// Fetch the specific lesson based on lessonId and courseId
-			var lesson = _context.Lessons
-				.Include(l => l.Chapter)
-				.FirstOrDefault(l => l.LessonId == lessonId && l.Chapter.CourseId == courseId);
+                    // Set LessonId to cookie if found
+                    if (!string.IsNullOrEmpty(lessonId))
+                    {
+                        Response.Cookies.Append("LessonId", lessonId, new CookieOptions { Path = "/" });
+                    }
+                }
+            }
 
-			if (lesson == null)
-			{
-				return NotFound();
-			}
+            // Fetch the specific lesson based on lessonId and courseId
+            var lesson = _context.Lessons
+                .Include(l => l.Chapter)
+                .FirstOrDefault(l => l.LessonId == lessonId && l.Chapter.CourseId == courseId);
 
-			// Check if the lesson is already completed by the user
-			bool isCompleted = _context.LessonCompletions.Any(lc => lc.UserId == userId && lc.LessonId == lessonId);
+            if (lesson == null)
+            {
+                return NotFound();
+            }
 
-			// Fetch all completed lesson IDs for the current user in this course
-			var completedLessonIds = _context.LessonCompletions
-				.Where(lc => lc.UserId == userId && lc.Lesson.Chapter.CourseId == courseId)
-				.Select(lc => lc.LessonId)
-				.ToList();
+            // Check if the lesson is already completed by the user
+            bool isCompleted = _context.LessonCompletions.Any(lc => lc.UserId == userId && lc.LessonId == lessonId);
 
-			// If the request is AJAX (for dynamic lesson loading), return JSON
-			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-			{
-				return Json(new
-				{
-					lessonName = lesson.LessonName,
-					lessonDescription = lesson.LessonDescription,
-					lessonContent = FormatYoutubeUrl(lesson.LessonContent, lesson.LessonTypeId),
-					lessonTypeId = lesson.LessonTypeId,
-					isCompleted = isCompleted
-				});
-			}
+            // Fetch all completed lesson IDs for the current user in this course
+            var completedLessonIds = _context.LessonCompletions
+                .Where(lc => lc.UserId == userId && lc.Lesson.Chapter.CourseId == courseId)
+                .Select(lc => lc.LessonId)
+                .ToList();
 
-			// Pass all necessary data to the view
-			ViewBag.Lessons = _context.Lessons.Where(l => l.Chapter.CourseId == courseId).ToList();
-			ViewBag.Chapters = _context.Chapters.Where(c => c.CourseId == courseId).ToList();
-			ViewBag.CompletedLessons = completedLessonIds;
-			ViewBag.IsCompleted = isCompleted;
+            // If the request is AJAX (for dynamic lesson loading), return JSON
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new
+                {
+                    lessonName = lesson.LessonName,
+                    lessonDescription = lesson.LessonDescription,
+                    lessonContent = FormatYoutubeUrl(lesson.LessonContent, lesson.LessonTypeId),
+                    lessonTypeId = lesson.LessonTypeId,
+                    isCompleted = isCompleted
+                });
+            }
 
-			return View(lesson);
-		}
+            // Pass all necessary data to the view
+            ViewBag.Lessons = _context.Lessons.Where(l => l.Chapter.CourseId == courseId).ToList();
+            ViewBag.Chapters = _context.Chapters.Where(c => c.CourseId == courseId).ToList();
+            ViewBag.CompletedLessons = completedLessonIds;
+            ViewBag.IsCompleted = isCompleted;
 
-		// POST: Mark Lesson Completed
-		[HttpPost]
+            return View(lesson);
+        }
+
+
+        // POST: Mark Lesson Completed
+        [HttpPost]
 		public JsonResult MarkLessonCompleted([FromBody] LessonCompletionRequest request)
 		{
 			string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
