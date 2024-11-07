@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BrainStormEra.Repo.Course;
 
 namespace BrainStormEra.Controllers
 {
@@ -15,12 +16,14 @@ namespace BrainStormEra.Controllers
     {
         private readonly GeminiApiService _geminiApiService;
         private readonly ChatbotRepo _chatbotRepo;
+        private readonly CourseRepo _courseRepo;
         private readonly LessonRepo _lessonRepo;
 
-        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo, LessonRepo lessonRepo)
+        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo,CourseRepo courseRepo, LessonRepo lessonRepo)
         {
             _geminiApiService = geminiApiService;
             _chatbotRepo = chatbotRepo;
+            _courseRepo = courseRepo;
             _lessonRepo = lessonRepo;
         }
 
@@ -46,23 +49,23 @@ namespace BrainStormEra.Controllers
                 await _chatbotRepo.AddConversationAsync(chatbotConversation);
 
                 string reply;
-                var lessonId = HttpContext.Request.Cookies["CurrentLessonId"];
+                var courseId = HttpContext.Request.Cookies["CourseId"];
                 if (userRole == 3)
                 {
-                    var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
+                    var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
-                    if (lesson == null)
+                    if (course == null)
                     {
-                        return BadRequest(new { error = "Lesson not found" });
+                        return BadRequest(new { error = "course not found" });
                     }
 
                     reply = await _geminiApiService.GetResponseFromGemini(
                         chatbotConversation.ConversationContent,
                         userRole,
-                        lessonId,
-                        lesson.LessonName,
-                        lesson.LessonContent,
-                        lesson.LessonDescription
+                        courseId,
+                        course.CourseName,
+                        course.CourseDescription,
+                        course.CreatedBy
                     );
                 }
                 else

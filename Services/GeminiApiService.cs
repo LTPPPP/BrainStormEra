@@ -58,8 +58,7 @@ You are an AI assistant named BrainStormEra, created by PhatLam. Your primary fu
 8. Summarize long responses: If a response is lengthy, provide a brief summary at the beginning.
 
 9. You may decline to answer if the question is about a separate issue or is unrelated to the issue provided.
-10. Lesson Details: {1}
-11. If the question is not related to the lesson, the Lesson Name, Lesson Content, Lesson Description, Lesson Content will be rejected because ""Your question is not related to the lesson you are studying""
+10. If the question is not related to the lesson, the Lesson Name, Lesson Content, Lesson Description, Lesson Content will be rejected because ""Your question is not related to the lesson you are studying""
 
 User input: {0}
 
@@ -97,14 +96,14 @@ Your response (in Vietnamese):";
             _apiUrl = configuration["GeminiApiUrl"];
         }
 
-        public async Task<string> GetResponseFromGemini(string message, int userRole, string lessonId, string lessonName, string lessonContent, string lessonDescription)
+        public async Task<string> GetResponseFromGemini(string message, int userRole, string CourseId, string CourseName, string CourseDescription, string CreatedBy)
         {
             string selectedTemplate;
-            var lessonDetails = $@"
-Lesson ID: {lessonId}
-Lesson Name: {lessonName}
-Lesson Description: {lessonDescription}
-Lesson Content: {lessonContent}
+            var courseDetails= $@"
+Lesson ID: {CourseId}
+Lesson Name: {CourseName}
+Lesson Description: {CourseDescription}
+Lesson Content: {CreatedBy}
 ";
             // Determine the template based on user role (0 for user, 1 for admin)
             switch (userRole)
@@ -113,7 +112,7 @@ Lesson Content: {lessonContent}
                     selectedTemplate = ADMIN_TEMPLATE;
                     break;
                 case 3:
-                    selectedTemplate = USER_TEMPLATE + lessonDetails;
+                    selectedTemplate = USER_TEMPLATE + courseDetails;
                     break;
                 case 2:
                     selectedTemplate = INSTRUCTOR_TEMPLATE;
@@ -123,7 +122,7 @@ Lesson Content: {lessonContent}
                     break;
             }
             var formattedMessage = (userRole == 3)
-       ? string.Format(selectedTemplate, message, lessonDetails) // USER role with lesson details
+       ? string.Format(selectedTemplate, message, courseDetails) // USER role with lesson details
        : string.Format(selectedTemplate, message); // Other roles
             Console.WriteLine(formattedMessage);
             var request = new

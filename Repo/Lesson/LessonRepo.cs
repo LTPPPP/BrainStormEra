@@ -25,5 +25,12 @@ namespace BrainStormEra.Repo
                 .AsNoTracking() // Optional: improves performance for read-only queries
                 .FirstOrDefaultAsync(l => l.LessonId == lessonId);
         }
+
+        public async Task<List<Lesson>> GetLessonsByChapterIdAsync(string chapterId)
+        {
+            return await _context.Lessons
+                .Where(l => l.ChapterId == chapterId)
+                .ToListAsync();
+        }
     }
 }
