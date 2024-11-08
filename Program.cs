@@ -18,10 +18,10 @@ namespace BrainStormEra
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Đảm bảo tệp appsettings.json được tải
+            // Load appsettings.json
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            // Đăng ký EmailService và các dịch vụ HTTP và Session
+            // Register Services
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<GeminiApiService>();
 
@@ -38,12 +38,10 @@ namespace BrainStormEra
                 options.Cookie.HttpOnly = true;
             });
 
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<OtpService>();
 
-            // Đăng ký các lớp Repo
-            builder.Services.AddScoped<SwpMainContext>();
+            // Register Repositories
             builder.Services.AddScoped<AccountRepo>();
             builder.Services.AddScoped<AchievementRepo>();
             builder.Services.AddScoped<ChatbotRepo>();
@@ -53,10 +51,9 @@ namespace BrainStormEra
             builder.Services.AddScoped<CourseRepo>();
             builder.Services.AddScoped<ChapterRepo>();
 
-
             builder.Services.AddControllersWithViews();
 
-            // Thêm dịch vụ xác thực bằng cookie
+            // Cookie Authentication Configuration
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
@@ -69,25 +66,27 @@ namespace BrainStormEra
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline
+            // Configure Middleware
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+            else
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSession();
-            app.MapControllers();
 
             app.UseRouting();
 
-            // Enable authentication and authorization middleware
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Map controller routes with default route settings
+            // Map Controller Routes
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Login}/{action=LoginPage}/{id?}");

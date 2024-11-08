@@ -88,22 +88,22 @@ namespace BrainStormEra.Repo.Chatbot
                 .ToListAsync();
         }
         public async Task<List<DateTime>> GetDistinctConversationDatesAsync()
-        {
-            return await _dbContext.ChatbotConversations
-                .Select(c => c.ConversationTime.Date)
-                .Distinct()
-                .OrderByDescending(date => date)
-                .ToListAsync();
-        }
+{
+    return await _dbContext.ChatbotConversations
+        .Select(c => c.ConversationTime.Date)
+        .Distinct()
+        .OrderByDescending(date => date)
+        .ToListAsync();
+}
 
-        public async Task<List<ChatbotConversation>> GetConversationsByDateAsync(DateTime date)
-        {
-            return await _dbContext.ChatbotConversations
-                .Where(c => c.ConversationTime.Date == date)
-                .OrderByDescending(c => c.ConversationTime)
-                .Include(c => c.User)
-                .ToListAsync();
-        }
+public async Task<List<ChatbotConversation>> GetConversationsByDateAsync(DateTime date)
+{
+    return await _dbContext.ChatbotConversations
+        .Where(c => c.ConversationTime.Date == date)
+        .OrderByDescending(c => c.ConversationTime)
+        .Include(c => c.User)
+        .ToListAsync();
+}
 
     }
 
