@@ -1,22 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
 using System.Security.Claims;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageAdminController : Controller
     {
-        private readonly SwpMainContext _context;
         private readonly string _connectionString;
 
-        public HomePageAdminController(SwpMainContext context, IConfiguration configuration)
+        public HomePageAdminController(IConfiguration configuration)
         {
-            _context = context;
             _connectionString = configuration.GetConnectionString("SwpMainContext");
         }
 
@@ -26,53 +23,62 @@ namespace BrainStormEra.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var username = User.Identity.Name;
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-
                 if (userId != null)
                 {
-                    var user = _context.Accounts.FirstOrDefault(u => u.UserId == userId);
-
-                    if (user != null)
+                    using (var connection = new SqlConnection(_connectionString))
                     {
-                        ViewBag.FullName = user.FullName;
-                        ViewBag.UserPicture = user.UserPicture ?? "~/lib/img/User-img/default_user.png";
+                        connection.Open();
+                        var query = "SELECT full_name AS FullName, COALESCE(user_picture, '~/lib/img/User-img/default_user.png') AS UserPicture FROM account WHERE user_id = @userId";
+                        using (var command = new SqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@userId", userId);
+                            using (var reader = command.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    ViewBag.FullName = reader["FullName"]?.ToString() ?? "Guest";
+                                    ViewBag.UserPicture = reader["UserPicture"]?.ToString();
+                                }
+                                else
+                                {
+                                    ViewBag.FullName = "Guest";
+                                    ViewBag.UserPicture = "~/lib/img/User-img/default_user.png";
+                                }
+                            }
+                        }
                     }
-                    else
-                    {
-                        ViewBag.FullName = "Guest";
-                        ViewBag.UserPicture = "~/lib/img/User-img/default_user.png";
-                    }
-
                     return View("~/Views/Home/HomePageAdmin.cshtml");
                 }
             }
-
             return RedirectToAction("LoginPage", "Login");
         }
+
 
         [HttpGet]
         public IActionResult GetUserStatistics()
         {
             try
             {
-                var firstDate = _context.Accounts.Min(u => u.AccountCreatedAt).Date;
-                var currentDate = DateTime.Now.Date;
-
-                var userStatistics = _context.Accounts
-                    .GroupBy(u => u.AccountCreatedAt.Date)
-                    .Select(g => new { Date = g.Key, Count = g.Count() })
-                    .ToList();
-
-                var fullStatistics = Enumerable.Range(0, (currentDate - firstDate).Days + 1)
-                    .Select(offset => new
+                var userStatistics = new List<object>();
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var query = @"SELECT CONVERT(DATE, account_created_at) AS Date, COUNT(*) AS Count 
+                                  FROM account GROUP BY CONVERT(DATE, account_created_at)";
+                    using (var command = new SqlCommand(query, connection))
+                    using (var reader = command.ExecuteReader())
                     {
-                        Date = firstDate.AddDays(offset),
-                        Count = userStatistics.FirstOrDefault(d => d.Date == firstDate.AddDays(offset))?.Count ?? 0
-                    })
-                    .ToList();
-
-                return Json(fullStatistics.Select(d => new { Date = d.Date.ToString("yyyy-MM-dd"), Count = d.Count }));
+                        while (reader.Read())
+                        {
+                            userStatistics.Add(new
+                            {
+                                Date = ((DateTime)reader["Date"]).ToString("yyyy-MM-dd"),
+                                Count = (int)reader["Count"]
+                            });
+                        }
+                    }
+                }
+                return Json(userStatistics);
             }
             catch (Exception ex)
             {
@@ -86,23 +92,26 @@ namespace BrainStormEra.Controllers
         {
             try
             {
-                var firstDate = _context.ChatbotConversations.Min(c => c.ConversationTime.Date);
-                var currentDate = DateTime.Now.Date;
-
-                var statistics = _context.ChatbotConversations
-                    .GroupBy(c => c.ConversationTime.Date)
-                    .Select(g => new { Date = g.Key, Count = g.Count() })
-                    .ToList();
-
-                var allConversations = Enumerable.Range(0, (currentDate - firstDate).Days + 1)
-                    .Select(offset => new
+                var conversationStatistics = new List<object>();
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var query = @"SELECT CONVERT(DATE, conversation_time) AS Date, COUNT(*) AS Count 
+                                  FROM chatbot_conversation GROUP BY CONVERT(DATE, conversation_time)";
+                    using (var command = new SqlCommand(query, connection))
+                    using (var reader = command.ExecuteReader())
                     {
-                        Date = firstDate.AddDays(offset),
-                        Count = statistics.FirstOrDefault(d => d.Date == firstDate.AddDays(offset))?.Count ?? 0
-                    })
-                    .ToList();
-
-                return Json(allConversations.Select(d => new { Date = d.Date.ToString("yyyy-MM-dd"), Count = d.Count }));
+                        while (reader.Read())
+                        {
+                            conversationStatistics.Add(new
+                            {
+                                Date = ((DateTime)reader["Date"]).ToString("yyyy-MM-dd"),
+                                Count = (int)reader["Count"]
+                            });
+                        }
+                    }
+                }
+                return Json(conversationStatistics);
             }
             catch (Exception ex)
             {
@@ -110,74 +119,62 @@ namespace BrainStormEra.Controllers
                 return Json(new { message = "An error occurred while retrieving conversation statistics." });
             }
         }
+
         [HttpGet]
         public JsonResult GetCourseCreationStatistics()
         {
             try
             {
-                // Kiểm tra courses
-                if (!_context.Courses.Any())
+                var courseStatistics = new List<dynamic>();
+
+                using (var connection = new SqlConnection(_connectionString))
                 {
+                    connection.Open();
+
+                    var checkQuery = "SELECT COUNT(*) FROM course";
+                    using (var checkCommand = new SqlCommand(checkQuery, connection))
+                    {
+                        int courseCount = (int)checkCommand.ExecuteScalar();
+                        if (courseCount == 0)
+                        {
+                            return Json(new
+                            {
+                                success = false,
+                                message = "No courses found",
+                                data = new List<object>()
+                            });
+                        }
+                    }
+
+                    var query = @"SELECT CONVERT(DATE, course_created_at) AS Date, COUNT(*) AS Count 
+                          FROM course WHERE course_created_at <= GETDATE() 
+                          GROUP BY CONVERT(DATE, course_created_at)";
+
+                    using (var command = new SqlCommand(query, connection))
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            courseStatistics.Add(new
+                            {
+                                Date = ((DateTime)reader["Date"]).ToString("yyyy-MM-dd"),
+                                Count = (int)reader["Count"]
+                            });
+                        }
+                    }
+
                     return Json(new
                     {
-                        success = false,
-                        message = "No courses found",
-                        data = new List<object>()
+                        success = true,
+                        data = courseStatistics,
+                        totalCourses = courseStatistics.Count,
+                        dateRange = new
+                        {
+                            start = courseStatistics.Count > 0 ? courseStatistics[0].Date : "N/A",
+                            end = DateTime.Now.ToString("yyyy-MM-dd")
+                        }
                     });
                 }
-
-                // Lấy ngày hiện tại
-                var currentDate = DateTime.Now.Date;
-
-                // Query courses trong phạm vi hợp lệ (quá khứ đến hiện tại)
-                var courses = _context.Courses
-                    .AsNoTracking()
-                    .Where(c => c.CourseCreatedAt.Date <= currentDate)
-                    .Select(c => new { c.CourseId, c.CourseCreatedAt })
-                    .ToList();
-
-                // Group by date và đếm
-                var coursesByDate = courses
-                    .GroupBy(c => c.CourseCreatedAt.Date)
-                    .Select(g => new {
-                        Date = g.Key,
-                        Count = g.Count()
-                    })
-                    .OrderBy(x => x.Date)
-                    .ToList();
-
-                // Lấy ngày bắt đầu từ dữ liệu thực tế
-                var firstDate = coursesByDate.Any()
-                    ? coursesByDate.Min(x => x.Date)
-                    : currentDate.AddDays(-30); // Default 30 ngày nếu không có data
-
-                // Tạo range date hợp lệ
-                var allDates = Enumerable.Range(0, (currentDate - firstDate).Days + 1)
-                    .Select(offset => firstDate.AddDays(offset))
-                    .ToList();
-
-                // Tạo dataset đầy đủ
-                var fullData = allDates.Select(date => new {
-                    Date = date.ToString("yyyy-MM-dd"),
-                    Count = coursesByDate.FirstOrDefault(x => x.Date == date)?.Count ?? 0
-                }).ToList();
-
-                // Debug logging
-                Console.WriteLine($"Data points: {fullData.Count}");
-                Console.WriteLine($"Date range: {firstDate:yyyy-MM-dd} to {currentDate:yyyy-MM-dd}");
-                Console.WriteLine($"Total courses: {courses.Count}");
-
-                return Json(new
-                {
-                    success = true,
-                    data = fullData,
-                    totalCourses = courses.Count,
-                    dateRange = new
-                    {
-                        start = firstDate.ToString("yyyy-MM-dd"),
-                        end = currentDate.ToString("yyyy-MM-dd")
-                    }
-                });
             }
             catch (Exception ex)
             {
@@ -185,6 +182,7 @@ namespace BrainStormEra.Controllers
                 return Json(new
                 {
                     success = false,
+                    message = "An error occurred while retrieving course statistics.",
                     error = ex.Message,
                     data = new List<object>()
                 });

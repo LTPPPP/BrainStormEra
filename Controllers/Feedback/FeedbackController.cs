@@ -66,15 +66,6 @@ namespace BrainStormEra.Controllers
             return Json(new { success = false, message = "You cannot edit this comment" });
         }
 
-
-
-
-
-
-
-
-
-
         public class FeedbackViewModel
         {
             public string FeedbackId { get; set; } // Thêm thuộc tính này
