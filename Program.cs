@@ -9,6 +9,7 @@ using BrainStormEra.Repo.Admin;
 using Microsoft.Extensions.Configuration;
 using BrainStormEra.Repo.Chapter;
 using BrainStormEra.Repo.Course;
+using BrainStormEra.Repositories;
 
 namespace BrainStormEra
 {
@@ -45,6 +46,8 @@ namespace BrainStormEra
             builder.Services.AddScoped<AccountRepo>();
             builder.Services.AddScoped<AchievementRepo>();
             builder.Services.AddScoped<AdminRepo>();
+            builder.Services.AddScoped<InstructorRepo>();
+            builder.Services.AddScoped<GuestRepo>();
             builder.Services.AddScoped<ChatbotRepo>();
             builder.Services.AddScoped<ProfileRepo>();
             builder.Services.AddScoped<FeedbackRepo>();

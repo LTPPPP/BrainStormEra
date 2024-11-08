@@ -1,6 +1,7 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.Views.Home;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -8,11 +9,11 @@ namespace BrainStormEra.Repo
 {
     public class GuestRepo
     {
-        private readonly SwpMainContext _dbContext;
+        private readonly string _connectionString;
 
-        public GuestRepo(SwpMainContext dbContext)
+        public GuestRepo(IConfiguration configuration)
         {
-            _dbContext = dbContext;
+            _connectionString = configuration.GetConnectionString("SwpMainContext");
         }
 
         public List<CourseCategory> GetTopCategories()
@@ -29,7 +30,7 @@ namespace BrainStormEra.Repo
 
             var categories = new List<CourseCategory>();
 
-            using (var connection = _dbContext.Database.GetDbConnection())
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -89,7 +90,7 @@ namespace BrainStormEra.Repo
 
             var recommendedCourses = new List<HomePageGuestViewtModel.ManagementCourseViewModel>();
 
-            using (var connection = _dbContext.Database.GetDbConnection())
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 

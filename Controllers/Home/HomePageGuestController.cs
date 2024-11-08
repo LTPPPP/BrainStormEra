@@ -9,9 +9,9 @@ namespace BrainStormEra.Controllers.Home
     {
         private readonly GuestRepo _guestRepo;
 
-        public HomePageGuestController(SwpMainContext context)
+        public HomePageGuestController(GuestRepo guestRepo)
         {
-            _guestRepo = new GuestRepo(context);
+            _guestRepo = guestRepo;
         }
 
         [HttpGet]
