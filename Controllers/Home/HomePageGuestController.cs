@@ -24,9 +24,6 @@ namespace BrainStormEra.Controllers.Home
         [HttpGet]
         public IActionResult Index()
         {
-
-
-
             string categoryQuery = @"
                 SELECT TOP 5
                     course_category_id AS CourseCategoryId,
@@ -63,41 +60,44 @@ namespace BrainStormEra.Controllers.Home
 
                 ViewBag.Categories = categories; // Pass categories to the view using ViewBag
 
-
-                // Định nghĩa truy vấn SQL để lấy top 4 khoá học được đề xuất
                 string sqlQuery = @"
-                SELECT TOP 4
-                    c.course_id,
-                    c.course_name,
-                    c.course_description,
-                    c.course_status,
-                    c.course_picture,
-                    c.price,
-                    c.course_created_at,
-                    a.full_name AS CreatedBy,
-                    AVG(f.star_rating) AS StarRating
-                FROM
-                    course AS c
-                JOIN
-                    account AS a ON c.created_by = a.user_id
-                LEFT JOIN
-                    course_category_mapping AS cc ON c.course_id = cc.course_id
-                LEFT JOIN
-                    enrollment AS e ON c.course_id = e.course_id
-                LEFT JOIN
-                    feedback AS f ON c.course_id = f.course_id
-                WHERE
-                    c.course_status = 2
-                GROUP BY
-                    c.course_id, c.course_name, c.course_description, c.course_status, 
-                    c.course_picture, c.Price, c.course_created_at, a.full_name
-                ORDER BY
-                    COUNT(e.enrollment_id) DESC;";
+SELECT TOP 4
+    c.course_id AS CourseId,
+    c.course_name AS CourseName,
+    c.course_description AS CourseDescription,
+    c.course_status AS CourseStatus,
+    c.course_picture AS CoursePicture,
+    c.price AS Price,
+    c.course_created_at AS CourseCreatedAt,
+    a.full_name AS CreatedBy,
+    ROUND(AVG(COALESCE(f.star_rating, 0)), 0) AS StarRating,
+    STUFF((
+        SELECT DISTINCT ', ' + cc.course_category_name
+        FROM course_category_mapping AS ccm
+        JOIN course_category AS cc ON ccm.course_category_id = cc.course_category_id
+        WHERE ccm.course_id = c.course_id
+        FOR XML PATH(''), TYPE
+    ).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS CourseCategories
+FROM
+    course AS c
+JOIN
+    account AS a ON c.created_by = a.user_id
+LEFT JOIN
+    enrollment AS e ON c.course_id = e.course_id
+LEFT JOIN
+    feedback AS f ON c.course_id = f.course_id
+WHERE
+    c.course_status = 2
+GROUP BY
+    c.course_id, c.course_name, c.course_description, c.course_status,
+    c.course_picture, c.price, c.course_created_at, a.full_name
+ORDER BY
+    COUNT(e.enrollment_id) DESC;";
 
-                // Tạo danh sách để lưu trữ các khóa học được đề xuất
+
                 var recommendedCourses = new List<HomePageGuestViewtModel.ManagementCourseViewModel>();
 
-                // Mở kết nối đến database và thực hiện truy vấn
+                // Mở kết nối và thực hiện truy vấn SQL
                 using (var command = _dbContext.Database.GetDbConnection().CreateCommand())
                 {
                     command.CommandText = sqlQuery;
@@ -105,27 +105,27 @@ namespace BrainStormEra.Controllers.Home
 
                     using (var result = command.ExecuteReader())
                     {
-                        // Duyệt qua kết quả truy vấn và ánh xạ sang ManagementCourseViewModel
                         while (result.Read())
                         {
                             var course = new HomePageGuestViewtModel.ManagementCourseViewModel
                             {
-                                CourseId = result["course_id"].ToString(),
-                                CourseName = result["course_name"].ToString(),
-                                CourseDescription = result["course_description"].ToString(),
-                                CourseStatus = Convert.ToInt32(result["course_status"]),
-                                CoursePicture = result["course_picture"].ToString(),
-                                Price = Convert.ToDecimal(result["price"]),
-                                CourseCreatedAt = Convert.ToDateTime(result["course_created_at"]),
+                                CourseId = result["CourseId"].ToString(),
+                                CourseName = result["CourseName"].ToString(),
+                                CourseDescription = result["CourseDescription"].ToString(),
+                                CourseStatus = Convert.ToInt32(result["CourseStatus"]),
+                                CoursePicture = result["CoursePicture"].ToString(),
+                                Price = Convert.ToDecimal(result["Price"]),
+                                CourseCreatedAt = Convert.ToDateTime(result["CourseCreatedAt"]),
                                 CreatedBy = result["CreatedBy"].ToString(),
-                                StarRating = result["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(result["StarRating"]) : (byte?)0
+                                StarRating = result["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(result["StarRating"]) : (byte?)0,
+                                CourseCategories = result["CourseCategories"].ToString().Split(',').Select(c => c.Trim()).ToList()
                             };
                             recommendedCourses.Add(course);
                         }
                     }
                 }
 
-                // Chuẩn bị view model với danh sách các khóa học được đề xuất
+                // Tạo view model chứa danh sách các khóa học và gửi đến view
                 var viewModel = new HomePageGuestViewtModel
                 {
                     RecommendedCourses = recommendedCourses

@@ -30,7 +30,6 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
-
             Models.Account user = null;
             int completedCoursesCount = 0;
             int totalCoursesEnrolled = 0;
@@ -72,8 +71,6 @@ namespace BrainStormEra.Controllers
                     }
                 }
                 ViewBag.Categories = categories; // Pass categories to the view using ViewBag
-
-
 
                 // Get user information
                 using (var command = connection.CreateCommand())
@@ -178,51 +175,74 @@ namespace BrainStormEra.Controllers
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT TOP 4 
-                    c.course_id, 
-                    c.course_name, 
-                    c.course_description, 
-                    c.course_status, 
-                    c.course_picture, 
-                    c.price, 
-                    c.course_created_at, 
-                    a.full_name AS CreatedBy,
-                    COALESCE(AVG(CAST(f.star_rating AS FLOAT)), 0) as StarRating
-                FROM course AS c 
-                LEFT JOIN enrollment AS e ON c.course_id = e.course_id 
-                INNER JOIN account AS a ON c.created_by = a.user_id 
-                LEFT JOIN feedback AS f ON c.course_id = f.course_id
-                WHERE c.course_status = 2 
-                AND (e.user_id IS NULL OR e.user_id != @userId) 
-                GROUP BY 
-                    c.course_id, 
-                    c.course_name, 
-                    c.course_description, 
-                    c.course_status, 
-                    c.course_picture, 
-                    c.price, 
-                    c.course_created_at, 
-                    a.full_name 
-                ORDER BY COUNT(e.user_id) DESC";
+    SELECT TOP 4
+        c.course_id AS CourseId,
+        c.course_name AS CourseName,
+        c.course_description AS CourseDescription,
+        c.course_status AS CourseStatus,
+        c.course_picture AS CoursePicture,
+        c.price AS Price,
+        c.course_created_at AS CourseCreatedAt,
+        a.full_name AS CreatedBy,
+        ROUND(AVG(COALESCE(f.star_rating, 0)), 0) AS StarRating,
+        STUFF((
+            SELECT DISTINCT ', ' + cc.course_category_name
+            FROM course_category_mapping AS ccm
+            JOIN course_category AS cc ON ccm.course_category_id = cc.course_category_id
+            WHERE ccm.course_id = c.course_id
+            FOR XML PATH(''), TYPE
+        ).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS CourseCategories
+    FROM
+        course AS c
+    JOIN
+        account AS a ON c.created_by = a.user_id
+    LEFT JOIN
+        enrollment AS e ON c.course_id = e.course_id
+    LEFT JOIN
+        feedback AS f ON c.course_id = f.course_id
+    WHERE
+        c.course_status = 2
+    GROUP BY
+        c.course_id, c.course_name, c.course_description, c.course_status,
+        c.course_picture, c.price, c.course_created_at, a.full_name
+    ORDER BY
+        COUNT(e.enrollment_id) DESC;";
+
                     command.Parameters.Add(new SqlParameter("@userId", userId));
 
                     using var reader = await command.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
+                        // Parse the categories from the "CourseCategories" column
+                        categories = new List<CourseCategory>();
+                        var categoryNames = reader["CourseCategories"].ToString().Split(',');
+
+                        foreach (var categoryName in categoryNames)
+                        {
+                            var trimmedName = categoryName.Trim();
+                            if (!string.IsNullOrEmpty(trimmedName))
+                            {
+                                categories.Add(new CourseCategory { CourseCategoryName = trimmedName });
+                            }
+                        }
+
+                        // Add course information to the recommendedCourses list
                         recommendedCourses.Add(new ManagementCourseViewModel
                         {
-                            CourseId = reader["course_id"].ToString(),
-                            CourseName = reader["course_name"].ToString(),
-                            CourseDescription = reader["course_description"].ToString(),
-                            CourseStatus = Convert.ToInt32(reader["course_status"]),
-                            CoursePicture = reader["course_picture"].ToString(),
-                            Price = Convert.ToDecimal(reader["price"]),
-                            CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"]),
+                            CourseId = reader["CourseId"].ToString(),
+                            CourseName = reader["CourseName"].ToString(),
+                            CourseDescription = reader["CourseDescription"].ToString(),
+                            CourseStatus = Convert.ToInt32(reader["CourseStatus"]),
+                            CoursePicture = reader["CoursePicture"].ToString(),
+                            Price = Convert.ToDecimal(reader["Price"]),
+                            CourseCreatedAt = Convert.ToDateTime(reader["CourseCreatedAt"]),
                             CreatedBy = reader["CreatedBy"].ToString(),
-                            StarRating = (byte)Math.Round(Convert.ToDouble(reader["StarRating"]))
+                            StarRating = reader["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["StarRating"]) : (byte?)0,
+                            CourseCategories = categories
                         });
                     }
                 }
+
 
                 // Get notifications
                 using (var command = connection.CreateCommand())

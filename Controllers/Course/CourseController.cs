@@ -217,11 +217,16 @@ namespace BrainStormEra.Controllers.Course
 
             if (userRole == "2")
             {
-                // Lấy khóa học của instructor
+                // Lấy danh sách khóa học của giảng viên
                 var courses = await _courseRepo.GetInstructorCoursesAsync(userId);
                 foreach (var course in courses)
                 {
-                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);  // Sử dụng phương thức từ CourseRepo
+                    // Lấy rating trung bình
+                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
+
+                    // Lấy danh sách các category
+                    var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+
                     coursesViewModel.Add(new ManagementCourseViewModel
                     {
                         CourseId = course.CourseId,
@@ -231,17 +236,23 @@ namespace BrainStormEra.Controllers.Course
                         CoursePicture = course.CoursePicture,
                         Price = course.Price,
                         CourseCreatedAt = course.CourseCreatedAt,
-                        StarRating = (byte)averageRating
+                        StarRating = (byte)averageRating,
+                        CourseCategories = courseCategories
                     });
                 }
             }
             else
             {
-                // Lấy tất cả khóa học active
+                // Lấy tất cả khóa học đang active
                 var courses = await _courseRepo.GetAllActiveCoursesAsync();
                 foreach (var course in courses)
                 {
-                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);  // Sử dụng phương thức từ CourseRepo
+                    // Lấy rating trung bình
+                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
+
+                    // Lấy danh sách các category
+                    var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+
                     coursesViewModel.Add(new ManagementCourseViewModel
                     {
                         CourseId = course.CourseId,
@@ -251,13 +262,15 @@ namespace BrainStormEra.Controllers.Course
                         CoursePicture = course.CoursePicture,
                         Price = course.Price,
                         CourseCreatedAt = course.CourseCreatedAt,
-                        StarRating = (byte)averageRating
+                        StarRating = (byte)averageRating,
+                        CourseCategories = courseCategories
                     });
                 }
             }
 
             return View("CourseManagement", coursesViewModel);
         }
+
 
         public async Task<ActionResult> ConfirmDelete()
         {
