@@ -1,113 +1,329 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.ViewModels;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BrainStormEra.Repo.Chatbot
 {
     public class ChatbotRepo
     {
-        private readonly SwpMainContext _dbContext;
+        private readonly string _connectionString;
 
-        public ChatbotRepo(SwpMainContext dbContext)
+        public ChatbotRepo(IConfiguration configuration)
         {
-            _dbContext = dbContext;
+            _connectionString = configuration.GetConnectionString("SwpMainContext");
         }
 
         public async Task<int> GetUserConversationCountAsync(string userId)
         {
-            return await _dbContext.ChatbotConversations
-                .Where(c => c.UserId == userId)
-                .CountAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = "SELECT COUNT(*) FROM chatbot_conversation WHERE (@UserId IS NULL AND user_id IS NULL) OR (user_id = @UserId)";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", (object)userId ?? DBNull.Value);
+
+                    int count = (int)await cmd.ExecuteScalarAsync();
+
+                    return count;
+                }
+            }
         }
 
         public async Task AddConversationAsync(ChatbotConversation conversation)
         {
-            await _dbContext.ChatbotConversations.AddAsync(conversation);
-            await _dbContext.SaveChangesAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = "INSERT INTO chatbot_conversation (conversation_id, user_id, conversation_time, conversation_content) VALUES (@ConversationId, @UserId, @ConversationTime, @ConversationContent)";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ConversationId", conversation.ConversationId);
+                    cmd.Parameters.AddWithValue("@UserId", (object)conversation.UserId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ConversationTime", conversation.ConversationTime);
+                    cmd.Parameters.AddWithValue("@ConversationContent", conversation.ConversationContent);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
         }
 
         public async Task<List<ConversationStatistics>> GetConversationStatisticsAsync()
         {
-            return await _dbContext.ChatbotConversations
-                .GroupBy(c => c.ConversationTime.Date)
-                .Select(g => new ConversationStatistics
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = @"
+                    SELECT CAST(conversation_time AS DATE) AS Date, COUNT(*) AS Count
+                    FROM chatbot_conversation
+                    GROUP BY CAST(conversation_time AS DATE)
+                    ORDER BY Date";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    Date = g.Key,
-                    Count = g.Count()
-                })
-                .OrderBy(x => x.Date)
-                .ToListAsync();
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        var list = new List<ConversationStatistics>();
+                        while (await reader.ReadAsync())
+                        {
+                            var stat = new ConversationStatistics
+                            {
+                                Date = reader.GetDateTime(0),
+                                Count = reader.GetInt32(1)
+                            };
+                            list.Add(stat);
+                        }
+                        return list;
+                    }
+                }
+            }
         }
 
         public async Task<int> GetTotalConversationCountAsync()
         {
-            return await _dbContext.ChatbotConversations.CountAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = "SELECT COUNT(*) FROM chatbot_conversation";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    int count = (int)await cmd.ExecuteScalarAsync();
+                    return count;
+                }
+            }
         }
 
         public async Task<List<ChatbotConversation>> GetPaginatedConversationsAsync(int offset, int pageSize)
         {
-            return await _dbContext.ChatbotConversations
-                .OrderByDescending(c => c.ConversationTime)
-                .Skip(offset)
-                .Take(pageSize)
-                .Include(c => c.User) // Include user data if needed
-                .ToListAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = @"
+                    SELECT c.*, a.*
+                    FROM chatbot_conversation c
+                    LEFT JOIN account a ON c.user_id = a.user_id
+                    ORDER BY c.conversation_time DESC
+                    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Offset", offset);
+                    cmd.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        var list = new List<ChatbotConversation>();
+                        while (await reader.ReadAsync())
+                        {
+                            var conversation = new ChatbotConversation
+                            {
+                                ConversationId = reader["conversation_id"].ToString(),
+                                UserId = reader["user_id"] == DBNull.Value ? null : reader["user_id"].ToString(),
+                                ConversationTime = Convert.ToDateTime(reader["conversation_time"]),
+                                ConversationContent = reader["conversation_content"].ToString(),
+                                User = reader["user_id"] == DBNull.Value ? null : new Account
+                                {
+                                    UserId = reader["user_id"].ToString(),
+                                    FullName = reader["full_name"]?.ToString(),
+                                    // Thêm các thuộc tính khác nếu cần
+                                }
+                            };
+                            list.Add(conversation);
+                        }
+                        return list;
+                    }
+                }
+            }
         }
 
         public async Task DeleteConversationsByIdsAsync(List<string> conversationIds)
         {
-            var conversationsToDelete = await _dbContext.ChatbotConversations
-                .Where(c => conversationIds.Contains(c.ConversationId))
-                .ToListAsync();
-
-            if (!conversationsToDelete.Any())
+            if (conversationIds == null || conversationIds.Count == 0)
             {
-                throw new InvalidOperationException("No conversations found with the specified IDs");
+                throw new InvalidOperationException("No conversations specified");
             }
 
-            _dbContext.ChatbotConversations.RemoveRange(conversationsToDelete);
-            await _dbContext.SaveChangesAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                // Kiểm tra xem các hội thoại có tồn tại không
+                List<string> parameters = new List<string>();
+                for (int i = 0; i < conversationIds.Count; i++)
+                {
+                    parameters.Add($"@Id{i}");
+                }
+
+                string sqlCheck = $"SELECT COUNT(*) FROM chatbot_conversation WHERE conversation_id IN ({string.Join(",", parameters)})";
+
+                using (SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn))
+                {
+                    for (int i = 0; i < conversationIds.Count; i++)
+                    {
+                        cmdCheck.Parameters.AddWithValue($"@Id{i}", conversationIds[i]);
+                    }
+
+                    int count = (int)await cmdCheck.ExecuteScalarAsync();
+
+                    if (count == 0)
+                    {
+                        throw new InvalidOperationException("No conversations found with the specified IDs");
+                    }
+                }
+
+                // Xóa các hội thoại
+                string sqlDelete = $"DELETE FROM chatbot_conversation WHERE conversation_id IN ({string.Join(",", parameters)})";
+
+                using (SqlCommand cmdDelete = new SqlCommand(sqlDelete, conn))
+                {
+                    for (int i = 0; i < conversationIds.Count; i++)
+                    {
+                        cmdDelete.Parameters.AddWithValue($"@Id{i}", conversationIds[i]);
+                    }
+
+                    await cmdDelete.ExecuteNonQueryAsync();
+                }
+            }
         }
 
         public async Task DeleteAllConversationsAsync()
         {
-            // Using a more EF Core friendly approach
-            await _dbContext.ChatbotConversations
-                .ExecuteDeleteAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = "DELETE FROM chatbot_conversation";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
         }
 
         public async Task<List<ChatbotConversation>> GetAllConversationsAsync()
         {
-            return await _dbContext.ChatbotConversations
-                .OrderByDescending(c => c.ConversationTime) // Sắp xếp theo thời gian hội thoại từ mới nhất đến cũ nhất
-                .Include(c => c.User) // Bao gồm thông tin người dùng nếu cần thiết
-                .ToListAsync();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = @"
+                    SELECT c.*, a.*
+                    FROM chatbot_conversation c
+                    LEFT JOIN account a ON c.user_id = a.user_id
+                    ORDER BY c.conversation_time DESC";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        var list = new List<ChatbotConversation>();
+                        while (await reader.ReadAsync())
+                        {
+                            var conversation = new ChatbotConversation
+                            {
+                                ConversationId = reader["conversation_id"].ToString(),
+                                UserId = reader["user_id"] == DBNull.Value ? null : reader["user_id"].ToString(),
+                                ConversationTime = Convert.ToDateTime(reader["conversation_time"]),
+                                ConversationContent = reader["conversation_content"].ToString(),
+                                User = reader["user_id"] == DBNull.Value ? null : new Account
+                                {
+                                    UserId = reader["user_id"].ToString(),
+                                    FullName = reader["full_name"]?.ToString(),
+                                    // Thêm các thuộc tính khác nếu cần
+                                }
+                            };
+                            list.Add(conversation);
+                        }
+                        return list;
+                    }
+                }
+            }
         }
+
         public async Task<List<DateTime>> GetDistinctConversationDatesAsync()
-{
-    return await _dbContext.ChatbotConversations
-        .Select(c => c.ConversationTime.Date)
-        .Distinct()
-        .OrderByDescending(date => date)
-        .ToListAsync();
-}
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
 
-public async Task<List<ChatbotConversation>> GetConversationsByDateAsync(DateTime date)
-{
-    return await _dbContext.ChatbotConversations
-        .Where(c => c.ConversationTime.Date == date)
-        .OrderByDescending(c => c.ConversationTime)
-        .Include(c => c.User)
-        .ToListAsync();
-}
+                string sql = @"
+                    SELECT DISTINCT CAST(conversation_time AS DATE) AS Date
+                    FROM chatbot_conversation
+                    ORDER BY Date DESC";
 
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        var list = new List<DateTime>();
+                        while (await reader.ReadAsync())
+                        {
+                            list.Add(reader.GetDateTime(0));
+                        }
+                        return list;
+                    }
+                }
+            }
+        }
+
+        public async Task<List<ChatbotConversation>> GetConversationsByDateAsync(DateTime date)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = @"
+                    SELECT c.*, a.*
+                    FROM chatbot_conversation c
+                    LEFT JOIN account a ON c.user_id = a.user_id
+                    WHERE CAST(c.conversation_time AS DATE) = @Date
+                    ORDER BY c.conversation_time DESC";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Date", date.Date);
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        var list = new List<ChatbotConversation>();
+                        while (await reader.ReadAsync())
+                        {
+                            var conversation = new ChatbotConversation
+                            {
+                                ConversationId = reader["conversation_id"].ToString(),
+                                UserId = reader["user_id"] == DBNull.Value ? null : reader["user_id"].ToString(),
+                                ConversationTime = Convert.ToDateTime(reader["conversation_time"]),
+                                ConversationContent = reader["conversation_content"].ToString(),
+                                User = reader["user_id"] == DBNull.Value ? null : new Account
+                                {
+                                    UserId = reader["user_id"].ToString(),
+                                    FullName = reader["full_name"]?.ToString(),
+                                    // Thêm các thuộc tính khác nếu cần
+                                }
+                            };
+                            list.Add(conversation);
+                        }
+                        return list;
+                    }
+                }
+            }
+        }
     }
 
-    // New class to handle statistics
+    // Class để lưu trữ thống kê hội thoại
     public class ConversationStatistics
     {
         public DateTime Date { get; set; }
