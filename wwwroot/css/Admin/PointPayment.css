@@ -1,0 +1,125 @@
+﻿/* Table Container Styles */
+.table-container {
+    max-width: 50%; /* Set max width for the table container */
+    margin: auto; /* Center the table container */
+}
+
+.header-title {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+/* Table Styles */
+.table {
+    width: 100%; /* Make the table full width */
+    margin-top: 20px; /* Margin at the top of the table */
+    background-color: var(--background-light); /* Background color for the table */
+    border-collapse: collapse; /* Collapses the borders into a single border */
+    border: 2px solid var(--black-color); /* Outer border */
+}
+
+    /* Header and Cell Styles */
+    .table th,
+    .table td {
+        border: none; /* Remove internal borders for table cells */
+        padding: 12px; /* Padding for cells */
+        font-size: 1.4rem; /* Font size for table content */
+        color: var(--text-color); /* Text color */
+    }
+
+    /* Header specific styles */
+    .table th {
+        background-color: var(--btn-create); /* Header background color */
+        color: var(--text-color-light); /* Header text color */
+        font-weight: bold; /* Bold text for header */
+        padding: 15px; /* Padding for header cells */
+        text-align: center; /* Center align header text */
+    }
+
+    /* Alignments for each column */
+    .table td:first-child {
+        width: 100px; /* Fixed width for User ID */
+        text-align: left; /* Align User ID text to the left */
+    }
+
+    .table td:nth-child(2) {
+        text-align: center; /* Center Full Name */
+        padding-left: 20px; /* Add some space to the left of Full Name */
+    }
+
+    .table td:last-child {
+        text-align: right; /* Align Payment Points to the right */
+    }
+
+    /* Ensure all headers have the same width as the respective cells */
+    .table th:nth-child(1),
+    .table td:first-child {
+        width: 100px; /* Ensures User ID has the same width in both header and body */
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 200px; /* Set a width for Full Name column */
+    }
+
+    .table th:nth-child(3),
+    .table td:last-child {
+        width: 150px; /* Set a width for Payment Points column */
+    }
+
+    /* Hover effect for rows */
+    .table tbody tr:hover {
+        background-color: var(--light-blue-color); /* Hover effect for rows */
+    }
+
+/* Centering Update Points Section */
+.update-points-section {
+    text-align: center; /* Center the update points section */
+    margin: 20px 0; /* Add margin for spacing above and below */
+}
+
+/* Input Group Styling */
+.input-group {
+    max-width: 400px; /* Set a max width for the input group */
+    margin: 20px auto; /* Center the input group */
+}
+
+    .input-group .form-control {
+        border-right: 0; /* Remove border on right for seamless look */
+        min-width: 100px; /* Set a minimum width for the input field */
+    }
+
+/* Responsive Adjustments for Small Screens */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.9rem; /* Adjust font size for mobile view */
+    }
+
+        .table thead {
+            display: none; /* Hide table header on small screens */
+        }
+
+        .table tr {
+            display: block; /* Block display for small screens */
+            margin-bottom: 1rem; /* Space between rows */
+        }
+
+        .table td {
+            display: flex; /* Flex display for better layout */
+            justify-content: space-between; /* Space out items */
+            align-items: center; /* Center items vertically */
+            padding: 0.5rem; /* Padding for cells */
+            text-align: right; /* Align text to the right */
+        }
+
+            .table td:not(:first-child) {
+                text-align: left; /* Align other cells to the left */
+            }
+
+    .btn-primary {
+        width: 100%; /* Full width for primary button */
+        max-width: 100px; /* Max width for button */
+        font-size: 0.9rem; /* Font size for button */
+    }
+}

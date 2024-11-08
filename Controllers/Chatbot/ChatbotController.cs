@@ -54,9 +54,7 @@ namespace BrainStormEra.Controllers
 
                 string reply;
                 var courseId = HttpContext.Request.Cookies["CourseId"];
-                var chapterId = HttpContext.Request.Cookies["ChapterId"];
                 var lessonId = HttpContext.Request.Cookies["LessonId"];
-                Console.WriteLine(" cook :  " + courseId +" "+ chapterId + " "+  lessonId);
                 if (userRole == 3)
                 {
                     var course = await _courseRepo.GetCourseByIdAsync(courseId);
@@ -65,12 +63,6 @@ namespace BrainStormEra.Controllers
                     {
                         return BadRequest(new { error = "course not found" });
                     }
-                    var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
-                    Console.WriteLine("chapter : " + chapter);
-                    if (chapter == null)
-                    {
-                        return BadRequest(new { error = "chapter not found" });
-                    }
                     var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
                     reply = await _geminiApiService.GetResponseFromGemini(
                         chatbotConversation.ConversationContent,
@@ -78,8 +70,6 @@ namespace BrainStormEra.Controllers
                         course.CourseName,
                         course.CreatedBy,
                         course.CourseDescription,
-                        chapter.ChapterName,
-                        chapter.ChapterDescription,
                         lesson.LessonName,
                         lesson.LessonDescription,
                         lesson.LessonContent
@@ -87,7 +77,7 @@ namespace BrainStormEra.Controllers
                 }
                 else
                 {
-                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ", " ", " ");
+                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ");
                 }
                 Console.WriteLine("reply : " + reply);
                 var botConversation = new ChatbotConversation
@@ -127,15 +117,22 @@ namespace BrainStormEra.Controllers
             }
         }
 
-        public async Task<IActionResult> ConversationHistory(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> ConversationHistory(int page = 1)
         {
             try
             {
-                var totalConversations = await _chatbotRepo.GetTotalConversationCountAsync();
-                var totalPages = (int)Math.Ceiling((double)totalConversations / pageSize);
-                var offset = (page - 1) * pageSize;
+                int pageSize = 1; // Mỗi trang hiển thị hội thoại của 1 ngày
+                var conversationDates = await _chatbotRepo.GetDistinctConversationDatesAsync();
 
-                var conversations = await _chatbotRepo.GetPaginatedConversationsAsync(offset, pageSize);
+                var totalPages = conversationDates.Count;
+                if (page > totalPages || page < 1)
+                {
+                    page = 1; // Reset về trang đầu tiên nếu page vượt quá giới hạn
+                }
+
+                var selectedDate = conversationDates[page - 1]; // Lấy ngày tương ứng với trang hiện tại
+                var conversations = await _chatbotRepo.GetConversationsByDateAsync(selectedDate);
+
                 var conversationViewModels = conversations.Select(c => new ConversationViewModel
                 {
                     ConversationId = c.ConversationId,
@@ -146,7 +143,14 @@ namespace BrainStormEra.Controllers
 
                 var viewModel = new ConversationHistoryViewModel
                 {
-                    Conversations = conversationViewModels,
+                    DailyConversations = new List<DailyConversationViewModel>
+            {
+                new DailyConversationViewModel
+                {
+                    Date = selectedDate,
+                    Conversations = conversationViewModels
+                }
+            },
                     CurrentPage = page,
                     TotalPages = totalPages
                 };
@@ -158,6 +162,9 @@ namespace BrainStormEra.Controllers
                 return View("Error", new ErrorViewModel { Message = "Failed to load conversation history." });
             }
         }
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> DeleteConversations([FromBody] List<string> conversationIds)
@@ -195,8 +202,15 @@ namespace BrainStormEra.Controllers
 
     public class ConversationHistoryViewModel
     {
-        public List<ConversationViewModel> Conversations { get; set; }
+        public List<DailyConversationViewModel> DailyConversations { get; set; }
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
     }
+
+    public class DailyConversationViewModel
+    {
+        public DateTime Date { get; set; }
+        public List<ConversationViewModel> Conversations { get; set; }
+    }
+
 }

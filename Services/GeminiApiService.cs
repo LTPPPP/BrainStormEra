@@ -59,7 +59,7 @@ You are an AI assistant named BrainStormEra, created by PhatLam. Your primary fu
 
 9. You may decline to answer if the question is about a separate issue or is unrelated to the issue provided.
 
-10. If the user's question is not related to the information provided, the answer will be refused with the sentence (Sorry, my knowledge is limited so I cannot answer your question, please ask again) - The information provided includes: CourseName, CourseDescription, CourseCreatedBy, ChapterName, ChapterDesrciption, LessonName, LessonDescription, LessonContent
+10. If the user's question is not related to the information provided, the answer will be refused with the sentence (Xin lỗi tôi không thể trả lời câu hỏi của bạn nếu như nó không liên quan đến khóa học) - The information provided includes: CourseName, CourseDescription, CourseCreatedBy, LessonName, LessonDescription, LessonContent
 
 User input: {0}
 
@@ -98,7 +98,7 @@ Your response (in Vietnamese):";
         }
 
         public async Task<string> GetResponseFromGemini(string message, int userRole, string CourseName, string CourseDescription, string CreatedBy,
-             string ChapterName, string ChapterDescription, string LessonName, string LessonDescription, string LessonContent)
+              string LessonName, string LessonDescription, string LessonContent)
         {
             string selectedTemplate;
             var courseDetails = $@"
@@ -106,11 +106,6 @@ Your response (in Vietnamese):";
                 CreateBy : {CreatedBy}
                 Lesson Description: {CourseDescription}
                 Lesson Content: {CreatedBy}
-                ";
-
-            var chapterDetails = $@"
-                Chapter Name : {ChapterName}
-                Chapter Description : {ChapterDescription}
                 ";
 
             var lessonDetails = $@"
@@ -125,7 +120,7 @@ Your response (in Vietnamese):";
                     selectedTemplate = ADMIN_TEMPLATE;
                     break;
                 case 3:
-                    selectedTemplate = USER_TEMPLATE + courseDetails + chapterDetails + lessonDetails;
+                    selectedTemplate = USER_TEMPLATE + courseDetails + lessonDetails;
                     break;
                 case 2:
                     selectedTemplate = INSTRUCTOR_TEMPLATE;
@@ -135,7 +130,7 @@ Your response (in Vietnamese):";
                     break;
             }
             var formattedMessage = (userRole == 3)
-                ? string.Format(selectedTemplate, message, courseDetails, chapterDetails,lessonDetails) // USER role with lesson details
+                ? string.Format(selectedTemplate, message, courseDetails, lessonDetails) // USER role with lesson details
                 : string.Format(selectedTemplate, message); // Other roles
             Console.WriteLine(formattedMessage);
             var request = new

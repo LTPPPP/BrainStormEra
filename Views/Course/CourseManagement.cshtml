@@ -125,6 +125,14 @@
                             <div class="card-body">
                                 <h5 class="card-title">@c.CourseName</h5>
                                 <p class="card-text text-muted"> @c.Price $</p>
+                                <p class="card-text text-muted">Created by @c.CreatedBy</p>
+                                <div>
+                                    <i class="fas fa-tags me-2"></i> Categories:
+                                    @foreach (var category in c.CourseCategories)
+                                    {
+                                        <span class="badge bg-primary me-1">@category.CourseCategoryName</span>
+                                    }
+                                </div>
                                 <div class="rating">
                                     <span class="stars" data-rating="@c.StarRating"></span>
                                 </div>

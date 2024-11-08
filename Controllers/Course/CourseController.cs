@@ -1,4 +1,5 @@
 ﻿using BrainStormEra.Models;
+using BrainStormEra.Repo.Course;
 using BrainStormEra.Views.Course;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -14,173 +15,94 @@ namespace BrainStormEra.Controllers.Course
     {
         private readonly string _connectionString;
         private readonly ILogger<CourseController> _logger;
-
-        public CourseController(IConfiguration configuration, ILogger<CourseController> logger)
+        private readonly CourseRepo _courseRepo;
+        public CourseController(IConfiguration configuration, ILogger<CourseController> logger, CourseRepo courseRepo)
         {
             _connectionString = configuration.GetConnectionString("SwpMainContext");
             _logger = logger;
+            _courseRepo = courseRepo;
         }
 
-        public ActionResult AddCourse()
+        public async Task<ActionResult> AddCourse()
         {
-            var viewModel = new CreateCourseViewModel();
-
-            // Retrieve course categories using raw SQL
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
-                var query = "SELECT * FROM course_category";
-                var command = new SqlCommand(query, connection);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                var categories = new List<CourseCategory>();
-                while (reader.Read())
+                var viewModel = new CreateCourseViewModel
                 {
-                    categories.Add(new CourseCategory
-                    {
-                        CourseCategoryId = reader["course_category_id"].ToString(),
-                        CourseCategoryName = reader["course_category_name"].ToString(),
-                        // Map other properties if necessary
-                    });
-                }
-                viewModel.CourseCategories = categories;
+                    CourseCategories = await _courseRepo.GetCourseCategoriesAsync()
+                };
+                return View(viewModel);
             }
-
-            return View(viewModel);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while loading the course creation page.");
+                return View("Error", "An unexpected error occurred.");
+            }
         }
 
-        // CREATE 
         [HttpPost]
-        public ActionResult AddCourse(CreateCourseViewModel viewmodel)
+        public async Task<ActionResult> AddCourse(CreateCourseViewModel viewModel)
         {
             var userId = Request.Cookies["user_id"];
 
-            // Generate new Course ID
-            string newCourseId;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT TOP 1 course_id FROM course ORDER BY course_id DESC";
-                var command = new SqlCommand(query, connection);
-                connection.Open();
-                var lastCourseId = command.ExecuteScalar()?.ToString();
-                newCourseId = lastCourseId == null ? "CO001" : "CO" + (int.Parse(lastCourseId.Substring(2)) + 1).ToString("D3");
-            }
-            viewmodel.CourseId = newCourseId;
+            viewModel.CourseId = await _courseRepo.GenerateNewCourseIdAsync();
 
-            // Check for duplicate course name
-            using (var connection = new SqlConnection(_connectionString))
+            if (await _courseRepo.IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
             {
-                var query = "SELECT * FROM course WHERE course_name = @CourseName AND course_id != @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
-                command.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
-
-                    // Reload categories
-                    viewmodel.CourseCategories = GetCourseCategories();
-                    return View(viewmodel);
-                }
+                ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
+                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                return View(viewModel);
             }
 
-            // Check if category is selected
-            if (viewmodel.CategoryIds == null || !viewmodel.CategoryIds.Any())
+            if (viewModel.CategoryIds == null || !viewModel.CategoryIds.Any())
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
-                viewmodel.CourseCategories = GetCourseCategories();
-                return View(viewmodel);
+                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                return View(viewModel);
             }
 
-            // Handle file upload for CoursePicture
             string coursePicturePath = null;
-            if (viewmodel.CoursePicture != null && viewmodel.CoursePicture.Length > 0)
+            if (viewModel.CoursePicture != null && viewModel.CoursePicture.Length > 0)
             {
-                if (viewmodel.CoursePicture.Length > 2 * 1024 * 1024) // Limit file size to 2MB
+                if (viewModel.CoursePicture.Length > 2 * 1024 * 1024)
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
-                    return View(viewmodel);
+                    return View(viewModel);
                 }
 
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "Course-img");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-
-                var fileName = Path.GetFileName(viewmodel.CoursePicture.FileName);
+                var fileName = Path.GetFileName(viewModel.CoursePicture.FileName);
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    viewmodel.CoursePicture.CopyTo(stream);
+                    await viewModel.CoursePicture.CopyToAsync(stream);
                 }
 
                 coursePicturePath = $"/uploads/Course-img/{fileName}";
             }
 
-            // Insert new course using raw SQL
-            using (var connection = new SqlConnection(_connectionString))
+            var newCourse = new Models.Course
             {
-                var query = "INSERT INTO course (course_id, course_name, course_description, course_status, created_by, course_picture, price) " +
-                            "VALUES (@CourseId, @CourseName, @CourseDescription, @CourseStatus, @CreatedBy, @CoursePicture, @Price)";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", newCourseId);
-                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
-                command.Parameters.AddWithValue("@CourseDescription", viewmodel.CourseDescription ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@CourseStatus", 3);
-                command.Parameters.AddWithValue("@CreatedBy", userId);
-                command.Parameters.AddWithValue("@CoursePicture", coursePicturePath ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Price", viewmodel.Price);
+                CourseId = viewModel.CourseId,
+                CourseName = viewModel.CourseName,
+                CourseDescription = viewModel.CourseDescription,
+                CourseStatus = 3,
+                CreatedBy = userId,
+                CoursePicture = coursePicturePath,
+                Price = viewModel.Price
+            };
 
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-
-            // Add selected categories to course
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                foreach (var categoryId in viewmodel.CategoryIds)
-                {
-                    var query = "INSERT INTO course_category_mapping (course_id, course_category_id) VALUES (@CourseId, @CategoryId)";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", newCourseId);
-                    command.Parameters.AddWithValue("@CategoryId", categoryId);
-                    command.ExecuteNonQuery();
-                }
-            }
+            await _courseRepo.AddCourseAsync(newCourse);
+            await _courseRepo.AddCourseCategoriesAsync(viewModel.CourseId, viewModel.CategoryIds);
 
             return RedirectToAction("CourseManagement");
         }
 
-        // Helper method to get course categories
-        private List<CourseCategory> GetCourseCategories()
-        {
-            var categories = new List<CourseCategory>();
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT * FROM course_category";
-                var command = new SqlCommand(query, connection);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    categories.Add(new CourseCategory
-                    {
-                        CourseCategoryId = reader["course_category_id"].ToString(),
-                        CourseCategoryName = reader["course_category_name"].ToString(),
-                    });
-                }
-            }
-            return categories;
-        }
-
-        // Edit Course
         [HttpGet]
-        public ActionResult EditCourse()
+        public async Task<ActionResult> EditCourse()
         {
             var courseId = HttpContext.Request.Cookies["CourseId"];
 
@@ -189,20 +111,20 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseManagement");
             }
 
-            var course = GetCourseById(courseId);
+            var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (course == null)
             {
                 return RedirectToAction("CourseManagement");
             }
 
-            var selectedCategories = GetCourseCategoriesByCourseId(courseId);
+            var selectedCategories = await _courseRepo.GetCourseCategoriesAsync();
 
             var viewModel = new EditCourseViewModel
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
-                CourseCategories = GetCourseCategories(),
+                CourseCategories = await _courseRepo.GetCourseCategoriesAsync(),
                 SelectedCategories = selectedCategories,
                 CourseDescription = course.CourseDescription,
                 CoursePictureFile = course.CoursePicture,
@@ -213,288 +135,148 @@ namespace BrainStormEra.Controllers.Course
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditCourse(EditCourseViewModel viewmodel)
+        public async Task<ActionResult> EditCourse(EditCourseViewModel viewModel)
         {
-            var course = GetCourseById(viewmodel.CourseId);
+            var course = await _courseRepo.GetCourseByIdAsync(viewModel.CourseId);
 
             if (course == null)
             {
                 return RedirectToAction("CourseManagement");
             }
 
-            // Check for duplicate course name
-            using (var connection = new SqlConnection(_connectionString))
+            // Kiểm tra tên course có bị trùng không
+            if (await _courseRepo.IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
             {
-                var query = "SELECT * FROM course WHERE course_name = @CourseName AND course_id != @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
-                command.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
-                    viewmodel.CourseCategories = GetCourseCategories();
-                    return View(viewmodel);
-                }
+                ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
+                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                return View(viewModel);
             }
 
-            // Check if category is selected
-            if (viewmodel.CategoryIds == null || !viewmodel.CategoryIds.Any())
+            // Kiểm tra nếu category không được chọn
+            if (viewModel.CategoryIds == null || !viewModel.CategoryIds.Any())
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
-                viewmodel.CourseCategories = GetCourseCategories();
-                return View(viewmodel);
+                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                return View(viewModel);
             }
 
-            // Handle file upload for CoursePicture
+            // Xử lý upload ảnh cho CoursePicture
             string coursePicturePath = course.CoursePicture;
-            if (viewmodel.CoursePicture != null && viewmodel.CoursePicture.Length > 0)
+            if (viewModel.CoursePicture != null && viewModel.CoursePicture.Length > 0)
             {
-                if (viewmodel.CoursePicture.Length > 2 * 1024 * 1024)
+                if (viewModel.CoursePicture.Length > 2 * 1024 * 1024)
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
-                    viewmodel.CourseCategories = GetCourseCategories();
-                    return View(viewmodel);
+                    viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                    return View(viewModel);
                 }
 
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "Course-img");
-
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                var fileName = Path.GetFileName(viewmodel.CoursePicture.FileName);
+                var fileName = Path.GetFileName(viewModel.CoursePicture.FileName);
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    viewmodel.CoursePicture.CopyTo(stream);
+                    await viewModel.CoursePicture.CopyToAsync(stream);
                 }
 
                 coursePicturePath = $"/uploads/Course-img/{fileName}";
             }
 
-            // Update course using raw SQL
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "UPDATE course SET course_name = @CourseName, course_description = @CourseDescription, price = @Price, course_picture = @CoursePicture WHERE course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
-                command.Parameters.AddWithValue("@CourseName", viewmodel.CourseName);
-                command.Parameters.AddWithValue("@CourseDescription", viewmodel.CourseDescription ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Price", viewmodel.Price);
-                command.Parameters.AddWithValue("@CoursePicture", coursePicturePath ?? (object)DBNull.Value);
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
+            // Cập nhật thông tin course
+            await _courseRepo.UpdateCourseAsync(viewModel, coursePicturePath);
 
-            // Update course categories
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                // Delete existing categories
-                var deleteQuery = "DELETE FROM course_category_mapping WHERE course_id = @CourseId";
-                var deleteCommand = new SqlCommand(deleteQuery, connection);
-                deleteCommand.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
-                deleteCommand.ExecuteNonQuery();
-
-                // Insert new categories
-                foreach (var categoryId in viewmodel.CategoryIds)
-                {
-                    var insertQuery = "INSERT INTO course_category_mapping (course_id, course_category_id) VALUES (@CourseId, @CategoryId)";
-                    var insertCommand = new SqlCommand(insertQuery, connection);
-                    insertCommand.Parameters.AddWithValue("@CourseId", viewmodel.CourseId);
-                    insertCommand.Parameters.AddWithValue("@CategoryId", categoryId);
-                    insertCommand.ExecuteNonQuery();
-                }
-            }
+            // Cập nhật các category cho course
+            await _courseRepo.UpdateCourseCategoriesAsync(viewModel.CourseId, viewModel.CategoryIds);
 
             return RedirectToAction("CourseManagement");
         }
-
+        //tới đây ro
         // Helper method to get a course by ID
-        private Models.Course GetCourseById(string courseId)
+        private async Task<Models.Course> GetCourseByIdAsync(string courseId)
         {
-            Models.Course course = null;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT * FROM course WHERE course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    course = new Models.Course
-                    {
-                        CourseId = reader["course_id"].ToString(),
-                        CourseName = reader["course_name"].ToString(),
-                        CourseDescription = reader["course_description"].ToString(),
-                        CoursePicture = reader["course_picture"]?.ToString(),
-                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
-                        CourseStatus = Convert.ToInt32(reader["course_status"]),
-                        CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
-                    };
-                }
-            }
-            return course;
+            return await _courseRepo.GetCourseByIdAsync(courseId);
         }
 
-        // Helper method to get selected course categories
-        private List<CourseCategory> GetCourseCategoriesByCourseId(string courseId)
+        private async Task<List<CourseCategory>> GetCourseCategoriesByCourseIdAsync(string courseId)
         {
-            var categories = new List<CourseCategory>();
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT cc.* FROM course_category cc INNER JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id WHERE ccm.course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    categories.Add(new CourseCategory
-                    {
-                        CourseCategoryId = reader["course_category_id"].ToString(),
-                        CourseCategoryName = reader["course_category_name"].ToString(),
-                    });
-                }
-            }
-            return categories;
+            return await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId);
         }
 
-        // Course Management
-        public ActionResult CourseManagement()
+        public async Task<ActionResult> CourseManagement()
         {
-            var userId = Request.Cookies["user_id"];
-            var userRole = Request.Cookies["user_role"];
+            var userId = HttpContext.Request.Cookies["user_id"];
+            var userRole = HttpContext.Request.Cookies["user_role"];
 
             List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
 
-            switch (userRole)
+            if (userRole == "2")
             {
-                case "2":
-                    // Instructor courses
-                    using (var connection = new SqlConnection(_connectionString))
+                // Lấy danh sách khóa học của giảng viên
+                var courses = await _courseRepo.GetInstructorCoursesAsync(userId);
+                foreach (var course in courses)
+                {
+                    // Lấy rating trung bình
+                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
+
+                    // Lấy danh sách các category
+                    var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+
+                    coursesViewModel.Add(new ManagementCourseViewModel
                     {
-                        var query = "SELECT * FROM course WHERE created_by = @UserId";
-                        var command = new SqlCommand(query, connection);
-                        command.Parameters.AddWithValue("@UserId", userId);
-                        connection.Open();
-                        var reader = command.ExecuteReader();
-                        var courses = new List<Models.Course>();
-                        while (reader.Read())
-                        {
-                            courses.Add(new Models.Course
-                            {
-                                CourseId = reader["course_id"].ToString(),
-                                CourseName = reader["course_name"].ToString(),
-                                CourseDescription = reader["course_description"].ToString(),
-                                CourseStatus = Convert.ToInt32(reader["course_status"]),
-                                CoursePicture = reader["course_picture"]?.ToString(),
-                                Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
-                                CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
-                            });
-                        }
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        CourseDescription = course.CourseDescription,
+                        CourseStatus = course.CourseStatus,
+                        CoursePicture = course.CoursePicture,
+                        Price = course.Price,
+                        CourseCreatedAt = course.CourseCreatedAt,
+                        StarRating = (byte)averageRating,
+                        CourseCategories = courseCategories
+                    });
+                }
+            }
+            else
+            {
+                // Lấy tất cả khóa học đang active
+                var courses = await _courseRepo.GetAllActiveCoursesAsync();
+                foreach (var course in courses)
+                {
+                    // Lấy rating trung bình
+                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
 
-                        foreach (var course in courses)
-                        {
-                            // Calculate average rating
-                            decimal averageRating = GetAverageRating(course.CourseId);
-                            coursesViewModel.Add(new ManagementCourseViewModel
-                            {
-                                CourseId = course.CourseId,
-                                CourseName = course.CourseName,
-                                CourseDescription = course.CourseDescription,
-                                CourseStatus = course.CourseStatus,
-                                CoursePicture = course.CoursePicture,
-                                Price = course.Price,
-                                CourseCreatedAt = course.CourseCreatedAt,
-                                StarRating = (byte)averageRating
-                            });
-                        }
-                    }
-                    break;
+                    // Lấy danh sách các category
+                    var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
 
-                default:
-                    // All active courses with status = 2
-                    using (var connection = new SqlConnection(_connectionString))
+                    coursesViewModel.Add(new ManagementCourseViewModel
                     {
-                        var query = "SELECT * FROM course WHERE course_status = 2 ORDER BY course_created_at DESC";
-                        var command = new SqlCommand(query, connection);
-                        connection.Open();
-                        var reader = command.ExecuteReader();
-                        var courses = new List<Models.Course>();
-                        while (reader.Read())
-                        {
-                            courses.Add(new Models.Course
-                            {
-                                CourseId = reader["course_id"].ToString(),
-                                CourseName = reader["course_name"].ToString(),
-                                CourseDescription = reader["course_description"].ToString(),
-                                CourseStatus = Convert.ToInt32(reader["course_status"]),
-                                CoursePicture = reader["course_picture"]?.ToString(),
-                                Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
-                                CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
-                            });
-                        }
-
-                        foreach (var course in courses)
-                        {
-                            // Calculate average rating
-                            decimal averageRating = GetAverageRating(course.CourseId);
-                            coursesViewModel.Add(new ManagementCourseViewModel
-                            {
-                                CourseId = course.CourseId,
-                                CourseName = course.CourseName,
-                                CourseDescription = course.CourseDescription,
-                                CourseStatus = course.CourseStatus,
-                                CoursePicture = course.CoursePicture,
-                                Price = course.Price,
-                                CourseCreatedAt = course.CourseCreatedAt,
-                                StarRating = (byte)averageRating
-                            });
-                        }
-                    }
-                    break;
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        CourseDescription = course.CourseDescription,
+                        CourseStatus = course.CourseStatus,
+                        CoursePicture = course.CoursePicture,
+                        Price = course.Price,
+                        CourseCreatedAt = course.CourseCreatedAt,
+                        StarRating = (byte)averageRating,
+                        CourseCategories = courseCategories
+                    });
+                }
             }
 
             return View("CourseManagement", coursesViewModel);
         }
 
-        // Helper method to get average rating
-        private decimal GetAverageRating(string courseId)
-        {
-            decimal averageRating = 0;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT AVG(CAST(star_rating AS FLOAT)) FROM feedback WHERE course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var result = command.ExecuteScalar();
-                if (result == null || result == DBNull.Value)
-                {
-                    averageRating = 0;
-                }
-                else
-                {
-                    averageRating = Convert.ToDecimal(result);
-                }
 
-            }
-            return averageRating;
-        }
-
-        // DELETE
-        public ActionResult ConfirmDelete()
+        public async Task<ActionResult> ConfirmDelete()
         {
             var courseId = HttpContext.Request.Cookies["course_id"];
 
-            var course = GetCourseById(courseId);
+            var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (course == null) return RedirectToAction("ErrorPage", "Home");
 
@@ -502,8 +284,8 @@ namespace BrainStormEra.Controllers.Course
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
-                CourseCategories = GetCourseCategories(),
-                CourseCategoryId = GetCourseCategoriesByCourseId(courseId).FirstOrDefault()?.CourseCategoryId,
+                CourseCategories = await _courseRepo.GetCourseCategoriesAsync(),
+                CourseCategoryId = (await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId)).FirstOrDefault()?.CourseCategoryId,
                 CourseDescription = course.CourseDescription,
                 CoursePictureFile = course.CoursePicture,
                 Price = course.Price
@@ -512,251 +294,82 @@ namespace BrainStormEra.Controllers.Course
         }
 
         [HttpPost]
-        public ActionResult DeleteCourse()
+        public async Task<ActionResult> DeleteCourse()
         {
-            var courseId = HttpContext.Request.Cookies["course_id"];
-            var course = GetCourseById(courseId);
+            var courseId = HttpContext.Request.Cookies["CourseId"];
+            var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (course != null)
             {
-                using (var connection = new SqlConnection(_connectionString))
+                var deleted = await _courseRepo.DeleteCourseAsync(courseId);
+                if (deleted)
                 {
-                    // Delete course
-                    var query = "DELETE FROM course WHERE course_id = @CourseId";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-
-                var userRole = HttpContext.Request.Cookies["user_role"];
-                if (userRole == "1")
-                {
-                    return RedirectToAction("CourseAcceptance", "Course");
-                }
-                else if (userRole == "2")
-                {
-                    return RedirectToAction("CourseManagement");
+                    var userRole = HttpContext.Request.Cookies["user_role"];
+                    if (userRole == "1")
+                    {
+                        return RedirectToAction("CourseAcceptance", "Course");
+                    }
+                    else if (userRole == "2")
+                    {
+                        return RedirectToAction("CourseManagement");
+                    }
                 }
             }
             return RedirectToAction("ErrorPage", "Home");
         }
 
-        // ... Continue rewriting other methods similarly 
-
         [HttpGet]
-        public IActionResult CourseDetail(int page = 1, int pageSize = 4)
+        public async Task<IActionResult> CourseDetail(int page = 1, int pageSize = 4)
         {
             var courseId = Request.Cookies["CourseId"];
             var userId = Request.Cookies["user_id"];
-            var userRole = Request.Cookies["user_role"];
             if (string.IsNullOrEmpty(userId))
             {
                 TempData["Message"] = "You need to log in to access the course details.";
-                // Chuyển hướng đến trang đăng nhập nếu người dùng chưa đăng nhập
                 return RedirectToAction("LoginPage", "Login");
             }
+
             if (string.IsNullOrEmpty(courseId))
             {
                 _logger.LogWarning("Course ID is null or empty.");
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
-            string createdByName = "Unknown";
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = @"
-            SELECT a.full_name 
-            FROM account a 
-            INNER JOIN course c ON a.user_id = c.created_by 
-            WHERE c.course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var result = command.ExecuteScalar();
-                if (result != null)
-                {
-                    createdByName = result.ToString();
-                    _logger.LogInformation($"Course created by: {createdByName}"); // Log the retrieved name
-                }
-                else
-                {
-                    _logger.LogWarning("No creator name found for the course.");
-                }
-            }
-            ViewBag.CreatedBy = createdByName;
-            // Kiểm tra Enrollment
-            bool isEnrolled = false;
-            bool isBanned = false;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT approved FROM enrollment WHERE user_id = @UserId AND course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@UserId", userId);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var result = command.ExecuteScalar();
-                if (result != null)
-                {
-                    isEnrolled = true;
-                    isBanned = !(bool)result;
-                }
-            }
 
+            ViewBag.CreatedBy = await _courseRepo.GetCourseCreatorNameAsync(courseId);
+            var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, courseId);
             ViewBag.IsEnrolled = isEnrolled;
             ViewBag.IsBanned = isBanned;
 
-            // Lấy thông tin Course
-            var course = GetCourseById(courseId);
+            var course = await _courseRepo.GetCourseByIdAsync(courseId);
             if (course == null)
             {
                 _logger.LogError($"Course not found with ID: {courseId}");
                 return View("ErrorPage", "Course not found.");
             }
 
-            // Lấy danh sách Category của khóa học
-            var categories = new List<string>();
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT cc.course_category_name FROM course_category cc " +
-                            "JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id " +
-                            "WHERE ccm.course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    categories.Add(reader["course_category_name"].ToString());
-                }
-            }
-            ViewBag.CourseCategories = categories;
+            ViewBag.CourseCategories = await _courseRepo.GetCourseCategoriesAsync(courseId);
+            ViewBag.LearnersCount = await _courseRepo.GetLearnersCountAsync(courseId);
 
-            // Tính toán số lượng học viên đã đăng ký
-            int learnersCount = 0;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT COUNT(*) FROM enrollment WHERE course_id = @CourseId AND approved = 1";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                learnersCount = (int)command.ExecuteScalar();
-            }
-            ViewBag.LearnersCount = learnersCount;
-
-            // Lấy danh sách feedback
-            var feedbacks = new List<Feedback>();
             int offset = (page - 1) * pageSize;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT f.*, a.full_name FROM feedback f " +
-                            "JOIN account a ON f.user_id = a.user_id " +
-                            "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
-                            "ORDER BY f.feedback_date DESC " +
-                            "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                command.Parameters.AddWithValue("@Offset", offset);
-                command.Parameters.AddWithValue("@PageSize", pageSize);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var feedback = new Feedback
-                    {
-                        FeedbackId = reader["feedback_id"].ToString(),
-                        CourseId = reader["course_id"].ToString(),
-                        UserId = reader["user_id"].ToString(),
-                        StarRating = reader["star_rating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["star_rating"]) : null,
-                        Comment = reader["comment"].ToString(),
-                        FeedbackDate = reader["feedback_date"] != DBNull.Value
-                            ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
-                            : DateOnly.MinValue,
-                        User = new Models.Account
-                        {
-                            FullName = reader["full_name"].ToString()
-                        }
-                    };
-                    feedbacks.Add(feedback);
-                }
-            }
-            ViewBag.Comments = feedbacks;
-
-            // Tính toán tổng số lượng feedback và rating trung bình
-            int totalComments = 0;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                totalComments = (int)command.ExecuteScalar();
-            }
-            ViewBag.TotalComments = totalComments;
-
-            double averageRating = 0;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT AVG(CAST(star_rating AS FLOAT)) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                var result = command.ExecuteScalar();
-                averageRating = result != DBNull.Value ? Convert.ToDouble(result) : 0.0;
-            }
-            ViewBag.AverageRating = averageRating;
-
-            var ratingPercentages = new Dictionary<int, double>();
-            for (int i = 1; i <= 5; i++)
-            {
-                int count = 0;
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    command.Parameters.AddWithValue("@Rating", i);
-                    connection.Open();
-                    count = (int)command.ExecuteScalar();
-                }
-                ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
-            }
-            ViewBag.RatingPercentages = ratingPercentages;
+            ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, offset, pageSize);
+            ViewBag.TotalComments = await _courseRepo.GetTotalFeedbackCountAsync(courseId);
+            ViewBag.AverageRating = await _courseRepo.GetAverageRatingAsync(courseId);
+            ViewBag.RatingPercentages = await _courseRepo.GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
 
             ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
+            ViewBag.TotalPages = (int)Math.Ceiling((double)ViewBag.TotalComments / pageSize);
 
             return View(course);
         }
 
-
-        public ActionResult CourseAcceptance()
+        public async Task<ActionResult> CourseAcceptance()
         {
-            var pendingCourses = new List<Models.Course>();
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT * FROM course WHERE course_status IN (0, 1, 2) ORDER BY " +
-                            "CASE WHEN course_status = 1 THEN 0 ELSE 1 END, course_created_at";
-                var command = new SqlCommand(query, connection);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var course = new Models.Course
-                    {
-                        CourseId = reader["course_id"].ToString(),
-                        CourseName = reader["course_name"].ToString(),
-                        CourseStatus = Convert.ToInt32(reader["course_status"]),
-                        CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
-                    };
-                    pendingCourses.Add(course);
-                }
-            }
+            var pendingCourses = await _courseRepo.GetPendingCoursesAsync();
             return View("CourseAcceptance", pendingCourses);
         }
 
-
         [HttpGet]
-        public IActionResult ReviewCourse(int page = 1, int pageSize = 4)
+        public async Task<IActionResult> ReviewCourse(int page = 1, int pageSize = 4)
         {
             try
             {
@@ -768,146 +381,26 @@ namespace BrainStormEra.Controllers.Course
                     return View("ErrorPage", "Course ID not found in cookies.");
                 }
 
-                var course = GetCourseById(courseId);
-
+                var course = await _courseRepo.GetCourseByIdAsync(courseId);
                 if (course == null)
                 {
                     _logger.LogError($"Course not found with ID: {courseId}");
                     return View("ErrorPage", "Course not found.");
                 }
 
-                // Get learners count
-                int learnersCount = 0;
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT COUNT(*) FROM enrollment WHERE course_id = @CourseId AND approved = 1";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    learnersCount = (int)command.ExecuteScalar();
-                }
-                ViewBag.LearnersCount = learnersCount;
+                ViewBag.LearnersCount = await _courseRepo.GetLearnersCountAsync(courseId);
 
-                // Get feedbacks
-                var feedbacks = new List<Feedback>();
                 int offset = (page - 1) * pageSize;
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT f.*, a.full_name FROM feedback f " +
-                                "JOIN account a ON f.user_id = a.user_id " +
-                                "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
-                                "ORDER BY f.feedback_date DESC " +
-                                "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    command.Parameters.AddWithValue("@Offset", offset);
-                    command.Parameters.AddWithValue("@PageSize", pageSize);
-                    connection.Open();
-                    var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var feedback = new Feedback
-                        {
-                            FeedbackId = reader["feedback_id"].ToString(),
-                            CourseId = reader["course_id"].ToString(),
-                            UserId = reader["user_id"].ToString(),
-                            StarRating = reader["star_rating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["star_rating"]) : null,
-                            Comment = reader["comment"].ToString(),
-                            FeedbackDate = reader["feedback_date"] != DBNull.Value
-               ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
-               : DateOnly.MinValue, // Hoặc một giá trị mặc định nào đó
-                            User = new Models.Account
-                            {
-                                FullName = reader["full_name"].ToString()
-                            }
-                        };
-                        feedbacks.Add(feedback);
-                    }
-                }
-                ViewBag.Comments = feedbacks;
-
-                // Get total comments
-                int totalComments = 0;
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    totalComments = (int)command.ExecuteScalar();
-                }
-                ViewBag.TotalComments = totalComments;
-
-                // Get average rating
-                double averageRating = 0;
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT AVG(CAST(star_rating AS FLOAT)) FROM feedback WHERE course_id = @CourseId AND hidden_status = 0";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    var result = command.ExecuteScalar();
-                    averageRating = result != DBNull.Value ? Convert.ToDouble(result) : 0.0;
-                }
-                ViewBag.AverageRating = averageRating;
+                ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, offset, pageSize);
+                ViewBag.TotalComments = await _courseRepo.GetTotalFeedbackCountAsync(courseId);
+                ViewBag.AverageRating = await _courseRepo.GetAverageRatingAsync(courseId);
+                ViewBag.RatingPercentages = await _courseRepo.GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
 
                 ViewBag.CurrentPage = page;
-                ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
+                ViewBag.TotalPages = (int)Math.Ceiling((double)ViewBag.TotalComments / pageSize);
 
-                // Get created by
-                string createdBy = "Unknown";
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = @"
-            SELECT a.full_name 
-            FROM account a 
-            INNER JOIN course c ON a.user_id = c.created_by 
-            WHERE c.course_id = @CourseId";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    var result = command.ExecuteScalar();
-                    if (result != null)
-                    {
-                        createdBy = result.ToString();
-                    }
-                }
-                ViewBag.CreatedBy = createdBy;
-
-                var categories = new List<string>();
-                using (var connection = new SqlConnection(_connectionString))
-                {
-                    var query = "SELECT cc.course_category_name FROM course_category cc " +
-                                "JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id " +
-                                "WHERE ccm.course_id = @CourseId";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        categories.Add(reader["course_category_name"].ToString());
-                    }
-                }
-                ViewBag.CourseCategories = categories;
-
-                // Get rating percentages
-                var ratingPercentages = new Dictionary<int, double>();
-                for (int i = 1; i <= 5; i++)
-                {
-                    int count = 0;
-                    using (var connection = new SqlConnection(_connectionString))
-                    {
-                        var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
-                        var command = new SqlCommand(query, connection);
-                        command.Parameters.AddWithValue("@CourseId", courseId);
-                        command.Parameters.AddWithValue("@Rating", i);
-                        connection.Open();
-                        count = (int)command.ExecuteScalar();
-                    }
-                    ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
-                }
-                ViewBag.RatingPercentages = ratingPercentages;
+                ViewBag.CreatedBy = await _courseRepo.GetCourseCreatorNameAsync(courseId);
+                ViewBag.CourseCategories = await _courseRepo.GetCourseCategoriesAsync(courseId);
 
                 return View(course);
             }
@@ -919,22 +412,18 @@ namespace BrainStormEra.Controllers.Course
         }
 
         [HttpPost]
-        public IActionResult ChangeStatus(string courseId, int status)
+        public async Task<IActionResult> ChangeStatus(string courseId, int status)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            var result = await _courseRepo.UpdateCourseStatusAsync(courseId, status);
+            if (!result)
             {
-                var query = "UPDATE course SET course_status = @Status WHERE course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                command.Parameters.AddWithValue("@Status", status);
-                connection.Open();
-                command.ExecuteNonQuery();
+                return View("ErrorPage", "Failed to update course status.");
             }
             return RedirectToAction("CourseAcceptance", "Course");
         }
 
         [HttpPost]
-        public IActionResult Enroll(string courseId)
+        public async Task<IActionResult> Enroll(string courseId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -943,50 +432,8 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("Login", "Account");
             }
 
-            Models.Account user = null;
-            Models.Course course = null;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                // Lấy thông tin người dùng
-                var userQuery = "SELECT * FROM account WHERE user_id = @UserId";
-                var userCommand = new SqlCommand(userQuery, connection);
-                userCommand.Parameters.AddWithValue("@UserId", userId);
-
-                // Lấy thông tin khóa học
-                var courseQuery = "SELECT * FROM course WHERE course_id = @CourseId";
-                var courseCommand = new SqlCommand(courseQuery, connection);
-                courseCommand.Parameters.AddWithValue("@CourseId", courseId);
-
-                connection.Open();
-
-                using (var reader = userCommand.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = new Models.Account
-                        {
-                            UserId = reader["user_id"].ToString(),
-                            PaymentPoint = Convert.ToDecimal(reader["payment_point"])
-                        };
-                    }
-                }
-
-                // Reset connection để chạy command thứ hai
-                connection.Close();
-                connection.Open();
-
-                using (var reader = courseCommand.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        course = new Models.Course
-                        {
-                            CourseId = reader["course_id"].ToString(),
-                            Price = Convert.ToDecimal(reader["price"])
-                        };
-                    }
-                }
-            }
+            var user = await _courseRepo.GetUserByIdAsync(userId);
+            var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (user == null || course == null)
             {
@@ -995,92 +442,48 @@ namespace BrainStormEra.Controllers.Course
 
             if (user.PaymentPoint >= course.Price)
             {
-                string newEnrollmentId = GenerateNewEnrollmentId();
+                // Sử dụng GenerateNewEnrollmentIdAsync từ CourseRepo để tạo EnrollmentId mới
+                string newEnrollmentId = await _courseRepo.GenerateNewEnrollmentIdAsync();
 
-                using (var connection = new SqlConnection(_connectionString))
+                // Ghi danh người dùng vào khóa học
+                var enrolled = await _courseRepo.EnrollUserInCourseAsync(newEnrollmentId, userId, courseId, DateTime.Now);
+
+                if (enrolled)
                 {
-                    connection.Open();
-
-                    // Tạo bản ghi trong bảng enrollment
-                    var enrollmentQuery = "INSERT INTO enrollment (enrollment_id, user_id, course_id, enrollment_status, approved, enrollment_created_at) " +
-                                          "VALUES (@EnrollmentId, @UserId, @CourseId, 1, 1, @CreatedAt)";
-                    var enrollmentCommand = new SqlCommand(enrollmentQuery, connection);
-                    enrollmentCommand.Parameters.AddWithValue("@EnrollmentId", newEnrollmentId);
-                    enrollmentCommand.Parameters.AddWithValue("@UserId", userId);
-                    enrollmentCommand.Parameters.AddWithValue("@CourseId", courseId);
-                    enrollmentCommand.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
-                    enrollmentCommand.ExecuteNonQuery();
-
-                    // Trừ điểm của người dùng sau khi đăng ký khóa học thành công
-                    var updateUserQuery = "UPDATE account SET payment_point = payment_point - @Price WHERE user_id = @UserId";
-                    var updateUserCommand = new SqlCommand(updateUserQuery, connection);
-                    updateUserCommand.Parameters.AddWithValue("@Price", course.Price);
-                    updateUserCommand.Parameters.AddWithValue("@UserId", userId);
-                    updateUserCommand.ExecuteNonQuery();
+                    // Trừ điểm của người dùng sau khi ghi danh thành công
+                    await _courseRepo.UpdateUserPaymentPointsAsync(userId, course.Price);
+                    return RedirectToAction("CourseDetail", new { id = courseId });
                 }
-
-                return RedirectToAction("CourseDetail", new { id = courseId });
             }
             else
             {
                 TempData["ErrorMessage"] = "You do not have enough points to enroll in this course.";
-                return RedirectToAction("CourseDetail", new { id = courseId });
             }
+
+            return RedirectToAction("CourseDetail", new { id = courseId });
         }
 
-
         [HttpPost]
-        public IActionResult RequestToAdmin(string courseId)
+        public async Task<IActionResult> RequestToAdmin(string courseId)
         {
-            bool hasChaptersAndLessons = false;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT COUNT(*) FROM chapter ch JOIN lesson l ON ch.chapter_id = l.chapter_id WHERE ch.course_id = @CourseId";
-                var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CourseId", courseId);
-                connection.Open();
-                hasChaptersAndLessons = Convert.ToInt32(command.ExecuteScalar()) > 0;
-            }
+            bool hasChaptersAndLessons = await _courseRepo.HasChaptersAndLessonsAsync(courseId);
 
             if (hasChaptersAndLessons)
             {
-                using (var connection = new SqlConnection(_connectionString))
+                bool updated = await _courseRepo.UpdateCourseStatusAsync(courseId, 1);
+                if (updated)
                 {
-                    var query = "UPDATE course SET course_status = 1 WHERE course_id = @CourseId";
-                    var command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CourseId", courseId);
-                    connection.Open();
-                    command.ExecuteNonQuery();
+                    return Json(new { success = true, message = "Request sent to Admin successfully." });
                 }
-                return Json(new { success = true, message = "Request sent to Admin successfully." });
+                else
+                {
+                    return Json(new { success = false, message = "Failed to update course status." });
+                }
             }
             else
             {
                 return Json(new { success = false, message = "The course must have at least 1 chapter and 1 lesson. Back to edit and add more" });
             }
         }
-
-        // Helper method to generate new enrollment ID
-        private string GenerateNewEnrollmentId()
-        {
-            string maxEnrollmentId = null;
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var query = "SELECT TOP 1 enrollment_id FROM enrollment ORDER BY enrollment_id DESC";
-                var command = new SqlCommand(query, connection);
-                connection.Open();
-                maxEnrollmentId = command.ExecuteScalar()?.ToString();
-            }
-
-            int newIdNumber = 1;
-            if (!string.IsNullOrEmpty(maxEnrollmentId) && maxEnrollmentId.Length > 2)
-            {
-                newIdNumber = int.Parse(maxEnrollmentId.Substring(2)) + 1;
-            }
-
-            string newEnrollmentId = "EN" + newIdNumber.ToString("D3");
-            return newEnrollmentId;
-        }
-
     }
 }

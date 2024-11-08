@@ -44,42 +44,46 @@ namespace BrainStormEra.Controllers
 
             // Prepare SQL queries to fetch recommended courses and categories
             string sqlQuery = @"
-                SELECT TOP 4
-                    c.course_id AS CourseId,
-                    c.course_name AS CourseName,
-                    c.course_description AS CourseDescription,
-                    c.course_status AS CourseStatus,
-                    c.course_picture AS CoursePicture,
-                    c.price AS Price,
-                    c.course_created_at AS CourseCreatedAt,
-                    a.full_name AS CreatedBy,
-                    COALESCE(ROUND(AVG(f.star_rating), 0), 0) AS StarRating,
-                    cc.course_category_name AS CourseCategory
-                FROM 
-                    course c
-                    LEFT JOIN account a ON c.created_by = a.user_id
-                    LEFT JOIN enrollment e ON c.course_id = e.course_id
-                    LEFT JOIN feedback f ON c.course_id = f.course_id
-                    LEFT JOIN course_category_mapping ccm ON c.course_id = ccm.course_id
-                    LEFT JOIN course_category cc ON ccm.course_category_id = cc.course_category_id
-                WHERE 
-                    c.course_status = 2
-                GROUP BY 
-                    c.course_id, c.course_name, c.course_description, c.course_status, 
-                    c.course_picture, c.price, c.course_created_at, a.full_name, cc.course_category_name
-                ORDER BY 
-                    COUNT(e.enrollment_id) DESC;
-            ";
+    SELECT TOP 4
+        c.course_id AS CourseId,
+        c.course_name AS CourseName,
+        c.course_description AS CourseDescription,
+        c.course_status AS CourseStatus,
+        c.course_picture AS CoursePicture,
+        c.price AS Price,
+        c.course_created_at AS CourseCreatedAt,
+        a.full_name AS CreatedBy,
+        COALESCE(ROUND(AVG(f.star_rating), 0), 0) AS StarRating,
+        STUFF((
+            SELECT DISTINCT ', ' + cc.course_category_name
+            FROM course_category_mapping AS ccm
+            JOIN course_category AS cc ON ccm.course_category_id = cc.course_category_id
+            WHERE ccm.course_id = c.course_id
+            FOR XML PATH(''), TYPE
+        ).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS CourseCategories
+    FROM 
+        course c
+        LEFT JOIN account a ON c.created_by = a.user_id
+        LEFT JOIN enrollment e ON c.course_id = e.course_id
+        LEFT JOIN feedback f ON c.course_id = f.course_id
+    WHERE 
+        c.course_status = 2
+    GROUP BY 
+        c.course_id, c.course_name, c.course_description, c.course_status, 
+        c.course_picture, c.price, c.course_created_at, a.full_name
+    ORDER BY 
+        COUNT(e.enrollment_id) DESC;
+";
 
             string categoryQuery = @"
-                SELECT TOP 5
-                    course_category_id AS CourseCategoryId,
-                    course_category_name AS CourseCategoryName
-                FROM
-                    course_category
-                ORDER BY
-                    course_category_name;
-            ";
+    SELECT TOP 5
+        course_category_id AS CourseCategoryId,
+        course_category_name AS CourseCategoryName
+    FROM
+        course_category
+    ORDER BY
+        course_category_name;
+";
 
             var recommendedCourses = new List<ManagementCourseViewModel>();
             var categories = new List<CourseCategory>();
@@ -107,6 +111,9 @@ namespace BrainStormEra.Controllers
                     }
                 }
 
+                // Dictionary to keep track of courses and their categories
+                var courseDictionary = new Dictionary<string, ManagementCourseViewModel>();
+
                 // Execute the recommended courses query
                 using (var command = connection.CreateCommand())
                 {
@@ -115,39 +122,60 @@ namespace BrainStormEra.Controllers
                     {
                         while (reader.Read())
                         {
-                            var course = new ManagementCourseViewModel
+                            var courseId = reader["CourseId"].ToString();
+
+                            // Check if course already exists in dictionary
+                            if (!courseDictionary.TryGetValue(courseId, out var course))
                             {
-                                CourseId = reader["CourseId"].ToString(),
-                                CourseName = reader["CourseName"].ToString(),
-                                CourseDescription = reader["CourseDescription"].ToString(),
-                                CourseStatus = reader["CourseStatus"] as int?,
-                                CoursePicture = reader["CoursePicture"].ToString(),
-                                Price = reader.GetDecimal(reader.GetOrdinal("Price")),
-                                CourseCreatedAt = reader.GetDateTime(reader.GetOrdinal("CourseCreatedAt")),
-                                CreatedBy = reader["CreatedBy"].ToString(),
-                                StarRating = reader["StarRating"] as byte?,
-                                CourseCategories = new List<CourseCategory>
+                                course = new ManagementCourseViewModel
                                 {
-                                    new CourseCategory
+                                    CourseId = courseId,
+                                    CourseName = reader["CourseName"].ToString(),
+                                    CourseDescription = reader["CourseDescription"].ToString(),
+                                    CourseStatus = reader["CourseStatus"] as int?,
+                                    CoursePicture = reader["CoursePicture"].ToString(),
+                                    Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                                    CourseCreatedAt = reader.GetDateTime(reader.GetOrdinal("CourseCreatedAt")),
+                                    CreatedBy = reader["CreatedBy"].ToString(),
+                                    StarRating = reader["StarRating"] as byte?,
+                                    CourseCategories = new List<CourseCategory>()
+                                };
+                                courseDictionary[courseId] = course;
+                            }
+
+                            // Add each category to the course as individual items in the list
+                            var categoriesString = reader["CourseCategories"].ToString();
+                            if (!string.IsNullOrEmpty(categoriesString))
+                            {
+                                foreach (var categoryName in categoriesString.Split(','))
+                                {
+                                    var trimmedCategoryName = categoryName.Trim();
+                                    if (!string.IsNullOrEmpty(trimmedCategoryName) &&
+                                        course.CourseCategories.All(c => c.CourseCategoryName != trimmedCategoryName))
                                     {
-                                        CourseCategoryName = reader["CourseCategory"].ToString()
+                                        course.CourseCategories.Add(new CourseCategory
+                                        {
+                                            CourseCategoryName = trimmedCategoryName
+                                        });
                                     }
                                 }
-                            };
-                            recommendedCourses.Add(course);
+                            }
                         }
                     }
                 }
+
+                // Convert dictionary values to list
+                recommendedCourses = courseDictionary.Values.ToList();
             }
 
-            ViewBag.Categories = categories; // Pass categories to the view using ViewBag
+            // Pass categories to the view using ViewBag
+            ViewBag.Categories = categories;
 
             // Prepare the view model
             var viewModel = new HomePageInstructorViewModel
             {
                 RecommendedCourses = recommendedCourses
             };
-
             return View("~/Views/Home/HomePageInstructor.cshtml", viewModel);
         }
     }
