@@ -1,0 +1,222 @@
+﻿@model List<BrainStormEra.Repo.Certificate.CertificateSummaryViewModel>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">My Courses</h2>
+
+    @if (!Model.Any())
+    {
+        <p class="text-center">Không có khóa học nào đã hoàn thành.</p>
+    }
+    else
+    {
+        <!-- Wrapper div for centering the course list -->
+        <div class="courses-wrapper d-flex justify-content-center">
+            <div class="course-list" id="courseList">
+                @foreach (var course in Model)
+                {
+                    <!-- Course card with border and spacing -->
+                    <div class="course-card card shadow-sm mb-4 p-3 d-flex align-items-center">
+                        <div class="d-flex">
+                            <!-- Placeholder for course image -->
+                            <div class="course-image ">
+                                <img src="~/uploads/Certificate/cert-specialization.png" alt="Course Image" class="img-fluid rounded">
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <!-- Course information -->
+                            <div class="course-info">
+                                <a href="@Url.Action("CertificateDetails", "Certificate",new { courseId = course.CourseId })" class="course-info-a">
+                                    <h5 class="course-title mb-1">@course.CourseName</h5>
+                                </a>
+                                <p class="font-weight-bold">Completed at: @course.CompletedDate.ToString("dd/MM/yyyy")</p>
+                                <p class="font-weight-bold">Grade Achieved: 100%</p>
+                            </div>
+                        </div>
+
+                        <!-- Action link for certificate details -->
+                        <div class="ml-auto">
+                            <a href="@Url.Action("CertificateDetails", "Certificate", new { courseId = course.CourseId })" class="btn btn-primary btn-sm">
+                                Xem chứng chỉ
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Pagination controls -->
+        <nav aria-label="Course pagination" class="d-flex justify-content-center mt-4">
+            <ul class="pagination" id="paginationControls">
+                <!-- Pagination buttons will be generated here by JavaScript -->
+            </ul>
+        </nav>
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const itemsPerPage = 2; // Adjust this to 7 in production; for demo purposes, it’s set to 2.
+        const courseList = document.getElementById("courseList").children;
+        const paginationControls = document.getElementById("paginationControls");
+        let currentPage = 1;
+
+        // Calculate total pages
+        const totalPages = Math.ceil(courseList.length / itemsPerPage);
+
+        // Function to display items for the current page
+        function displayPage(page) {
+            currentPage = page;
+
+            // Hide all items
+            for (let i = 0; i < courseList.length; i++) {
+                courseList[i].style.display = "none";
+            }
+
+            // Show items for the current page
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            for (let i = start; i < end && i < courseList.length; i++) {
+                courseList[i].style.display = "flex";
+            }
+
+            // Update pagination controls
+            updatePaginationControls();
+        }
+
+        // Function to create pagination controls
+        function updatePaginationControls() {
+            paginationControls.innerHTML = "";
+
+            // Previous button
+            const prevButton = document.createElement("li");
+            prevButton.className = "page-item" + (currentPage === 1 ? " disabled" : "");
+            prevButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${currentPage - 1})">&lsaquo;</a>`;
+            paginationControls.appendChild(prevButton);
+
+            // Page number buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement("li");
+                pageButton.className = "page-item" + (i === currentPage ? " active" : "");
+                pageButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${i})">${i}</a>`;
+                paginationControls.appendChild(pageButton);
+            }
+
+            // Next button
+            const nextButton = document.createElement("li");
+            nextButton.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
+            nextButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${currentPage + 1})">&rsaquo;</a>`;
+            paginationControls.appendChild(nextButton);
+        }
+
+        // Initialize pagination
+        displayPage(1); // Show the first page initially
+    });
+</script>
+
+<style>
+    /* Pagination styling to resemble Coursera */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+    }
+
+        .pagination .page-item {
+            margin: 0 5px;
+        }
+
+            .pagination .page-item.disabled .page-link {
+                color: #ccc;
+                pointer-events: none;
+            }
+
+            .pagination .page-item.active .page-link {
+                background-color: #007bff;
+                color: #fff;
+                border-color: #007bff;
+            }
+
+        .pagination .page-link {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+            .pagination .page-link:hover {
+                background-color: #0056b3;
+                color: white;
+            }
+
+    /* Course list wrapper styling */
+    .courses-wrapper {
+        width: 100%;
+    }
+
+    /* Center and style the course list */
+    .course-list {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        background-color: #f4f6f8;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling for individual course cards */
+    .course-card {
+        border: 1px solid #e0e0e0; /* Light border for a refined look */
+        border-radius: 8px;
+        background-color: #ffffff;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+        padding: 15px;
+        margin-bottom: 15px; /* Margin between cards */
+    }
+
+        .course-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+    /* Title styling for better emphasis */
+    .course-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0056b3;
+        margin-bottom: 5px;
+    }
+
+    /* Course image with a soft shadow */
+    .course-image img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling for the grade text */
+    .course-info p.font-weight-bold {
+        color: #333;
+        font-size: 0.95rem;
+        margin: 4px 0;
+    }
+
+    .course-info-a {
+        text-decoration: none;
+    }
+
+    .ml-auto {
+        margin-left: auto;
+    }
+</style>

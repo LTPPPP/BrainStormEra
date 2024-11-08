@@ -9,6 +9,7 @@ using BrainStormEra.Repo.Admin;
 using Microsoft.Extensions.Configuration;
 using BrainStormEra.Repo.Chapter;
 using BrainStormEra.Repo.Course;
+using BrainStormEra.Repo.Certificate;
 
 namespace BrainStormEra
 {
@@ -41,6 +42,8 @@ namespace BrainStormEra
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<OtpService>();
+            builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+
 
             // Đăng ký các lớp Repo
             builder.Services.AddScoped<SwpMainContext>();
