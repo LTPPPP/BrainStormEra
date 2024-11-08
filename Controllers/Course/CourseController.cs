@@ -25,11 +25,19 @@ namespace BrainStormEra.Controllers.Course
 
         public async Task<ActionResult> AddCourse()
         {
-            var viewModel = new CreateCourseViewModel
+            try
             {
-                CourseCategories = await _courseRepo.GetCourseCategoriesAsync()
-            };
-            return View(viewModel);
+                var viewModel = new CreateCourseViewModel
+                {
+                    CourseCategories = await _courseRepo.GetCourseCategoriesAsync()
+                };
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while loading the course creation page.");
+                return View("Error", "An unexpected error occurred.");
+            }
         }
 
         [HttpPost]
