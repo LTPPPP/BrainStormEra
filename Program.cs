@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using BrainStormEra.Repo.Chapter;
 using BrainStormEra.Repo.Course;
 using BrainStormEra.Repositories;
+using BrainStormEra.Repo.Certificate;
 
 namespace BrainStormEra
 {
@@ -57,7 +58,7 @@ namespace BrainStormEra
             builder.Services.AddScoped<ChapterRepo>();
 
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
             // Cookie Authentication Configuration
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
