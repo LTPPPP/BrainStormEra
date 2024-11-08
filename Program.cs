@@ -47,6 +47,7 @@ namespace BrainStormEra
             builder.Services.AddScoped<AchievementRepo>();
             builder.Services.AddScoped<AdminRepo>();
             builder.Services.AddScoped<InstructorRepo>();
+            builder.Services.AddScoped<LearnerRepo>();
             builder.Services.AddScoped<GuestRepo>();
             builder.Services.AddScoped<ChatbotRepo>();
             builder.Services.AddScoped<ProfileRepo>();

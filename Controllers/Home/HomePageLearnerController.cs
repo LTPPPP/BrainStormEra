@@ -5,17 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using BrainStormEra.Views.Home;
 using BrainStormEra.Views.Course;
+using BrainStormEra.Repositories;
+using BrainStormEra.Repo;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageLearnerController : Controller
     {
-        private readonly SwpMainContext _dbContext;
-        private readonly ILogger<HomePageLearnerController> _logger;
+        private readonly LearnerRepo _learnerRepo;
+        private readonly ILogger<HomePageInstructorController> _logger;
 
-        public HomePageLearnerController(SwpMainContext dbContext, ILogger<HomePageLearnerController> logger)
+        public HomePageLearnerController(IConfiguration configuration, LearnerRepo learnerRepo, ILogger<HomePageInstructorController> logger)
         {
-            _dbContext = dbContext;
+            string connectionString = configuration.GetConnectionString("SwpMainContext");
+            _learnerRepo = learnerRepo;
             _logger = logger;
         }
 
@@ -30,244 +33,19 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            Models.Account user = null;
-            int completedCoursesCount = 0;
-            int totalCoursesEnrolled = 0;
-            int userRank = 0;
-            var achievements = new List<Models.Achievement>();
-            var recommendedCourses = new List<ManagementCourseViewModel>();
-            var notifications = new List<Notification>();
-            var categories = new List<CourseCategory>();
-
-            using (var connection = _dbContext.Database.GetDbConnection())
+            var user = await _learnerRepo.GetUserByIdAsync(userId);
+            if (user == null)
             {
-                await connection.OpenAsync();
-
-
-                string categoryQuery = @"
-                SELECT TOP 5
-                    course_category_id AS CourseCategoryId,
-                    course_category_name AS CourseCategoryName
-                FROM
-                    course_category
-                ORDER BY
-                    course_category_name;
-            ";
-                // Execute the category query
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = categoryQuery;
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var category = new CourseCategory
-                            {
-                                CourseCategoryId = reader["CourseCategoryId"].ToString(),
-                                CourseCategoryName = reader["CourseCategoryName"].ToString()
-                            };
-                            categories.Add(category);
-                        }
-                    }
-                }
-                ViewBag.Categories = categories; // Pass categories to the view using ViewBag
-
-                // Get user information
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT * FROM account WHERE user_id = @userId";
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    if (await reader.ReadAsync())
-                    {
-                        user = new Models.Account
-                        {
-                            UserId = reader["user_id"].ToString(),
-                            FullName = reader["full_name"].ToString(),
-                            UserPicture = reader["user_picture"]?.ToString()
-                        };
-                    }
-                }
-
-                if (user == null)
-                {
-                    _logger.LogWarning($"User with ID {userId} not found.");
-                    return RedirectToAction("LoginPage", "Login");
-                }
-
-                // Get completed courses count
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                SELECT COUNT(*) 
-                FROM enrollment 
-                WHERE user_id = @userId AND enrollment_status = 5";
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    completedCoursesCount = Convert.ToInt32(await command.ExecuteScalarAsync());
-                }
-
-                // Get total courses enrolled
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                SELECT COUNT(*) 
-                FROM enrollment 
-                WHERE user_id = @userId";
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    totalCoursesEnrolled = Convert.ToInt32(await command.ExecuteScalarAsync());
-                }
-
-                // Get achievements
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                SELECT TOP 3
-                    a.achievement_id,
-                    a.achievement_name,
-                    a.achievement_description,
-                    a.achievement_icon,
-                    a.achievement_created_at
-                FROM user_achievement ua
-                INNER JOIN achievement a ON ua.achievement_id = a.achievement_id
-                WHERE ua.user_id = @userId
-                ORDER BY a.achievement_created_at DESC";
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        achievements.Add(new Models.Achievement
-                        {
-                            AchievementId = reader["achievement_id"].ToString(),
-                            AchievementName = reader["achievement_name"].ToString(),
-                            AchievementDescription = reader["achievement_description"].ToString(),
-                            AchievementIcon = reader["achievement_icon"].ToString(),
-                            AchievementCreatedAt = Convert.ToDateTime(reader["achievement_created_at"])
-                        });
-                    }
-                }
-
-                // Get user rank
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                WITH RankedUsers AS (
-                    SELECT 
-                        user_id,
-                        DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) as rank
-                    FROM enrollment
-                    WHERE enrollment_status = 5
-                    GROUP BY user_id
-                )
-                SELECT COALESCE(rank, 0) as rank
-                FROM RankedUsers
-                WHERE user_id = @userId";
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    var result = await command.ExecuteScalarAsync();
-                    userRank = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                }
-
-                // Get recommended courses
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-    SELECT TOP 4
-        c.course_id AS CourseId,
-        c.course_name AS CourseName,
-        c.course_description AS CourseDescription,
-        c.course_status AS CourseStatus,
-        c.course_picture AS CoursePicture,
-        c.price AS Price,
-        c.course_created_at AS CourseCreatedAt,
-        a.full_name AS CreatedBy,
-        ROUND(AVG(COALESCE(f.star_rating, 0)), 0) AS StarRating,
-        STUFF((
-            SELECT DISTINCT ', ' + cc.course_category_name
-            FROM course_category_mapping AS ccm
-            JOIN course_category AS cc ON ccm.course_category_id = cc.course_category_id
-            WHERE ccm.course_id = c.course_id
-            FOR XML PATH(''), TYPE
-        ).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS CourseCategories
-    FROM
-        course AS c
-    JOIN
-        account AS a ON c.created_by = a.user_id
-    LEFT JOIN
-        enrollment AS e ON c.course_id = e.course_id
-    LEFT JOIN
-        feedback AS f ON c.course_id = f.course_id
-    WHERE
-        c.course_status = 2
-    GROUP BY
-        c.course_id, c.course_name, c.course_description, c.course_status,
-        c.course_picture, c.price, c.course_created_at, a.full_name
-    ORDER BY
-        COUNT(e.enrollment_id) DESC;";
-
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        // Parse the categories from the "CourseCategories" column
-                        categories = new List<CourseCategory>();
-                        var categoryNames = reader["CourseCategories"].ToString().Split(',');
-
-                        foreach (var categoryName in categoryNames)
-                        {
-                            var trimmedName = categoryName.Trim();
-                            if (!string.IsNullOrEmpty(trimmedName))
-                            {
-                                categories.Add(new CourseCategory { CourseCategoryName = trimmedName });
-                            }
-                        }
-
-                        // Add course information to the recommendedCourses list
-                        recommendedCourses.Add(new ManagementCourseViewModel
-                        {
-                            CourseId = reader["CourseId"].ToString(),
-                            CourseName = reader["CourseName"].ToString(),
-                            CourseDescription = reader["CourseDescription"].ToString(),
-                            CourseStatus = Convert.ToInt32(reader["CourseStatus"]),
-                            CoursePicture = reader["CoursePicture"].ToString(),
-                            Price = Convert.ToDecimal(reader["Price"]),
-                            CourseCreatedAt = Convert.ToDateTime(reader["CourseCreatedAt"]),
-                            CreatedBy = reader["CreatedBy"].ToString(),
-                            StarRating = reader["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["StarRating"]) : (byte?)0,
-                            CourseCategories = categories
-                        });
-                    }
-                }
-
-
-                // Get notifications
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                SELECT *
-                FROM notification
-                WHERE user_id = @userId
-                ORDER BY notification_created_at DESC";
-                    command.Parameters.Add(new SqlParameter("@userId", userId));
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        notifications.Add(new Notification
-                        {
-                            NotificationId = reader["notification_id"].ToString(),
-                            UserId = reader["user_id"].ToString(),
-                            NotificationContent = reader["notification_content"].ToString(),
-                            NotificationType = reader["notification_type"].ToString(),
-                            NotificationCreatedAt = Convert.ToDateTime(reader["notification_created_at"])
-                        });
-                    }
-                }
+                _logger.LogWarning($"User with ID {userId} not found.");
+                return RedirectToAction("LoginPage", "Login");
             }
+
+            var completedCoursesCount = await _learnerRepo.GetCompletedCoursesCountAsync(userId);
+            var totalCoursesEnrolled = await _learnerRepo.GetTotalCoursesEnrolledAsync(userId);
+            var achievements = await _learnerRepo.GetAchievementsAsync(userId);
+            var userRank = await _learnerRepo.GetUserRankAsync(userId);
+            var recommendedCourses = await _learnerRepo.GetRecommendedCoursesAsync(userId);
+            var notifications = await _learnerRepo.GetNotificationsAsync(userId);
 
             ViewBag.FullName = user.FullName ?? "Learner";
             ViewBag.UserPicture = string.IsNullOrEmpty(user.UserPicture)
@@ -288,5 +66,6 @@ namespace BrainStormEra.Controllers
 
             return View("~/Views/Home/HomePageLearner.cshtml", viewModel);
         }
+
     }
 }
