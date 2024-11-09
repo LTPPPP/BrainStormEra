@@ -55,6 +55,7 @@ namespace BrainStormEra
             builder.Services.AddScoped<FeedbackRepo>();
             builder.Services.AddScoped<LessonRepo>();
             builder.Services.AddScoped<CourseRepo>();
+            builder.Services.AddScoped<PointsRepo>();
             builder.Services.AddScoped<ChapterRepo>();
 
             builder.Services.AddControllersWithViews();
