@@ -42,19 +42,23 @@
                     <h4>@Model.FullName</h4>
                     <p>@Model.UserEmail</p>
 
-                    <!-- Payment QR Code Section (Đặt dưới thông tin user) -->
+                    <!-- Payment QR Code Section (Placed below user info) -->
                     <div class="card text-center mt-4">
-                        <div class="card-header text-white" style="background-color : #7FB29D;">
-                            <h3 class="mb-0">Thanh toán</h3>
+                        <div class="card-header text-white" style="background-color: #7FB29D;">
+                            <h3 class="mb-0">Payment</h3>
                         </div>
                         <div class="card-body">
                             <img src="~/uploads/QR_Payment/QR-code.png" alt="QR Code" class="img-fluid rounded mb-3" style="max-width: 150px;" />
-                            <p class="card-text">Quét mã QR để thanh toán một cách nhanh chóng và an toàn.</p>
+                            <p class="card-text">Scan the QR code to make a quick and safe payment.</p>
+
+                            <!-- Payment Button below the QR Code -->
+                            <button class="btn btn-primary mt-3" onclick="openPaymentModal()">Pay</button>
                         </div>
                         <div class="card-footer text-muted">
-                            Hệ thống thanh toán BrainStormEra
+                            BrainStormEra Payment System
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -115,34 +119,62 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content shadow-lg" style="max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header bg-primary text-white rounded-top">
-                    <h5 class="modal-title font-weight-bold" id="paymentModalLabel">Xác nhận thanh toán</h5>
+                    <h5 class="modal-title font-weight-bold" id="paymentModalLabel">Payment Confirmation</h5>
                     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-center text-muted">Vui lòng tải lên hình ảnh xác nhận giao dịch của bạn.</p>
+                    <p class="text-center text-muted">Please select the amount and upload an image of your transaction confirmation.</p>
                     <form asp-action="ConfirmPayment" method="post" enctype="multipart/form-data">
+
+                        <!-- Dropdown to select payment amount -->
                         <div class="form-group text-center">
-                            <label for="paymentImage" class="font-weight-bold">Đính kèm hình ảnh giao dịch:</label>
+                            <label for="paymentAmount" class="font-weight-bold">Select payment amount:</label>
+                            <select name="paymentAmount" id="paymentAmount" class="form-control" required>
+                                <option value="30000">30,000 VND</option>
+                                <option value="50000">50,000 VND</option>
+                                <option value="100000">100,000 VND</option>
+                            </select>
+                        </div>
+
+                        <!-- File upload for transaction image -->
+                        <div class="form-group text-center">
+                            <label for="paymentImage" class="font-weight-bold">Attach transaction image:</label>
                             <input type="file" name="paymentImage" id="paymentImage" class="form-control" accept="image/*" required onchange="previewImage(event)" />
                         </div>
 
-                        <!-- Khung Preview hình ảnh -->
+                        <!-- Image preview box -->
                         <div id="imagePreviewContainer" class="text-center mb-3" style="display: none;">
-                            <p class="text-muted">Xem trước hình ảnh của bạn:</p>
+                            <p class="text-muted">Preview your image:</p>
                             <img id="imagePreview" src="#" alt="Preview Image" class="img-fluid rounded shadow" style="max-height: 300px; max-width: 100%;" />
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-block mt-3">Xác nhận đã thanh toán</button>
+                        <button type="submit" class="btn btn-success btn-block mt-3">Confirm Payment</button>
                     </form>
                 </div>
                 <div class="modal-footer bg-light rounded-bottom">
-                    <small class="text-muted mx-auto">Xin cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi.</small>
+                    <small class="text-muted mx-auto">Thank you for using our service.</small>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Display error message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Display success message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
     <!-- Script for Image Preview -->
     <script>
@@ -163,8 +195,6 @@
             }
         }
     </script>
-
-
 
     <!-- Footer -->
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
