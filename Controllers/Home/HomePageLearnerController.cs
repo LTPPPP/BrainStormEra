@@ -13,12 +13,14 @@ namespace BrainStormEra.Controllers
     public class HomePageLearnerController : Controller
     {
         private readonly LearnerRepo _learnerRepo;
+        private readonly AccountRepo _accountRepo;
         private readonly ILogger<HomePageInstructorController> _logger;
 
-        public HomePageLearnerController(IConfiguration configuration, LearnerRepo learnerRepo, ILogger<HomePageInstructorController> logger)
+        public HomePageLearnerController(IConfiguration configuration, LearnerRepo learnerRepo, AccountRepo accountRepo, ILogger<HomePageInstructorController> logger)
         {
             string connectionString = configuration.GetConnectionString("SwpMainContext");
             _learnerRepo = learnerRepo;
+            _accountRepo = accountRepo;
             _logger = logger;
         }
 
@@ -43,7 +45,7 @@ namespace BrainStormEra.Controllers
             var completedCoursesCount = await _learnerRepo.GetCompletedCoursesCountAsync(userId);
             var totalCoursesEnrolled = await _learnerRepo.GetTotalCoursesEnrolledAsync(userId);
             var achievements = await _learnerRepo.GetAchievementsAsync(userId);
-            var userRank = await _learnerRepo.GetUserRankAsync(userId);
+            var userRank = await _accountRepo.GetUserRankAsync(userId);
             var recommendedCourses = await _learnerRepo.GetRecommendedCoursesAsync(userId);
             var notifications = await _learnerRepo.GetNotificationsAsync(userId);
 

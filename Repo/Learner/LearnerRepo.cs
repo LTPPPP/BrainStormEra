@@ -99,28 +99,6 @@ namespace BrainStormEra.Repo
             return achievements;
         }
 
-        public async Task<int> GetUserRankAsync(string userId)
-        {
-            using var connection = await GetConnectionAsync();
-            var command = connection.CreateCommand();
-            command.CommandText = @"
-                WITH RankedUsers AS (
-                    SELECT 
-                        user_id,
-                        DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) as rank
-                    FROM enrollment
-                    WHERE enrollment_status = 5
-                    GROUP BY user_id
-                )
-                SELECT COALESCE(rank, 0) as rank
-                FROM RankedUsers
-                WHERE user_id = @userId";
-            command.Parameters.Add(new SqlParameter("@userId", userId));
-
-            var result = await command.ExecuteScalarAsync();
-            return result != DBNull.Value ? Convert.ToInt32(result) : 0;
-        }
-
         public async Task<List<ManagementCourseViewModel>> GetRecommendedCoursesAsync(string userId)
         {
             var recommendedCourses = new List<ManagementCourseViewModel>();

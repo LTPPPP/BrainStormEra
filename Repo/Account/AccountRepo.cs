@@ -598,7 +598,7 @@ namespace BrainStormEra.Repo
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        while (await reader.ReadAsync())    
                         {
                             rankings.Add(new UserRankingViewModel
                             {
@@ -615,6 +615,52 @@ namespace BrainStormEra.Repo
 
             return rankings;
         }
+
+        public async Task<int> GetUserRankAsync(string userId)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+
+                    // Sử dụng ROW_NUMBER() để xếp hạng người dùng dựa trên số lượng khóa học đã hoàn thành
+                    var command = connection.CreateCommand();
+                    command.CommandText = @"
+                SELECT ranked_users.ranking 
+                FROM (
+                    SELECT a.user_id, 
+                           ROW_NUMBER() OVER(ORDER BY COUNT(lc.lesson_id) DESC) AS ranking
+                    FROM account a
+                    LEFT JOIN lesson_completion lc ON a.user_id = lc.user_id
+                    GROUP BY a.user_id
+                ) AS ranked_users
+                WHERE ranked_users.user_id = @UserId";
+
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    // Nếu tìm thấy thứ hạng, trả về giá trị
+                    if (result != null && int.TryParse(result.ToString(), out int rank))
+                    {
+                        return rank;
+                    }
+                    else
+                    {
+                        // Nếu người dùng không có thứ hạng, có thể trả về -1 hoặc một giá trị nào đó để biểu thị
+                        return -1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user rank.");
+                throw;
+            }
+        }
+
+
 
     }
 }
