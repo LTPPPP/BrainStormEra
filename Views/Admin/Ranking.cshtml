@@ -1,4 +1,4 @@
-@* Views/Admin/Ranking.cshtml *@
+﻿@* Views/Admin/Ranking.cshtml *@
 @model List<BrainStormEra.Views.Admin.UserRankingViewModel>
 
 <!DOCTYPE html>
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/HomePage/homePage.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+    <link href="~/css/Admin/Ranking.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -26,7 +27,7 @@
         <table class="table table-hover table-bordered text-center w-100">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col">Top</th>
                     <th scope="col">Username</th>
                     <th scope="col">Full Name</th>
                     <th scope="col">Completed Courses</th>
@@ -48,71 +49,5 @@
     </div>
 </div>
 
-<style>
-    .ranking-container {
-        margin: 0 auto;
-        max-width: 100%;
-        padding: 20px;
-    }
-
-    h2 {
-        font-size: 2.5rem;
-        color: #333;
-        font-weight: bold;
-    }
-
-    .table {
-        border-radius: 10px;
-        overflow: hidden;
-        background-color: #f8f9fa;
-    }
-
-    .table th, .table td {
-        vertical-align: middle;
-    }
-
-    .table thead th {
-        font-size: 1.2rem;
-        background-color: #333;
-        color: #fff;
-    }
-
-    .table tbody tr:hover {
-        background-color: #e9ecef;
-    }
-
-    .top-ranking {
-        background-color: #ffeeba; /* Light yellow for top 5 */
-        font-weight: bold;
-    }
-
-    .regular-ranking {
-        background-color: #f8f9fa;
-    }
-
-    @media (max-width: 991px) {
-        .ranking-container {
-            padding: 10px;
-        }
-
-        h2 {
-            font-size: 2rem;
-        }
-    }
-
-    @media (max-width: 575px) {
-        .ranking-container {
-            padding: 5px;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-        }
-
-        .table th, .table td {
-            font-size: 0.9rem;
-        }
-    }
-</style>
 </body>
 </html>

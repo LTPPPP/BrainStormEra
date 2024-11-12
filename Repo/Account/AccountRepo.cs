@@ -6,6 +6,7 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using BrainStormEra.Views.Profile;
+using BrainStormEra.Views.Admin;
 
 namespace BrainStormEra.Repo
 {
@@ -574,6 +575,44 @@ namespace BrainStormEra.Repo
                 _logger.LogError(ex, "Error updating password.");
                 throw;
             }
+        }
+
+        public async Task<List<UserRankingViewModel>> GetUserRankingAsync()
+        {
+            var rankings = new List<UserRankingViewModel>();
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT a.user_id, a.username, a.full_name, COUNT(lc.lesson_id) AS CompletedCourses
+                FROM account a
+                LEFT JOIN lesson_completion lc ON a.user_id = lc.user_id
+                LEFT JOIN lesson l ON lc.lesson_id = l.lesson_id
+                LEFT JOIN chapter ch ON l.chapter_id = ch.chapter_id
+                LEFT JOIN course c ON ch.course_id = c.course_id
+                GROUP BY a.user_id, a.username, a.full_name
+                ORDER BY COUNT(lc.lesson_id) DESC"; // Sắp xếp giảm dần
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            rankings.Add(new UserRankingViewModel
+                            {
+                                UserId = reader["user_id"].ToString(),
+                                Username = reader["username"].ToString(),
+                                FullName = reader["full_name"]?.ToString(),
+                                CompletedCourses = (int)reader["CompletedCourses"]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return rankings;
         }
 
 
