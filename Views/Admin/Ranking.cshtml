@@ -11,43 +11,55 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
-    <link rel="stylesheet" href="~/css/base.css">
-    <link rel="stylesheet" href="~/css/HomePage/homePage.css">
-    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link href="~/css/Admin/Ranking.css" rel="stylesheet" />
 </head>
 
 <body>
-@await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
 
-<div class="ranking-container">
-    <h2 class="text-center my-4">User Rankings</h2>
+    <div class="ranking-container">
+        <h2 class="text-center my-4 pt-20 ranking-title">User Rankings</h2>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered text-center w-100">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col">Top</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Full Name</th>
-                    <th scope="col">Completed Courses</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.Count; i++)
-                {
-                    var rankingClass = i < 5 ? "top-ranking" : "regular-ranking";
-                    <tr class="align-middle @rankingClass">
-                        <td>@(i + 1)</td>
-                        <td>@Model[i].Username</td>
-                        <td>@Model[i].FullName</td>
-                        <td>@Model[i].CompletedCourses</td>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered text-center w-100">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Top</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Course Complete</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var rankingClass = i < 3 ? "top-ranking" : (i < 5 ? "middle-ranking" : "regular-ranking");
+                        <tr class="align-middle @rankingClass">
+                            <td>
+                                @if (i < 3)
+                                {
+                                    <i class="fa fa-award fa-2x" style="color: gold;"></i> @(i + 1)
+                                }
+                                else
+                                {
+                                    @(i + 1)
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @{
+                                        var userImage = string.IsNullOrEmpty(Model[i].UserPicture) ? Url.Content("~/lib/img/User-img/default_user.png") : Model[i].UserPicture;
+                                        var displayName = string.IsNullOrEmpty(Model[i].FullName) ? $"User_{Model[i].UserId}" : Model[i].FullName;
+                                    }
+                                    <img src="@userImage" alt="User Picture" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                    @displayName
+                                </div>
+                            </td>
+                            <td>@Model[i].CompletedCourses</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-
 </body>
 </html>

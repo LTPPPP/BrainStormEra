@@ -587,13 +587,13 @@ namespace BrainStormEra.Repo
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT a.user_id, a.username, a.full_name, COUNT(lc.lesson_id) AS CompletedCourses
+                SELECT a.user_id, a.username, a.full_name, COUNT(lc.lesson_id) AS CompletedCourses, a.user_picture
                 FROM account a
                 LEFT JOIN lesson_completion lc ON a.user_id = lc.user_id
                 LEFT JOIN lesson l ON lc.lesson_id = l.lesson_id
                 LEFT JOIN chapter ch ON l.chapter_id = ch.chapter_id
                 LEFT JOIN course c ON ch.course_id = c.course_id
-                GROUP BY a.user_id, a.username, a.full_name
+                GROUP BY a.user_id, a.username, a.full_name, a.user_picture
                 ORDER BY COUNT(lc.lesson_id) DESC"; // Sắp xếp giảm dần
 
                     using (var reader = await command.ExecuteReaderAsync())
@@ -605,7 +605,8 @@ namespace BrainStormEra.Repo
                                 UserId = reader["user_id"].ToString(),
                                 Username = reader["username"].ToString(),
                                 FullName = reader["full_name"]?.ToString(),
-                                CompletedCourses = (int)reader["CompletedCourses"]
+                                CompletedCourses = (int)reader["CompletedCourses"],
+                                UserPicture = reader["user_picture"]?.ToString() ?? "/images/default-user.png" // Đặt ảnh mặc định nếu không có
                             });
                         }
                     }
@@ -614,7 +615,6 @@ namespace BrainStormEra.Repo
 
             return rankings;
         }
-
 
     }
 }

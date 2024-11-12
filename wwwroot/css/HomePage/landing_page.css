@@ -1,118 +1,186 @@
-@* Views/Admin/Ranking.cshtml *@
-@model List<BrainStormEra.Views.Admin.UserRankingViewModel>
+/* Base styles */
+body {
+    margin: 0;
+    padding-top: 50px;
+    font-family: Arial, sans-serif;
+    /*background-color: var(--main-color);*/
+}
 
-<!DOCTYPE html>
-<html lang="en">
+.sticky-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Full width */
+    z-index: 9000; /* Make sure it's on top of other content */
+    background-color: #fff; /* Solid background, no transparency */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
+}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrainStormEra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
-    <link rel="stylesheet" href="~/css/base.css">
-    <link rel="stylesheet" href="~/css/HomePage/homePage.css">
-    <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
-</head>
+/* Header and Navigation */
+.navbar {
+    background-color: var(--white-color); /* Solid white background for navbar */
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
 
-<body>
-@await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
+.logo_img {
+    width: 40px;
+    height: 40px;
+}
 
-<div class="ranking-container">
-    <h2 class="text-center my-4">User Rankings</h2>
+.navbar-nav .nav-link {
+    color: #333;
+    font-weight: bold;
+    margin: 0 15px;
+}
 
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered text-center w-100">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Full Name</th>
-                    <th scope="col">Completed Courses</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.Count; i++)
-                {
-                    var rankingClass = i < 5 ? "top-ranking" : "regular-ranking";
-                    <tr class="align-middle @rankingClass">
-                        <td>@(i + 1)</td>
-                        <td>@Model[i].Username</td>
-                        <td>@Model[i].FullName</td>
-                        <td>@Model[i].CompletedCourses</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+.navbar .icon {
+    margin: 0 10px;
+    color: #333;
+}
 
-<style>
-    .ranking-container {
-        margin: 0 auto;
-        max-width: 100%;
-        padding: 20px;
+.profile img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.profile span {
+    margin-right: 5px;
+}
+
+.profile {
+    cursor: pointer;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--button-color);
+    color: var(--white-color);
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+    /* Other responsive styles and adjustments remain the same */
+
+.footer .left,
+.footer .center,
+.footer .right {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 20px;
+}
+
+.footer .left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer .left .social-icons {
+    margin: 10px 0;
+}
+
+.footer .left .social-icons i {
+    margin-right: 10px;
+    font-size: 24px;
+    color: white;
+}
+
+.social-icons {
+    cursor: pointer;
+}
+
+.footer .center,
+.footer .right {
+    text-align: left;
+}
+
+.footer .center p,
+.footer .right p {
+    margin: 5px 0;
+}
+
+.exit_icon {
+    font-size: 24px;
+    cursor: pointer;
+    padding-left: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .navbar-nav .nav-link {
+        margin: 10px 0;
     }
 
-    h2 {
-        font-size: 2.5rem;
-        color: #333;
-        font-weight: bold;
+    .profile {
+        margin-top: 15px;
     }
 
-    .table {
-        border-radius: 10px;
-        overflow: hidden;
-        background-color: #f8f9fa;
+    .footer {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .table th, .table td {
-        vertical-align: middle;
+    .footer .left,
+    .footer .center,
+    .footer .right {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
-    .table thead th {
-        font-size: 1.2rem;
-        background-color: #333;
-        color: #fff;
+    .footer .left {
+        align-items: center;
+    }
+}
+
+
+@media (max-width: 575px) {
+
+    .profile span,
+    .profile .fa-chevron-down {
+        display: none;
     }
 
-    .table tbody tr:hover {
-        background-color: #e9ecef;
+    .navbar-nav {
+        flex-direction: column;
+        text-align: center;
     }
 
-    .top-ranking {
-        background-color: #ffeeba; /* Light yellow for top 5 */
-        font-weight: bold;
+    .navbar-toggler {
+        margin-left: auto;
     }
 
-    .regular-ranking {
-        background-color: #f8f9fa;
+    .footer {
+        padding: 20px 10px;
     }
+}
 
-    @media (max-width: 991px) {
-        .ranking-container {
-            padding: 10px;
-        }
 
-        h2 {
-            font-size: 2rem;
-        }
-    }
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
 
-    @media (max-width: 575px) {
-        .ranking-container {
-            padding: 5px;
-        }
+main {
+    flex: 1; /* This ensures the main content grows to fill the available space */
+}
 
-        h2 {
-            font-size: 1.8rem;
-        }
-
-        .table th, .table td {
-            font-size: 0.9rem;
-        }
-    }
-</style>
-</body>
-</html>
+/* Footer should stay at the bottom */
+footer {
+    background-color: var(--button-color);
+    color: var(--white-color);
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+}
