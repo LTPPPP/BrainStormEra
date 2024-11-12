@@ -49,17 +49,24 @@ For more information on enabling MVC for empty projects, visit https://go.micros
                 </div>
             </div>
             <div class="column col-course">
-                <div>Course: @Model.CompletedCoursesCount/@Model.TotalCoursesEnrolled </div>
                 <div class="mt-2">Achievements:</div>
                 <div class="d-flex align-items-center mt-1 achievementPic">
-                    @foreach (var achievement in Model.Achievements)
+                    @if (Model.Achievements != null && Model.Achievements.Count > 0)
                     {
-                        <img src="@achievement.AchievementIcon" alt="@achievement.AchievementName" class="img-fluid ms-2"
-                             style="width: 30px;">
+                        @foreach (var achievement in Model.Achievements)
+                        {
+                            <div class="achievement-item me-3">
+                                <img src="@achievement.AchievementIcon" alt="@achievement.AchievementName" class="img-fluid" style="width: 30px;">
+                                <span>@achievement.AchievementName</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>You currently have no achievements.</p>
                     }
                 </div>
             </div>
-
             <div class="column col-ranking">
             </div>
 

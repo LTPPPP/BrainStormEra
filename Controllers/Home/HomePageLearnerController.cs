@@ -14,13 +14,15 @@ namespace BrainStormEra.Controllers
     {
         private readonly LearnerRepo _learnerRepo;
         private readonly AccountRepo _accountRepo;
+        private readonly AchievementRepo _achievementRepo;
         private readonly ILogger<HomePageInstructorController> _logger;
 
-        public HomePageLearnerController(IConfiguration configuration, LearnerRepo learnerRepo, AccountRepo accountRepo, ILogger<HomePageInstructorController> logger)
+        public HomePageLearnerController(IConfiguration configuration, LearnerRepo learnerRepo, AchievementRepo achievementRepo, AccountRepo accountRepo, ILogger<HomePageInstructorController> logger)
         {
             string connectionString = configuration.GetConnectionString("SwpMainContext");
             _learnerRepo = learnerRepo;
             _accountRepo = accountRepo;
+            _achievementRepo = achievementRepo;
             _logger = logger;
         }
 
@@ -44,10 +46,21 @@ namespace BrainStormEra.Controllers
 
             var completedCoursesCount = await _learnerRepo.GetCompletedCoursesCountAsync(userId);
             var totalCoursesEnrolled = await _learnerRepo.GetTotalCoursesEnrolledAsync(userId);
-            var achievements = await _learnerRepo.GetAchievementsAsync(userId);
             var userRank = await _accountRepo.GetUserRankAsync(userId);
             var recommendedCourses = await _learnerRepo.GetRecommendedCoursesAsync(userId);
             var notifications = await _learnerRepo.GetNotificationsAsync(userId);
+            var dynamicAchievements = await _achievementRepo.GetLearnerAchievements(userId);
+
+            var achievements = dynamicAchievements.Select(a => new Models.Achievement
+            {
+                AchievementId = a.AchievementId,
+                AchievementName = a.AchievementName,
+                AchievementDescription = a.AchievementDescription,
+                AchievementIcon = a.AchievementIcon,
+                AchievementCreatedAt = DateTime.Parse(a.ReceivedDate.ToString())
+            }).ToList();
+
+
 
             ViewBag.FullName = user.FullName ?? "Learner";
             ViewBag.UserPicture = string.IsNullOrEmpty(user.UserPicture)

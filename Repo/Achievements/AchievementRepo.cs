@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 public class AchievementRepo
 {
-    private readonly SwpMainContext _context;
+    private readonly string _connectionString;
 
-    public AchievementRepo(SwpMainContext context)
+    public AchievementRepo(IConfiguration configuration)
     {
-        _context = context;
+        _connectionString = configuration.GetConnectionString("SwpMainContext");
     }
 
     // Retrieve learner's achievements based on userId
@@ -19,7 +19,7 @@ public class AchievementRepo
     {
         var achievements = new List<dynamic>();
 
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
@@ -55,7 +55,7 @@ public class AchievementRepo
     // Retrieve achievement details based on achievementId and userId
     public async Task<dynamic> GetAchievementDetails(string achievementId, string userId)
     {
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
@@ -93,7 +93,7 @@ public class AchievementRepo
     {
         var allAchievements = new List<dynamic>();
 
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
@@ -133,7 +133,7 @@ public class AchievementRepo
     // Add a new achievement
     public async Task AddAchievement(string achievementName, string achievementDescription, string iconPath)
     {
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
@@ -160,7 +160,7 @@ public class AchievementRepo
     // Edit an existing achievement
     public async Task<bool> EditAchievement(string achievementId, string achievementName, string achievementDescription, string iconPath, DateTime? achievementCreatedAt)
     {
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
@@ -187,7 +187,7 @@ public class AchievementRepo
     // Delete an achievement
     public async Task<bool> DeleteAchievement(string achievementId)
     {
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
@@ -206,7 +206,7 @@ public class AchievementRepo
     // Retrieve a single achievement for display
     public async Task<dynamic> GetAchievement(string achievementId)
     {
-        using (var connection = _context.Database.GetDbConnection())
+        using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
