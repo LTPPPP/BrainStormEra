@@ -1,4 +1,5 @@
-﻿body {
+﻿/*CourseDetail*/
+body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--white-color);
 }
@@ -215,4 +216,31 @@
     align-items: center; /* Căn giữa theo trục ngang */
     justify-content: center; /* Căn giữa theo trục dọc */
     margin: 0 auto; /* Căn giữa phần tử container trong bố cục */
+}
+
+.progress {
+    position: relative; /* Để có thể căn giữa progress-num */
+    height: 20px;
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background-color: #4CAF50;
+    transition: width 0.4s ease;
+    height: 100%; /* Đảm bảo chiều cao của progress-bar khớp với progress */
+}
+
+.progress-num {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Căn giữa hoàn toàn */
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--gray-color-main);
+    z-index: 1; /* Đặt ở trên progress-bar */
+    width: 100%; /* Đảm bảo nó đè lên thanh progress-bar */
+    text-align: center;
+    pointer-events: none; /* Không ảnh hưởng đến các sự kiện chuột */
 }

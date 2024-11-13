@@ -670,5 +670,39 @@ ORDER BY
             }
             return categories;
         }
+
+        public async Task<double> GetCourseProgressAsync(string userId, string courseId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                // Đếm số lượng bài học đã hoàn thành
+                var completedLessonsQuery = @"
+            SELECT COUNT(*)
+            FROM lesson_completion lc
+            JOIN lesson l ON lc.lesson_id = l.lesson_id
+            JOIN chapter ch ON l.chapter_id = ch.chapter_id
+            WHERE lc.user_id = @UserId AND ch.course_id = @CourseId";
+                var completedLessonsCommand = new SqlCommand(completedLessonsQuery, connection);
+                completedLessonsCommand.Parameters.AddWithValue("@UserId", userId);
+                completedLessonsCommand.Parameters.AddWithValue("@CourseId", courseId);
+
+                // Đếm tổng số bài học trong khóa học
+                var totalLessonsQuery = @"
+            SELECT COUNT(*)
+            FROM lesson l
+            JOIN chapter ch ON l.chapter_id = ch.chapter_id
+            WHERE ch.course_id = @CourseId";
+                var totalLessonsCommand = new SqlCommand(totalLessonsQuery, connection);
+                totalLessonsCommand.Parameters.AddWithValue("@CourseId", courseId);
+
+                await connection.OpenAsync();
+
+                int completedLessons = (int)await completedLessonsCommand.ExecuteScalarAsync();
+                int totalLessons = (int)await totalLessonsCommand.ExecuteScalarAsync();
+
+                return totalLessons > 0 ? (double)completedLessons / totalLessons * 100 : 0;
+            }
+        }
+
     }
 }

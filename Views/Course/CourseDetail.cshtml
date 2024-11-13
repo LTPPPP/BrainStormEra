@@ -1,4 +1,5 @@
-﻿@model BrainStormEra.Models.Course
+﻿
+@model BrainStormEra.Models.Course
 @{
     var currentUserId = Context.Request.Cookies["user_id"];
 }
@@ -96,6 +97,11 @@
                 </div>
                 <div class="col-md-3">
                     <img src="@Model.CoursePicture" alt="Course Image" class="img-fluid">
+                </div>
+            </div>
+            <div class="progress mb-4">
+                <div class="progress-bar" role="progressbar" style="width: @ViewBag.Progress%" aria-valuenow="@ViewBag.Progress" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-num">@ViewBag.Progress.ToString("0.0")%</div>
                 </div>
             </div>
         </div>

@@ -413,12 +413,15 @@ namespace BrainStormEra.Controllers.Course
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
 
+
             ViewBag.CreatedBy = await _courseRepo.GetCourseCreatorNameAsync(courseId);
             var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, courseId);
             ViewBag.IsEnrolled = isEnrolled;
             ViewBag.IsBanned = isBanned;
 
             var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            double progress = await _courseRepo.GetCourseProgressAsync(userId, courseId);
+            ViewBag.Progress = progress;
             if (course == null)
             {
                 _logger.LogError($"Course not found with ID: {courseId}");
