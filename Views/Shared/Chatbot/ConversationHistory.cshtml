@@ -31,18 +31,28 @@
                 </li>
             </ul>
         </nav>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <input type="checkbox" id="select-all" class="form-check-input me-2">
+                <label for="select-all">Select All</label>
+            </div>
+            <div>
+                <button id="delete-selected" class="btn btn-danger btn-sm">Delete Selected</button>
+            </div>
+        </div>
+
         <div class="row">
             @foreach (var conversation in Model.DailyConversations[0].Conversations)
             {
                 <div class="col-12 mb-4">
                     <div class="card shadow-sm h-100 border-0 rounded-lg hover-zoom">
-                        <div class="card-header text-white d-flex align-items-center rounded-top title-chat">
+                        <div class="card-header d-flex align-items-center rounded-top title-chat">
+                            <input type="checkbox" class="select-conversation form-check-input me-2" data-id="@conversation.ConversationId">
                             <i class="fas fa-user-circle me-2"></i>
                             <span>@conversation.UserName</span>
                         </div>
                         <div class="card-body">
                             <h6 class="card-subtitle mb-2 text-muted">@conversation.ConversationTime.ToString("f")</h6>
-                            <input type="checkbox" class="select-conversation form-check-input" data-id="@conversation.ConversationId" />
                             <p class="card-text">@conversation.ConversationContent</p>
                         </div>
                         <div class="card-footer text-end bg-light rounded-bottom">
@@ -73,6 +83,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Select/Deselect All Checkbox
         document.getElementById("select-all").addEventListener("change", function () {
             const isChecked = this.checked;
             document.querySelectorAll(".select-conversation").forEach(checkbox => {
@@ -80,6 +91,7 @@
             });
         });
 
+        // Delete Selected Conversations
         document.getElementById("delete-selected").addEventListener("click", function () {
             const selectedIds = Array.from(document.querySelectorAll(".select-conversation:checked"))
                 .map(checkbox => checkbox.getAttribute("data-id"));
@@ -89,22 +101,23 @@
                 return;
             }
 
-            fetch("/Chatbot/DeleteConversations", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(selectedIds)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload(); // Reload the page to update the conversation list
-                    } else {
-                        alert(data.error);
-                    }
+            if (confirm("Are you sure you want to delete the selected conversations?")) {
+                fetch("/Chatbot/DeleteConversations", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(selectedIds)
                 })
-                .catch(error => console.error("Error:", error));
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload(); // Reload the page to update the conversation list
+                        } else {
+                            alert(data.error);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            }
         });
-
 
     </script>
 </body>
