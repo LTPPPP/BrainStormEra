@@ -218,14 +218,14 @@ body {
     margin: 0 auto; /* Căn giữa phần tử container trong bố cục */
 }
 
-.progress {
+.progress-bar-lesson-div {
     position: relative; /* Để có thể căn giữa progress-num */
     height: 20px;
     border-radius: 10px;
     background-color: #e9ecef;
 }
 
-.progress-bar {
+.progress-bar-lesson {
     background-color: #4CAF50;
     transition: width 0.4s ease;
     height: 100%; /* Đảm bảo chiều cao của progress-bar khớp với progress */

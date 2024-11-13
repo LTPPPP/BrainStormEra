@@ -126,20 +126,17 @@
     cursor: pointer;
 }
 
-    .filter-btn.active {
-        color: #4e6ef2; /* Màu xanh dương cho tab active */
-    }
 
-        .filter-btn.active::after {
-            content: "";
-            display: block;
-            width: 100%;
-            height: 2px;
-            background-color: #4e6ef2;
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-        }
+    .filter-btn.active::after {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 2px;
+        background-color: #4e6ef2;
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+    }
 
     .filter-btn:hover {
         color: #4e6ef2; /* Màu hover giống với màu active */
