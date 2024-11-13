@@ -45,11 +45,11 @@ namespace BrainStormEra.Controllers
                     userRole = 2;
                 }
 
-
-                var userConversationCount = await _chatbotRepo.GetUserConversationCountAsync(chatbotConversation.UserId);
-
-                chatbotConversation.ConversationId = $"{chatbotConversation.UserId}-{userConversationCount + 1}";
+                // Lấy ConversationId lớn nhất và tăng thêm 1
+                var maxConversationId = await _chatbotRepo.GetMaxConversationIdAsync();
+                chatbotConversation.ConversationId = (maxConversationId + 1).ToString();
                 chatbotConversation.ConversationTime = DateTime.Now;
+
                 await _chatbotRepo.AddConversationAsync(chatbotConversation);
 
                 string reply;
@@ -58,7 +58,6 @@ namespace BrainStormEra.Controllers
                 if (userRole == 3)
                 {
                     var course = await _courseRepo.GetCourseByIdAsync(courseId);
-                    Console.WriteLine("course : "+course);
                     if (course == null)
                     {
                         return BadRequest(new { error = "course not found" });
@@ -79,11 +78,11 @@ namespace BrainStormEra.Controllers
                 {
                     reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ");
                 }
-                Console.WriteLine("reply : " + reply);
+
                 var botConversation = new ChatbotConversation
                 {
                     UserId = chatbotConversation.UserId,
-                    ConversationId = $"{chatbotConversation.UserId}-{userConversationCount + 2}",
+                    ConversationId = (maxConversationId + 2).ToString(), // Conversation của bot sẽ là max + 2
                     ConversationTime = DateTime.Now,
                     ConversationContent = reply
                 };
@@ -96,6 +95,7 @@ namespace BrainStormEra.Controllers
                 return StatusCode(500, new { error = "Failed to get response from Gemini API", details = ex.Message });
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetConversationStatistics()

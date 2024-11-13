@@ -321,6 +321,27 @@ namespace BrainStormEra.Repo.Chatbot
                 }
             }
         }
+
+        public async Task<int> GetMaxConversationIdAsync()
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                // Lấy phần số cuối cùng của ConversationId mà có thể chuyển đổi sang kiểu INT
+                string sql = @"
+            SELECT MAX(CAST(SUBSTRING(conversation_id, PATINDEX('%[0-9]%', conversation_id), LEN(conversation_id)) AS INT))
+            FROM chatbot_conversation
+            WHERE ISNUMERIC(SUBSTRING(conversation_id, PATINDEX('%[0-9]%', conversation_id), LEN(conversation_id))) = 1";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    var result = await cmd.ExecuteScalarAsync();
+                    return result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
     }
 
     // Class để lưu trữ thống kê hội thoại
