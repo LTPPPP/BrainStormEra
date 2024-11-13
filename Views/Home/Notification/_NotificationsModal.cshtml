@@ -53,7 +53,7 @@
                     {
                         DateTime? lastDate = null;
 
-                        @foreach (var notification in Model.OrderBy(n => n.NotificationCreatedAt))
+                        @foreach (var notification in Model.OrderByDescending(n => n.NotificationCreatedAt))
                         {
                             var currentDate = notification.NotificationCreatedAt;
 

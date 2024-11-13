@@ -3,7 +3,7 @@ For more information on enabling MVC for empty projects, visit https://go.micros
 *@
 @{
 }
-@* @model BrainStormEra.Views.Home.HomePageLearnerViewModel *@
+@model BrainStormEra.Views.Home.HomePageLearnerViewModel
 
 
 @inject IHttpContextAccessor HttpContextAccessor
@@ -28,9 +28,9 @@ For more information on enabling MVC for empty projects, visit https://go.micros
     @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
 
 
-    @* @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml", Model.Notifications)
+    @await Html.PartialAsync("~/Views/Home/Notification/_NotificationsModal.cshtml", Model.Notifications)
     @await Html.PartialAsync("~/Views/Home/Notification/addNotificationModal.cshtml", Model.Notifications)
-    @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml", Model.Notifications)  *@
+    @await Html.PartialAsync("~/Views/Home/Notification/editNotificationModal.cshtml", Model.Notifications)
 
     <div class="container mt-5">
         <!-- Header Section -->
