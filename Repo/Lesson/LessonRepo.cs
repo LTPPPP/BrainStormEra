@@ -360,7 +360,7 @@ namespace BrainStormEra.Repo
                 }
             }
         }
-        public string FormatYoutubeUrl(string url, int lessonTypeId)
+        public string FormatYoutubeUrl(string url, int? lessonTypeId) //add ? after int such as int?
         {
             if (lessonTypeId == 1 && !string.IsNullOrEmpty(url))
             {

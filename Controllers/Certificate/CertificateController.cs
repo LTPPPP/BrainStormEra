@@ -23,8 +23,8 @@ namespace BrainStormEra.Controllers.Certificate
                 return NotFound("Không có khóa học nào đã hoàn thành.");
             }
 
-            ViewData["UserId"] = userId; // Truyền user_id qua ViewData
-            return View(completedCourses); // Truyền danh sách các khóa học vào View
+            ViewData["UserId"] = userId; 
+            return View(completedCourses); 
         }
 
 

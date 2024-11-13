@@ -16,7 +16,7 @@ namespace BrainStormEra.Repo.Course
         public CourseRepo(SwpMainContext context, IConfiguration configuration)
         {
             _context = context;
-            _connectionString = configuration.GetConnectionString("SwpMainContext");
+            _connectionString = configuration.GetConnectionString("SwpMainContext"); 
         }
 
         public async Task<Models.Course> GetCourseByIdAsync(string courseId)

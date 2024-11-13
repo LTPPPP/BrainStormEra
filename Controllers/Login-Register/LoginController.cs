@@ -33,6 +33,8 @@ namespace BrainStormEra.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(LoginPageViewModel model)
         {
+          
+
             if (ModelState.IsValid)
             {
                 string hashedPassword = GetMd5Hash(model.Password);
@@ -64,6 +66,9 @@ namespace BrainStormEra.Controllers
                     ViewBag.ErrorMessage = "Username or password is incorrect!";
                 }
             }
+            var userRoleCookie = Request.Cookies["user_role"];
+
+
             return View("LoginPage", model);
         }
 

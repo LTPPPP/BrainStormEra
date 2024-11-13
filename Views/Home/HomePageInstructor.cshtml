@@ -74,10 +74,10 @@
         @foreach (var c in Model.RecommendedCourses)
         {
 
-            <div class="col-md-3 col-sm-6 mb-4">
+            <div class="course-card col-md-3 col-sm-6 mb-4">
                 <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
 
-                    <div class="card course-card h-100">
+                    <div class="card h-100">
                         <img src="@c.CoursePicture" class="card-img-top" alt="Course Image">
                         <div class="card-body">
                             <h5 class="card-title">@c.CourseName</h5>
