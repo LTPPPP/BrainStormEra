@@ -185,6 +185,7 @@ public class AchievementRepo
     }
 
     // Delete an achievement
+    // Delete an achievement
     public async Task<bool> DeleteAchievement(string achievementId)
     {
         using (var connection = new SqlConnection(_connectionString))
@@ -193,8 +194,8 @@ public class AchievementRepo
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                    DELETE FROM achievement
-                    WHERE achievement_id = @achievementId;";
+                DELETE FROM achievement
+                WHERE achievement_id = @achievementId;";
                 command.Parameters.Add(new SqlParameter("@achievementId", achievementId));
 
                 var rowsAffected = await command.ExecuteNonQueryAsync();
@@ -202,6 +203,142 @@ public class AchievementRepo
             }
         }
     }
+    // Check if an achievement name already exists
+    // Check if an achievement name already exists
+    public async Task<bool> AchievementNameExists(string achievementName, string achievementId = null)
+    {
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = achievementId == null
+                    ? @"SELECT COUNT(*) FROM achievement WHERE achievement_name = @achievementName"
+                    : @"SELECT COUNT(*) FROM achievement WHERE achievement_name = @achievementName AND achievement_id != @achievementId";
+
+                command.Parameters.Add(new SqlParameter("@achievementName", achievementName));
+
+                if (achievementId != null)
+                    command.Parameters.Add(new SqlParameter("@achievementId", achievementId));
+
+                var count = (int)await command.ExecuteScalarAsync();
+                return count > 0;
+            }
+        }
+    }
+
+    // Get the maximum condition value from existing achievements
+    public async Task<int> GetMaxCondition()
+    {
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"SELECT MAX(CAST(achievement_description AS INT)) FROM achievement WHERE ISNUMERIC(achievement_description) = 1";
+                var maxCondition = await command.ExecuteScalarAsync();
+                return maxCondition != DBNull.Value ? Convert.ToInt32(maxCondition) : 0;
+            }
+        }
+    }
+    public async Task<List<int>> GetAllConditions()
+    {
+        var conditions = new List<int>();
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"SELECT CAST(achievement_description AS INT) FROM achievement WHERE ISNUMERIC(achievement_description) = 1";
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        conditions.Add(Convert.ToInt32(reader[0]));
+                    }
+                }
+            }
+        }
+
+        return conditions;
+    }
+
+    public async Task AssignAchievementsBasedOnCompletedCourses()
+    {
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.OpenAsync();
+
+            // Get all achievements with condition (number of completed courses)
+            var achievements = new List<dynamic>();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                SELECT achievement_id, CAST(achievement_description AS INT) AS required_courses
+                FROM achievement
+                WHERE ISNUMERIC(achievement_description) = 1";
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        achievements.Add(new
+                        {
+                            AchievementId = reader["achievement_id"].ToString(),
+                            RequiredCourses = Convert.ToInt32(reader["required_courses"])
+                        });
+                    }
+                }
+            }
+
+            // Get count of completed courses (enrollment_status = 4) per user
+            var userCompletedCourses = new Dictionary<string, int>();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                SELECT user_id, COUNT(*) AS completed_courses
+                FROM enrollment
+                WHERE enrollment_status = 4
+                GROUP BY user_id";
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        userCompletedCourses[reader["user_id"].ToString()] = Convert.ToInt32(reader["completed_courses"]);
+                    }
+                }
+            }
+
+            // Insert achievements for each user based on completed courses
+            foreach (var user in userCompletedCourses)
+            {
+                foreach (var achievement in achievements)
+                {
+                    if (user.Value >= achievement.RequiredCourses)
+                    {
+                        using (var insertCommand = connection.CreateCommand())
+                        {
+                            insertCommand.CommandText = @"
+                            IF NOT EXISTS (SELECT 1 FROM user_achievement WHERE user_id = @userId AND achievement_id = @achievementId)
+                            BEGIN
+                                INSERT INTO user_achievement (user_id, achievement_id, received_date, enrollment_id)
+                                VALUES (@userId, @achievementId, @receivedDate, NULL)
+                            END";
+
+                            insertCommand.Parameters.AddWithValue("@userId", user.Key);
+                            insertCommand.Parameters.AddWithValue("@achievementId", achievement.AchievementId);
+                            insertCommand.Parameters.AddWithValue("@receivedDate", DateTime.Today);
+
+                            await insertCommand.ExecuteNonQueryAsync();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     // Retrieve a single achievement for display
     public async Task<dynamic> GetAchievement(string achievementId)
@@ -237,4 +374,5 @@ public class AchievementRepo
 
         return null;
     }
+
 }
