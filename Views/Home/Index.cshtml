@@ -59,7 +59,7 @@
         <div class="filters mb-3">
             <!-- Filter Categories -->
             <div class="categories d-flex justify-content-start p-2 rounded">
-                <button class="btn filter-btn active" onclick="window.location.href='@Url.Action("CourseManagement", "Course")'">All courses</button>
+                <button class="btn filter-btn" onclick="window.location.href='@Url.Action("CourseManagement", "Course")'">All courses</button>
                 @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
                 {
                     @foreach (var category in categories)
@@ -156,6 +156,18 @@
             location.href = '@Url.Action("FilterCoursesByCategory", "Course")';
 
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            filterBtns.forEach(button => {
+                button.addEventListener('click', function () {
+                    filterBtns.forEach(btn => btn.classList.remove('active')); // Loại bỏ 'active' khỏi tất cả các nút
+                    this.classList.add('active'); // Thêm 'active' vào nút hiện tại
+                });
+            });
+        });
+
     </script>
 </body>
 

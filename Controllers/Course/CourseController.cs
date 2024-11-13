@@ -111,7 +111,7 @@ namespace BrainStormEra.Controllers.Course
             {
                 return RedirectToAction("CourseManagement");
             }
-
+                
             var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (course == null)
@@ -119,20 +119,23 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseManagement");
             }
 
-            var selectedCategories = await _courseRepo.GetCourseCategoriesAsync();
+            var allCategories = await _courseRepo.GetCourseCategoriesAsync(); // Lấy tất cả các danh mục
+            var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
 
             var viewModel = new EditCourseViewModel
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
-                CourseCategories = await _courseRepo.GetCourseCategoriesAsync(),
-                SelectedCategories = selectedCategories,
+                CourseCategories = allCategories,           // Tất cả các danh mục
+                SelectedCategories = selectedCategories,     // Chỉ các danh mục đã chọn
                 CourseDescription = course.CourseDescription,
                 CoursePictureFile = course.CoursePicture,
                 Price = course.Price
             };
+
             return View(viewModel);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

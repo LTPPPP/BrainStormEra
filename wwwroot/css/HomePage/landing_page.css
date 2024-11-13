@@ -1,4 +1,4 @@
-/* Base styles */
+﻿/* Base styles */
 body {
     margin: 0;
     padding-top: 50px;
@@ -173,6 +173,13 @@ html, body {
 main {
     flex: 1; /* This ensures the main content grows to fill the available space */
 }
+
+.filter-btn.active {
+    background-color: #007bff; /* Màu nền khi active */
+    color: white; /* Màu chữ khi active */
+    border: none; /* Loại bỏ viền khi active */
+}
+
 
 /* Footer should stay at the bottom */
 footer {
