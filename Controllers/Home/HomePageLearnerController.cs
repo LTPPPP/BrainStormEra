@@ -44,6 +44,9 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
+            var categories = _learnerRepo.GetTopCategories();
+            ViewBag.Categories = categories;
+
             var completedCoursesCount = await _learnerRepo.GetCompletedCoursesCountAsync(userId);
             var totalCoursesEnrolled = await _learnerRepo.GetTotalCoursesEnrolledAsync(userId);
             var userRank = await _accountRepo.GetUserRankAsync(userId);

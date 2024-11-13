@@ -198,5 +198,43 @@ namespace BrainStormEra.Repo
             }
             return notifications;
         }
+
+        public List<CourseCategory> GetTopCategories()
+        {
+            string categoryQuery = @"
+                SELECT TOP 5
+                    course_category_id AS CourseCategoryId,
+                    course_category_name AS CourseCategoryName
+                FROM
+                    course_category
+                ORDER BY
+                    course_category_name;
+            ";
+
+            var categories = new List<CourseCategory>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = categoryQuery;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            categories.Add(new CourseCategory
+                            {
+                                CourseCategoryId = reader["CourseCategoryId"].ToString(),
+                                CourseCategoryName = reader["CourseCategoryName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return categories;
+        }
     }
 }

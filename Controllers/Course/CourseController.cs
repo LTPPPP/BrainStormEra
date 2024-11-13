@@ -1,6 +1,7 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.Repo.Course;
 using BrainStormEra.Views.Course;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -214,6 +215,14 @@ namespace BrainStormEra.Controllers.Course
             var userRole = HttpContext.Request.Cookies["user_role"];
 
             List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
+            var categories = new List<CourseCategory>();
+
+            // Fetch the top 5 categories
+            var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
+
+            // Pass categories to the view, for example, via ViewBag or ViewModel
+            ViewBag.categories = topCategories;
+
 
             if (userRole == "2")
             {
@@ -237,7 +246,8 @@ namespace BrainStormEra.Controllers.Course
                         Price = course.Price,
                         CourseCreatedAt = course.CourseCreatedAt,
                         StarRating = (byte)averageRating,
-                        CourseCategories = courseCategories
+                        CourseCategories = courseCategories,
+                        CreatedBy = course.CreatedBy
                     });
                 }
             }
@@ -263,11 +273,76 @@ namespace BrainStormEra.Controllers.Course
                         Price = course.Price,
                         CourseCreatedAt = course.CourseCreatedAt,
                         StarRating = (byte)averageRating,
-                        CourseCategories = courseCategories
+                        CourseCategories = courseCategories,
+                        CreatedBy = course.CreatedBy
+
                     });
                 }
             }
 
+            return View("CourseManagement", coursesViewModel);
+        }
+
+
+
+        public async Task<ActionResult> FilterCoursesByCategoryAsync()
+        {
+            var userId = HttpContext.Request.Cookies["user_id"];
+            var userRole = HttpContext.Request.Cookies["user_role"];
+            var categoryId = HttpContext.Request.Cookies["CategoryId"];
+
+            List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
+
+            List<Models.Course> courses;
+
+            // Lưu ID danh mục đã chọn
+            var categories = new List<CourseCategory>();
+
+            // Fetch the top 5 categories
+            var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
+
+            // Pass categories to the view, for example, via ViewBag or ViewModel
+            ViewBag.categories = topCategories;
+
+            var categoryCounts = new Dictionary<string, int>();
+            ViewBag.CategoryCounts = categoryCounts; // Dictionary chứa số lượng khóa học cho từng danh mục
+
+            if (userRole == "2")
+            {
+                // If user is an instructor, get courses they created in the specified category
+                courses = _courseRepo.GetInstructorCoursesByCategory(userId, categoryId);
+            }
+            else
+            {
+                // For other users, get all active courses in the specified category
+                courses = _courseRepo.GetActiveCoursesByCategory(categoryId);
+            }
+
+            foreach (var course in courses)
+            {
+                // Get average rating and categories for each course
+                double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
+                var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+
+                coursesViewModel.Add(new ManagementCourseViewModel
+                {
+                    CourseId = course.CourseId,
+                    CourseName = course.CourseName,
+                    CourseDescription = course.CourseDescription,
+                    CourseStatus = course.CourseStatus,
+                    CoursePicture = course.CoursePicture,
+                    Price = course.Price,
+                    CourseCreatedAt = course.CourseCreatedAt,
+                    StarRating = (byte)averageRating,
+                    CourseCategories = courseCategories,
+                    CreatedBy = course.CreatedBy
+
+                });
+            }
+
+            // Sử dụng ViewBag để lưu số lượng khóa học trong danh mục
+            ViewBag.CourseCount = courses.Count;
+            ViewBag.SelectedCategoryId = categoryId;
             return View("CourseManagement", coursesViewModel);
         }
 

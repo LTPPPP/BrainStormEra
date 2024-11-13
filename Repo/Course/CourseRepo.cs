@@ -533,5 +533,142 @@ namespace BrainStormEra.Repo.Course
 
             return "EN" + newIdNumber.ToString("D3");
         }
+
+        public List<Models.Course> GetInstructorCoursesByCategory(string userId, string categoryId)
+        {
+            var courses = new List<Models.Course>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+SELECT 
+    c.course_id, 
+    c.course_name, 
+    c.course_description, 
+    c.course_status, 
+    c.course_picture, 
+    c.price, 
+    c.course_created_at,
+    a.full_name AS CreatedBy
+FROM 
+    course c
+JOIN 
+    course_category_mapping ccm ON c.course_id = ccm.course_id
+LEFT JOIN 
+    account a ON c.created_by = a.user_id
+WHERE 
+    ccm.course_category_id = @CategoryId
+ORDER BY 
+    c.course_created_at DESC";
+
+
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@CategoryId", categoryId);
+
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    courses.Add(new Models.Course
+                    {
+                        CourseId = reader["course_id"].ToString(),
+                        CourseName = reader["course_name"].ToString(),
+                        CourseDescription = reader["course_description"].ToString(),
+                        CourseStatus = Convert.ToInt32(reader["course_status"]),
+                        CoursePicture = reader["course_picture"]?.ToString(),
+                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
+                        CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"]),
+                        CreatedBy = reader["CreatedBy"].ToString() // Lấy tên người tạo
+
+                    });
+                }
+            }
+            return courses;
+        }
+
+        public List<Models.Course> GetActiveCoursesByCategory(string categoryId)
+        {
+            var courses = new List<Models.Course>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+SELECT 
+    c.course_id, 
+    c.course_name, 
+    c.course_description, 
+    c.course_status, 
+    c.course_picture, 
+    c.price, 
+    c.course_created_at,
+    a.full_name AS CreatedBy
+FROM 
+    course c
+JOIN 
+    course_category_mapping ccm ON c.course_id = ccm.course_id
+LEFT JOIN 
+    account a ON c.created_by = a.user_id
+WHERE 
+    c.course_status = 2 
+    AND ccm.course_category_id = @CategoryId
+ORDER BY 
+    c.course_created_at DESC";
+
+
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CategoryId", categoryId);
+
+                connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    courses.Add(new Models.Course
+                    {
+                        CourseId = reader["course_id"].ToString(),
+                        CourseName = reader["course_name"].ToString(),
+                        CourseDescription = reader["course_description"].ToString(),
+                        CourseStatus = Convert.ToInt32(reader["course_status"]),
+                        CoursePicture = reader["course_picture"]?.ToString(),
+                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
+                        CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"]),
+                        CreatedBy = reader["CreatedBy"].ToString() // Lấy tên người tạo
+
+                    });
+                }
+            }
+            return courses;
+        }
+
+        public async Task<List<CourseCategory>> GetTopCourseCategoriesAsync()
+        {
+            var categories = new List<CourseCategory>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+            SELECT TOP 5
+                course_category_id AS CourseCategoryId,
+                course_category_name AS CourseCategoryName
+            FROM
+                course_category
+            ORDER BY
+                course_category_name;
+        ";
+
+                var command = new SqlCommand(query, connection);
+                await connection.OpenAsync();
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        categories.Add(new CourseCategory
+                        {
+                            CourseCategoryId = reader["CourseCategoryId"].ToString(),
+                            CourseCategoryName = reader["CourseCategoryName"].ToString()
+                        });
+                    }
+                }
+            }
+            return categories;
+        }
     }
 }
