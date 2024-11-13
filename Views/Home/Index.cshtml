@@ -59,12 +59,15 @@
         <div class="filters mb-3">
             <!-- Filter Categories -->
             <div class="categories d-flex justify-content-start p-2 rounded">
-                <button class="btn filter-btn active">All courses</button>
+                <button class="btn filter-btn active" onclick="window.location.href='@Url.Action("CourseManagement", "Course")'">All courses</button>
                 @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
                 {
                     @foreach (var category in categories)
                     {
-                        <button class="btn filter-btn">@category.CourseCategoryName</button>
+                        <button class="btn filter-btn"
+                                onclick="filterCoursesByCategory('@category.CourseCategoryId')">
+                            @category.CourseCategoryName
+                        </button>
                     }
                 }
             </div>
@@ -144,6 +147,15 @@
             });
         });
 
+
+        function filterCoursesByCategory(categoryId = '') {
+            // Lưu categoryId vào cookie
+            document.cookie = "CategoryId=" + categoryId + "; path=/";
+
+            // Kiểm tra nếu categoryId là rỗng, thì sẽ xem tất cả các khóa học
+            location.href = '@Url.Action("FilterCoursesByCategory", "Course")';
+
+        }
     </script>
 </body>
 

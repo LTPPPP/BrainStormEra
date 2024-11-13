@@ -39,6 +39,9 @@ namespace BrainStormEra.Controllers
                 _logger.LogWarning($"User with ID {userId} not found.");
                 return RedirectToAction("LoginPage", "Login");
             }
+            var categories = _learnerRepo.GetTopCategories();
+            ViewBag.Categories = categories;
+
 
             var completedCoursesCount = await _learnerRepo.GetCompletedCoursesCountAsync(userId);
             var totalCoursesEnrolled = await _learnerRepo.GetTotalCoursesEnrolledAsync(userId);
