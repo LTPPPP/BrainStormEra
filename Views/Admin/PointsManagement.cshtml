@@ -3,6 +3,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
     <link rel="stylesheet" href="~/css/Admin/PointPayment.css">
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
 </head>
+
 <body>
     @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
 
@@ -21,7 +23,8 @@
         <h2 class="text-center header-title">Update Learner Points</h2>
 
         <div class="input-group mb-3">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search by ID or Name" value="@Context.Request.Query["search"]">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by ID or Name"
+                value="@Context.Request.Query["search"]">
             <button class="btn btn-primary search-btn" onclick="searchLearners()">
                 <i class="fas fa-search"></i>
             </button>
@@ -59,14 +62,18 @@
                             <tr id="details-row-@learner.UserId" class="details-row-hidden">
                                 <td colspan="3">
                                     <div class="update-points-section text-center">
-                                        <h4>Update Points for @(string.IsNullOrEmpty(learner.FullName) ? "Unnamed" : learner.FullName)</h4>
-                                        <form id="updateForm-@learner.UserId" class="d-inline-block" onsubmit="event.preventDefault(); updatePoints('@learner.UserId');">
+                                        <h4>Update Points for @(string.IsNullOrEmpty(learner.FullName) ? "Unnamed" :
+                                    learner.FullName)</h4>
+                                        <form id="updateForm-@learner.UserId" class="d-inline-block"
+                                            onsubmit="event.preventDefault(); updatePoints('@learner.UserId');">
                                             <div class="mb-3">
-                                                <label for="pointsInput-@learner.UserId" class="form-label">Payment Points</label>
+                                                <label for="pointsInput-@learner.UserId" class="form-label">Payment
+                                                    Points</label>
                                                 <div class="input-group input-group-centered">
                                                     <span class="input-group-text"><i class="fas fa-coins"></i></span>
-                                                    <input type="text" id="pointsInput-@learner.UserId" class="form-control text-center points-input"
-                                                           placeholder="Input points" inputmode="numeric">
+                                                    <input type="text" id="pointsInput-@learner.UserId"
+                                                        class="form-control text-center points-input" placeholder="Input points"
+                                                        inputmode="numeric">
                                                 </div>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Update Points</button>
@@ -82,13 +89,48 @@
 
                     {
                         <tr>
-                            <td colspan="3" class="text-center text-muted">No learners found matching your search criteria.</td>
+                            <td colspan="3" class="text-center text-muted">No learners found matching your search criteria.
+                            </td>
                         </tr>
                     }
                 </tbody>
 
             </table>
         </div>
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="@Url.Action("UpdateManagement", new { search = Context.Request.Query["search"], pageIndex = ViewBag.CurrentPage - 1 })"
+                            aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                            href="@Url.Action("UpdateManagement", new { search = Context.Request.Query["search"], pageIndex = i })">@i</a>
+                    </li>
+                }
+
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="@Url.Action("UpdateManagement", new { search = Context.Request.Query["search"], pageIndex = ViewBag.CurrentPage + 1 })"
+                            aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
     </main>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -156,4 +198,5 @@
     </script>
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 </body>
+
 </html>

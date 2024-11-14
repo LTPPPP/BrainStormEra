@@ -20,7 +20,7 @@ namespace BrainStormEra.Controllers.Points
         }
 
         [HttpGet]
-        public async Task<IActionResult> UpdateManagement(string search)
+        public async Task<IActionResult> UpdateManagement(string search, int pageIndex = 1, int pageSize = 50)
         {
             var userId = Request.Cookies["user_id"];
             var userRole = Request.Cookies["user_role"];
@@ -30,9 +30,17 @@ namespace BrainStormEra.Controllers.Points
                 return Unauthorized();
             }
 
-            var learnerList = await _pointRepo.GetLearners(search);
-            return View("~/Views/Admin/PointsManagement.cshtml", learnerList);
+            var learners = await _pointRepo.GetLearners(search);
+            int totalLearners = learners.Count();
+            int totalPages = (int)Math.Ceiling(totalLearners / (double)pageSize);
+
+            var pagedLearners = learners.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            ViewBag.TotalPages = totalPages;
+            ViewBag.CurrentPage = pageIndex;
+
+            return View("~/Views/Admin/PointsManagement.cshtml", pagedLearners);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> UpdatePaymentPoints([FromBody] UpdatePointsRequest request)
