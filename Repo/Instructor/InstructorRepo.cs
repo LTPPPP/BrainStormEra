@@ -109,7 +109,7 @@ namespace BrainStormEra.Repositories
                                     Price = reader.GetDecimal(reader.GetOrdinal("Price")),
                                     CourseCreatedAt = reader.GetDateTime(reader.GetOrdinal("CourseCreatedAt")),
                                     CreatedBy = reader["CreatedBy"].ToString(),
-                                    StarRating = reader["StarRating"] as byte?,
+                                    StarRating = reader["StarRating"] != DBNull.Value ? (byte?)Convert.ToByte(reader["StarRating"]) : (byte?)0,
                                     CourseCategories = new List<CourseCategory>()
                                 };
                                 courseDictionary[courseId] = course;

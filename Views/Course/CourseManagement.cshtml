@@ -259,6 +259,27 @@
             noResults.style.display = hasVisibleCourse ? 'none' : 'block';
         }
 
+        document.addEventListener("DOMContentLoaded", function () {
+            // Restore scroll position if it exists in localStorage
+            const savedScrollPosition = localStorage.getItem("scrollPosition");
+            if (savedScrollPosition) {
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                localStorage.removeItem("scrollPosition"); // Remove it after restoring to prevent unintended behavior on other pages
+            }
+
+            // Save scroll position when any filter button is clicked
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(button => {
+                button.addEventListener('click', function () {
+                    filterBtns.forEach(btn => btn.classList.remove('active')); // Remove 'active' from all buttons
+                    this.classList.add('active'); // Add 'active' to the current button
+
+                    // Save the scroll position to localStorage
+                    localStorage.setItem("scrollPosition", window.scrollY);
+                });
+            });
+        });
+
     </script>
     <script src="~/js/Course/DeleteCourse.js"></script>
 
