@@ -168,15 +168,11 @@
                             <div class="d-flex align-items-center flex-grow-1">
                                 <!-- Course information -->
                                 <div class="course-info">
-                                    @* <a href="@Url.Action("CertificateDetails", "Certificate" , new { courseId=course.CourseId // change to a direct div view a specific course
-                                })" class="course-info-a"> *@
                                     <h5 class="course-title mb-1">@course.CourseName</h5>
-                                    @* </a> *@
                                     <p class="font-weight-bold">Completed at: @course.CompletedDate.ToString("dd/MM/yyyy")</p>
                                     <p class="font-weight-bold">Grade Achieved: 100%</p>
                                 </div>
                             </div>
-
                             <form action="@Url.Action("CertificateDetails", "Certificate")" method="post"
                                 style="display: inline;">
                                 <input type="hidden" name="courseId" value="@course.CourseId" />
