@@ -1,10 +1,12 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.Models.ViewModels;
+using BrainStormEra.Repo.Certificate;
 using BrainStormEra.Views.Profile;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace BrainStormEra.Repo.Admin
@@ -286,5 +288,101 @@ namespace BrainStormEra.Repo.Admin
 
             return courseLearners;
         }
+        // Method to get completed courses for a specific learner using raw SQL
+        public async Task<List<CertificateSummaryViewModel>> GetCompletedCoursesForLearnerAsync(string userId)
+        {
+            var completedCourses = new List<CertificateSummaryViewModel>();
+
+            var query = @"
+                SELECT 
+                    c.course_id AS CourseId,
+                    c.course_name AS CourseName,
+                    e.certificate_issued_date AS CompletedDate
+                FROM 
+                    enrollment e
+                JOIN 
+                    course c ON e.course_id = c.course_id
+                WHERE 
+                    e.user_id = @UserId 
+                    AND e.enrollment_status = 5
+                    AND e.certificate_issued_date IS NOT NULL";
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                if (connection.State == ConnectionState.Closed)
+                    connection.Open();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = query;
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            completedCourses.Add(new CertificateSummaryViewModel
+                            {
+                                CourseId = reader["CourseId"] as string,
+                                CourseName = reader["CourseName"] as string,
+                                CompletedDate = reader["CompletedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default
+                            });
+                        }
+                    }
+                }
+            }
+
+            return completedCourses;
+        }
+        public async Task<CertificateSummaryViewModel?> GetCertificateDetailsForCourseAsync(string userId, string courseId)
+        {
+            var query = @"
+        SELECT 
+            c.course_id AS CourseId,
+            c.course_name AS CourseName,
+            e.certificate_issued_date AS CompletedDate
+        FROM 
+            enrollment e
+        JOIN 
+            course c ON e.course_id = c.course_id
+        WHERE 
+            e.user_id = @UserId 
+            AND e.course_id = @CourseId
+            AND e.enrollment_status = 5
+            AND e.certificate_issued_date IS NOT NULL";
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                if (connection.State == ConnectionState.Closed)
+                    connection.Open();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = query;
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+                    command.Parameters.Add(new SqlParameter("@CourseId", courseId));
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new CertificateSummaryViewModel
+                            {
+                                CourseId = reader["CourseId"].ToString(),
+                                CourseName = reader["CourseName"].ToString(),
+                                CompletedDate = reader["CompletedDate"] != DBNull.Value
+                                                ? (DateTime)reader["CompletedDate"]
+                                                : default
+                            };
+                        }
+                    }
+                }
+            }
+
+            return null; // Return null if no completed course certificate is found
+        }
+
     }
 }

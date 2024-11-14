@@ -13,17 +13,17 @@
     align-items: center;
 }
 
-    .avatar-upload label {
-        cursor: pointer;
-        padding: 8px 20px;
-        background-color: #007bff;
-        color: white;
-        border-radius: 10px;
-    }
+.avatar-upload label {
+    cursor: pointer;
+    padding: 8px 20px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 10px;
+}
 
-    .avatar-upload input[type="file"] {
-        display: none;
-    }
+.avatar-upload input[type="file"] {
+    display: none;
+}
 
 .btn-custom {
     background-color: var(--secondary-primary-color);
@@ -35,33 +35,39 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-    .btn-custom:hover {
-        background-color: var(--btn-create);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    }
+.btn-custom:hover {
+    background-color: var(--btn-create);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
 
 
 .form-group {
     margin-top: 15px;
-    font-size: 1.2rem; /* Tăng cỡ chữ để dễ đọc hơn */
+    font-size: 1.2rem;
+    /* Tăng cỡ chữ để dễ đọc hơn */
 }
 
-    .form-group label {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
 
 
 .form-control {
-    font-size: 1.6rem; /* Tăng kích thước font chữ cho input */
-    border-radius: 8px; /* Làm góc bo mềm hơn */
-    border: 1px solid #ced4da; /* Giữ lại viền mềm */
+    font-size: 1.6rem;
+    /* Tăng kích thước font chữ cho input */
+    border-radius: 8px;
+    /* Làm góc bo mềm hơn */
+    border: 1px solid #ced4da;
+    /* Giữ lại viền mềm */
 }
 
-    .form-control:focus {
-        border-color: #007bff; /* Đổi màu viền khi input được chọn */
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Tạo hiệu ứng khi focus */
-    }
+.form-control:focus {
+    border-color: #007bff;
+    /* Đổi màu viền khi input được chọn */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Tạo hiệu ứng khi focus */
+}
 
 
 footer {
@@ -73,9 +79,10 @@ footer {
     width: 100%;
 }
 
-    footer h3, footer h4 {
-        color: #fff;
-    }
+footer h3,
+footer h4 {
+    color: #fff;
+}
 
 .social-icons i {
     margin-right: 10px;

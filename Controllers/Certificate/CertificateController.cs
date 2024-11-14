@@ -5,12 +5,12 @@ namespace BrainStormEra.Controllers.Certificate
 {
     public class CertificateController : Controller
     {
-            private readonly ICertificateRepository _certificateRepository;
+        private readonly ICertificateRepository _certificateRepository;
 
-            public CertificateController(ICertificateRepository certificateRepository)
-            {
-                _certificateRepository = certificateRepository;
-            }
+        public CertificateController(ICertificateRepository certificateRepository)
+        {
+            _certificateRepository = certificateRepository;
+        }
 
         // Lấy danh sách các khóa học đã hoàn thành của người dùng
         public async Task<IActionResult> CompletedCourses()
@@ -20,7 +20,7 @@ namespace BrainStormEra.Controllers.Certificate
 
             if (completedCourses == null || completedCourses.Count == 0)
             {
-                return NotFound("Không có khóa học nào đã hoàn thành.");
+                return NotFound("No courses have been completed.");
             }
 
             ViewData["UserId"] = userId; // Truyền user_id qua ViewData
@@ -42,12 +42,34 @@ namespace BrainStormEra.Controllers.Certificate
 
             if (certificate == null)
             {
-                return NotFound("Không tìm thấy chứng chỉ cho khóa học này.");
+                return NotFound("No certificate found for this course.");
             }
             var duration = (certificate.CompletedDate - certificate.StartedDate).TotalDays;
             ViewData["Duration"] = Math.Round(duration);
 
             return View(certificate); // Pass the certificate details to the view
+        }
+        [HttpGet]
+        public async Task<IActionResult> CertificateDetails(string userId, string courseId)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(courseId))
+            {
+                return BadRequest("User ID or Course ID is missing.");
+            }
+
+            var certificate = await _certificateRepository.GetCertificateDetailsAsync(userId, courseId);
+
+            if (certificate == null)
+            {
+                return NotFound("Certificate not found for this course.");
+            }
+
+            return Json(new
+            {
+                userName = certificate.UserName,
+                courseName = certificate.CourseName,
+                completedDate = certificate.CompletedDate.ToString("yyyy-MM-dd")
+            });
         }
 
     }

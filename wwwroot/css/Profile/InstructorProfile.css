@@ -22,9 +22,9 @@
     text-decoration: none;
 }
 
-    .course-header:hover {
-        opacity: 0.8;
-    }
+.course-header:hover {
+    opacity: 0.8;
+}
 
 .learners-list {
     max-height: 150px;
@@ -47,9 +47,9 @@
     transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-    .learner-item:hover {
-        background-color: var(--background-light);
-    }
+.learner-item:hover {
+    background-color: var(--background-light);
+}
 
 .custom-modal-overlay {
     position: fixed;
@@ -84,10 +84,10 @@
     align-items: center;
 }
 
-    .custom-modal-header h5 {
-        font-size: 1.5em;
-        font-weight: bold;
-    }
+.custom-modal-header h5 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
 
 .custom-close-btn {
     background: none;
@@ -97,18 +97,192 @@
     cursor: pointer;
 }
 
-    .custom-close-btn:hover {
-        opacity: 0.7;
-    }
+.custom-close-btn:hover {
+    opacity: 0.7;
+}
 
 .custom-modal-body p {
     font-weight: bold;
     color: var(--white-color);
 }
 
-#learnerPicture {
-    width: 120px;
-    height: 120px;
+
+/* Learner Details Modal Styling */
+.learner-details-modal .modal-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    max-width: 600px;
+}
+
+.learner-details-modal .modal-content {
+    background-color: var(--secondary-primary-color);
+    color: var(--white-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.learner-details-modal .modal-header {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+}
+
+.learner-details-modal .modal-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--white-color);
+    flex: 1;
+    /* Ensures the title occupies available space for proper centering */
+}
+
+
+.learner-details-modal .modal-body {
+    color: var(--white-color);
+    font-size: 1rem;
+}
+
+.learner-details-modal .modal-body p {
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+.learner-details-modal h6 {
+    margin-top: 15px;
+    font-weight: bold;
+    color: var(--white-color);
+}
+
+a {
+    color: var(--white-color);
+}
+
+/* User Picture Styling */
+.user-picture {
+    margin-left: 20px;
+    /* Space between info and picture */
+    display: flex;
+    align-items: center;
+}
+
+.user-picture img {
+    width: 160px;
+
+    height: 160px;
+    border-radius: 8px;
     object-fit: cover;
-    margin-bottom: 15px;
+    margin-left: 70px;
+    margin-bottom: 11px;
+}
+
+/* Certificate Modal for Instructor Styling */
+.certificate-modal .modal-dialog {
+    max-width: 850px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.certificate-modal .modal-content {
+
+    color: var(--white-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.certificate-modal .modal-header {
+    border-bottom: none;
+    background-color: #D6EDF6;
+    /* Light blue background */
+    border-radius: 8px 8px 0 0;
+    padding: 15px;
+    text-align: center;
+}
+
+.certificate-modal .modal-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333;
+    /* Dark text color */
+}
+
+.certificate-modal .modal-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background-color: #fff;
+    /* White background for certificate content */
+}
+
+.certificate-content {
+    padding: 25px;
+    border: 2px solid #d4af37;
+    /* Gold border */
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    color: #333;
+    background-color: #fff;
+}
+
+.certificate-header {
+    font-size: 1.4rem;
+    color: #d4af37;
+    /* Gold color */
+    font-weight: bold;
+}
+
+.certificate-title {
+    font-size: 2.5rem;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    color: #d4af37;
+    /* Gold color */
+    font-weight: bold;
+}
+
+.certificate-body {
+    font-size: 1rem;
+    color: #555;
+}
+
+.certificate-username {
+    font-size: 2rem;
+    font-style: italic;
+    color: #333;
+    /* Dark text color */
+    border-bottom: 2px solid #d4af37;
+    /* Gold underline */
+    display: inline-block;
+    padding-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.certificate-logo img {
+    width: 90px;
+    height: auto;
+    object-fit: contain;
+    margin-top: 15px;
+}
+
+.certificate-footer {
+    font-size: 0.9rem;
+    color: #888;
+    text-align: start;
+}
+
+/* Backdrop opacity for modals */
+.modal-backdrop.show {
+    opacity: 0.8;
 }

@@ -61,6 +61,13 @@ namespace BrainStormEra.Controllers.Profile
             }
         }
 
+        [HttpGet("/api/users/{userId}/completed-courses")]
+        public async Task<IActionResult> GetCompletedCoursesForLearner(string userId)
+        {
+            var completedCourses = await _profileRepo.GetCompletedCoursesForLearnerAsync(userId);
+            return Json(completedCourses);
+        }
+
         [HttpPost("/api/unban/{userId}")]
         public async Task<IActionResult> UnbanLearner(string userId)
         {
@@ -85,5 +92,17 @@ namespace BrainStormEra.Controllers.Profile
 
             return Ok($"Learner promoted to Instructor with new ID: {newInstructorId}");
         }
+
+        [HttpGet("/api/certificates/{userId}/{courseId}")]
+        public async Task<IActionResult> GetCertificateForCourse(string userId, string courseId)
+        {
+            var certificate = await _profileRepo.GetCertificateDetailsForCourseAsync(userId, courseId);
+            if (certificate == null)
+            {
+                return NotFound("Certificate not found for the specified course and user.");
+            }
+            return Json(certificate);
+        }
+
     }
 }
