@@ -299,7 +299,7 @@ public class AchievementRepo
                 command.CommandText = @"
                 SELECT user_id, COUNT(*) AS completed_courses
                 FROM enrollment
-                WHERE enrollment_status = 4
+                WHERE enrollment_status = 5
                 GROUP BY user_id";
 
                 using (var reader = await command.ExecuteReaderAsync())

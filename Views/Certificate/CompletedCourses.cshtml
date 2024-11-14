@@ -1,8 +1,10 @@
 ﻿@model List<BrainStormEra.Repo.Certificate.CertificateSummaryViewModel>
-
+<link rel="stylesheet" href="~/css/base.css">
+<link rel="stylesheet" href="~/css/HomePage/homePage.css">
+<link rel="stylesheet" href="~/css/HomePage/landing_page.css">
+<link href="~/css/HomePage/Learner/HomePageLearner.css" rel="stylesheet" />
 <div class="container mt-5">
-    <h2 class="text-center mb-4">My Courses</h2>
-
+    @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
     @if (!Model.Any())
     {
         <div class="text-center mt-4">
@@ -59,62 +61,69 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const itemsPerPage = 2; // Adjust this to 7 in production; for demo purposes, it’s set to 2.
+        const itemsPerPage = 10; // Set the pagination to display when there are more than 10 items
         const courseList = document.getElementById("courseList").children;
         const paginationControls = document.getElementById("paginationControls");
         let currentPage = 1;
 
-        // Calculate total pages
+        // Calculate total pages and check if pagination is needed
         const totalPages = Math.ceil(courseList.length / itemsPerPage);
 
-        // Function to display items for the current page
-        function displayPage(page) {
-            currentPage = page;
+        // Only display pagination if there are more than 10 certificates
+        if (courseList.length > itemsPerPage) {
+            // Function to display items for the current page
+            function displayPage(page) {
+                currentPage = page;
 
-            // Hide all items
-            for (let i = 0; i < courseList.length; i++) {
-                courseList[i].style.display = "none";
+                // Hide all items
+                for (let i = 0; i < courseList.length; i++) {
+                    courseList[i].style.display = "none";
+                }
+
+                // Show items for the current page
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                for (let i = start; i < end && i < courseList.length; i++) {
+                    courseList[i].style.display = "flex";
+                }
+
+                // Update pagination controls
+                updatePaginationControls();
             }
 
-            // Show items for the current page
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            for (let i = start; i < end && i < courseList.length; i++) {
-                courseList[i].style.display = "flex";
+            // Function to create pagination controls
+            function updatePaginationControls() {
+                paginationControls.innerHTML = "";
+
+                // Previous button
+                const prevButton = document.createElement("li");
+                prevButton.className = "page-item" + (currentPage === 1 ? " disabled" : "");
+                prevButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${currentPage - 1})">&lsaquo;</a>`;
+                paginationControls.appendChild(prevButton);
+
+                // Page number buttons
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageButton = document.createElement("li");
+                    pageButton.className = "page-item" + (i === currentPage ? " active" : "");
+                    pageButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${i})">${i}</a>`;
+                    paginationControls.appendChild(pageButton);
+                }
+
+                // Next button
+                const nextButton = document.createElement("li");
+                nextButton.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
+                nextButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${currentPage + 1})">&rsaquo;</a>`;
+                paginationControls.appendChild(nextButton);
             }
 
-            // Update pagination controls
-            updatePaginationControls();
+            // Initialize pagination by showing the first page
+            displayPage(1);
+        } else {
+            // Hide pagination controls if not needed
+            paginationControls.style.display = "none";
         }
-
-        // Function to create pagination controls
-        function updatePaginationControls() {
-            paginationControls.innerHTML = "";
-
-            // Previous button
-            const prevButton = document.createElement("li");
-            prevButton.className = "page-item" + (currentPage === 1 ? " disabled" : "");
-            prevButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${currentPage - 1})">&lsaquo;</a>`;
-            paginationControls.appendChild(prevButton);
-
-            // Page number buttons
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement("li");
-                pageButton.className = "page-item" + (i === currentPage ? " active" : "");
-                pageButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${i})">${i}</a>`;
-                paginationControls.appendChild(pageButton);
-            }
-
-            // Next button
-            const nextButton = document.createElement("li");
-            nextButton.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
-            nextButton.innerHTML = `<a class="page-link" href="javascript:void(0);" onclick="displayPage(${currentPage + 1})">&rsaquo;</a>`;
-            paginationControls.appendChild(nextButton);
-        }
-
-        // Initialize pagination
-        displayPage(1); // Show the first page initially
     });
+
 </script>
 
 <style>

@@ -28,7 +28,6 @@ namespace BrainStormEra.Views.Home
         public List<BrainStormEra.Models.Achievement> Achievements { get; set; } = new List<BrainStormEra.Models.Achievement>();
 
         public List<Models.Notification> Notifications { get; set; }
-        public CreateNotificationModel CreateNotificationModel { get; set; }
 
 
     }
