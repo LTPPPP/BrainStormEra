@@ -30,7 +30,7 @@
             background: #D6EDF6;
             display: flex;
             flex-direction: column;
-             align-items: flex-start; /* Căn trái toàn bộ nội dung */
+            align-items: flex-start;
             margin-right: 12px;
             padding: 20px;
         }
@@ -117,9 +117,9 @@
             cursor: pointer;
         }
 
-            .download-btn:hover {
-                background-color: #0056b3;
-            }
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 
     <!-- Include html2canvas and jsPDF from CDN -->
@@ -134,7 +134,8 @@
         <div class="certificate-page row g-4 justify-content-center">
 
             <!-- Left Section: User and Course Information -->
-            <div class="col-lg-4 col-md-5 col-sm-10 user-info-section p-4 rounded shadow-sm bg-light d-flex flex-column">
+            <div
+                class="col-lg-4 col-md-5 col-sm-10 user-info-section p-4 rounded shadow-sm bg-light d-flex flex-column">
                 <div class="user-info mt-5 text-center">
                     <h3><strong>Completed by @Model.UserName</strong></h3>
                     <p><strong>Completion at @Model.CompletedDate.ToString("dd/MM/yyyy")</strong></p>
@@ -149,7 +150,8 @@
             </div>
 
             <!-- Right Section: Certificate Display -->
-            <div class="col-lg-7 col-md-7 col-sm-10 certificate-section d-flex align-items-center justify-content-center" id="certificateArea">
+            <div class="col-lg-7 col-md-7 col-sm-10 certificate-section d-flex align-items-center justify-content-center"
+                id="certificateArea">
                 <div class="certificate-content p-5 text-center rounded shadow-sm bg-white">
                     <h4 class="certificate-header text-uppercase mb-2">BrainStormEra Academy</h4>
                     <h2 class="certificate-title mb-3">Certificate of Completion</h2>
