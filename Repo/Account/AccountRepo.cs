@@ -660,6 +660,38 @@ namespace BrainStormEra.Repo
             }
         }
 
+        public async Task<List<string>> GetAdminEmailsAsync()
+        {
+            var adminEmails = new List<string>();
+
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT user_email FROM account WHERE user_role = 1", connection);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var email = reader["user_email"].ToString();
+                            if (email != null)
+                            {
+                                adminEmails.Add(email);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving admin emails.");
+                throw;
+            }
+
+            return adminEmails;
+        }
 
 
     }

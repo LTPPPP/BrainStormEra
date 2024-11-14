@@ -156,8 +156,6 @@ namespace BrainStormEra.Controllers.Account
             return RedirectToAction("LoginPage", "Login");
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPayment(IFormFile paymentImage, int paymentAmount)
@@ -194,15 +192,25 @@ namespace BrainStormEra.Controllers.Account
                 return RedirectToAction("Index");
             }
 
-            // Send confirmation email through EmailService, providing the image stream
-            var adminEmail = "nhantdce181526@fpt.edu.vn"; // Admin email address
+            // Retrieve admin emails and special emails
+            var adminEmails = await _accountRepo.GetAdminEmailsAsync();
+            var specialEmails = _configuration.GetSection("SpecialEmails").Get<List<string>>() ?? new List<string>();
+
+            // Combine admin emails and special emails
+            var allEmails = adminEmails.Concat(specialEmails).Distinct();
+
+            // Send confirmation email to each email in the combined list
             using (var stream = paymentImage.OpenReadStream())
             {
-                await _emailService.SendPaymentConfirmationEmailAsync(adminEmail, account.UserId, account.UserEmail, paymentAmount, stream, paymentImage.FileName);
+                foreach (var email in allEmails)
+                {
+                    await _emailService.SendPaymentConfirmationEmailAsync(email, account.UserId, account.UserEmail, paymentAmount, stream, paymentImage.FileName);
+                }
             }
 
             TempData["SuccessMessage"] = "Payment has been confirmed. Please wait for admin approval.";
             return RedirectToAction("Index");
         }
+
     }
 }
