@@ -36,16 +36,7 @@
                 <form asp-action="Register" method="post" class="sign-in-form">
                     @Html.AntiForgeryToken()
                     <h2 class="title">Sign Up</h2>
-
-                    <!-- Hiển thị lỗi toàn bộ nếu có -->
-                    @if (ViewBag.ErrorMessage != null)
-                    {
-                        <div class="alert alert-danger">
-                            @ViewBag.ErrorMessage
-                        </div>
-                    }
-                    @* Duyệt qua các lỗi trong ModelState *@
-                    @* @if (!ViewData.ModelState.IsValid)
+                    @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger">
                             <ul>
@@ -55,8 +46,7 @@
                                 }
                             </ul>
                         </div>
-                    } *@
-
+                    }
                     <div class="input-field">
                         <input asp-for="Username" id="RegisterUsername" name="Username" type="text" placeholder="👤Username" autocomplete="username" />
                     </div>
