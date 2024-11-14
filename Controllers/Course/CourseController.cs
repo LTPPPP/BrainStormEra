@@ -1,4 +1,6 @@
 ﻿using BrainStormEra.Models;
+using BrainStormEra.Repo;
+using BrainStormEra.Repo.Chapter;
 using BrainStormEra.Repo.Course;
 using BrainStormEra.Views.Course;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -17,11 +19,15 @@ namespace BrainStormEra.Controllers.Course
         private readonly string _connectionString;
         private readonly ILogger<CourseController> _logger;
         private readonly CourseRepo _courseRepo;
-        public CourseController(IConfiguration configuration, ILogger<CourseController> logger, CourseRepo courseRepo)
+        private readonly LessonRepo _lessonRepo;
+        private readonly ChapterRepo _chapterRepo;
+        public CourseController(IConfiguration configuration, ILogger<CourseController> logger, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
         {
             _connectionString = configuration.GetConnectionString("SwpMainContext");
             _logger = logger;
             _courseRepo = courseRepo;
+            _chapterRepo = chapterRepo;
+            _lessonRepo = lessonRepo;
         }
 
         public async Task<ActionResult> AddCourse()
@@ -440,6 +446,18 @@ namespace BrainStormEra.Controllers.Course
 
             ViewBag.CourseCategories = await _courseRepo.GetCourseCategoriesAsync(courseId);
             ViewBag.LearnersCount = await _courseRepo.GetLearnersCountAsync(courseId);
+
+            var chapters = await _chapterRepo.GetChaptersByCourseIdAsync(courseId);
+            int totalLessons = 0;
+            foreach (var chapter in chapters)
+            {
+                chapter.Lessons = await _lessonRepo.GetLessonsByChapterIdAsync(chapter.ChapterId);
+                totalLessons += chapter.Lessons.Count;
+            }
+            course.Chapters = chapters;
+
+
+            ViewBag.TotalLessons = totalLessons;
 
             int offset = (page - 1) * pageSize;
             ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, offset, pageSize);
