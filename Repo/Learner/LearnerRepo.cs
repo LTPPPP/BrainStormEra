@@ -171,9 +171,9 @@ namespace BrainStormEra.Repo
             return recommendedCourses;
         }
 
-        public async Task<List<Notification>> GetNotificationsAsync(string userId)
+        public async Task<List<Models.Notification>> GetNotificationsAsync(string userId)
         {
-            var notifications = new List<Notification>();
+            var notifications = new List<Models.Notification>();
 
             using var connection = await GetConnectionAsync();
             var command = connection.CreateCommand();
@@ -187,7 +187,7 @@ namespace BrainStormEra.Repo
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                notifications.Add(new Notification
+                notifications.Add(new Models.Notification
                 {
                     NotificationId = reader["notification_id"].ToString(),
                     UserId = reader["user_id"].ToString(),

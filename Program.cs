@@ -11,6 +11,7 @@ using BrainStormEra.Repo.Chapter;
 using BrainStormEra.Repo.Course;
 using BrainStormEra.Repositories;
 using BrainStormEra.Repo.Certificate;
+using BrainStormEra.Repo.Notification;
 
 namespace BrainStormEra
 {
@@ -57,6 +58,7 @@ namespace BrainStormEra
             builder.Services.AddScoped<CourseRepo>();
             builder.Services.AddScoped<PointsRepo>();
             builder.Services.AddScoped<ChapterRepo>();
+            builder.Services.AddScoped<NotificationRepo>();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
