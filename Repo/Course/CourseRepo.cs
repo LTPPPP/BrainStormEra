@@ -432,7 +432,10 @@ namespace BrainStormEra.Repo.Course
                     {
                         CourseId = reader["course_id"].ToString(),
                         CourseName = reader["course_name"].ToString(),
+                        CourseDescription = reader["course_description"].ToString(),
                         CourseStatus = Convert.ToInt32(reader["course_status"]),
+                        CoursePicture = reader["course_picture"]?.ToString(),
+                        Price = reader["price"] != DBNull.Value ? Convert.ToDecimal(reader["price"]) : 0,
                         CourseCreatedAt = Convert.ToDateTime(reader["course_created_at"])
                     };
                     pendingCourses.Add(course);

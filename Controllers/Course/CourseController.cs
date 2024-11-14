@@ -339,16 +339,26 @@ namespace BrainStormEra.Controllers.Course
                     StarRating = (byte)averageRating,
                     CourseCategories = courseCategories,
                     CreatedBy = course.CreatedBy
-
                 });
             }
 
             // Sử dụng ViewBag để lưu số lượng khóa học trong danh mục
             ViewBag.CourseCount = courses.Count;
             ViewBag.SelectedCategoryId = categoryId;
+
+            // Kiểm tra userRole và chuyển hướng đến trang thích hợp
+            if (userRole == "1")
+            {
+                return View("CourseAcceptance", coursesViewModel); // Quay về trang Course Acceptance cho Admin
+            }
+            else if (userRole == "2")
+            {
+                return View("CourseManagement", coursesViewModel); // Quay về trang Course Management cho Instructor
+            }
+
+            // Trường hợp nếu userRole không phải là 1 hoặc 2
             return View("CourseManagement", coursesViewModel);
         }
-
 
         public async Task<ActionResult> ConfirmDelete()
         {
@@ -445,8 +455,39 @@ namespace BrainStormEra.Controllers.Course
 
         public async Task<ActionResult> CourseAcceptance()
         {
+
             var pendingCourses = await _courseRepo.GetPendingCoursesAsync();
-            return View("CourseAcceptance", pendingCourses);
+            var coursesViewModel = new List<ManagementCourseViewModel>();
+            var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
+
+            // Pass categories to the view, for example, via ViewBag or ViewModel
+            ViewBag.categories = topCategories;
+
+            foreach (var course in pendingCourses)
+            {
+
+                var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+
+
+                string creatorName = await _courseRepo.GetCourseCreatorNameAsync(course.CourseId);
+
+
+                coursesViewModel.Add(new ManagementCourseViewModel
+                {
+                    CourseId = course.CourseId,
+                    CourseName = course.CourseName,
+                    CourseDescription = course.CourseDescription,
+                    CourseStatus = course.CourseStatus,
+                    CoursePicture = course.CoursePicture,
+                    Price = course.Price,
+                    CourseCreatedAt = course.CourseCreatedAt,
+                    CourseCategories = courseCategories,
+                    CreatedBy = creatorName
+                });
+            }
+
+
+            return View("CourseAcceptance", coursesViewModel);
         }
 
         [HttpGet]

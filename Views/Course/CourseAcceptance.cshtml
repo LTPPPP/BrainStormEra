@@ -1,11 +1,14 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Pending Courses Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
@@ -13,32 +16,36 @@
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
 </head>
 
-<body class="pending-courses">
+<body class="course-acceptance-page">
 
     @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
 
-    <div class="banner mb-3">
-        <div class="container text-center">
-            <img class="img-fluid" src="~/lib/img/BrainStormEra_logo.png" alt="Banner Image">
-        </div>
-    </div>
-
-    <div class="container">
+    <div class="container container-first">
         <!-- Filters Section -->
         <div class="filters mb-3">
             <!-- Filter Categories -->
-            <div class="categories d-flex justify-content-start p-2 rounded">
-                <button class="btn filter-btn active">All courses</button>
-                <button class="btn filter-btn">Business</button>
-                <button class="btn filter-btn">IT & Software</button>
-                <button class="btn filter-btn">Design</button>
-                <button class="btn filter-btn">Health</button>
-                <button class="btn filter-btn">Math and Logic</button>
+            <div class="categories d-flex justify-content-start  p-2 rounded">
+                <button class="btn filter-btn"
+                    onclick="window.location.href='@Url.Action("CourseAcceptance", "Course")'">All courses</button>
+                @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
+                {
+                    @foreach (var category in categories)
+                    {
+                        <button class="btn filter-btn" onclick="filterCoursesByCategory('@category.CourseCategoryId')">
+                            @category.CourseCategoryName
+                        </button>
+                    }
+                }
             </div>
+
             <!-- Search Bar -->
             <div class="search-bar mt-2 d-flex justify-content-center">
-                <input class="form-control search-input" placeholder="Search..." type="text" />
-                <button class="btn search-btn"><i class="fas fa-search"></i></button>
+                <input id="searchQuery" class="form-control search-input" placeholder="Search..." type="text"
+                    onkeyup="filterCourses()" />
+            </div>
+
+            <div id="no-results" class="text-center text-muted my-3" style="display: none; height : 360px;">
+                No courses found for your search keyword.
             </div>
         </div>
     </div>
@@ -47,29 +54,38 @@
         <div class="courses-list">
             @foreach (var c in Model)
             {
-                <div class="course-item mb-4">
+                <div class="course-item mb-4" data-course-name="@c.CourseName.ToLower()">
                     <!-- Khi nhấp vào thẻ course-card sẽ gọi hàm loadCourseDetails -->
-                    <div class="course-card position-relative" onclick="loadCourseDetails('@c.CourseId')" style="position: relative;">
+                    <div class="course-card position-relative" onclick="loadCourseDetails('@c.CourseId')"
+                        style="position: relative;">
                         <!-- Nhãn trạng thái của khóa học (Pending hoặc Approved) -->
                         @if (@c.CourseStatus == 1)
                         {
-                            <span class="text-warning fw-bold px-3 py-2 position-absolute" style="font-size: 1.1rem; background-color: rgba(255, 255, 0, 0.2); border-radius: 5px; top: 10px; right: 10px;">Pending</span>
+                            <span class="text-warning fw-bold px-3 py-2 position-absolute"
+                                style="font-size: 1.1rem; background-color: rgba(255, 255, 0, 0.2); border-radius: 5px; top: 10px; right: 10px;">Pending</span>
                         }
                         else if (@c.CourseStatus == 2)
                         {
-                            <span class="text-success fw-bold px-3 py-2 position-absolute" style="font-size: 1.1rem; background-color: rgba(0, 128, 0, 0.2); border-radius: 5px; top: 10px; right: 10px;">Approved</span>
+                            <span class="text-success fw-bold px-3 py-2 position-absolute"
+                                style="font-size: 1.1rem; background-color: rgba(0, 128, 0, 0.2); border-radius: 5px; top: 10px; right: 10px;">Approved</span>
                         }
                         else
                         {
-                            <span class="text-danger fw-bold px-3 py-2 position-absolute" style="font-size: 1.1rem; background-color: rgba(255, 0, 0, 0.2); border-radius: 5px; top: 10px; right: 10px;">Rejected</span>
+                            <span class="text-danger fw-bold px-3 py-2 position-absolute"
+                                style="font-size: 1.1rem; background-color: rgba(255, 0, 0, 0.2); border-radius: 5px; top: 10px; right: 10px;">Rejected</span>
                         }
                         <img class="course-img" src="@c.CoursePicture" alt="Course Image">
                         <div class="course-details p-3">
                             <h3 class="course-title">@c.CourseName</h3>
                             <p class="course-description">@c.CourseDescription</p>
                             <p class="course-price">Price: @c.Price</p>
-                            <p class="course-creator">
-                                Created by: @(c.CreatedByNavigation?.FullName ?? "Unknown")
+                            <p class="course-creator">Created by: @c.CreatedBy</p>
+                            <p class="course-categories">
+                                <strong>Categories:</strong>
+                                @foreach (var category in c.CourseCategories)
+                                {
+                                    <span class="badge bg-primary">@category.CourseCategoryName</span>
+                                }
                             </p>
                             <p class="course-created-at">Created at: @c.CourseCreatedAt.ToString("yyyy-MM-dd")</p>
                         </div>
@@ -88,6 +104,138 @@
             document.cookie = "CourseId=" + courseId + "; path=/;";
             window.location.href = "/Course/CourseDetail";
         }
+
+        function setCookie(name, value) {
+            document.cookie = `${name}=${value}; path=/`;
+        }
+
+
+
+        function filterCoursesByCategory(categoryId = '') {
+            // Lưu categoryId vào cookie
+            document.cookie = "CategoryId=" + categoryId + "; path=/";
+
+            // Kiểm tra nếu categoryId là rỗng, thì sẽ xem tất cả các khóa học
+            location.href = '@Url.Action("FilterCoursesByCategory", "Course")';
+
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const allCoursesButton = document.getElementById("allCoursesButton");
+
+            // Helper function to get cookie value
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+
+            // Set "All courses" active by default if no category is stored
+            const currentCategory = getCookie("CategoryId");
+
+            if (!currentCategory || currentCategory === "") {
+                allCoursesButton.classList.add("active");
+            }
+
+            // Event listeners for each button
+            filterBtns.forEach(button => {
+                button.addEventListener("click", function () {
+                    // Remove active from all buttons
+                    filterBtns.forEach(btn => btn.classList.remove("active"));
+                    // Set the clicked button as active
+                    this.classList.add("active");
+
+                    // Update the cookie
+                    const categoryId = this.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || '';
+                    document.cookie = "CategoryId=" + categoryId + "; path=/";
+
+                    // Save the scroll position
+                    localStorage.setItem("scrollPosition", window.scrollY);
+                });
+            });
+
+            // Reset scroll position after reload
+            const savedScrollPosition = localStorage.getItem("scrollPosition");
+            if (savedScrollPosition) {
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                localStorage.removeItem("scrollPosition");
+            }
+        });
+
+
+        function filterCourses() {
+            const searchQuery = document.getElementById('searchQuery').value.toLowerCase();
+            const courses = document.querySelectorAll('.course-item');
+            let hasVisibleCourse = false;
+
+            courses.forEach(course => {
+                const courseName = course.getAttribute('data-course-name');
+                if (courseName.includes(searchQuery)) {
+                    course.style.display = 'block';
+                    hasVisibleCourse = true;
+                } else {
+                    course.style.display = 'none';
+                }
+            });
+
+
+            const noResults = document.getElementById('no-results');
+            noResults.style.display = hasVisibleCourse ? 'none' : 'block';
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Restore scroll position if it exists in localStorage
+            const savedScrollPosition = localStorage.getItem("scrollPosition");
+            if (savedScrollPosition) {
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                localStorage.removeItem("scrollPosition"); // Remove it after restoring to prevent unintended behavior on other pages
+            }
+
+            // Save scroll position when any filter button is clicked
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(button => {
+                button.addEventListener('click', function () {
+                    filterBtns.forEach(btn => btn.classList.remove('active')); // Remove 'active' from all buttons
+                    this.classList.add('active'); // Add 'active' to the current button
+
+                    // Save the scroll position to localStorage
+                    localStorage.setItem("scrollPosition", window.scrollY);
+                });
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the current category ID from the URL or cookie
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentCategory = getCookie("CategoryId");
+
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            filterBtns.forEach(button => {
+                // Check if this button corresponds to the current category
+                const buttonCategory = button.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+
+                if (
+                    (currentCategory && buttonCategory === currentCategory) ||
+                    (!currentCategory && button.textContent.trim() === 'All courses')
+                ) {
+                    button.classList.add('active');
+                }
+
+                button.addEventListener('click', function () {
+                    filterBtns.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    localStorage.setItem("scrollPosition", window.scrollY);
+                });
+            });
+        });
+
+        // Helper function to get cookie value
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
     </script>
 </body>
+
 </html>
