@@ -4,6 +4,7 @@
 }
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +20,7 @@
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
 </head>
+
 <body>
 
     @{
@@ -64,7 +66,9 @@
                             }
                             else if (isEnrolled)
                             {
-                                <button class="btn btn-primary" onclick="window.location.href='@Url.Action("ViewLessonLearner", "Lesson")'">Go to Course</button>
+                                <button class="btn btn-primary"
+                                    onclick="window.location.href='@Url.Action("ViewLessonLearner", "Lesson")'">Go to
+                                    Course</button>
                             }
                             else
                             {
@@ -78,10 +82,11 @@
                         else if (string.IsNullOrEmpty(userRole))
                         {
                             <!-- Enroll button for non-logged-in users -->
-                            <button class="btn btn-success" onclick="alert('You need to log in to enroll in this course.');">Enroll</button>
+                            <button class="btn btn-success"
+                                onclick="alert('You need to log in to enroll in this course.');">Enroll</button>
                         }
                     </div>
-                    @if(TempData["ErrorMessage"] != null)
+                    @if (TempData["ErrorMessage"] != null)
                     {
                         <div class="alert alert-danger col-md-6 text-center">@TempData["ErrorMessage"]</div>
                     }
@@ -95,7 +100,8 @@
                         </div>
                         <div class="me-4"><i class="fas fa-users me-2"></i> Students: @ViewBag.LearnersCount</div>
                         <div class="me-4"><i class="fas fa-user me-2"></i> Created by: @ViewBag.CreatedBy</div>
-                        <div class="me-4"><i class="fas fa-star me-2"></i> @ViewBag.AverageRating.ToString("0.0") (@ViewBag.TotalComments comments)</div>
+                        <div class="me-4"><i class="fas fa-star me-2"></i> @ViewBag.AverageRating.ToString("0.0")
+                            (@ViewBag.TotalComments comments)</div>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -103,7 +109,8 @@
                 </div>
             </div>
             <div class="progress progress-bar-lesson-div mb-4">
-                <div class="progress-bar progress-bar-lesson" role="progressbar" style="width: @ViewBag.Progress%" aria-valuenow="@ViewBag.Progress" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar progress-bar-lesson" role="progressbar" style="width: @ViewBag.Progress%"
+                    aria-valuenow="@ViewBag.Progress" aria-valuemin="0" aria-valuemax="100">
                     <div class="progress-num">@ViewBag.Progress.ToString("0.0")%</div>
                 </div>
             </div>
@@ -141,11 +148,15 @@
                         {
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="headingChapter@(chapter.ChapterId)">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChapter@(chapter.ChapterId)" aria-expanded="false" aria-controls="collapseChapter@(chapter.ChapterId)">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseChapter@(chapter.ChapterId)" aria-expanded="false"
+                                        aria-controls="collapseChapter@(chapter.ChapterId)">
                                         @chapter.ChapterName
                                     </button>
                                 </h2>
-                                <div id="collapseChapter@(chapter.ChapterId)" class="accordion-collapse collapse" aria-labelledby="headingChapter@(chapter.ChapterId)" data-bs-parent="#courseContentAccordion">
+                                <div id="collapseChapter@(chapter.ChapterId)" class="accordion-collapse collapse"
+                                    aria-labelledby="headingChapter@(chapter.ChapterId)"
+                                    data-bs-parent="#courseContentAccordion">
                                     <div class="accordion-body">
                                         <ul class="list-group">
                                             @foreach (var lesson in chapter.Lessons)
@@ -180,7 +191,8 @@
             <div class="card-body">
                 <h3 id="rating">Rating</h3>
                 <div class="d-flex align-items-center mb-4">
-                    <i class="fas fa-star me-2"></i> @(ViewBag.AverageRating?.ToString("0.0") ?? "0.0") (@(ViewBag.TotalComments ?? 0) comments)
+                    <i class="fas fa-star me-2"></i> @(ViewBag.AverageRating?.ToString("0.0") ?? "0.0")
+                    (@(ViewBag.TotalComments ?? 0) comments)
                     <div class="stars ms-3">
                         @for (int i = 1; i <= 5; i++)
                         {
@@ -195,7 +207,9 @@
                         <div class="d-flex align-items-center mb-3">
                             <div class="stars"><i class="fas fa-star selected"></i> @i stars</div>
                             <div class="progress flex-fill mx-3">
-                                <div class="progress-bar" role="progressbar" style="width: @(ViewBag.RatingPercentages[i] * 100)%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar" role="progressbar"
+                                    style="width: @(ViewBag.RatingPercentages[i] * 100)%" aria-valuenow="50"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div>@(ViewBag.RatingPercentages[i] * 100)%</div>
                         </div>
@@ -218,31 +232,37 @@
                         <div class="comment mb-4 d-flex border-bottom pb-3">
                             <div class="avatar bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
                             <div class="flex-fill">
-                                <div class="d-flex align-items-center">
-                                    <div class="fw-bold me-2">@comment.User.FullName</div>
-                                    <div class="stars me-3 edit-stars" id="editStars-@comment.FeedbackId">
-                                        @for (int i = 1; i <= 5; i++)
-                                        {
-                                            <i class="fas fa-star @(i <= comment.StarRating ? "selected" : "")" data-value="@i" onclick="feedbackManager.selectStarForEdit(this, '@comment.FeedbackId')"></i>
-                                        }
+                                <div class="fw-bold me-2">@comment.User.FullName</div>
+                                <div class="stars me-3 edit-stars" id="editStars-@comment.FeedbackId">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fas fa-star @(i <= comment.StarRating ? "selected" : "")" data-value="@i"
+                                            onclick="feedbackManager.selectStarForEdit(this, '@comment.FeedbackId')"></i>
+                                    }
+                                    <div class="d-flex align-items-center">
                                     </div>
                                     @if (comment.UserId == currentUserId || userRole == "1")
                                     {
                                         <div class="comment-options">
-                                            <button class="btn btn-link" onclick="feedbackManager.toggleMenu(event, 'menu-@comment.FeedbackId')">
+                                            <button class="btn btn-link"
+                                                onclick="feedbackManager.toggleMenu(event, 'menu-@comment.FeedbackId')">
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu" id="menu-@comment.FeedbackId">
-                                                <button class="dropdown-item" onclick="feedbackManager.enableEditMode('@comment.FeedbackId')">Edit</button>
-                                                <button class="dropdown-item text-danger" onclick="feedbackManager.deleteComment('@comment.FeedbackId')">Delete</button>
+                                                <button class="dropdown-item"
+                                                    onclick="feedbackManager.enableEditMode('@comment.FeedbackId')">Edit</button>
+                                                <button class="dropdown-item text-danger"
+                                                    onclick="feedbackManager.deleteComment('@comment.FeedbackId')">Delete</button>
                                             </div>
                                         </div>
                                     }
 
                                 </div>
                                 <div id="commentText-@comment.FeedbackId" class="comment-text">@comment.Comment</div>
-                                <textarea id="editComment-@comment.FeedbackId" class="form-control d-none" rows="3">@comment.Comment</textarea>
-                                <button class="btn btn-primary d-none mt-2" id="saveButton-@comment.FeedbackId" onclick="feedbackManager.saveComment('@comment.FeedbackId')">Save</button>
+                                <textarea id="editComment-@comment.FeedbackId" class="form-control d-none"
+                                    rows="3">@comment.Comment</textarea>
+                                <button class="btn btn-primary d-none mt-2" id="saveButton-@comment.FeedbackId"
+                                    onclick="feedbackManager.saveComment('@comment.FeedbackId')">Save</button>
                             </div>
                         </div>
                     }
@@ -262,8 +282,10 @@
                         }
                     </div>
                     <div class="comment-input">
-                        <textarea id="feedbackComment" class="form-control feedback w-50" placeholder="Comment..."></textarea>
-                        <button class="btn btn-primary mt-2" onclick="feedbackManager.submitFeedback('@Model.CourseId')">Submit</button>
+                        <textarea id="feedbackComment" class="form-control feedback w-50"
+                            placeholder="Comment..."></textarea>
+                        <button class="btn btn-primary mt-2"
+                            onclick="feedbackManager.submitFeedback('@Model.CourseId')">Submit</button>
                     </div>
                 </div>
             </div>
@@ -289,7 +311,8 @@
                 }
                 @if (userRole == "2" && Model.CourseStatus == 3)
                 {
-                    <button id="requestToAdminBtn" class="btn btn-request ms-2" onclick="requestToAdmin('@Model.CourseId')">Request to Admin</button>
+                    <button id="requestToAdminBtn" class="btn btn-request ms-2"
+                        onclick="requestToAdmin('@Model.CourseId')">Request to Admin</button>
                 }
                 @if (userRole == "2" && Model.CourseStatus == 0)
                 {
@@ -488,4 +511,5 @@
     </script>
 
 </body>
+
 </html>
