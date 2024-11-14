@@ -30,7 +30,7 @@
             background: #D6EDF6;
             display: flex;
             flex-direction: column;
-             align-items: flex-start; /* Căn trái toàn bộ nội dung */
+             align-items: flex-start; 
             margin-right: 12px;
             padding: 20px;
         }
@@ -130,6 +130,19 @@
 <body>
     @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
 
+
+    <div class="text-center mt-5 d-flex flex-column align-items-center" style="padding: 20px;">
+        <div class="alert alert-light shadow-lg p-5" style="border-radius: 12px; max-width: 70%; background-color: #f8f9fa; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+            <div class="mb-3">
+                <!-- Add an icon for visual appeal -->
+                <i class="fas fa-graduation-cap fa-3x text-primary mb-3" style="animation: bounce 2s infinite;"></i>
+            </div>
+            <h5 class="mb-2 font-weight-bold" style="color: #0056b3;">No Courses Completed Yet!</h5>
+            <p style="color: #6c757d;">It seems like you haven't completed any courses so far. Start learning, and your achievements will show up here.</p>
+            <a href="@Url.Action("CourseManagement", "Course")" class="btn btn-outline-primary mt-3" style="border-radius: 20px;">Explore Courses</a>  
+        </div>
+    </div>
+       
     <div class="container container-certificate mt-5">
         <div class="certificate-page row g-4 justify-content-center">
 

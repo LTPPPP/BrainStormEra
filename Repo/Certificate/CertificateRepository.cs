@@ -36,7 +36,7 @@ using System.Threading.Tasks;
                         course c ON e.course_id = c.course_id
                     WHERE 
                         e.user_id = @UserId 
-                        AND e.enrollment_status = 1
+                        AND e.enrollment_status = 5
                  	    AND e.certificate_issued_date IS NOT NULL"; 
 
                 var completedCourses = new List<CertificateSummaryViewModel>();
@@ -88,7 +88,7 @@ using System.Threading.Tasks;
                     WHERE 
                         e.user_id = @UserId 
                         AND e.course_id = @CourseId
-                        AND e.enrollment_status = 1"; 
+                        AND e.enrollment_status = 5"; 
 
                 using (var connection = _context.Database.GetDbConnection())
                 {

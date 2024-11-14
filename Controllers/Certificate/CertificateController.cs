@@ -18,32 +18,23 @@ namespace BrainStormEra.Controllers.Certificate
             var userId = Request.Cookies["user_id"];
             var completedCourses = await _certificateRepository.GetCompletedCoursesAsync(userId);
 
-            if (completedCourses == null || completedCourses.Count == 0)
-            {
-                return NotFound("Không có khóa học nào đã hoàn thành.");
-            }
-
             ViewData["UserId"] = userId; // Truyền user_id qua ViewData
             return View(completedCourses); // Truyền danh sách các khóa học vào View
         }
 
 
-        // Lấy thông tin chi tiết của một chứng chỉ cụ thể
+        [HttpPost]
         public async Task<IActionResult> CertificateDetails(string courseId)
         {
             var userId = Request.Cookies["user_id"]; // Get user ID from cookies
 
-            if (string.IsNullOrEmpty(courseId) || string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(courseId))
             {
-                return BadRequest("User ID or Course ID is missing.");
+                return BadRequest("404 EXCEPTION.");
             }
 
             var certificate = await _certificateRepository.GetCertificateDetailsAsync(userId, courseId);
 
-            if (certificate == null)
-            {
-                return NotFound("Không tìm thấy chứng chỉ cho khóa học này.");
-            }
             var duration = (certificate.CompletedDate - certificate.StartedDate).TotalDays;
             ViewData["Duration"] = Math.Round(duration);
 
