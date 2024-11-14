@@ -76,16 +76,8 @@ For more information on enabling MVC for empty projects, visit https://go.micros
         <!-- Filters Section -->
         <div class="container">
             <div class="filters mb-3">
-                <!-- Filter Categories -->
-                <div class="categories d-flex justify-content-start p-2 rounded">
-                    <button class="btn filter-btn active">All courses</button>
-                    @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
-                    {
-                        @foreach (var category in categories)
-                        {
-                            <button class="btn filter-btn">@category.CourseCategoryName</button>
-                        }
-                    }
+                <div class="categories d-flex justify-content-start p-2 rounded" style="font-size: 2.2rem;">
+                    Top 4 Recommend Course
                 </div>
             </div>
         </div>

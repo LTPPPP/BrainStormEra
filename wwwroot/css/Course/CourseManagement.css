@@ -1,12 +1,19 @@
 ﻿body {
-    background-color: var(--white-corlor) !important;
+    background-color: var(--white-color) !important;
 }
 
-.banner img {
-    margin-top: 100Px;
+.img-welcomeheader {
+    display: flex;
     width: 100%;
-    max-width: 1200px; /* Giới hạn chiều ngang cho phù hợp với laptop */
-    height: auto;
+    height: 40%;
+}
+
+.robotwelcome {
+    width: 250px;
+    position: absolute;
+    top: 85%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @media (max-width: 768px) {
@@ -15,36 +22,97 @@
     }
 }
 
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
 
-/*
-.course-card .card {
-    position: relative;
-    border: none;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 230px;  Giảm kích thước của course card 
-    margin: auto;
-}*/
+    50% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.card {
+    border-radius: 12px;
+    border: 1px solid medium;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-right: auto;
+}
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .card:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        border-color: dimgrey;
+    }
+
+        .card:hover .card-title {
+            color: rgb(255, 127, 80);
+            text-decoration: underline;
+        }
+
+        .card:hover .edit {
+            background-color: #4e6ef2;
+            color: #fff;
+        }
+
+.course-price {
+    border-radius: 5px;
+    font-size: 2rem;
+    color: var(main-color);
+}
 
 .card-img-top {
-    width: 100%; /* Đảm bảo hình ảnh lấp đầy chiều ngang của card */
-    max-width: 100%; /* Giới hạn kích thước tối đa của hình ảnh */
-    height: 200px; /* Để tỷ lệ chiều cao tự điều chỉnh theo chiều rộng */
-    object-fit: cover; /* Cắt ảnh nếu cần để phù hợp với khung hình */
-    margin-left: auto; /* Căn giữa theo chiều ngang */
-    margin-right: auto; /* Căn giữa theo chiều ngang */
-    display: block; /* Chuyển hình ảnh thành block để đảm bảo căn giữa hoạt động */
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
 }
 
 .course-card .card-body {
     padding: 7px;
 }
 
-.course-card .card-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 10px;
+.card-title {
+    font-size: 1.4rem;
+    font-weight: bold;
     color: var(--text-color);
+    margin-bottom: 8px;
 }
+
+.card-text {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.rating {
+    padding-bottom: 36px;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+    .rating .stars {
+        color: #f39c12;
+    }
+
+.category {
+    font-size: 1.2rem;
+    color: black;
+}
+
+.list-category {
+    background-color: rgb(106, 90, 205);
+}
+
+
 
 .course-card .remove {
     width: 27px;
@@ -58,51 +126,52 @@
 }
 
 .course-card .edit {
-    padding: 8px 10px; /* Increase padding for better touch target size */
-    font-size: 10px; /* Adjust font size for readability */
-    border-radius: 5px; /* Add border-radius for smooth edges */
-    background-color: var(--primary-color); /* Set a background color that matches your design */
-    color: var(--white-color ); /* White text for better contrast */
-    border: none; /* Remove border */
-    cursor: pointer;
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
     display: flex;
     align-items: center;
-    justify-content: center; /* Center the icon and text */
-    gap: 5px; /* Space between the icon and text */
-    transition: background-color 0.3s ease; /* Smooth hover transition */
+    justify-content: center;
+    gap: 5px;
 }
 
 
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
 .remove-button {
     top: 10px;
     right: 10px;
-    width: auto; /* Đảm bảo không chiếm không gian ngoài dự kiến */
+    width: auto;
     height: auto;
     position: absolute;
-    z-index: 1; /* Giữ z-index thấp để không bao phủ các phần khác */
+    z-index: 1;
 }
 
 .add-course-btn {
     border-radius: 30px;
 }
 
-
 #add-chapter-button {
-    padding: 12px 24px; /* Make button larger */
-    font-size: 16px; /* Increase font size */
-    border-radius: 50px; /* Round the edges */
-    background-color: var(--primary-color); /* Standard Bootstrap primary color */
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 50px;
+    background-color: var(--primary-color);
     color: white;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
-
-
-
-
-
 
 .categories {
     background-color: #f5f5f5;
@@ -126,23 +195,26 @@
     cursor: pointer;
 }
 
-
-    .filter-btn.active::after {
-        content: "";
-        display: block;
-        width: 100%;
-        height: 2px;
-        background-color: #4e6ef2;
-        position: absolute;
-        bottom: -2px;
-        left: 0;
+    .filter-btn.active {
+        color: #4e6ef2; /* Màu xanh dương cho tab active */
+        font-weight: bold;
     }
+
+        .filter-btn.active::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: #4e6ef2;
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+        }
 
     .filter-btn:hover {
         color: #4e6ef2; /* Màu hover giống với màu active */
     }
 
-/* Search bar */
 .search-bar {
     margin-top: 15px;
     position: relative;
@@ -162,21 +234,10 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.search-btn {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #4e6ef2;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
 
-    .search-btn i {
-        font-size: 20px;
-    }
+.search-btn i {
+    font-size: 20px;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -189,12 +250,24 @@
     }
 }
 
-
-
 a {
-    text-decoration: none; /* Loại bỏ gạch chân */
+    text-decoration: none;
 }
 
     a:hover {
-        text-decoration: none; /* Giữ không gạch chân khi hover */
+        text-decoration: none;
+    }
+
+a {
+    text-decoration: none;
+}
+
+.course-card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s;
+}
+
+    .course-card:hover {
+        transform: scale(1.05);
     }

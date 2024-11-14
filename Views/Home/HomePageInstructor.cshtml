@@ -49,16 +49,8 @@
     <!-- Filters Section -->
     <div class="container">
         <div class="filters mb-3">
-            <!-- Filter Categories -->
-            <div class="categories d-flex justify-content-start p-2 rounded">
-                <button class="btn filter-btn active">All courses</button>
-                @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
-                {
-                    @foreach (var category in categories)
-                    {
-                        <button class="btn filter-btn">@category.CourseCategoryName</button>
-                    }
-                }
+            <div class="categories d-flex justify-content-start p-2 rounded" style="font-size: 2.2rem;">
+                Top 4 Recommend Course
             </div>
         </div>
     </div>
@@ -69,7 +61,7 @@
         @foreach (var c in Model.RecommendedCourses)
         {
 
-            <div class="col-md-3 col-sm-6 mb-4">
+            <div class="col-md-2 col-sm-6 mb-4">
                 <a href="javascript:void(0);" onclick="viewDetailCourse('@c.CourseId')">
 
                     <div class="card course-card h-100">

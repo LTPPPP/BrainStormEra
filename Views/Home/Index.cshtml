@@ -55,23 +55,10 @@
 
 
     <div class="container">
-        <!-- Filters Section -->
         <div class="filters mb-3">
-            <!-- Filter Categories -->
-            <div class="categories d-flex justify-content-start p-2 rounded">
-                <button class="btn filter-btn" onclick="window.location.href='@Url.Action("CourseManagement", "Course")'">All courses</button>
-                @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
-                {
-                    @foreach (var category in categories)
-                    {
-                        <button class="btn filter-btn"
-                                onclick="filterCoursesByCategory('@category.CourseCategoryId')">
-                            @category.CourseCategoryName
-                        </button>
-                    }
-                }
+            <div class="categories d-flex justify-content-start p-2 rounded" style="font-size: 2.2rem;">
+                Top 4 Recommend Course
             </div>
-
         </div>
     </div>
 

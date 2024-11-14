@@ -111,7 +111,7 @@ namespace BrainStormEra.Controllers.Course
             {
                 return RedirectToAction("CourseManagement");
             }
-                
+
             var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (course == null)
@@ -533,7 +533,7 @@ namespace BrainStormEra.Controllers.Course
                 {
                     // Trừ điểm của người dùng sau khi ghi danh thành công
                     await _courseRepo.UpdateUserPaymentPointsAsync(userId, course.Price);
-                    return RedirectToAction("CourseDetail", new { id = courseId });
+                    return RedirectToAction("CourseDetail");
                 }
             }
             else
@@ -541,7 +541,7 @@ namespace BrainStormEra.Controllers.Course
                 TempData["ErrorMessage"] = "You do not have enough points to enroll in this course.";
             }
 
-            return RedirectToAction("CourseDetail", new { id = courseId });
+            return RedirectToAction("CourseDetail");
         }
 
         [HttpPost]
