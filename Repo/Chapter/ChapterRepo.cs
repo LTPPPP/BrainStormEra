@@ -218,7 +218,10 @@ namespace BrainStormEra.Repo.Chapter
                 command.Parameters.AddWithValue("@ChapterDescription", chapter.ChapterDescription ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ChapterOrder", chapter.ChapterOrder);
                 command.Parameters.AddWithValue("@ChapterStatus", chapter.ChapterStatus ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ChapterCreatedAt", chapter.ChapterCreatedAt);
+                DateTime chapterCreatedAt = chapter.ChapterCreatedAt == default ? DateTime.Now : chapter.ChapterCreatedAt;
+                command.Parameters.AddWithValue("@ChapterCreatedAt", chapterCreatedAt);
+
+
 
                 await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
