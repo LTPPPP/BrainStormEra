@@ -38,6 +38,7 @@
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="Repo\Feedback\" />
+    <Folder Include="Repo\NewFolder\" />
     <Folder Include="Repo\Notification\" />
     <Folder Include="Views\Learner\" />
     <Folder Include="wwwroot\css\Chapter\" />

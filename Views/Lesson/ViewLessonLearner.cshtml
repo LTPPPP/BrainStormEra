@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
     <link rel="stylesheet" href="~/css/base.css" />
     <link rel="stylesheet" href="~/css/Lesson/ViewLessonLearner.css" />
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css" />
@@ -45,7 +47,7 @@
                                         {
                                             <li>
                                                 <a href="#" class="lesson-link" data-lesson-id="@lesson.LessonId">
-                                                    <i class="lesson-icon @(completedLessons.Contains(lesson.LessonId) ? "fa-check-circle text-success" : (lesson.LessonTypeId == 1 ? "fa-play-circle" : "fa-book"))"></i> @lesson.LessonName
+                                                    <i class="lesson-icon @(completedLessons.Contains(lesson.LessonId) ? "bi bi-check-circle text-success" : (lesson.LessonTypeId == 1 ? "bi bi-play-circle" : "bi bi-book"))"></i> @lesson.LessonName
                                                 </a>
                                                 <hr />
                                             </li>
@@ -132,6 +134,7 @@
                 });
             }
 
+
             function markAsCompleted(lessonId) {
                 $.ajax({
                     url: '@Url.Action("MarkLessonCompleted", "Lesson")',
@@ -140,8 +143,13 @@
                     data: JSON.stringify({ lessonId: lessonId }),
                     success: function (response) {
                         if (response.success) {
+
                             $('#markCompletedButton').text('✓ Completed').addClass('btn-success').prop('disabled', true);
-                            $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`).removeClass('fa-play-circle fa-book').addClass('fa-check-circle text-success');
+
+
+                            $(`.lesson-link[data-lesson-id="${lessonId}"] .lesson-icon`)
+                                .removeClass('bi-play-circle bi-book')
+                                .addClass('bi-check-circle text-success');
                         } else {
                             alert(response.message || "Failed to mark lesson as completed.");
                         }
@@ -155,11 +163,11 @@
             $('.lesson-link').click(function (e) {
                 e.preventDefault();
                 const lessonId = $(this).data('lesson-id');
-                document.cookie = "LessonId=" + lessonId+";path=/";
+                document.cookie = "LessonId=" + lessonId + ";path=/";
                 loadLessonContent(lessonId);
             });
 
-            // Initial load based on Model.LessonId
+
             loadLessonContent('@Model.LessonId');
         });
     </script>

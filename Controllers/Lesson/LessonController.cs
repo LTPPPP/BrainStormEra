@@ -268,6 +268,17 @@ namespace BrainStormEra.Controllers.Lesson
             }
 
             await _lessonRepo.MarkLessonCompletedAsync(userId, request.LessonId);
+
+
+            string courseId = await _lessonRepo.GetCourseIdByLessonIdAsync(request.LessonId);
+            bool allLessonsCompleted = await _lessonRepo.AreAllLessonsCompletedAsync(userId, courseId);
+
+            if (allLessonsCompleted)
+            {
+
+                await _lessonRepo.UpdateEnrollmentStatusAsync(userId, courseId, 5);
+            }
+
             return Json(new { success = true });
         }
         private string FormatYoutubeUrl(string url, int lessonTypeId)

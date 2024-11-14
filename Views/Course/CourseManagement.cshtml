@@ -230,14 +230,47 @@
         }
         document.addEventListener("DOMContentLoaded", function () {
             const filterBtns = document.querySelectorAll('.filter-btn');
+            const allCoursesButton = document.getElementById("allCoursesButton");
 
+            // Helper function to get cookie value
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+
+            // Set "All courses" active by default if no category is stored
+            const currentCategory = getCookie("CategoryId");
+
+            if (!currentCategory || currentCategory === "") {
+                allCoursesButton.classList.add("active");
+            }
+
+            // Event listeners for each button
             filterBtns.forEach(button => {
-                button.addEventListener('click', function () {
-                    filterBtns.forEach(btn => btn.classList.remove('active')); // Loại bỏ 'active' khỏi tất cả các nút
-                    this.classList.add('active'); // Thêm 'active' vào nút hiện tại
+                button.addEventListener("click", function () {
+                    // Remove active from all buttons
+                    filterBtns.forEach(btn => btn.classList.remove("active"));
+                    // Set the clicked button as active
+                    this.classList.add("active");
+
+                    // Update the cookie
+                    const categoryId = this.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || '';
+                    document.cookie = "CategoryId=" + categoryId + "; path=/";
+
+                    // Save the scroll position
+                    localStorage.setItem("scrollPosition", window.scrollY);
                 });
             });
+
+            // Reset scroll position after reload
+            const savedScrollPosition = localStorage.getItem("scrollPosition");
+            if (savedScrollPosition) {
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                localStorage.removeItem("scrollPosition");
+            }
         });
+
 
         function filterCourses() {
             const searchQuery = document.getElementById('searchQuery').value.toLowerCase();
@@ -279,7 +312,38 @@
                 });
             });
         });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the current category ID from the URL or cookie
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentCategory = getCookie("CategoryId");
 
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            filterBtns.forEach(button => {
+                // Check if this button corresponds to the current category
+                const buttonCategory = button.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+
+                if (
+                    (currentCategory && buttonCategory === currentCategory) ||
+                    (!currentCategory && button.textContent.trim() === 'All courses')
+                ) {
+                    button.classList.add('active');
+                }
+
+                button.addEventListener('click', function () {
+                    filterBtns.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    localStorage.setItem("scrollPosition", window.scrollY);
+                });
+            });
+        });
+
+        // Helper function to get cookie value
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
     </script>
     <script src="~/js/Course/DeleteCourse.js"></script>
 

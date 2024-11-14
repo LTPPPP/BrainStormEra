@@ -12,14 +12,13 @@ namespace BrainStormEra.Controllers.Certificate
                 _certificateRepository = certificateRepository;
             }
 
-        // Lấy danh sách các khóa học đã hoàn thành của người dùng
         public async Task<IActionResult> CompletedCourses()
         {
             var userId = Request.Cookies["user_id"];
             var completedCourses = await _certificateRepository.GetCompletedCoursesAsync(userId);
 
-            ViewData["UserId"] = userId; // Truyền user_id qua ViewData
-            return View(completedCourses); // Truyền danh sách các khóa học vào View
+            ViewData["UserId"] = userId; 
+            return View(completedCourses); 
         }
 
 

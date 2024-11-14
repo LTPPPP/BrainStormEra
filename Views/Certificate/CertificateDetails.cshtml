@@ -17,109 +17,111 @@
 
     <!-- Custom Styling -->
     <style>
-        /* Container Styling */
+        /* Main container styling */
         .certificate-page {
             max-width: 100%;
             margin: 0 auto;
         }
 
-        /* User Info Section */
+        /* User Info Section Styling */
         .user-info-section {
             border: 1px solid #ddd;
             border-radius: 8px;
-            background: #D6EDF6;
+            background: #eef7fc;
             display: flex;
             flex-direction: column;
-             align-items: flex-start; 
-            margin-right: 12px;
+            align-items: center;
             padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .user-info p {
-            font-size: 1rem;
-            margin: 8px 0;
+        .user-info h3, .user-info p {
             color: #333;
-            text-align: start;
+            margin-bottom: 8px;
         }
 
-        /* Certificate Section */
+        .user-info h3 {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        /* Certificate Section Styling */
         .certificate-section {
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 20px;
             background: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
             text-align: center;
             min-width: 400px;
             max-width: 800px;
-            flex: 1;
         }
 
         .certificate-content {
-            padding: 25px;
-            border: 2px solid #d4af37;
+            padding: 30px;
+            border: 3px solid #d4af37;
             border-radius: 10px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-            width: 100%;
+            box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.05);
+            background-color: #fffdf5;
         }
 
         .certificate-header {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: #d4af37;
             font-weight: bold;
+            margin-bottom: 10px;
         }
 
         .certificate-title {
             font-size: 2.5rem;
-            margin-top: 20px;
-            margin-bottom: 30px;
             color: #d4af37;
             font-weight: bold;
+            margin: 20px 0;
         }
 
-        .certificate-body {
+        .certificate-body, .certificate-footer {
             font-size: 1rem;
             color: #555;
+            margin: 0;
         }
 
         .certificate-username {
             font-size: 2rem;
-            font-style: italic;
             color: #333;
+            font-style: italic;
+            padding: 10px;
             border-bottom: 2px solid #d4af37;
-            display: inline-block;
-            padding-bottom: 5px;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .certificate-logo img {
-            width: 90px;
+            width: 100px;
             height: auto;
-            object-fit: contain;
+            margin: 20px 0;
         }
 
         .certificate-footer {
             font-size: 0.9rem;
             color: #888;
-            text-align: start;
         }
 
-        /* Button Styling */
+        /* Download Button Styling */
         .download-btn {
-            display: block;
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 10px 25px;
             font-size: 1rem;
             background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-            .download-btn:hover {
-                background-color: #0056b3;
-            }
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+
     </style>
 
     <!-- Include html2canvas and jsPDF from CDN -->
@@ -129,53 +131,35 @@
 
 <body>
     @await Html.PartialAsync("~/Views/Shared/Learner/Header/_Header.cshtml")
-
-
-    <div class="text-center mt-5 d-flex flex-column align-items-center" style="padding: 20px;">
-        <div class="alert alert-light shadow-lg p-5" style="border-radius: 12px; max-width: 70%; background-color: #f8f9fa; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
-            <div class="mb-3">
-                <!-- Add an icon for visual appeal -->
-                <i class="fas fa-graduation-cap fa-3x text-primary mb-3" style="animation: bounce 2s infinite;"></i>
-            </div>
-            <h5 class="mb-2 font-weight-bold" style="color: #0056b3;">No Courses Completed Yet!</h5>
-            <p style="color: #6c757d;">It seems like you haven't completed any courses so far. Start learning, and your achievements will show up here.</p>
-            <a href="@Url.Action("CourseManagement", "Course")" class="btn btn-outline-primary mt-3" style="border-radius: 20px;">Explore Courses</a>  
-        </div>
-    </div>
-       
+    
     <div class="container container-certificate mt-5">
         <div class="certificate-page row g-4 justify-content-center">
 
             <!-- Left Section: User and Course Information -->
-            <div class="col-lg-4 col-md-5 col-sm-10 user-info-section p-4 rounded shadow-sm bg-light d-flex flex-column">
-                <div class="user-info mt-5 text-center">
-                    <h3><strong>Completed by @Model.UserName</strong></h3>
-                    <p><strong>Completion at @Model.CompletedDate.ToString("dd/MM/yyyy")</strong></p>
-                    <p>Approximately @ViewData["Duration"] days to complete</p>
-                    <p>
-                        @Model.UserName account is verified. BrainStormEra certifies their successful completion of
-                        @Model.CourseName Specialization.
-                    </p>
-                    <!-- Download Button inside user info section -->
+            <div class="col-lg-4 col-md-5 col-sm-10 user-info-section">
+                <div class="user-info text-center">
+                    <h3>Completed by @Model.UserName</h3>
+                    <p><strong>Completion Date:</strong> @Model.CompletedDate.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Duration:</strong> Approximately @ViewData["Duration"] days to complete</p>
+                    <p>@Model.UserName’s account is verified by BrainStormEra. We certify their successful completion of the <strong>@Model.CourseName</strong> specialization.</p>
                     <button class="download-btn" onclick="downloadCertificate()">Download Certificate</button>
                 </div>
             </div>
 
             <!-- Right Section: Certificate Display -->
-            <div class="col-lg-7 col-md-7 col-sm-10 certificate-section d-flex align-items-center justify-content-center" id="certificateArea">
-                <div class="certificate-content p-5 text-center rounded shadow-sm bg-white">
-                    <h4 class="certificate-header text-uppercase mb-2">BrainStormEra Academy</h4>
-                    <h2 class="certificate-title mb-3">Certificate of Completion</h2>
+            <div class="col-lg-7 col-md-7 col-sm-10 certificate-section" id="certificateArea">
+                <div class="certificate-content">
+                    <h4 class="certificate-header">BrainStormEra Academy</h4>
+                    <h2 class="certificate-title">Certificate of Completion</h2>
                     <p class="certificate-body">This certificate is awarded to</p>
-                    <h3 class="certificate-username mb-1">@Model.UserName</h3>
-                    <p class="mb-2">
-                        has successfully completed the online course "@Model.CourseName" specialization on
-                        @Model.CompletedDate.ToString("dd/MM/yyyy")
-                    </p>
-                    <div class="certificate-logo my-4">
-                        <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="Logo" class="img-fluid">
+                    <h3 class="certificate-username">@Model.UserName</h3>
+                    <p class="certificate-body">for successfully completing the course</p>
+                    <h4>"@Model.CourseName"</h4>
+                    <p class="certificate-body">on @Model.CompletedDate.ToString("dd/MM/yyyy")</p>
+                    <div class="certificate-logo">
+                        <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="BrainStormEra Logo">
                     </div>
-                    <p class="certificate-footer text-muted">Verified by BrainStormEra</p>
+                    <p class="certificate-footer">Verified by BrainStormEra Academy</p>
                 </div>
             </div>
         </div>
@@ -186,25 +170,14 @@
     <!-- JavaScript to handle downloading only the certificate area as PDF -->
     <script>
         function downloadCertificate() {
-            // Select the certificate area to convert to canvas
             const certificateArea = document.getElementById("certificateArea");
 
-            // Convert the certificate area to canvas
-            html2canvas(certificateArea, {
-                scale: 2 // Increase scale for better resolution in PDF
-            }).then(canvas => {
-                // Create a new jsPDF instance
+            html2canvas(certificateArea, { scale: 2 }).then(canvas => {
                 const pdf = new jsPDF("p", "pt", "a4");
-
-                // Get canvas image as data URL
                 const imgData = canvas.toDataURL("image/png");
-
-                // Add image to PDF
                 const imgWidth = 500;
                 const imgHeight = canvas.height * imgWidth / canvas.width;
                 pdf.addImage(imgData, 'PNG', 30, 40, imgWidth, imgHeight);
-
-                // Save PDF
                 pdf.save("certificate.pdf");
             });
         }

@@ -347,11 +347,27 @@ namespace BrainStormEra.Repo
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
-                string query = "INSERT INTO lesson_completion (completion_id, user_id, lesson_id, completion_date) " +
-                               "VALUES (@completion_id, @user_id, @lesson_id, @completion_date)";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+
+
+                string maxIdQuery = "SELECT MAX(CAST(SUBSTRING(completion_id, 3, LEN(completion_id)-2) AS INT)) FROM lesson_completion WHERE completion_id LIKE 'LC%'";
+                int maxId = 0;
+
+                using (SqlCommand cmd = new SqlCommand(maxIdQuery, conn))
                 {
-                    cmd.Parameters.AddWithValue("@completion_id", Guid.NewGuid().ToString());
+                    var result = await cmd.ExecuteScalarAsync();
+                    maxId = result != DBNull.Value ? (int)result : 0;
+                }
+
+
+                string newCompletionId = "LC" + (maxId + 1).ToString("D3");
+
+
+                string insertQuery = "INSERT INTO lesson_completion (completion_id, user_id, lesson_id, completion_date) " +
+                                     "VALUES (@completion_id, @user_id, @lesson_id, @completion_date)";
+
+                using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@completion_id", newCompletionId);
                     cmd.Parameters.AddWithValue("@user_id", userId);
                     cmd.Parameters.AddWithValue("@lesson_id", lessonId);
                     cmd.Parameters.AddWithValue("@completion_date", DateTime.Now);
@@ -360,6 +376,7 @@ namespace BrainStormEra.Repo
                 }
             }
         }
+
         public string FormatYoutubeUrl(string url, int lessonTypeId)
         {
             if (lessonTypeId == 1 && !string.IsNullOrEmpty(url))
@@ -375,6 +392,104 @@ namespace BrainStormEra.Repo
             }
             return url;
         }
+
+
+
+        public async Task<string> GetCourseIdByLessonIdAsync(string lessonId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                string query = "SELECT c.course_id FROM lesson l JOIN chapter ch ON l.chapter_id = ch.chapter_id JOIN course c ON ch.course_id = c.course_id WHERE l.lesson_id = @lessonId";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@lessonId", lessonId);
+                    return (string)await cmd.ExecuteScalarAsync();
+                }
+            }
+        }
+
+
+        public async Task<bool> AreAllLessonsCompletedAsync(string userId, string courseId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                string query = @"
+            SELECT COUNT(*) 
+            FROM lesson l
+            JOIN chapter ch ON l.chapter_id = ch.chapter_id
+            WHERE ch.course_id = @courseId
+            AND l.lesson_id NOT IN (
+                SELECT lesson_id FROM lesson_completion WHERE user_id = @userId
+            )";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    int remainingLessons = (int)await cmd.ExecuteScalarAsync();
+                    return remainingLessons == 0;
+                }
+            }
+        }
+
+
+        public async Task UpdateEnrollmentStatusAsync(string userId, string courseId, int status)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                // Update enrollment status and certificate issue date
+                string updateQuery = @"
+            UPDATE enrollment 
+            SET enrollment_status = @status, 
+                certificate_issued_date = CASE WHEN @status = 5 THEN GETDATE() ELSE certificate_issued_date END
+            WHERE user_id = @userId AND course_id = @courseId";
+
+                using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                {
+                    updateCmd.Parameters.AddWithValue("@status", status);
+                    updateCmd.Parameters.AddWithValue("@userId", userId);
+                    updateCmd.Parameters.AddWithValue("@courseId", courseId);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                // Insert notification if the status indicates course completion
+                if (status == 5)
+                {
+                    // Fetch the highest notification ID
+                    string getMaxIdQuery = "SELECT MAX(CAST(SUBSTRING(notification_id, 2, LEN(notification_id) - 1) AS INT)) FROM notification";
+                    int maxId = 0;
+
+                    using (SqlCommand getMaxIdCmd = new SqlCommand(getMaxIdQuery, conn))
+                    {
+                        var result = await getMaxIdCmd.ExecuteScalarAsync();
+                        if (result != DBNull.Value)
+                        {
+                            maxId = Convert.ToInt32(result);
+                        }
+                    }
+
+                    // Increment the ID and format it as "N" followed by the new number with leading zeros
+                    string newNotificationId = "N" + (maxId + 1).ToString("D3");
+
+                    // Insert the new notification
+                    string notificationQuery = @"
+                INSERT INTO notification (notification_id, user_id, course_id, notification_title, notification_content, notification_type, notification_created_at, created_by)
+                VALUES (@notificationId, @userId, @courseId, 'Congratulations', 'Congratulations, you have received a new certificate!', 'Info', GETDATE(), @userId)";
+
+                    using (SqlCommand notificationCmd = new SqlCommand(notificationQuery, conn))
+                    {
+                        notificationCmd.Parameters.AddWithValue("@notificationId", newNotificationId);
+                        notificationCmd.Parameters.AddWithValue("@userId", userId);
+                        notificationCmd.Parameters.AddWithValue("@courseId", courseId);
+                        await notificationCmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+        }
+
 
     }
 }

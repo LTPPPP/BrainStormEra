@@ -1,31 +1,31 @@
-﻿    using BrainStormEra.Models;
-    using Microsoft.EntityFrameworkCore;
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using Microsoft.Data.SqlClient; 
+﻿using BrainStormEra.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
-    namespace BrainStormEra.Repo.Certificate
+namespace BrainStormEra.Repo.Certificate
+{
+    public interface ICertificateRepository
     {
-        public interface ICertificateRepository
+        Task<List<CertificateSummaryViewModel>> GetCompletedCoursesAsync(string userId);
+        Task<CertificateViewModel> GetCertificateDetailsAsync(string userId, string courseId);
+    }
+
+    public class CertificateRepository : ICertificateRepository
+    {
+        private readonly SwpMainContext _context;
+
+        public CertificateRepository(SwpMainContext context)
         {
-            Task<List<CertificateSummaryViewModel>> GetCompletedCoursesAsync(string userId);
-            Task<CertificateViewModel> GetCertificateDetailsAsync(string userId, string courseId);
+            _context = context;
         }
 
-        public class CertificateRepository : ICertificateRepository
+        public async Task<List<CertificateSummaryViewModel>> GetCompletedCoursesAsync(string userId)
         {
-            private readonly SwpMainContext _context;
-
-            public CertificateRepository(SwpMainContext context)
-            {
-                _context = context;
-            }
-
-            public async Task<List<CertificateSummaryViewModel>> GetCompletedCoursesAsync(string userId)
-            {
-                var query = @"
+            var query = @"
                     SELECT 
                         c.course_id AS CourseId,
                         c.course_name AS CourseName,
@@ -36,43 +36,43 @@ using System.Threading.Tasks;
                         course c ON e.course_id = c.course_id
                     WHERE 
                         e.user_id = @UserId 
-                        AND e.enrollment_status = 5
+                        AND e.enrollment_status = 1
                  	    AND e.certificate_issued_date IS NOT NULL"; 
 
-                var completedCourses = new List<CertificateSummaryViewModel>();
+            var completedCourses = new List<CertificateSummaryViewModel>();
 
-                using (var connection = _context.Database.GetDbConnection())
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                if (connection.State == ConnectionState.Closed)
+                    connection.Open();
+
+                using (var command = connection.CreateCommand())
                 {
-                    if (connection.State == ConnectionState.Closed)
-                        connection.Open();
+                    command.CommandText = query;
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
 
-                    using (var command = connection.CreateCommand())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = query;
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.Add(new SqlParameter("@UserId", userId));
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            completedCourses.Add(new CertificateSummaryViewModel
                             {
-                                completedCourses.Add(new CertificateSummaryViewModel
-                                {
-                                    CourseId = reader["CourseId"] as string,
-                                    CourseName = reader["CourseName"] as string,
-                                    CompletedDate = reader["CompletedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default
-                                });
-                            }
+                                CourseId = reader["CourseId"] as string,
+                                CourseName = reader["CourseName"] as string,
+                                CompletedDate = reader["CompletedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default
+                            });
                         }
                     }
                 }
-
-                return completedCourses;
             }
 
-            public async Task<CertificateViewModel> GetCertificateDetailsAsync(string userId, string courseId)
-            {
-                var query = @"
+            return completedCourses;
+        }
+
+        public async Task<CertificateViewModel> GetCertificateDetailsAsync(string userId, string courseId)
+        {
+            var query = @"
                  SELECT 
                         a.full_name AS UserName,
                         c.course_name AS CourseName,
@@ -88,58 +88,58 @@ using System.Threading.Tasks;
                     WHERE 
                         e.user_id = @UserId 
                         AND e.course_id = @CourseId
-                        AND e.enrollment_status = 5"; 
+                        AND e.enrollment_status = 1"; 
 
-                using (var connection = _context.Database.GetDbConnection())
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                if (connection.State == ConnectionState.Closed)
+                    connection.Open();
+
+                using (var command = connection.CreateCommand())
                 {
-                    if (connection.State == ConnectionState.Closed)
-                        connection.Open();
+                    command.CommandText = query;
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+                    command.Parameters.Add(new SqlParameter("@CourseId", courseId));
 
-                    using (var command = connection.CreateCommand())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = query;
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.Add(new SqlParameter("@UserId", userId));
-                        command.Parameters.Add(new SqlParameter("@CourseId", courseId));
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        if (await reader.ReadAsync())
                         {
-                            if (await reader.ReadAsync())
+                            return new CertificateViewModel
                             {
-                                return new CertificateViewModel
-                                {
-                                    UserName = reader["UserName"] as string,
-                                    CourseName = reader["CourseName"] as string,
-                                    CourseDescription = reader["CourseDescription"] as string,
-                                    CompletedDate = reader["CompletedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default,
-                                    StartedDate = reader["StartedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default
-                                    
+                                UserName = reader["UserName"] as string,
+                                CourseName = reader["CourseName"] as string,
+                                CourseDescription = reader["CourseDescription"] as string,
+                                CompletedDate = reader["CompletedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default,
+                                StartedDate = reader["StartedDate"] != DBNull.Value ? (DateTime)reader["CompletedDate"] : default
 
-                                };
-                            }
+
+                            };
                         }
                     }
                 }
-
-                return null;
             }
-        }
 
-        public class CertificateSummaryViewModel
-        {
-            public string CourseId { get; set; }
-            public string CourseName { get; set; }
-            public DateTime CompletedDate { get; set; }
-            
-            
+            return null;
         }
+    }
 
-        // ViewModel cho chi tiết chứng chỉ
-        public class CertificateViewModel
-        {
-            public string UserName { get; set; }
-            public string CourseName { get; set; }
-            public DateTime CompletedDate { get; set; }
+    public class CertificateSummaryViewModel
+    {
+        public string CourseId { get; set; }
+        public string CourseName { get; set; }
+        public DateTime CompletedDate { get; set; }
+
+
+    }
+
+    // ViewModel cho chi tiết chứng chỉ
+    public class CertificateViewModel
+    {
+        public string UserName { get; set; }
+        public string CourseName { get; set; }
+        public DateTime CompletedDate { get; set; }
         public DateTime StartedDate { get; set; }
         public string CourseDescription { get; set; }
     }
