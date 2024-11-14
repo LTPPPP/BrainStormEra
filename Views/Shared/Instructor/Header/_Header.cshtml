@@ -1,7 +1,7 @@
 ﻿@{
     var showProfile = (string)ViewContext.RouteData.Values["action"] == "HomepageAdmin"
-                      || (string)ViewContext.RouteData.Values["action"] == "HomePageInstructor"
-                      || (string)ViewContext.RouteData.Values["action"] == "HomePageLearner";
+    || (string)ViewContext.RouteData.Values["action"] == "HomePageInstructor"
+    || (string)ViewContext.RouteData.Values["action"] == "HomePageLearner";
 }
 <header class="container-fluid sticky-header" style="background-color: white;">
     <nav class="navbar navbar-expand-lg">
@@ -10,7 +10,7 @@
                 <img src="~/lib/img/Login/BrainStormEra_logo.png" alt="BrainStormEra Logo" class="logo_img">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -18,18 +18,21 @@
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("HomePageInstructor", "HomePageInstructor")">DASHBOARD</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("CourseManagement", "Course")">COURSE</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("CourseManagement", "Course")">COURSE</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("ViewUsers", "ManageProfile")">USER</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="#">CERTIFICATE</a></li>
                 </ul>
                 @if (showProfile)
                 {
                     <div class="profile d-flex align-items-center">
-                        <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal" data-bs-target="#notificationsModal"></i>
+                        <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal"
+                            data-bs-target="#notificationsModal"></i>
                         <a href="@Url.Action("Index", "Profile")">
-                            <img src="@ViewBag.UserPicture" alt="Profile Picture" onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" class="user_img" style="width: 40px; height: 40px; border-radius: 50%;">
+                            <img src="@ViewBag.UserPicture" alt="Profile Picture"
+                                onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" class="user_img"
+                                style="width: 40px; height: 40px; border-radius: 50%;">
                         </a>
                         <span class="d-none d-md-inline">@ViewBag.FullName</span>
                         <i class="fas fa-chevron-down d-none d-md-inline" aria-hidden="true"></i>
