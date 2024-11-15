@@ -1,6 +1,6 @@
 ﻿/* Heading Style */
 .achievement-header {
-    color: var(--primary-color);
+    color: var(--linkedin-btn-bg-color);
     font-size: 3.5rem;
     margin-top: 3rem;
     text-align: center;
@@ -9,7 +9,7 @@
 
 /* Card Styling */
 .achievement-card-custom {
-    background-color: var(--primary-color);
+    background-color: var(--linkedin-btn-bg-color);
     color: var(--text-color-light);
     border-radius: 15px;
     box-shadow: 0 6px 12px var(--box-shadow-color);
@@ -84,10 +84,13 @@
     color: var(--text-color-light);
 }
 
-/* Modal specific image styling */
 .achievement-modal-image {
+    max-width: 150px;
     max-height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
     margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .achievement-modal-title {
@@ -159,4 +162,22 @@
         flex: 0 0 100%; /* Single column on small screens */
         max-width: 100%;
     }
+}
+
+/* Achievement Image Circular Style */
+.achievement-image {
+    width: 90%;
+    height: auto;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    /* Make the image circular */
+    margin-top: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Smooth transition for hover effects */
+}
+/* Hover Effect for Achievement Image */
+.achievement-image:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
