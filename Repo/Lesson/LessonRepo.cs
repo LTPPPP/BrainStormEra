@@ -489,6 +489,23 @@ namespace BrainStormEra.Repo
                 }
             }
         }
+        public async Task<string> GetChapterIdByLessonIdAsync(string lessonId)
+        {
+            System.Console.WriteLine(lessonId);
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                string query = "SELECT chapter_id FROM lesson WHERE lesson_id = @lesson_id";
+                System.Console.WriteLine("query : " + query);
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+
+                    cmd.Parameters.AddWithValue("@lesson_id", lessonId);
+                    var result = await cmd.ExecuteScalarAsync();
+                    return result?.ToString();
+                }
+            }
+        }
 
 
     }

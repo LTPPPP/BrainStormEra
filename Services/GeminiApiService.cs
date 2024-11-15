@@ -59,7 +59,7 @@ Summarize long responses: If a response is lengthy, provide a brief summary at t
 
 Decline to answer if unrelated: If the question is unrelated to course content, you may decline to answer.
 
-Provide detailed responses based on provided information: Use the provided course information to make your response more detailed. This includes fully utilizing details such as Course Name, Course Description, Course Created By, Lesson Name, Lesson Description, and Lesson Content to create a relevant, in-depth, and valuable response for the instructor.
+Provide detailed responses based on provided information: Use the provided course information to make your response more detailed. This includes fully utilizing details such as Course Name, Course Description, Course Created By, Chapter Name, Chapter Description, Lesson Name, Lesson Description, and Lesson Content to create a relevant, in-depth, and valuable response for the instructor.
 
 Refuse unrelated questions: If the question does not pertain to the course, respond with: “Sorry, I cannot answer your question if it is unrelated to the course.”
 
@@ -68,7 +68,9 @@ Course information includes:
 Course Name (CourseName)
 Course Description (CourseDescription)
 Course Created By (CourseCreatedBy)
-Lesson Name (LessonName)
+Chapter Name (ChapterName)
+Chapter Description (ChapterDescription)
+Lesson Name (LessonName) 
 Lesson Description (LessonDescription)
 Lesson Content (LessonContent)
 Instructor input: {0}
@@ -107,7 +109,7 @@ Your response (in Vietnamese):";
             _apiUrl = configuration["GeminiApiUrl"];
         }
 
-        public async Task<string> GetResponseFromGemini(string message, int userRole, string CourseName, string CourseDescription, string CreatedBy,
+        public async Task<string> GetResponseFromGemini(string message, int userRole, string CourseName, string CourseDescription, string CreatedBy, string ChatperName, string ChapterDescription,
               string LessonName, string LessonDescription, string LessonContent)
         {
             string selectedTemplate;
@@ -116,6 +118,10 @@ Your response (in Vietnamese):";
                 CreateBy : {CreatedBy}
                 Lesson Description: {CourseDescription}
                 Lesson Content: {CreatedBy}
+                ";
+            var chapterDetails = $@"
+                Chapter Name : {ChatperName}
+                Chapter Description : {ChapterDescription}
                 ";
 
             var lessonDetails = $@"
@@ -130,7 +136,7 @@ Your response (in Vietnamese):";
                     selectedTemplate = ADMIN_TEMPLATE;
                     break;
                 case 3:
-                    selectedTemplate = USER_TEMPLATE + courseDetails + lessonDetails;
+                    selectedTemplate = USER_TEMPLATE + courseDetails + chapterDetails + lessonDetails;
                     break;
                 case 2:
                     selectedTemplate = INSTRUCTOR_TEMPLATE;
@@ -140,7 +146,7 @@ Your response (in Vietnamese):";
                     break;
             }
             var formattedMessage = (userRole == 3)
-                ? string.Format(selectedTemplate, message, courseDetails, lessonDetails) // USER role with lesson details
+                ? string.Format(selectedTemplate, message, courseDetails, chapterDetails, lessonDetails) // USER role with lesson details
                 : string.Format(selectedTemplate, message); // Other roles
             Console.WriteLine(formattedMessage);
             var request = new

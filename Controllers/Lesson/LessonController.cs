@@ -1,5 +1,7 @@
 ﻿using BrainStormEra.Models;
 using BrainStormEra.Repo;
+using BrainStormEra.Repo.Chapter;
+using BrainStormEra.Repo.Course;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
@@ -14,10 +16,14 @@ namespace BrainStormEra.Controllers.Lesson
         private readonly string _connectionString;
         private readonly SwpMainContext _context;
         private readonly LessonRepo _lessonRepo;
-        public LessonController(IConfiguration configuration, SwpMainContext context, LessonRepo lessonRepo)
+        private readonly ChapterRepo _chapterRepo;
+        private readonly CourseRepo _courseRepo;
+        public LessonController(IConfiguration configuration, SwpMainContext context, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
         {
             _connectionString = configuration.GetConnectionString("SwpMainContext");
             _context = context;
+            _courseRepo = courseRepo;
+            _chapterRepo = chapterRepo;
             _lessonRepo = lessonRepo;
         }
 
@@ -208,7 +214,9 @@ namespace BrainStormEra.Controllers.Lesson
         public async Task<IActionResult> ViewLessonLearner(string lessonId)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             string courseId = Request.Cookies["CourseId"];
+            var course = await _courseRepo.GetCourseByIdAsync(courseId);
 
             if (string.IsNullOrEmpty(courseId) || string.IsNullOrEmpty(userId))
             {
@@ -227,6 +235,10 @@ namespace BrainStormEra.Controllers.Lesson
             }
 
             var lesson = await _lessonRepo.GetLessonByIdAndCourseAsync(lessonId, courseId);
+
+            System.Console.WriteLine("lessonID ; " + lessonId);
+            var chapterId = await _lessonRepo.GetChapterIdByLessonIdAsync(lessonId);
+            var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
 
             if (lesson == null)
             {
@@ -252,6 +264,10 @@ namespace BrainStormEra.Controllers.Lesson
             ViewBag.Chapters = _context.Chapters.Where(c => c.CourseId == courseId).ToList();
             ViewBag.CompletedLessons = completedLessonIds;
             ViewBag.IsCompleted = isCompleted;
+
+            ViewBag.CourseName = course?.CourseName ?? "Unknown Course";
+            ViewBag.ChapterName = chapter?.ChapterName ?? "Unknown Chapter";
+            ViewBag.LessonName = lesson?.LessonName ?? "Unknown Lesson";
 
             return View(lesson);
         }

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrainStormEra.Repo.Course;
 using BrainStormEra.Repo.Chapter;
+using OpenQA.Selenium.DevTools.V127.Database;
 
 namespace BrainStormEra.Controllers
 {
@@ -55,12 +56,18 @@ namespace BrainStormEra.Controllers
                 string reply;
                 var courseId = HttpContext.Request.Cookies["CourseId"];
                 var lessonId = HttpContext.Request.Cookies["LessonId"];
+                var chapterID = await _lessonRepo.GetChapterIdByLessonIdAsync(lessonId);
                 if (userRole == 3)
                 {
                     var course = await _courseRepo.GetCourseByIdAsync(courseId);
                     if (course == null)
                     {
                         return BadRequest(new { error = "course not found" });
+                    }
+                    var chapter = await _chapterRepo.GetChapterByIdAsync(chapterID);
+                    if (chapter == null)
+                    {
+                        return BadRequest(new { error = "chapter not found" });
                     }
                     var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
                     reply = await _geminiApiService.GetResponseFromGemini(
@@ -69,6 +76,8 @@ namespace BrainStormEra.Controllers
                         course.CourseName,
                         course.CreatedBy,
                         course.CourseDescription,
+                        chapter.ChapterName,
+                        chapter.ChapterDescription,
                         lesson.LessonName,
                         lesson.LessonDescription,
                         lesson.LessonContent
@@ -76,7 +85,7 @@ namespace BrainStormEra.Controllers
                 }
                 else
                 {
-                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ");
+                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ", " ", " ");
                 }
 
                 var botConversation = new ChatbotConversation
