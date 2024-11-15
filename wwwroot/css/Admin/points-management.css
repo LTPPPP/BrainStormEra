@@ -4,7 +4,9 @@ h2 {
     text-align: center;
     font-weight: bold;
 }
-
+h4{
+    text-align: start;
+}
 .table-cl{
     font-size : 2rem;
 }
