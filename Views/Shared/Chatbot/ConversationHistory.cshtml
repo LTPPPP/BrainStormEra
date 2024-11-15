@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,21 +12,26 @@
     <link href="~/css/base.css" rel="stylesheet" />
     <link href="~/css/Chatbot/chatbotHistory.css" rel="stylesheet" />
     <link href="~/css/HomePage/landing_page.css" rel="stylesheet" />
+    <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
 </head>
+
 <body>
     @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
     <div class="container mt-4">
-        <h2 class="text-center header-his">Chatbot Conversation History - @Model.DailyConversations[0].Date.ToString("dd/MM/yyyy")</h2>
+        <h2 class="text-center header-his">Chatbot Conversation History -
+            @Model.DailyConversations[0].Date.ToString("dd/MM/yyyy")</h2>
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mt-4">
                 <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage - 1 })" aria-label="Previous">
+                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage - 1 })"
+                        aria-label="Previous">
                         <span aria-hidden="true">&laquo; Next Day</span>
                     </a>
                 </li>
 
                 <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage + 1 })" aria-label="Next">
+                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage + 1 })"
+                        aria-label="Next">
                         <span aria-hidden="true">Previous Day &raquo;</span>
                     </a>
                 </li>
@@ -47,7 +53,8 @@
                 <div class="col-12 mb-4">
                     <div class="card shadow-sm h-100 border-0 rounded-lg hover-zoom">
                         <div class="card-header d-flex align-items-center rounded-top title-chat">
-                            <input type="checkbox" class="select-conversation form-check-input me-2" data-id="@conversation.ConversationId">
+                            <input type="checkbox" class="select-conversation form-check-input me-2"
+                                data-id="@conversation.ConversationId">
                             <i class="fas fa-user-circle me-2"></i>
                             <span>@conversation.UserName</span>
                         </div>
@@ -67,13 +74,15 @@
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mt-4">
                 <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage - 1 })" aria-label="Previous">
+                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage - 1 })"
+                        aria-label="Previous">
                         <span aria-hidden="true">&laquo; Next Day</span>
                     </a>
                 </li>
 
                 <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage + 1 })" aria-label="Next">
+                    <a class="page-link" href="@Url.Action("ConversationHistory", new { page = Model.CurrentPage + 1 })"
+                        aria-label="Next">
                         <span aria-hidden="true">Previous Day &raquo;</span>
                     </a>
                 </li>
@@ -121,4 +130,5 @@
 
     </script>
 </body>
+
 </html>

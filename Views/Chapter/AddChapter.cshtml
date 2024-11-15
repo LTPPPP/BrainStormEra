@@ -1,4 +1,6 @@
 ﻿@model Chapter
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 @{
 }
 <!DOCTYPE html>
@@ -52,14 +54,16 @@
 
                     <div class="text-start mb-3">
                         <button type="button" onclick="window.location.href='@Url.Action("EditCourse", "Course")'"
-                                class="btn btn-sm">
+                            class="btn btn-sm">
                             <i class="fas fa-arrow-left"></i> Back to Course
                         </button>
                     </div>
 
                     <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddChapter", "Chapter")">Add Chapter</a>
-                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete Chapter</a>
-                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")"> Chapter Management</a>
+                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete
+                        Chapter</a>
+                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")"> Chapter
+                        Management</a>
                 </div>
             }
 
@@ -67,7 +71,7 @@
             <div class="col-md-9 d-flex align-items-start vh-100">
                 <div class="card w-100 ">
                     <div class="card-header gradient-header">
-                        @courseName >  ADD NEW CHAPTER
+                        @courseName > ADD NEW CHAPTER
                     </div>
 
                     <div class="card-body">
@@ -77,14 +81,14 @@
                             <div class="mb-3">
                                 <label for="chapterTitle" class="form-label">Title Chapter</label>
                                 <input asp-for="ChapterName" type="text" class="form-control" id="chapterTitle"
-                                       placeholder="Enter Chapter Title">
+                                    placeholder="Enter Chapter Title">
                                 <span asp-validation-for="ChapterName" class="text-danger"></span>
 
                             </div>
                             <div class="mb-3">
                                 <label for="chapterDescription" class="form-label">Chapter Description</label>
-                                <textarea asp-for="ChapterDescription" class="form-control" id="chapterDescription" rows="5"
-                                          placeholder="Enter Chapter Description"></textarea>
+                                <textarea asp-for="ChapterDescription" class="form-control" id="chapterDescription"
+                                    rows="5" placeholder="Enter Chapter Description"></textarea>
                                 <span class="text-danger"></span>
 
                             </div>

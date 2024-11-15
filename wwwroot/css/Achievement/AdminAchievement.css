@@ -36,11 +36,8 @@ body {
 .achievement-table td {
     text-align: center;
     vertical-align: middle;
-    /* Aligns content vertically to the center */
     padding: 15px;
-    /* Increases padding for larger cells */
     font-size: 1.7rem;
-    /* Increases font size */
 }
 .table td,
 .achievement-table td {
@@ -67,7 +64,7 @@ body {
 .achievement-table td img {
     width: 50px;
     height: 50px;
-    border-radius: 5px;
+    border-radius: 50%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -81,14 +78,12 @@ body {
 }
 
 .icon-btn:hover {
-    color: #0056b3;
-    /* Darker shade of primary color */
+    color: var(--main-color);
 }
 
 /* Add Button */
 .btn-add {
     background-color: var(--create-btn-bg-color);
-    /* Success color */
     color: #fff;
     border: none;
     font-size: 1.5rem;
@@ -132,18 +127,15 @@ body {
 
 .modal-footer .btn-success:hover {
     background-color: var(--btn-create-hover);
-    /* Hover success color */
 }
 
 .modal-footer .btn-secondary {
-    background-color: #6c757d;
-    /* Secondary color */
+    background-color: var(--border-color);
     border: none;
 }
 
 .modal-footer .btn-secondary:hover {
-    background-color: #5a6268;
-    /* Hover secondary color */
+    background-color: var(--text-light-color);
 }
 
 .achievement-title {
