@@ -8,7 +8,8 @@
     background-color: var(--white-color);
     border-radius: 14px;
     padding: 15px;
-    min-height: 100vh;
+    min-height: 200vh;
+    font-size: 2rem;
 }
 
 .main-header {
@@ -38,6 +39,24 @@
         background-color: var(--green-color);
     }
 
+.return-btn{
+    width: 200px;
+    height: 100px;
+    font-size: 1.5rem;
+}
+
+#add-chapter-button{
+    width: 120px;
+    height: 30px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1.4rem;
+    object-fit: cover;
+    background-color: var(--create-btn-bg-color);
+}
+#add-chapter-button:hover{
+    background-color: var(--create-btn-hover-bg-color);
+}
 
 .img-fluid {
     width: 150px;
