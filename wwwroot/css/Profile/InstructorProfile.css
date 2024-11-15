@@ -71,7 +71,7 @@
 }
 
 .custom-modal-content {
-    background-color: var(--secondary-primary-color);
+    background-color: var(--linkedin-btn-bg-color);
     color: var(--gray-color-main);
     padding: 20px;
     border-radius: 10px;
@@ -82,7 +82,10 @@
     position: relative;
     transition: transform 0.3s ease;
 }
-
+.modal-content{
+    color: var(--gray-color-main);
+    font-size: 1.3rem;
+}
 .custom-modal-header {
     display: flex;
     justify-content: space-between;
