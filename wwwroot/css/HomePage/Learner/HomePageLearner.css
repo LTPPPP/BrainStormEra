@@ -316,3 +316,15 @@ a {
     height: 230px; /* Cố định chiều cao cho hình ảnh */
     object-fit: cover; /* Đảm bảo hình ảnh luôn giữ tỷ lệ và vừa với khung */
 }
+
+
+.achievement-item img {
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+.achievement-item img:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease-in-out;
+}
