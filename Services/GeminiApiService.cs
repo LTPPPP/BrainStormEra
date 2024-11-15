@@ -63,6 +63,8 @@ Provide detailed responses based on provided information: Use the provided cours
 
 Refuse unrelated questions: If the question does not pertain to the course, respond with: “Sorry, I cannot answer your question if it is unrelated to the course.”
 
+Only focus on the infotmation of course name, chapter name, lesson name
+
 Course information includes:
 
 Course Name (CourseName)
@@ -117,7 +119,6 @@ Your response (in Vietnamese):";
                 Course Name: {CourseName}
                 CreateBy : {CreatedBy}
                 Course Description: {CourseDescription}
-                Course CreateBy: {CreatedBy}
                 ";
             var chapterDetails = $@"
                 Chapter Name : {ChatperName}
