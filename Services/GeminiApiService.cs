@@ -114,10 +114,10 @@ Your response (in Vietnamese):";
         {
             string selectedTemplate;
             var courseDetails = $@"
-                Lesson Name: {CourseName}
+                Course Name: {CourseName}
                 CreateBy : {CreatedBy}
-                Lesson Description: {CourseDescription}
-                Lesson Content: {CreatedBy}
+                Course Description: {CourseDescription}
+                Course CreateBy: {CreatedBy}
                 ";
             var chapterDetails = $@"
                 Chapter Name : {ChatperName}
