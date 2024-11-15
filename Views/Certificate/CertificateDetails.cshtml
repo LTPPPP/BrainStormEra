@@ -21,6 +21,7 @@
         .certificate-page {
             max-width: 100%;
             margin: 0 auto;
+            font-size: 1rem;
         }
 
         /* User Info Section */
@@ -36,7 +37,7 @@
         }
 
         .user-info p {
-            font-size: 1rem;
+            font-size: 1.5rem;
             margin: 8px 0;
             color: #333;
             text-align: start;
@@ -56,10 +57,11 @@
 
         .certificate-content {
             padding: 25px;
-            border: 2px solid #d4af37;
+            border: 2px solid var(--star-color);
             border-radius: 10px;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
             width: 100%;
+            font-size: 1.5rem;
         }
 
         .certificate-header {
@@ -77,7 +79,7 @@
         }
 
         .certificate-body {
-            font-size: 1rem;
+            font-size: 1.5rem;
             color: #555;
         }
 
@@ -109,8 +111,8 @@
             display: block;
             margin-top: 20px;
             padding: 10px 20px;
-            font-size: 1rem;
-            background-color: #007bff;
+            font-size: 1.5rem;
+            background-color: var(--linkedin-btn-bg-color);
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -123,8 +125,8 @@
     </style>
 
     <!-- Include html2canvas and jsPDF from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js" defer></script>
 </head>
 
 <body>
@@ -155,10 +157,9 @@
                 <div class="certificate-content p-5 text-center rounded shadow-sm bg-white">
                     <h4 class="certificate-header text-uppercase mb-2">BrainStormEra Academy</h4>
                     <h2 class="certificate-title mb-3">Certificate of Completion</h2>
-                    <p class="certificate-body">This certificate is awarded to</p>
                     <h3 class="certificate-username mb-1">@Model.UserName</h3>
                     <p class="mb-2">
-                        has successfully completed the online course "@Model.CourseName" specialization on
+                        Has successfully completed the online course "@Model.CourseName" specialization on
                         @Model.CompletedDate.ToString("dd/MM/yyyy")
                     </p>
                     <div class="certificate-logo my-4">
@@ -175,12 +176,9 @@
     <!-- JavaScript to handle downloading only the certificate area as PDF -->
     <script>
         function downloadCertificate() {
-            // Select the certificate area to convert to canvas
             const certificateArea = document.getElementById("certificateArea");
-
-            // Convert the certificate area to canvas
             html2canvas(certificateArea, {
-                scale: 2 // Increase scale for better resolution in PDF
+                scale: 3 // Increase scale for better resolution in PDF
             }).then(canvas => {
                 // Create a new jsPDF instance
                 const pdf = new jsPDF("p", "pt", "a4");
@@ -192,8 +190,6 @@
                 const imgWidth = 500;
                 const imgHeight = canvas.height * imgWidth / canvas.width;
                 pdf.addImage(imgData, 'PNG', 30, 40, imgWidth, imgHeight);
-
-                // Save PDF
                 pdf.save("certificate.pdf");
             });
         }
