@@ -183,9 +183,9 @@
                         courses.forEach(course => {
                             const courseItem = document.createElement('li');
                             courseItem.innerHTML = `
-                                <strong>${course.courseName}</strong> - Completed on ${new Date(course.completedDate).toLocaleDateString()}
-                                <a href="javascript:void(0);" onclick="viewCertificate('${userId}', '${course.courseId}')">View Certificate</a>
-                            `;
+                                    <strong>${course.courseName}</strong> - Completed on ${new Date(course.completedDate).toLocaleDateString()}
+                                    <a href="javascript:void(0);" onclick="viewCertificate('${userId}', '${course.courseId}')">View Certificate</a>
+                                `;
                             courseList.appendChild(courseItem);
                         });
                     }

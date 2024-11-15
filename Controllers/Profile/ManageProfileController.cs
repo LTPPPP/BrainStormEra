@@ -3,6 +3,7 @@ using BrainStormEra.Repo.Admin;
 using BrainStormEra.Views.Profile;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers.Profile
@@ -85,13 +86,25 @@ namespace BrainStormEra.Controllers.Profile
         [HttpPost("/api/promote/{userId}")]
         public async Task<IActionResult> PromoteLearner(string userId)
         {
-            var newInstructorId = await _profileRepo.PromoteLearnerToInstructorAsync(userId);
+            try
+            {
+                var newInstructorId = await _profileRepo.PromoteLearnerToInstructorAsync(userId);
 
-            if (newInstructorId == null)
-                return BadRequest("Learner cannot be promoted. Ensure payment is zero and there are no enrollments.");
+                if (newInstructorId == null)
+                    return BadRequest("Learner cannot be promoted. Ensure payment is zero and there are no enrollments.");
 
-            return Ok($"Learner promoted to Instructor with new ID: {newInstructorId}");
+                return Ok($"Learner promoted to Instructor with new ID: {newInstructorId}");
+            }
+            catch (SqlException ex) when (ex.Number == 547) // Foreign key violation
+            {
+                return BadRequest("Promotion failed due to existing dependencies in the notification records.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An unexpected error occurred: {ex.Message}");
+            }
         }
+
 
         [HttpGet("/api/certificates/{userId}/{courseId}")]
         public async Task<IActionResult> GetCertificateForCourse(string userId, string courseId)
