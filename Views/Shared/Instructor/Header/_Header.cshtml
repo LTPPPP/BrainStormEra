@@ -27,8 +27,12 @@
                 @if (showProfile)
                 {
                     <div class="profile d-flex align-items-center">
-                        <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal"
-                            data-bs-target="#notificationsModal"></i>
+                        <i class="fas fa-bell icon position-relative" id="notificationIcon" data-bs-toggle="modal"
+                            data-bs-target="#notificationsModal">
+                            <span
+                                class="badge bg-danger position-absolute top-0 start-100 translate-middle p-2 rounded-circle"
+                                id="notificationBadge" style="display: none;"> </span>
+                        </i>
                         <a href="@Url.Action("Index", "Profile")">
                             <img src="@ViewBag.UserPicture" alt="Profile Picture"
                                 onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" class="user_img"
@@ -45,3 +49,25 @@
         </div>
     </nav>
 </header>
+
+<script>
+    $(document).ready(function () {
+        // Kiểm tra số lượng thông báo mới từ backend
+        $.get('@Url.Action("GetUnreadNotificationsCount", "Notification")', function (data) {
+            if (data.unreadCount > 0) {
+                $('#notificationBadge').show().text(data.unreadCount); // Hiển thị số thông báo mới
+            }
+        });
+
+        // Khi người dùng nhấn vào icon thông báo
+        $('#notificationIcon').on('click', function () {
+            // Đánh dấu tất cả thông báo là đã đọc
+            $.post('@Url.Action("MarkNotificationsAsViewed", "Notification")', function (response) {
+                if (response.success) {
+                    $('#notificationBadge').hide(); // Ẩn chấm đỏ
+                }
+            });
+        });
+    });
+
+</script>

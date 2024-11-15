@@ -22,18 +22,31 @@ namespace BrainStormEra.Controllers
         public IActionResult Notifications()
         {
             var currentUserId = Request.Cookies["user_id"];
-            _logger.LogInformation("Current UserId from cookie: {UserId}", currentUserId);
-
             if (string.IsNullOrEmpty(currentUserId))
             {
                 return Unauthorized();
             }
 
             var notifications = _notificationRepo.GetNotifications(currentUserId);
-            _logger.LogInformation("Number of notifications for user {currentUserId}: {count}", currentUserId, notifications.Count);
+
+            // Kiểm tra thông báo mới dựa trên thời gian lần cuối người dùng xem
+            var lastViewed = HttpContext.Session.GetString("LastViewedNotifications") ?? DateTime.MinValue.ToString();
+            var lastViewedDate = DateTime.Parse(lastViewed);
+
+            var newNotificationsCount = notifications.Count(n => n.NotificationCreatedAt > lastViewedDate);
+            ViewBag.NewNotificationsCount = newNotificationsCount;
 
             return PartialView("~/Views/Home/Notification/_NotificationsModal.cshtml", notifications);
         }
+
+        [HttpPost]
+        public IActionResult MarkNotificationsAsViewed()
+        {
+            HttpContext.Session.SetString("LastViewedNotifications", DateTime.Now.ToString());
+            return Json(new { success = true });
+        }
+
+
 
         public JsonResult GetUsers()
         {

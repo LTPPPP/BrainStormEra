@@ -56,7 +56,8 @@ For more information on enabling MVC for empty projects, visit https://go.micros
                         @foreach (var achievement in Model.Achievements)
                         {
                             <div class="achievement-item me-3">
-                                <img src="@achievement.AchievementIcon" alt="@achievement.AchievementName" class="img-fluid" style="width: 30px;">
+                                <img src="@achievement.AchievementIcon" alt="@achievement.AchievementName" class="img-fluid"
+                                    style="width: 30px;">
                                 <span>@achievement.AchievementName</span>
                             </div>
                         }
@@ -121,8 +122,8 @@ For more information on enabling MVC for empty projects, visit https://go.micros
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/Notification/notification.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/js/Notification/notification.js"></script>
     <script>
         // Hàm chuyển đến trang chi tiết khóa học
         function viewDetailCourse(courseId) {
