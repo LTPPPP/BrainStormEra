@@ -22,7 +22,7 @@
 
         <div class="table-responsive">
             <table class="table table-hover table-bordered text-center w-100">
-                <thead class="table-dark">
+                <thead class="table-dark table-container">
                     <tr>
                         <th scope="col">Top</th>
                         <th scope="col">Name</th>
@@ -47,10 +47,13 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     @{
-                                        var userImage = string.IsNullOrEmpty(Model[i].UserPicture) ? Url.Content("~/lib/img/User-img/default_user.png") : Model[i].UserPicture;
-                                        var displayName = string.IsNullOrEmpty(Model[i].FullName) ? $"User_{Model[i].UserId}" : Model[i].FullName;
+                                        var userImage = string.IsNullOrEmpty(Model[i].UserPicture) ?
+                                        Url.Content("~/lib/img/User-img/default_user.png") : Model[i].UserPicture;
+                                        var displayName = string.IsNullOrEmpty(Model[i].FullName) ? $"User_{Model[i].UserId}" :
+                                        Model[i].FullName;
                                     }
-                                    <img src="@userImage" alt="User Picture" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                    <img src="@userImage" alt="User Picture" class="rounded-circle me-2"
+                                        style="width: 40px; height: 40px;">
                                     @displayName
                                 </div>
                             </td>
@@ -62,4 +65,5 @@
         </div>
     </div>
 </body>
+
 </html>

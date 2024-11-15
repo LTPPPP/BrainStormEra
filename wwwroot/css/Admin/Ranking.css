@@ -1,11 +1,47 @@
-﻿.ranking-title {
+﻿*{
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+}
+.ranking-title {
     font-size: 2.5rem;
     color: var(--linkedin-btn-bg-color);
     padding: 15px;
     font-weight: bold;
     padding-top: 20px;
 }
+.table-container {
+    background-color: var(--linkedin-btn-bg-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+    /* Chữ in đậm */
+    color: #ffffff;
+    /* Màu chữ trắng */
+}
 
+.table th,
+.table td {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.table-responsive .table tbody tr.top-ranking {
+    background-color: #ffd700 !important;
+    color: #000 !important;
+}
+
+.table-responsive .table tbody tr.middle-ranking {
+    background-color: #c0c0c0 !important;
+    color: #000 !important;
+}
+
+.table-responsive .table tbody tr.regular-ranking {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
+}
 @media (max-width: 991px) {
     .ranking-container {
         padding: 10px;
