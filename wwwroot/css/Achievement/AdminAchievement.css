@@ -1,190 +1,194 @@
-﻿/* Table Styling with only Horizontal Borders */
-.table, .achievement-table {
-    width: 100%;
-    font-size: 1.2rem;
-    background-color: var(--background-light);
-    box-shadow: 0px 4px 8px var(--box-shadow-color);
-    margin-top: 20px;
-    border-collapse: collapse;
-    font-weight: bold;
+﻿/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
-    .table th, .achievement-table th {
-        background-color: var(--linkedin-btn-bg-color);
-        color: var(--text-color-light);
-        padding: 15px;
-        text-align: center;
-        font-size: 1.6rem;
-        border: none;
-    }
+/* Table Styling */
+.table,
+.achievement-table {
+    background-color: var(--linkedin-btn-bg-color);
+    width: 100%;
+    font-size: 2rem;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    border-collapse: collapse;
+}
 
-    .table td, .achievement-table td {
-        padding: 15px;
-        text-align: center;
-        font-size: 1.5rem;
-        color: var(--text-color);
-        border-right: none; /* Remove vertical borders */
-        border-left: none; /* Remove vertical borders */
-    }
+.table th, 
+.achievement-table th{
+    background-color: var(--linkedin-btn-bg-color);
+    color: var(--text-color-light);
+    padding: 20px;
+    text-align: center;
+    font-size: 1.5rem;
+    border: none;
+}
 
-    .achievement-table tr:last-child td {
-        border-bottom: none; /* Remove bottom border for last row */
-    }
+/* Center table content */
+.table th,
+.table td,
+.achievement-table th,
+.achievement-table td {
+    text-align: center;
+    vertical-align: middle;
+    /* Aligns content vertically to the center */
+    padding: 15px;
+    /* Increases padding for larger cells */
+    font-size: 1.7rem;
+    /* Increases font size */
+}
+.table td,
+.achievement-table td {
+    padding: 10px;
+    text-align: center;
+    font-size: 1.5rem;
+    color: #333;
+    border: none;
+    font-weight: bold;
+}
+.achievement-table td img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+/* Table Hover Effect */
+.achievement-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
 
-    /* Row Hover Effect */
-    .achievement-table tbody tr:hover {
-        background-color: var(--light-blue-color);
-    }
+/* Achievement Image Styling */
+.achievement-table td img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-/* Icon Button Styling */
+/* Buttons */
 .icon-btn {
     border: none;
     background: none;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    color: var(--primary-color);
     transition: color 0.3s ease;
 }
 
-    .icon-btn:hover {
-        color: var(--hover-color); /* Color on hover */
-    }
+.icon-btn:hover {
+    color: #0056b3;
+    /* Darker shade of primary color */
+}
 
-.btn-add{
+/* Add Button */
+.btn-add {
     background-color: var(--create-btn-bg-color);
-    color: var(--text-color-light);
+    /* Success color */
+    color: #fff;
     border: none;
-    font-size: 2rem;
+    font-size: 1.5rem;
     padding: 10px 20px;
-    margin-top: 20px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
-    gap: 8px; /* Space between icon and text */
-    border-radius: 20px;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
 }
 
-    .btn-add i {
-        font-size: 1.2rem; /* Match icon size to text */
-    }
-
-    .btn-add:hover {
-        background-color: var(--btn-create-hover);
-    }
-
-.add-achievement-container {
-    text-align: right;
-    margin-bottom: 20px;
+.btn-add i {
+    font-size: 1.2rem;
 }
 
-/* Achievement Modal Styles */
+.btn-add:hover {
+    background-color: var(--btn-create-hover);
+}
+
+/* Modal Styling */
 .modal-content {
-    background-color: var(--background-light);
-    box-shadow: 0 0 10px var(--box-shadow-color);
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     margin-top: 200px;
+    border-radius: 5px;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
-.achievement-modal-header {
-    background-color: var(--secondary-primary-color);
-    color: var(--text-color-light);
+.modal-header {
+    background-color: var(--linkedin-btn-bg-color);
+    color: #fff;
 }
 
-.achievement-modal-footer .achievement-btn-success {
+.modal-footer .btn-success {
     background-color: var(--create-btn-bg-color);
     border: none;
 }
 
-    .achievement-modal-footer .achievement-btn-success:hover {
-        background-color: var(--create-btn-hover-bg-color);
-    }
+.modal-footer .btn-success:hover {
+    background-color: var(--btn-create-hover);
+    /* Hover success color */
+}
 
-.achievement-modal-footer .achievement-btn-secondary {
-    background-color: var(--cancel-btn-color);
+.modal-footer .btn-secondary {
+    background-color: #6c757d;
+    /* Secondary color */
     border: none;
 }
 
-    .achievement-modal-footer .achievement-btn-secondary:hover {
-        background-color: var(--cancel-hover-color);
-    }
-
-.achievement-modal-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+.modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+    /* Hover secondary color */
 }
 
-.achievement-modal-dialog {
-    max-width: 500px;
-    margin: 0 auto;
-    transform: translateY(-50%);
-    top: 50%;
-    position: relative;
-}
-
-/* Achievement Title styling */
 .achievement-title {
     color: var(--linkedin-btn-bg-color);
     font-weight: bold;
-    padding: 10px;
     text-align: center;
     border-radius: 5px;
     margin-bottom: 20px;
     font-size: 2.5rem;
 }
 
-/* Styling for Achievement Image */
-.achievement-table td img {
-    border-radius: 5px;
-    box-shadow: 0 0 10px var(--box-shadow-color);
-    width: 50px;
-    height: 50px;
+/* Add Achievement Container */
+.add-achievement-container {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-/* Action Button Icons */
-.icon-edit::before {
-    content: "\f304"; /* Font Awesome pencil icon for edit */
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    color: var(--button-blue);
+/* Responsive Adjustments */
+.table-responsive {
+    overflow-x: auto;
 }
 
-.icon-delete::before {
-    content: "\f2ed"; /* Font Awesome trash icon for delete */
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    color: var(--delete-btn-bg-color);
-}
-
-/* Responsive for iPhone 12 Pro and smaller screens (max width: 390px) */
-@media (max-width: 390px) {
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .achievement-table th, .achievement-table td {
-        font-size: 0.8rem;
-        padding: 4px;
-        white-space: nowrap;
-        max-width: 100px;
-    }
-
-    .achievement-btn-add {
-        width: 100%;
-        margin-top: 10px;
-        font-size: 1rem;
-    }
-
-    .achievement-modal-dialog {
-        width: 95%;
-        max-width: none;
-        margin: 10px auto;
-    }
-
+@media (max-width: 576px) {
     .achievement-title {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
+    }
+
+    .table th,
+    .table td {
+        font-size: 1rem;
         padding: 5px;
+        white-space: nowrap;
+    }
+
+    .btn-add {
+        font-size: 1.2rem;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .modal-dialog {
+        width: 90%;
+    }
+
+    .modal-content {
+        font-size: 0.9rem;
     }
 }
