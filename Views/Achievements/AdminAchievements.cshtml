@@ -1,10 +1,11 @@
-﻿    @model BrainStormEra.Views.Achievement.LearnerAchievementsModel
+﻿@model BrainStormEra.Views.Achievement.LearnerAchievementsModel
 @{
     var achievements = ViewData["Achievements"] as IEnumerable<dynamic>;
 }
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,12 +45,14 @@
                         <tr id="achievement-row-@achievement.AchievementId">
                             <td>@achievement.AchievementId</td>
                             <td>@achievement.AchievementName</td>
-                            <td>@achievement.AchievementDescription courses</td> <!-- Tự động thêm 'courses' vào sau giá trị hiển thị -->
-                            <td><img src="@achievement.AchievementIcon" alt="@achievement.AchievementName" style="width:50px; height:50px;"></td>
+                            <td>@achievement.AchievementDescription courses</td>
+                            <!-- Tự động thêm 'courses' vào sau giá trị hiển thị -->
+                            <td><img src="@achievement.AchievementIcon" alt="@achievement.AchievementName"
+                                    style="width:50px; height:50px;"></td>
                             <td>@achievement.AchievementCreatedAt.ToString("yyyy-MM-dd")</td>
                             <td>
                                 <button class="icon-btn btn-edit" data-bs-toggle="modal" data-bs-target="#achievementModal"
-                                        data-id="@achievement.AchievementId">
+                                    data-id="@achievement.AchievementId">
                                     <i class="fas fa-pencil-alt"></i> <!-- Edit icon -->
                                 </button>
                                 <button class="icon-btn btn-delete" data-id="@achievement.AchievementId">
@@ -71,16 +74,20 @@
             </tbody>
 
         </table>
-        <button class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#achievementModal">
-            <i class="fas fa-plus"></i> Add Achievement
-        </button>
+        <div class="text-end add-achievement-container">
+            <button class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#achievementModal">
+                <i class="fas fa-plus"></i> Add Achievement
+            </button>
+        </div>
     </main>
 
     <!-- Modal for Adding/Editing Achievement -->
-    <div class="modal fade" id="achievementModal" tabindex="-1" aria-labelledby="achievementModalLabel" aria-hidden="true">
+    <div class="modal fade" id="achievementModal" tabindex="-1" aria-labelledby="achievementModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="achievementForm" method="post" enctype="multipart/form-data" action="@Url.Action("AddAchievement", "Achievement")">
+                <form id="achievementForm" method="post" enctype="multipart/form-data"
+                    action="@Url.Action("AddAchievement", "Achievement")">
                     <div class="modal-header">
                         <h5 class="modal-title" id="achievementModalLabel">Add/Edit Achievement</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -91,12 +98,13 @@
 
                         <div class="mb-3">
                             <label for="achievementName" class="form-label">Achievement Name</label>
-                            <input type="text" class="form-control" id="achievementName" name="achievementName" required>
+                            <input type="text" class="form-control" id="achievementName" name="achievementName"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="achievementCondition" class="form-label">Condition</label>
-                            <input type="text" class="form-control" id="achievementCondition" name="achievementDescription"
-                                   placeholder="Completed courses" required>
+                            <input type="text" class="form-control" id="achievementCondition"
+                                name="achievementDescription" placeholder="Completed courses" required>
                         </div>
 
 
@@ -104,7 +112,8 @@
 
                         <div class="mb-3">
                             <label for="achievementIcon" class="form-label">Icon</label>
-                            <input type="file" class="form-control" id="achievementIcon" name="achievementIcon" accept="image/*">
+                            <input type="file" class="form-control" id="achievementIcon" name="achievementIcon"
+                                accept="image/*">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -253,4 +262,5 @@
         });
     </script>
 </body>
+
 </html>
