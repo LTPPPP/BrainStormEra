@@ -178,6 +178,10 @@ namespace BrainStormEra.Repo
         {
             try
             {
+                if (string.IsNullOrEmpty(newAccount.FullName))
+                {
+                    newAccount.FullName = $"User{newAccount.UserId}";
+                }
                 using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
                 {
                     await connection.OpenAsync();
@@ -189,7 +193,7 @@ namespace BrainStormEra.Repo
                     command.Parameters.AddWithValue("@Username", newAccount.Username);
                     command.Parameters.AddWithValue("@Password", newAccount.Password);
                     command.Parameters.AddWithValue("@UserEmail", newAccount.UserEmail);
-                    command.Parameters.AddWithValue("@FullName", newAccount.FullName ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@FullName", newAccount.FullName);
                     command.Parameters.AddWithValue("@AccountCreatedAt", newAccount.AccountCreatedAt);
 
                     await command.ExecuteNonQueryAsync();
