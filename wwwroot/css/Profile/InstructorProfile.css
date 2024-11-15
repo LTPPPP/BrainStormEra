@@ -1,9 +1,9 @@
 ﻿h2 {
     text-align: center;
-    color: var(--primary-color);
-    font-size: 2em;
+    color: var(--linkedin-btn-bg-color);
+    font-size: 2.5em;
     font-weight: bold;
-    margin-top: 35px;
+    margin: 35px 0 ;
 }
 
 .course-container {
@@ -43,10 +43,15 @@
     border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
-    color: var(--primary-color);
+    color: var(--text-color);
     transition: color 0.3s ease, background-color 0.3s ease;
+    font-weight: bold;
+    font-size: 1.3rem;
 }
-
+.learner-item img {
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
 .learner-item:hover {
     background-color: var(--background-light);
 }

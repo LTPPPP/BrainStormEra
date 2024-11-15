@@ -29,12 +29,18 @@
                     Course: @course.Value.CourseName
                 </div>
                 <div id="learners-@course.Key" class="learners-list" style="display:none;">
-                    @foreach (var learner in course.Value.Learners)
-                    {
-                        <div class="learner-item" onclick="showLearnerDetails('@learner.UserId', '@course.Key')">
-                            @(string.IsNullOrEmpty(learner.FullName) ? "Unnamed" : learner.FullName)
-                        </div>
-                    }
+                    <div id="learners-@course.Key" class="learners-list" style="display:none;">
+                        @foreach (var learner in course.Value.Learners)
+                        {
+                            <div class="learner-item d-flex align-items-center"
+                                onclick="showLearnerDetails('@learner.UserId', '@course.Key')">
+                                <img src="@learner.UserPicture ?? " /images/default-avatar.png"" alt="User Picture"
+                                    class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                @(string.IsNullOrEmpty(learner.FullName) ? "Unnamed" : learner.FullName)
+                            </div>
+                        }
+                    </div>
+
                 </div>
             </div>
         }
