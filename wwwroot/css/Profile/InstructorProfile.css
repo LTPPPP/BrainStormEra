@@ -72,11 +72,11 @@
 
 .custom-modal-content {
     background-color: var(--secondary-primary-color);
-    color: var(--white-color);
+    color: var(--gray-color-main);
     padding: 20px;
     border-radius: 10px;
     width: 50%;
-    max-width: 500px;
+    max-width: 1000px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     text-align: center;
     position: relative;
@@ -108,7 +108,7 @@
 
 .custom-modal-body p {
     font-weight: bold;
-    color: var(--white-color);
+    color: var(--gray-color-main);
 }
 
 
