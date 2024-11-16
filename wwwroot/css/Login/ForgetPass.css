@@ -1,78 +1,83 @@
 ﻿#forgotPasswordModal {
-    display: none;
-    position: fixed;
-    z-index: 1050;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: none;
+  position: fixed;
+  z-index: 1050;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #forgotPasswordModal {
-    display: none;
+  display: none;
 }
 
-    #forgotPasswordModal .modal-content {
-        width: 100%;
-        max-width: 450px;
-        padding: 30px;
-        background: #ffffff;
-        border-radius: 10px;
-        text-align: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        position: relative;
-        animation: fadeIn 0.3s ease-out;
-    }
+#forgotPasswordModal .modal-content {
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
 
+#forgotPasswordModal .close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
 
+#forgotPasswordModal h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
 
-    #forgotPasswordModal .close {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 1.5rem;
-        cursor: pointer;
-    }
+#forgotPasswordModal input {
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
 
-    #forgotPasswordModal h3 {
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-        color: #333;
-    }
-
-    #forgotPasswordModal input {
-        margin: 10px 0;
-        padding: 10px;
-        width: 100%;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-
-    #forgotPasswordModal button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 1rem;
-    }
+#forgotPasswordModal button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  background-color: var(--linkedin-btn-bg-color);
+  color: var(--white-color);
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+}
 
 .forgot-password-link {
-    display: block;
-    margin-top: 10px;
-    color: white;
-    text-decoration: underline;
-    cursor: pointer;
-    font-size: 1.25rem;
-    text-align: left;
-    transition: color 0.3s; /* Add a transition effect */
+  display: block;
+  margin-top: 10px;
+  color: var(--white-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 1.25rem;
+  text-align: left;
+  transition: color 0.3s; /* Add a transition effect */
 }
 
-    .forgot-password-link:hover {
-        color: #007bff; /* Change the color to green when hovered */
-    }
+.forgot-password-link:hover {
+  color: var(
+    --linkedin-btn-bg-color
+  ); /* Change the color to green when hovered */
+}
+
+#forgotPasswordModal input::placeholder {
+  color: var(--white-color);
+  font-size: 1.5rem;
+}
