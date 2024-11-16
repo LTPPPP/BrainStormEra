@@ -597,6 +597,7 @@ namespace BrainStormEra.Repo
                 LEFT JOIN lesson l ON lc.lesson_id = l.lesson_id
                 LEFT JOIN chapter ch ON l.chapter_id = ch.chapter_id
                 LEFT JOIN course c ON ch.course_id = c.course_id
+                WHERE a.user_role = 3 -- Chỉ lấy Learners
                 GROUP BY a.user_id, a.username, a.full_name, a.user_picture
                 ORDER BY COUNT(lc.lesson_id) DESC"; // Sắp xếp giảm dần
 

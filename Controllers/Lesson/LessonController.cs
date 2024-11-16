@@ -120,7 +120,7 @@ namespace BrainStormEra.Controllers.Lesson
                     var fileExtension = Path.GetExtension(LessonContentFile.FileName).ToLower();
                     if (!allowedExtensions.Contains(fileExtension))
                     {
-                        ModelState.AddModelError("LessonContent", "Only .doc, .docx, and .pdf files are allowed.");
+                        ModelState.AddModelError("LessonContent", "Only .pdf files are allowed.");
                     }
                     else
                     {

@@ -43,13 +43,15 @@
 				<div class="col-md-3 bg-SECONDARY sidebar p-3">
 					<div class="text-start mb-3">
 						<button type="button" onclick="window.location.href='@Url.Action("ChapterManagement", "Chapter")'"
-								class="btn btn-sm">
+							class="btn btn-sm">
 							<i class="fas fa-arrow-left"></i> Back to Course
 						</button>
 					</div>
 					<a class="btn btn-primary w-100 mb-3" href="@Url.Action("CreateLesson", "Lesson")">Add Lesson</a>
-					<a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete Lesson</a>
-					<a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View Lesson</a>
+					<a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete
+						Lesson</a>
+					<a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View
+						Lesson</a>
 				</div>
 			}
 
@@ -67,20 +69,21 @@
 								<div class="mb-3">
 									<label for="lessonName" class="form-label">Lesson Name</label>
 									<input asp-for="LessonName" type="text" class="form-control" id="lessonName"
-										   placeholder="Enter Lesson Name">
+										placeholder="Enter Lesson Name">
 									<span asp-validation-for="LessonName" class="text-danger"></span>
 
 								</div>
 								<div class="mb-3">
 									<label for="lessonDescription" class="form-label">Lesson Description</label>
-									<textarea asp-for="LessonDescription" class="form-control" id="lessonDescription" rows="5"
-											  placeholder="Enter Lesson Description"></textarea>
+									<textarea asp-for="LessonDescription" class="form-control" id="lessonDescription"
+										rows="5" placeholder="Enter Lesson Description"></textarea>
 									<span asp-validation-for="LessonDescription" class="text-danger"></span>
 
 								</div>
 								<div class="mb-3">
 									<label for="lessonTypeId" class="form-label">Lesson Type</label>
-									<select asp-for="LessonTypeId" class="form-select" id="lessonTypeId" onchange="toggleLessonContent()">
+									<select asp-for="LessonTypeId" class="form-select" id="lessonTypeId"
+										onchange="toggleLessonContent()">
 										<option value="0">Type of Lesson</option>
 										<option value="1">Video</option>
 										<option value="2">Reading</option>
@@ -90,14 +93,21 @@
 								<div class="mb-3" id="videoSection" style="display: none;">
 									<div class="mt-3" id="youtubeLinkSection">
 										<label for="lessonLink" class="form-label">YouTube Video Link</label>
-										<input type="url" name="LessonLink" class="form-control" placeholder="https://www.youtube.com/watch?v=example">
+										<input type="url" name="LessonLink" class="form-control"
+											placeholder="https://www.youtube.com/watch?v=example">
 										<span class="text-danger"></span>
 									</div>
 								</div>
 								<div class="mb-3" id="readingSection" style="display: none;">
-									<label for="lessonContentFile" class="form-label">Upload Lesson Content (Reading)</label>
-									<input type="file" name="LessonContentFile" class="form-control" id="lessonContentFile" accept=".pdf" />
-									@Html.ValidationMessageFor(model => model.LessonContent, "", new { @class = "text-danger" })
+									<label for="lessonContentFile" class="form-label">Upload Lesson Content
+										(Reading)</label>
+									<input type="file" name="LessonContentFile" class="form-control"
+										id="lessonContentFile" accept=".pdf" />
+									@Html.ValidationMessageFor(model => model.LessonContent, "", new
+										{
+											@class =
+																		"text-danger"
+										})
 								</div>
 
 
