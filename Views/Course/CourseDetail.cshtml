@@ -67,7 +67,7 @@
                             }
                             else if (isEnrolled)
                             {
-                                <button class="btn btn-primary"
+                                <button class="btn btn-primary go-to-course"
                                     onclick="window.location.href='@Url.Action("ViewLessonLearner", "Lesson")'">Go to
                                     Course</button>
                             }
@@ -75,7 +75,8 @@
                             {
                                 <form id="enrollForm" method="post" action="@Url.Action("Enroll", "Course")">
                                     <input type="hidden" name="courseId" value="@Model.CourseId" />
-                                    <button type="button" class="btn btn-success" onclick="confirmEnroll()">Enroll</button>
+                                    <button type="button" class="btn btn-success enroll-btn"
+                                        onclick="confirmEnroll()">Enroll</button>
                                 </form>
                             }
                         }

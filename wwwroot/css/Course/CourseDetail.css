@@ -1,257 +1,274 @@
 ﻿/*CourseDetail*/
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--white-color);
-    font-size: 1.2rem;
+  font-family: "Roboto", sans-serif;
+  background-color: var(--white-color);
+  font-size: 1.2rem;
 }
 
 .main-header {
-    font-size: 2rem;
-    color: var(--main-color);
-    background-color: var(--light-blue);
-    padding: 10px;
-    border-radius: 10px;
-    font-weight: bold;
+  font-size: 2rem;
+  color: var(--main-color);
+  background-color: var(--light-blue);
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: bold;
 }
-.course-name{
-    font-size: 5rem;
-    font-weight: bold;
-    color: var(--white-color);
-    padding-bottom: 40px;
+.course-name {
+  font-size: 5rem;
+  font-weight: bold;
+  color: var(--white-color);
+  padding-bottom: 40px;
 }
-.lead{
-    font-size: 1.7rem;
-    color: var(--text-color);
-    font-weight: 500;
+.lead {
+  font-size: 1.7rem;
+  color: var(--text-color);
+  font-weight: 500;
 }
 .course-details h2 {
-    color: var(--black-color);
+  color: var(--black-color);
 }
 
 .learning-outcome {
-    background-color: var(--light-blue);
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
+  background-color: var(--light-blue);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
 }
 
 .course-part {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .rating-box {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .feedback-section img {
-    width: 300px;
-    margin-bottom: 20px;
+  width: 300px;
+  margin-bottom: 20px;
 }
-
-
 
 .feedback-section .stars,
 .stars,
 .edit-stars {
-    color: var(--star-default-color);
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 15px;
+  color: var(--star-default-color);
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
-    .feedback-section .stars i,
-    .stars i,
-    .edit-stars i {
-        margin-right: 2px;
-        cursor: pointer;
-        color: var(--star-default-color);
-    }
+.feedback-section .stars i,
+.stars i,
+.edit-stars i {
+  margin-right: 2px;
+  cursor: pointer;
+  color: var(--star-default-color);
+}
 
-        .stars i.selected,
-        .edit-stars i.selected {
-            color: var(--star-color);
-        }
-
-.header {
-    background-color: var(--secondary-primary-color);
-    color: var(--main-color-);
-    padding: 30px;
+.stars i.selected,
+.edit-stars i.selected {
+  color: var(--star-color);
+}
+.enroll-btn{
+    background-color: var(--create-btn-bg-color);
+    color: var(--white-color);
+    padding: 10px 20px;
     border-radius: 10px;
-    margin-bottom: 20px;
-    width: auto;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    border: 1px solid var(--create-btn-bg-color);
+}
+.go-to-course{
+    background-color: var(--linkedin-btn-bg-color);
+    color: var(--white-color);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    border: 1px solid var(--create-btn-bg-color);
+}
+.header {
+  background-color: var(--secondary-primary-color);
+  color: var(--main-color-);
+  padding: 30px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  width: auto;
 }
 
 .price {
-    color: var(--white-color);
+  color: var(--white-color);
 }
 
 .btn {
-    font-size: large;
+  font-size: large;
 }
 
 #adminRequestMessage {
-    color: red;
-    margin-top: 10px;
-    text-align: center;
-    background: none;
-    border: none;
-    padding: 0;
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .nav-introduction {
-    background-color: var(--secondary-primary-color);
-    color: white;
+  background-color: var(--secondary-primary-color);
+  color: white;
 }
 
 .btn-approve {
-    background-color: var(--create-btn-bg-color);
-    color: white;
-    border: none;
+  background-color: var(--create-btn-bg-color);
+  color: white;
+  border: none;
 }
 
-    .btn-approve:hover {
-        background-color: var(--btn-create-hover);
-    }
+.btn-approve:hover {
+  background-color: var(--btn-create-hover);
+}
 
 .btn-reject {
-    background-color: var(--delete-btn-bg-color);
-    color: white;
-    border: none;
+  background-color: var(--delete-btn-bg-color);
+  color: white;
+  border: none;
 }
 
-    .btn-reject:hover {
-        background-color: var(--delete-btn-hover-bg-color);
-    }
+.btn-reject:hover {
+  background-color: var(--delete-btn-hover-bg-color);
+}
 
 .btn-request {
-    background-color: var(--yellow-color);
-    color: black;
-    border: none;
+  background-color: var(--yellow-color);
+  color: black;
+  border: none;
 }
 
-    .btn-request:hover {
-        background-color: #e0a800;
-    }
+.btn-request:hover {
+  background-color: #e0a800;
+}
 
 .btn-delete {
-    background-color: var(--delete-btn-bg-color);
-    color: white;
-    border: none;
+  background-color: var(--delete-btn-bg-color);
+  color: white;
+  border: none;
 }
 
-    .btn-delete:hover {
-        background-color: var(--delete-btn-hover-bg-color);
-    }
+.btn-delete:hover {
+  background-color: var(--delete-btn-hover-bg-color);
+}
 
 /* Định dạng phần bình luận */
 .comment {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px 0;
-    border-bottom: 1px solid #e9ecef;
-    position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #e9ecef;
+  position: relative;
 }
 
-    .comment .avatar {
-        width: 40px;
-        height: 40px;
-        background-color: #ccc;
-        border-radius: 50%;
-    }
+.comment .avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
 
 .flex-fill {
-    width: 100%;
+  width: 100%;
 }
 
 /* Định dạng phần chứa tên người dùng, ngôi sao và dấu ba chấm */
 .comment-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-    .comment-header .fw-bold {
-        margin-right: auto;
-    }
+.comment-header .fw-bold {
+  margin-right: auto;
+}
 
 /* Đảm bảo dấu ba chấm ở góc phải */
 .comment-options {
-    position: absolute;
-    right: 0;
-    top: 10px; /* Điều chỉnh theo ý bạn */
-    cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 10px; /* Điều chỉnh theo ý bạn */
+  cursor: pointer;
 }
 
-    .comment-options i {
-        color: #666;
-        font-size: 1.2em;
-    }
+.comment-options i {
+  color: #666;
+  font-size: 1.2em;
+}
 
 /* Menu ba chấm */
 .dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    min-width: 120px;
-    background-color: #333;
-    color: white;
-    border-radius: 4px;
-    padding: 5px 0;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  min-width: 120px;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  padding: 5px 0;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }
 
-    .dropdown-menu .dropdown-item {
-        padding: 8px 16px;
-        cursor: pointer;
-        color: #fff;
-        text-align: left;
-        background-color: transparent;
-    }
+.dropdown-menu .dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #fff;
+  text-align: left;
+  background-color: transparent;
+}
 
-        .dropdown-menu .dropdown-item:hover {
-            background-color: #555;
-        }
+.dropdown-menu .dropdown-item:hover {
+  background-color: #555;
+}
 
 /* Hiển thị menu khi nhấp vào dấu ba chấm */
 .comment-options.show .dropdown-menu {
-    display: block;
+  display: block;
 }
 
 .comment-input {
-    display: flex;
-    flex-direction: column; /* Đặt các phần tử con xếp theo chiều dọc */
-    align-items: center; /* Căn giữa theo trục ngang */
-    justify-content: center; /* Căn giữa theo trục dọc */
-    margin: 0 auto; /* Căn giữa phần tử container trong bố cục */
+  display: flex;
+  flex-direction: column; /* Đặt các phần tử con xếp theo chiều dọc */
+  align-items: center; /* Căn giữa theo trục ngang */
+  justify-content: center; /* Căn giữa theo trục dọc */
+  margin: 0 auto; /* Căn giữa phần tử container trong bố cục */
 }
 
 .progress-bar-lesson-div {
-    position: relative; /* Để có thể căn giữa progress-num */
-    height: 20px;
-    border-radius: 10px;
-    background-color: #e9ecef;
+  position: relative; /* Để có thể căn giữa progress-num */
+  height: 20px;
+  border-radius: 10px;
+  background-color: #e9ecef;
 }
 
 .progress-bar-lesson {
-    background-color: #4CAF50;
-    transition: width 0.4s ease;
-    height: 100%; /* Đảm bảo chiều cao của progress-bar khớp với progress */
+  background-color: #4caf50;
+  transition: width 0.4s ease;
+  height: 100%; /* Đảm bảo chiều cao của progress-bar khớp với progress */
 }
 
 .progress-num {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Căn giữa hoàn toàn */
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--gray-color-main);
-    z-index: 1; /* Đặt ở trên progress-bar */
-    width: 100%; /* Đảm bảo nó đè lên thanh progress-bar */
-    text-align: center;
-    pointer-events: none; /* Không ảnh hưởng đến các sự kiện chuột */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Căn giữa hoàn toàn */
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--gray-color-main);
+  z-index: 1; /* Đặt ở trên progress-bar */
+  width: 100%; /* Đảm bảo nó đè lên thanh progress-bar */
+  text-align: center;
+  pointer-events: none; /* Không ảnh hưởng đến các sự kiện chuột */
 }
