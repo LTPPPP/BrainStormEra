@@ -49,8 +49,9 @@
     <div class="header">
         <div class="container">
             <div class="row py-5">
-                <div class="col-md-8">
-                    <h1 class="display-4">@Model.CourseName</h1>
+                <!-- Left Column -->
+                <div class="col-md-9">
+                    <div class="display-4 course-name">@Model.CourseName</div>
                     <p class="lead">@Model.CourseDescription</p>
                     <div class="d-flex mb-2 mt-5">
                         <h3 class="price">$@Model.Price</h3>
@@ -75,13 +76,11 @@
                                 <form id="enrollForm" method="post" action="@Url.Action("Enroll", "Course")">
                                     <input type="hidden" name="courseId" value="@Model.CourseId" />
                                     <button type="button" class="btn btn-success" onclick="confirmEnroll()">Enroll</button>
-
                                 </form>
                             }
                         }
                         else if (string.IsNullOrEmpty(userRole))
                         {
-                            <!-- Enroll button for non-logged-in users -->
                             <button class="btn btn-success"
                                 onclick="alert('You need to log in to enroll in this course.');">Enroll</button>
                         }
@@ -104,8 +103,10 @@
                             (@ViewBag.TotalComments comments)</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <img src="@Model.CoursePicture" alt="Course Image" class="img-fluid">
+
+                <!-- Right Column -->
+                <div class="col-md-3 d-flex align-items-center">
+                    <img src="@Model.CoursePicture" alt="Course Image" class="img-fluid w-100 rounded">
                 </div>
             </div>
             <div class="progress progress-bar-lesson-div mb-4">
@@ -116,6 +117,7 @@
             </div>
         </div>
     </div>
+
 
     <div class="container">
         <!-- Navigation Tabs -->
@@ -215,8 +217,6 @@
                         </div>
                     }
                 </div>
-
-
 
             </div>
         </div>
