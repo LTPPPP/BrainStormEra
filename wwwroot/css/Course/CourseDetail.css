@@ -88,7 +88,7 @@ body {
     border: 1px solid var(--create-btn-bg-color);
 }
 .go-to-course{
-    background-color: var(--linkedin-btn-bg-color);
+    background-color: var(--create-btn-bg-color);
     color: var(--white-color);
     padding: 10px 20px;
     border-radius: 10px;

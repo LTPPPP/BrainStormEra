@@ -2,7 +2,15 @@
     display: flex;
     padding: 20px;
 }
-
+#lesson-title ,h2{
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+#lesson-description{
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
 /* Sidebar width */
 .sidebar {
     width: 20%;

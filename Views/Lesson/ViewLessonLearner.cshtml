@@ -69,24 +69,24 @@
         <div class="main-content" id="lesson-content">
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-            <a href="#">@ViewBag.CourseName</a>
-        </li>
-</nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("CourseDetail", "Course")">@ViewBag.CourseName</a>
+                    </li>
+            </nav>
 
             <h2 id="lesson-title">@Model.LessonName</h2>
-            <p id="lesson-description">@Model.LessonDescription</p>
+            <div id="lesson-description">@Model.LessonDescription</div>
 
             <!-- Content area based on LessonTypeId -->
             <div id="lesson-media">
                 @if (Model.LessonTypeId == 1)
                 {
-                    <iframe width="560" height="315" src="@Model.LessonContent" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe width="560" height="800" src="@Model.LessonContent" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 }
                 else if (Model.LessonTypeId == 2)
                 {
-                    <iframe width="100%" height="500" src="@Model.LessonContent" type="application/pdf" frameborder="0"></iframe>
+                    <iframe width="100%" height="100%" src="@Model.LessonContent" type="application/pdf" frameborder="0"></iframe>
                 }
                 else
                 {
@@ -98,9 +98,6 @@
             <button id="markCompletedButton" class="btn btn-primary btn-lg mt-3 float-end">Mark as Completed</button>
         </div>
     </div>
-
-    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
