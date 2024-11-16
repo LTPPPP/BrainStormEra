@@ -271,7 +271,7 @@ namespace BrainStormEra.Controllers.Course
 
                     // Lấy danh sách các category
                     var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
-
+                    string creatorName = await _courseRepo.GetCourseCreatorNameAsync(course.CourseId);
                     coursesViewModel.Add(new ManagementCourseViewModel
                     {
                         CourseId = course.CourseId,
@@ -283,8 +283,7 @@ namespace BrainStormEra.Controllers.Course
                         CourseCreatedAt = course.CourseCreatedAt,
                         StarRating = (byte)averageRating,
                         CourseCategories = courseCategories,
-                        CreatedBy = course.CreatedBy
-
+                        CreatedBy = creatorName
                     });
                 }
             }
