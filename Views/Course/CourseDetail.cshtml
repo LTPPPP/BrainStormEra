@@ -54,7 +54,7 @@
                     <div class="display-4 course-name">@Model.CourseName</div>
                     <p class="lead">@Model.CourseDescription</p>
                     <div class="d-flex mb-2 mt-5">
-                        <h3 class="price">$@Model.Price</h3>
+                        <h3 class="price">@Model.Price ₫</h3>
                     </div>
                     <div class="d-flex mb-4 mt-2">
                         @if (userRole == "3")
@@ -225,7 +225,7 @@
         <!-- Comment Section -->
         <div class="card mb-4">
             <div class="card-body">
-                <h3>Comments</h3>
+                <h3 id="feedback">Comments</h3>
                 @if (ViewBag.Comments != null)
                 {
                     @foreach (var comment in ViewBag.Comments)
@@ -285,8 +285,8 @@
                     <div class="comment-input">
                         <textarea id="feedbackComment" class="form-control feedback w-50"
                             placeholder="Comment..."></textarea>
-                        <button class="btn btn-primary mt-2"
-                            onclick="feedbackManager.submitFeedback('@Model.CourseId')">Submit</button>
+                        <button class="btn btn-primary mt-2 comment-btn"
+                            onclick="feedbackManager.submitFeedback('@Model.CourseId')">Comment</button>
                     </div>
                 </div>
             </div>
