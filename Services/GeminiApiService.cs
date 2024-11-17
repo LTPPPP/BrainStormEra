@@ -194,6 +194,10 @@ Your response (in Vietnamese):";
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception during Gemini API call: {ex.Message}");
+                if (ex.Message.Contains("ServiceUnavailable"))
+                {
+                    return "Xin lỗi bạn, hệ thống đang quá tải nên không thể trả lời câu hỏi của bạn.";
+                }
                 throw;
             }
         }

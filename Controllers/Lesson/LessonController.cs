@@ -209,7 +209,6 @@ namespace BrainStormEra.Controllers.Lesson
             return RedirectToAction("LessonManagement");
         }
 
-        /// GET: View Lesson Learner
         [HttpGet]
         public async Task<IActionResult> ViewLessonLearner(string lessonId)
         {
@@ -236,8 +235,14 @@ namespace BrainStormEra.Controllers.Lesson
 
             var lesson = await _lessonRepo.GetLessonByIdAndCourseAsync(lessonId, courseId);
 
-            System.Console.WriteLine("lessonID ; " + lessonId);
             var chapterId = await _lessonRepo.GetChapterIdByLessonIdAsync(lessonId);
+
+            // Thêm cookie ChapterId
+            if (!string.IsNullOrEmpty(chapterId))
+            {
+                Response.Cookies.Append("ChapterId", chapterId, new CookieOptions { Path = "/" });
+            }
+
             var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
 
             if (lesson == null)
@@ -271,6 +276,7 @@ namespace BrainStormEra.Controllers.Lesson
 
             return View(lesson);
         }
+
 
         // POST: Mark Lesson Completed
         [HttpPost]

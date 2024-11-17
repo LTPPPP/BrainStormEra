@@ -56,7 +56,7 @@ namespace BrainStormEra.Controllers
                 string reply;
                 var courseId = HttpContext.Request.Cookies["CourseId"];
                 var lessonId = HttpContext.Request.Cookies["LessonId"];
-                var chapterID = await _lessonRepo.GetChapterIdByLessonIdAsync(lessonId);
+                var chapterID = HttpContext.Request.Cookies["ChapterId"];
                 if (userRole == 3)
                 {
                     var course = await _courseRepo.GetCourseByIdAsync(courseId);
@@ -85,7 +85,15 @@ namespace BrainStormEra.Controllers
                 }
                 else
                 {
-                    reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ", " ", " ");
+                    try
+                    {
+                        reply = await _geminiApiService.GetResponseFromGemini(chatbotConversation.ConversationContent, userRole, " ", " ", " ", " ", " ", " ", " ", " ");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                        reply = "Xin lỗi bạn, đã xảy ra lỗi khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.";
+                    }
                 }
 
                 var botConversation = new ChatbotConversation
