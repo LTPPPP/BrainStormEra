@@ -4,7 +4,7 @@
 BrainStormEra is a Course and Certificate management system built using ASP.NET, following a 3-layer architecture and MVC pattern. The backend is developed in ASP.NET MVC, with the Entity Framework Database First approach. This project also includes session management and database operations with SQL Server.
 
 ## Prerequisites
-- [.NET SDK](https://dotnet.microsoft.com/download) (version 6.0 or higher)
+- [.NET SDK](https://dotnet.microsoft.com/download) (version 8.0 or higher)
 - SQL Server
 
 ## Installation
