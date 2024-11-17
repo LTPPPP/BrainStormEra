@@ -230,3 +230,23 @@
         transform: translateY(-5px);
     }
 }
+
+.user-message,
+.bot-message {
+    max-width: 100%;
+    /* Ensure messages don't exceed the container width */
+    box-sizing: border-box;
+}
+
+/* Message bubbles styles */
+.message {
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 85%;
+    word-wrap: break-word;
+    /* Ensure content doesn't overflow */
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
