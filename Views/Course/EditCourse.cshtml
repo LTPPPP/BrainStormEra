@@ -142,7 +142,7 @@
                                         <span class="fw-bold text-primary">Edit Photo</span>
                                         <input asp-for="CoursePicture" class="form-control mt-2" type="file"
                                             id="formFile" accept="image/*">
-                                        <span class="text-danger"></span>
+                                        <span asp-validation-for="CoursePicture" class="text-danger"></span>
 
                                     </div>
                                 </div>

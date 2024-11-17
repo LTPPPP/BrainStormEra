@@ -148,7 +148,7 @@ namespace BrainStormEra.Controllers.Course
         public async Task<ActionResult> EditCourse(EditCourseViewModel viewModel)
         {
             var course = await _courseRepo.GetCourseByIdAsync(viewModel.CourseId);
-
+            var courseId = HttpContext.Request.Cookies["CourseId"];
             if (course == null)
             {
                 return RedirectToAction("CourseManagement");
@@ -159,6 +159,8 @@ namespace BrainStormEra.Controllers.Course
             {
                 ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
                 viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
+                viewModel.SelectedCategories = selectedCategories;   // Chỉ các danh mục đã chọn
                 return View(viewModel);
             }
 
@@ -167,6 +169,8 @@ namespace BrainStormEra.Controllers.Course
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
                 viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
+                viewModel.SelectedCategories = selectedCategories;   // Chỉ các danh mục đã chọn
                 return View(viewModel);
             }
 
@@ -178,6 +182,8 @@ namespace BrainStormEra.Controllers.Course
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
                     viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                    var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
+                    viewModel.SelectedCategories = selectedCategories;   // Chỉ các danh mục đã chọn
                     return View(viewModel);
                 }
 
@@ -206,6 +212,7 @@ namespace BrainStormEra.Controllers.Course
 
             return RedirectToAction("CourseManagement");
         }
+
         // Helper method to get a course by ID
         private async Task<Models.Course> GetCourseByIdAsync(string courseId)
         {
