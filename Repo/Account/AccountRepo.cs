@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Data;
+using System.Text;
 using System.Threading.Tasks;
 using BrainStormEra.Views.Profile;
 using BrainStormEra.Views.Admin;
@@ -697,6 +698,19 @@ namespace BrainStormEra.Repo
 
             return adminEmails;
         }
+        
+        public string GetMd5Hash(string input)
+        {
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+                sb.Append(b.ToString("X2"));
+            return sb.ToString();
+        }
+
 
 
     }

@@ -103,8 +103,24 @@ body {
     transition: all 0.3s ease;
 }
 
+.btn-ResetPassword {
+    background-color: #F44336;
+    color: var(--white-color);
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
 .btn-custom:hover {
     background-color: #6ca089;
+    color: var(--white-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-ResetPassword:hover {
+    background-color: #F44336;
     color: var(--white-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -244,4 +260,11 @@ footer {
     padding: 5px 20px;
     font-size: 1.5rem;
     font-weight: bold;
+}
+
+.pay-btn:hover{
+    padding: 5px 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
 }
