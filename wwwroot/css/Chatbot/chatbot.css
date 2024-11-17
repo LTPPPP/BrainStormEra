@@ -1,55 +1,232 @@
-﻿.icon-bot img {
-    position: fixed;
-    bottom: 20px;
-    right: 10px;
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    z-index: 10000;
-    transition: transform 0.3s ease; /* Smooth transition for hover effect */
-}
-
-    .icon-bot img:hover {
-        transform: scale(1.1); /* Slightly enlarge on hover */
-        opacity: 0.8; /* Change opacity on hover */
-    }
-.new-chat {
-    background-color: #0cab7d;
-}
-    .new-chat:hover {
-        background-color: #f7a478;
-    }
-
-    .new-chat::before {
-        content: "+";
-    }
-
-
+﻿/* Chatbot container styles */
 .chat-container {
     position: fixed;
-    bottom: 40px;
-    right: 60px; /* Move the chat container to the left of the icon */
+    bottom: 80px;
+    right: 20px;
     width: 300px;
-    background-color: white;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 15px;
-    z-index: 9999;
-    display: none; /* Hidden by default */
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: none;
+    padding: 12px;
 }
 
-#chat-messages p {
-    margin: 5px -6px;
-    padding: 5px 5px;
-    border-radius: 10px;
+/* Animated bot icon */
+.icon-bot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    animation: gradientAnimation 5s ease infinite;
+    background: linear-gradient(45deg,
+            rgba(0, 198, 255, 0.9),
+            rgba(0, 114, 255, 0.9),
+            rgba(75, 0, 130, 0.9),
+            rgba(0, 198, 255, 0.9));
+    background-size: 300% 300%;
+    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-    #chat-messages p.bot-message {
-        background-color: #d7ecc3;
-        color: #605c5f;
+.icon-bot:hover {
+    transform: scale(1.1);
+}
+
+.icon-bot img {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+}
+
+/* Chat messages area */
+#chat-messages {
+    height: 350px !important;
+    background: rgba(248, 249, 250, 0.7);
+    border-radius: 8px;
+    border: none !important;
+    padding: 8px !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 114, 255, 0.5) rgba(241, 241, 241, 0.3);
+}
+
+#chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.3);
+    border-radius: 2px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(0, 114, 255, 0.5);
+    border-radius: 2px;
+}
+
+/* Input group styles */
+.input-group {
+    margin-top: 8px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#user-input {
+    border: none;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+#user-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Send button styles */
+#send-button {
+    padding: 10px 15px;
+    animation: gradientAnimation 5s ease infinite;
+    background: linear-gradient(45deg,
+            rgba(0, 198, 255, 0.9),
+            rgba(0, 114, 255, 0.9),
+            rgba(75, 0, 130, 0.9),
+            rgba(0, 198, 255, 0.9)) !important;
+    background-size: 300% 300%;
+    border: none;
+    color: white;
+    font-size: 14px;
+}
+
+/* New chat button styles */
+.new-chat {
+    animation: gradientAnimation 5s ease infinite;
+    background: linear-gradient(45deg,
+            rgba(0, 198, 255, 0.9),
+            rgba(0, 114, 255, 0.9),
+            rgba(75, 0, 130, 0.9),
+            rgba(0, 198, 255, 0.9));
+    background-size: 300% 300%;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+/* Message bubbles styles */
+.message {
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 85%;
+    word-wrap: break-word;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.user-message {
+    background: linear-gradient(45deg,
+            rgba(64, 144, 255, 0.9),
+            rgba(0, 119, 255, 0.9));
+    color: white;
+    font-size: 14px;
+    margin-left: auto;
+    border-radius: 12px 12px 2px 12px;
+    padding: 8px 12px;
+}
+
+.bot-message {
+    background: linear-gradient(45deg,
+            rgba(240, 240, 240, 0.9),
+            rgba(248, 248, 248, 0.9));
+    color: #333;
+    font-size: 14px;
+    margin-right: auto;
+    border-radius: 12px 12px 12px 2px;
+    padding: 8px 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient Animation */
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
     }
 
-    #chat-messages p.user-message {
-        background-color: #eddbdb; /* Light green for user */
-        color: #605c5f; /* User message text color */
+    50% {
+        background-position: 100% 50%;
     }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Slide-in Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-container.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+/* Typing animation for bot messages */
+.typing-indicator {
+    display: flex;
+    padding: 4px 8px;
+    margin: 8px 0;
+    background: rgba(241, 241, 241, 0.8);
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: rgba(0, 114, 255, 0.6);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
