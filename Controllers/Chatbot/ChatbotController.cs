@@ -181,8 +181,6 @@ namespace BrainStormEra.Controllers
         }
 
 
-
-
         [HttpPost]
         public async Task<IActionResult> DeleteConversations([FromBody] List<string> conversationIds)
         {
