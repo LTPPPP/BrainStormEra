@@ -73,7 +73,7 @@ namespace BrainStormEra.Controllers.Course
             {
                 if (viewModel.CoursePicture.Length > 10 * 1024 * 1024)
                 {
-                    ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
+                    ModelState.AddModelError("CoursePicture", "File size should not exceed 10MB.");
                     return View(viewModel);
                 }
 
