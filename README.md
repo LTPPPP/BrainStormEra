@@ -21,3 +21,4 @@ dotnet add package Newtonsoft.Json
 dotnet add package Markdig
 dotnet add package System.Data.SqlClient
 dotnet add package Microsoft.CognitiveServices.Speech
+dotnet add package Google.Apis.YouTube.v3
