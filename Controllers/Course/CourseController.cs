@@ -224,14 +224,17 @@ namespace BrainStormEra.Controllers.Course
             var userRole = HttpContext.Request.Cookies["user_role"];
 
             List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
-            var categories = new List<CourseCategory>();
+            var categories = await _courseRepo.GetTopCourseCategoriesAsync();
+            var categoryCounts = new Dictionary<string, int>();
 
-            // Fetch the top 5 categories
-            var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
+            foreach (var category in categories)
+            {
+                int courseCount = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
+                categoryCounts[category.CourseCategoryId] = courseCount;
+            }
 
-            // Pass categories to the view, for example, via ViewBag or ViewModel
-            ViewBag.categories = topCategories;
-
+            ViewBag.Categories = categories;
+            ViewBag.CategoryCounts = categoryCounts;
 
             if (userRole == "2")
             {

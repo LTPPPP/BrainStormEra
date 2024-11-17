@@ -648,14 +648,14 @@ ORDER BY
             {
                 var query = @"
             SELECT TOP 5
-                course_category_id AS CourseCategoryId,
-                course_category_name AS CourseCategoryName
-            FROM
-                course_category
-            ORDER BY
-                course_category_name;
-        ";
-
+                cc.course_category_id AS CourseCategoryId,
+                cc.course_category_name AS CourseCategoryName,
+                COUNT(c.course_id) AS CourseCount
+            FROM course_category cc
+            LEFT JOIN course_category_mapping ccm ON cc.course_category_id = ccm.course_category_id
+            LEFT JOIN course c ON c.course_id = ccm.course_id AND c.course_status = 2
+            GROUP BY cc.course_category_id, cc.course_category_name
+            ORDER BY CourseCount DESC, cc.course_category_name ASC";
                 var command = new SqlCommand(query, connection);
                 await connection.OpenAsync();
 
@@ -704,6 +704,21 @@ ORDER BY
                 int totalLessons = (int)await totalLessonsCommand.ExecuteScalarAsync();
 
                 return totalLessons > 0 ? (double)completedLessons / totalLessons * 100 : 0;
+            }
+        }
+        public async Task<int> GetCourseCountByCategoryAsync(string categoryId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+            SELECT COUNT(*)
+            FROM course c
+            INNER JOIN course_category_mapping ccm ON c.course_id = ccm.course_id
+            WHERE ccm.course_category_id = @CategoryId AND c.course_status = 2";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CategoryId", categoryId);
+                await connection.OpenAsync();
+                return (int)await command.ExecuteScalarAsync();
             }
         }
 

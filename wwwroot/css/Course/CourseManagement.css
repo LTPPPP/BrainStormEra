@@ -122,6 +122,9 @@
     margin: 5px;
 }
 
+.badge-top{
+    background-color: #f5f5f5;
+}
 
 .course-card .remove {
     width: 27px;

@@ -88,15 +88,24 @@
         <!-- Filters Section -->
         <div class="filters mb-3">
             <!-- Filter Categories -->
-            <div class="categories d-flex justify-content-start  p-2 rounded">
-                <button class="btn filter-btn"
-                    onclick="window.location.href='@Url.Action("CourseManagement", "Course")'">All courses</button>
+            <div class="categories d-flex justify-content-start align-items-center p-2 rounded"
+                style="white-space: nowrap;">
+                <button class="btn filter-btn me-2"
+                    onclick="window.location.href='@Url.Action("CourseManagement", "Course")'">
+                    All courses
+                </button>
                 @if (ViewBag.Categories is List<BrainStormEra.Models.CourseCategory> categories)
                 {
                     @foreach (var category in categories)
                     {
-                        <button class="btn filter-btn" onclick="filterCoursesByCategory('@category.CourseCategoryId')">
+                        <button class="btn filter-btn me-2" onclick="filterCoursesByCategory('@category.CourseCategoryId')">
                             @category.CourseCategoryName
+                            <span class="badge-top ms-1">
+                                (@(ViewBag.CategoryCounts != null &&
+                                   ViewBag.CategoryCounts.ContainsKey(category.CourseCategoryId)
+                                   ? ViewBag.CategoryCounts[category.CourseCategoryId]
+                                   : 0))
+                            </span>
                         </button>
                     }
                 }
