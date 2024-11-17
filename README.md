@@ -24,3 +24,4 @@ dotnet add package Microsoft.CognitiveServices.Speech
 dotnet add package Google.Apis.YouTube.v3
 dotnet add package itext7
 dotnet add package PdfSharp
+dotnet add package itextsharp
