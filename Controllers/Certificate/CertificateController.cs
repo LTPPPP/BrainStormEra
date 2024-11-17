@@ -12,20 +12,22 @@ namespace BrainStormEra.Controllers.Certificate
             _certificateRepository = certificateRepository;
         }
 
-        // Lấy danh sách các khóa học đã hoàn thành của người dùng
         public async Task<IActionResult> CompletedCourses()
         {
             var userId = Request.Cookies["user_id"];
             var completedCourses = await _certificateRepository.GetCompletedCoursesAsync(userId);
 
-            if (completedCourses == null || completedCourses.Count == 0)
+            bool hasCompletedCourses = completedCourses != null && completedCourses.Count > 0;
+
+            if (!hasCompletedCourses)
             {
-                return NotFound("No courses have been completed.");
+                ViewData["NoCertificatesMessage"] = "You haven't completed any courses yet. Start learning!";
             }
 
-            ViewData["UserId"] = userId; // Truyền user_id qua ViewData
-            return View(completedCourses); // Truyền danh sách các khóa học vào View
+            ViewData["UserId"] = userId; // Pass user_id through ViewData
+            return View(completedCourses); // Pass completed courses to view
         }
+
 
 
         // Lấy thông tin chi tiết của một chứng chỉ cụ thể
