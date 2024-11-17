@@ -125,15 +125,22 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseManagement");
             }
 
-            var allCategories = await _courseRepo.GetCourseCategoriesAsync(); // Lấy tất cả các danh mục
-            var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
+            // Check if the course is already approved
+            if (course.CourseStatus == 2) // Assuming 2 is the status for approved courses
+            {
+                TempData["ErrorMessage"] = "This course has already been approved and cannot be edited.";
+                return RedirectToAction("CourseManagement");
+            }
+
+            var allCategories = await _courseRepo.GetCourseCategoriesAsync(); // Get all categories
+            var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
 
             var viewModel = new EditCourseViewModel
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
-                CourseCategories = allCategories,           // Tất cả các danh mục
-                SelectedCategories = selectedCategories,     // Chỉ các danh mục đã chọn
+                CourseCategories = allCategories,           // All categories
+                SelectedCategories = selectedCategories,     // Only selected categories
                 CourseDescription = course.CourseDescription,
                 CoursePictureFile = course.CoursePicture,
                 Price = course.Price
@@ -141,6 +148,7 @@ namespace BrainStormEra.Controllers.Course
 
             return View(viewModel);
         }
+
 
 
         [HttpPost]
@@ -154,27 +162,34 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseManagement");
             }
 
-            // Kiểm tra tên course có bị trùng không
+            // Check if the course is already approved
+            if (course.CourseStatus == 2) // Assuming 2 is the status for approved courses
+            {
+                TempData["ErrorMessage"] = "This course has already been approved and cannot be edited.";
+                return RedirectToAction("CourseManagement");
+            }
+
+            // Check if the course name already exists
             if (await _courseRepo.IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
             {
                 ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
                 viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
-                viewModel.SelectedCategories = selectedCategories;   // Chỉ các danh mục đã chọn
+                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                 return View(viewModel);
             }
 
-            // Kiểm tra nếu category không được chọn
+            // Check if categories are selected
             if (viewModel.CategoryIds == null || !viewModel.CategoryIds.Any())
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
                 viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
-                viewModel.SelectedCategories = selectedCategories;   // Chỉ các danh mục đã chọn
+                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                 return View(viewModel);
             }
 
-            // Xử lý upload ảnh cho CoursePicture
+            // Handle course picture upload
             string coursePicturePath = course.CoursePicture;
             if (viewModel.CoursePicture != null && viewModel.CoursePicture.Length > 0)
             {
@@ -182,8 +197,8 @@ namespace BrainStormEra.Controllers.Course
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
                     viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                    var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Lấy các danh mục đã chọn cho khóa học
-                    viewModel.SelectedCategories = selectedCategories;   // Chỉ các danh mục đã chọn
+                    var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                    viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                     return View(viewModel);
                 }
 
@@ -204,14 +219,15 @@ namespace BrainStormEra.Controllers.Course
                 coursePicturePath = $"/uploads/Course-img/{fileName}";
             }
 
-            // Cập nhật thông tin course
+            // Update course information
             await _courseRepo.UpdateCourseAsync(viewModel, coursePicturePath);
 
-            // Cập nhật các category cho course
+            // Update course categories
             await _courseRepo.UpdateCourseCategoriesAsync(viewModel.CourseId, viewModel.CategoryIds);
 
             return RedirectToAction("CourseManagement");
         }
+
 
         // Helper method to get a course by ID
         private async Task<Models.Course> GetCourseByIdAsync(string courseId)
