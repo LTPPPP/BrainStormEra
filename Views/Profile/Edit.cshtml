@@ -3,6 +3,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
     <link href="~/css/Profile/editProfile.css" rel="stylesheet" />
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
 </head>
+
 <body>
     <!-- Header Section -->
     <header class="container-fluid sticky-header" style="background-color: white;">
@@ -36,9 +38,11 @@
 
             <!-- Avatar Upload Section -->
             <div class="avatar-upload mb-3">
-                <img id="avatarPreview" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")" alt="Avatar" class="avatar-preview img-thumbnail" style="max-width: 150px;">
+                <img id="avatarPreview" src="@Url.Content(Model.UserPicture ?? "~/lib/img/User-img/default_user.png")"
+                    alt="Avatar" class="avatar-preview img-thumbnail" style="max-width: 150px;">
                 <label for="avatarUpload" class="form-label">Change Avatar</label>
-                <input type="file" id="avatarUpload" name="avatar" accept=".png, .jpeg, .jpg" class="form-control" onchange="previewAvatar(); validateFile();" />
+                <input type="file" id="avatarUpload" name="avatar" accept=".png, .jpeg, .jpg" class="form-control"
+                    onchange="previewAvatar(); validateFile();" />
                 <span id="fileError" class="text-danger"></span> <!-- Hiển thị lỗi -->
             </div>
 
@@ -166,4 +170,5 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>

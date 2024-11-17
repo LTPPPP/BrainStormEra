@@ -1,91 +1,183 @@
-﻿.avatar-preview {
+﻿/* Edit Profile Page Styles */
+:root {
+    --primary-color: #7FB29D;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --white-color: #ffffff;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo_img {
+    height: 40px;
+    transition: transform 0.3s ease;
+}
+
+.logo_img:hover {
+    transform: scale(1.05);
+}
+
+/* Page Title */
+h2 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Avatar Upload Section */
+.avatar-upload {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+}
+
+.avatar-preview {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    margin-bottom: 15px;
-    border: 2px solid #ddd;
     object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid var(--primary-color);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease;
 }
 
-.avatar-upload {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.avatar-preview:hover {
+    transform: scale(1.05);
 }
 
-.avatar-upload label {
-    cursor: pointer;
-    padding: 8px 20px;
-    background-color: #007bff;
-    color: white;
-    border-radius: 10px;
-}
-
-.avatar-upload input[type="file"] {
-    display: none;
-}
-
-.btn-custom {
-    background-color: var(--secondary-primary-color);
-    color: white;
-    border-radius: 5px;
-    padding: 12px 24px;
-    font-size: 1.4rem;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-custom:hover {
-    background-color: var(--btn-create);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-
+/* Form Controls */
 .form-group {
-    margin-top: 15px;
-    font-size: 1.2rem;
-    /* Tăng cỡ chữ để dễ đọc hơn */
+    margin-bottom: 1.5rem;
 }
 
-.form-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
+.control-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    display: block;
 }
-
 
 .form-control {
-    font-size: 1.6rem;
-    /* Tăng kích thước font chữ cho input */
-    border-radius: 8px;
-    /* Làm góc bo mềm hơn */
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
     border: 1px solid #ced4da;
-    /* Giữ lại viền mềm */
+    transition: all 0.3s ease;
 }
 
 .form-control:focus {
-    border-color: #007bff;
-    /* Đổi màu viền khi input được chọn */
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    /* Tạo hiệu ứng khi focus */
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(127, 178, 157, 0.25);
 }
 
-
-footer {
-    background-color: #343a40;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-    margin-top: auto;
-    width: 100%;
+select.form-control {
+    height: calc(1.5em + 1.5rem + 2px);
 }
 
-footer h3,
-footer h4 {
-    color: #fff;
+/* Error Messages */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
 }
 
-.social-icons i {
-    margin-right: 10px;
-    font-size: 1.5rem;
-    color: #fff;
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-custom {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+}
+
+.btn-custom:hover {
+    background-color: #6ca089;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+    margin-left: 1rem;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    color: var(--white-color);
+}
+
+/* File Input Customization */
+input[type="file"].form-control {
+    padding: 0.375rem 0.75rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    .btn {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .btn-secondary {
+        margin-left: 0;
+    }
+}
+
+/* Animation Effects */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Form Validation Styles */
+.form-control.is-invalid {
+    border-color: var(--danger-color);
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-valid {
+    border-color: var(--success-color);
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
