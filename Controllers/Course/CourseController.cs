@@ -301,36 +301,30 @@ namespace BrainStormEra.Controllers.Course
             var userRole = HttpContext.Request.Cookies["user_role"];
             var categoryId = HttpContext.Request.Cookies["CategoryId"];
 
-            List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
+            var coursesViewModel = new List<ManagementCourseViewModel>();
+            var categories = await _courseRepo.GetTopCourseCategoriesAsync();
 
-            List<Models.Course> courses;
-
-            // Lưu ID danh mục đã chọn
-            var categories = new List<CourseCategory>();
-
-            // Fetch the top 5 categories
-            var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
-
-            // Pass categories to the view, for example, via ViewBag or ViewModel
-            ViewBag.categories = topCategories;
-
+            // Prepare a dictionary to store course counts per category
             var categoryCounts = new Dictionary<string, int>();
-            ViewBag.CategoryCounts = categoryCounts; // Dictionary chứa số lượng khóa học cho từng danh mục
+            foreach (var category in categories)
+            {
+                int count = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
+                categoryCounts[category.CourseCategoryId] = count;
+            }
 
+            // Fetch courses filtered by category
+            List<Models.Course> courses;
             if (userRole == "2")
             {
-                // If user is an instructor, get courses they created in the specified category
                 courses = _courseRepo.GetInstructorCoursesByCategory(userId, categoryId);
             }
             else
             {
-                // For other users, get all active courses in the specified category
                 courses = _courseRepo.GetActiveCoursesByCategory(categoryId);
             }
 
             foreach (var course in courses)
             {
-                // Get average rating and categories for each course
                 double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
                 var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
 
@@ -349,23 +343,23 @@ namespace BrainStormEra.Controllers.Course
                 });
             }
 
-            // Sử dụng ViewBag để lưu số lượng khóa học trong danh mục
-            ViewBag.CourseCount = courses.Count;
+            // Pass category and course counts
+            ViewBag.Categories = categories;
+            ViewBag.CategoryCounts = categoryCounts;
             ViewBag.SelectedCategoryId = categoryId;
 
-            // Kiểm tra userRole và chuyển hướng đến trang thích hợp
             if (userRole == "1")
             {
-                return View("CourseAcceptance", coursesViewModel); // Quay về trang Course Acceptance cho Admin
+                return View("CourseAcceptance", coursesViewModel);
             }
             else if (userRole == "2")
             {
-                return View("CourseManagement", coursesViewModel); // Quay về trang Course Management cho Instructor
+                return View("CourseManagement", coursesViewModel);
             }
 
-            // Trường hợp nếu userRole không phải là 1 hoặc 2
             return View("CourseManagement", coursesViewModel);
         }
+
 
         public async Task<ActionResult> ConfirmDelete()
         {
