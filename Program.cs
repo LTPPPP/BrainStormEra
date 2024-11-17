@@ -96,6 +96,8 @@ namespace BrainStormEra
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
+            // Middleware để xử lý các URL không hợp lệ hoặc không tìm thấy
+            app.UseStatusCodePagesWithReExecute("/ErrorPage/Error", "?statusCode={0}");
 
             // Map Controller Routes
             app.MapControllerRoute(

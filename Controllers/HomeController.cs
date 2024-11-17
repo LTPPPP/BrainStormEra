@@ -160,7 +160,7 @@ public class HomeController : Controller
 
     [HttpGet]
     public IActionResult Chat()
-        {
+    {
         return View();
     }
 
