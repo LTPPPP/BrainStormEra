@@ -206,7 +206,6 @@ namespace BrainStormEra.Controllers.Course
 
             return RedirectToAction("CourseManagement");
         }
-        //tới đây ro
         // Helper method to get a course by ID
         private async Task<Models.Course> GetCourseByIdAsync(string courseId)
         {
@@ -475,22 +474,25 @@ namespace BrainStormEra.Controllers.Course
 
         public async Task<ActionResult> CourseAcceptance()
         {
-
             var pendingCourses = await _courseRepo.GetPendingCoursesAsync();
             var coursesViewModel = new List<ManagementCourseViewModel>();
             var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
 
-            // Pass categories to the view, for example, via ViewBag or ViewModel
-            ViewBag.categories = topCategories;
+            ViewBag.Categories = topCategories;
+
+            var categoryCounts = new Dictionary<string, int>();
+            foreach (var category in topCategories)
+            {
+                int count = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
+                categoryCounts[category.CourseCategoryId] = count;
+            }
+
+            ViewBag.CategoryCounts = categoryCounts;
 
             foreach (var course in pendingCourses)
             {
-
                 var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
-
-
                 string creatorName = await _courseRepo.GetCourseCreatorNameAsync(course.CourseId);
-
 
                 coursesViewModel.Add(new ManagementCourseViewModel
                 {
@@ -505,7 +507,6 @@ namespace BrainStormEra.Controllers.Course
                     CreatedBy = creatorName
                 });
             }
-
 
             return View("CourseAcceptance", coursesViewModel);
         }
