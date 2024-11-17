@@ -110,9 +110,53 @@
                 <a href="@Url.Action("Edit", "Profile")" class="btn btn-custom btn-lg mt-3">
                     Edit Profile
                 </a>
+
+                <a href="javascript:void(0)" class="btn btn-ResetPassword btn-lg mt-3"
+                    onclick="openResetPasswordModal()">
+                    Reset Password
+                </a>
+                <!-- Reset Password Modal -->
+                <div id="resetPasswordModal" class="modal fade" tabindex="-1" role="dialog"
+                    aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content shadow-lg">
+                            <div class="modal-header bg-danger text-white rounded-top">
+                                <h5 class="modal-title font-weight-bold" id="resetPasswordModalLabel">Reset Password
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-center text-muted">Please enter your old password and new password.</p>
+                                <form asp-action="ResetPassword" method="post">
+                                    <div class="form-group">
+                                        <label for="oldPassword">Old Password:</label>
+                                        <input type="password" class="form-control" id="oldPassword" name="oldPassword"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newPassword">New Password:</label>
+                                        <input type="password" class="form-control" id="newPassword" name="newPassword"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirm Password:</label>
+                                        <input type="password" class="form-control" id="confirmPassword"
+                                            name="confirmPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-block">Reset Password</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>
+
+
 
     <!-- Payment Confirmation Popup Modal -->
     <div id="paymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel"
@@ -133,7 +177,7 @@
                         <!-- Dropdown to select payment amount -->
                         <div class="form-group text-center">
                             <label for="paymentAmount" class="font-weight-bold">Select payment amount:</label>
-                            <select name="paymentAmount" id="paymentAmount" class="form-control" required>
+                            <select name="paymentAmount" id="paymentAmount" class="custom-select" required>
                                 <option value="30000">30,000 VND</option>
                                 <option value="50000">50,000 VND</option>
                                 <option value="100000">100,000 VND</option>
@@ -144,7 +188,7 @@
                         <div class="form-group text-center">
                             <label for="paymentImage" class="font-weight-bold">Attach transaction image:</label>
                             <input type="file" name="paymentImage" id="paymentImage" class="form-control"
-                                accept="image/*" required onchange="previewImage(event)" />
+                                style="height: 50px;" accept="image/*" required onchange="previewImage(event)" />
                         </div>
 
                         <!-- Image preview box -->
@@ -163,6 +207,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Display error message -->
     @if (TempData["ErrorMessage"] != null)
@@ -213,6 +259,12 @@
             $('#paymentModal').modal('show');
         }
     </script>
+    <script>
+        function openResetPasswordModal() {
+            $('#resetPasswordModal').modal('show');
+        }
+    </script>
+
 </body>
 
 </html>
