@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,11 +35,9 @@
             <div class="col-md-4">
                 <div class="profile-card">
                     <img id="avatarPreview"
-                         src="@(!string.IsNullOrEmpty(Model.UserPicture) ? Model.UserPicture : Url.Content("~/lib/img/User-img/default_user.png"))"
-                         alt="Avatar"
-                         class="avatar-preview img-thumbnail"
-                         style="max-width: 150px;"
-                         onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" />
+                        src="@(!string.IsNullOrEmpty(Model.UserPicture) ? Model.UserPicture : Url.Content("~/lib/img/User-img/default_user.png"))"
+                        alt="Avatar" class="avatar-preview img-thumbnail" style="max-width: 150px;"
+                        onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" />
                     <h4>@Model.FullName</h4>
                     <p>@Model.UserEmail</p>
 
@@ -48,11 +47,12 @@
                             <h3 class="mb-0">Payment</h3>
                         </div>
                         <div class="card-body">
-                            <img src="~/uploads/QR_Payment/QR-code.png" alt="QR Code" class="img-fluid rounded mb-3" style="max-width: 150px;" />
+                            <img src="~/uploads/QR_Payment/QR-code.png" alt="QR Code" class="img-fluid rounded mb-3"
+                                style="max-width: 150px;" />
                             <p class="card-text">Scan the QR code to make a quick and safe payment.</p>
 
                             <!-- Payment Button below the QR Code -->
-                            <button class="btn btn-primary mt-3" onclick="openPaymentModal()">Pay</button>
+                            <button class="btn pay-btn mt-3" onclick="openPaymentModal()">Pay</button>
                         </div>
                         <div class="card-footer text-muted">
                             BrainStormEra Payment System
@@ -115,7 +115,8 @@
     </main>
 
     <!-- Payment Confirmation Popup Modal -->
-    <div id="paymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div id="paymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content shadow-lg" style="max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header bg-primary text-white rounded-top">
@@ -125,7 +126,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-center text-muted">Please select the amount and upload an image of your transaction confirmation.</p>
+                    <p class="text-center text-muted">Please select the amount and upload an image of your transaction
+                        confirmation.</p>
                     <form asp-action="ConfirmPayment" method="post" enctype="multipart/form-data">
 
                         <!-- Dropdown to select payment amount -->
@@ -141,13 +143,15 @@
                         <!-- File upload for transaction image -->
                         <div class="form-group text-center">
                             <label for="paymentImage" class="font-weight-bold">Attach transaction image:</label>
-                            <input type="file" name="paymentImage" id="paymentImage" class="form-control" accept="image/*" required onchange="previewImage(event)" />
+                            <input type="file" name="paymentImage" id="paymentImage" class="form-control"
+                                accept="image/*" required onchange="previewImage(event)" />
                         </div>
 
                         <!-- Image preview box -->
                         <div id="imagePreviewContainer" class="text-center mb-3" style="display: none;">
                             <p class="text-muted">Preview your image:</p>
-                            <img id="imagePreview" src="#" alt="Preview Image" class="img-fluid rounded shadow" style="max-height: 300px; max-width: 100%;" />
+                            <img id="imagePreview" src="#" alt="Preview Image" class="img-fluid rounded shadow"
+                                style="max-height: 300px; max-width: 100%;" />
                         </div>
 
                         <button type="submit" class="btn btn-success btn-block mt-3">Confirm Payment</button>
@@ -210,4 +214,5 @@
         }
     </script>
 </body>
+
 </html>

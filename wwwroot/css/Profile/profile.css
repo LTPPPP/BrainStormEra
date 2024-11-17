@@ -1,0 +1,242 @@
+
+/* Base styles */
+:root {
+    --primary-color: #7FB29D;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --white-color: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+}
+
+.logo_img {
+    max-height: 50px;
+    transition: transform 0.3s ease;
+}
+
+.logo_img:hover {
+    transform: scale(1.05);
+}
+
+/* Main Content Styles */
+.container {
+    padding: 20px;
+}
+
+/* Profile Card Styles */
+.profile-card {
+    background-color: var(--white-color);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 20px;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.avatar-preview:hover {
+    transform: scale(1.05);
+}
+
+/* Profile Details Table Styles */
+.title-container {
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.table {
+    background-color: var(--white-color);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    font-weight: 600;
+    padding: 15px;
+    width: 30%;
+}
+
+.table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.table tr:hover {
+    background-color: rgba(127, 178, 157, 0.1);
+}
+
+/* Button Styles */
+.btn-custom {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #6ca089;
+    color: var(--white-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Payment Card Styles */
+.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    padding: 15px;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.card-footer {
+    background-color: #f8f9fa;
+    padding: 15px;
+}
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    border-radius: 15px;
+}
+
+.modal-header {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border-bottom: none;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-footer {
+    border-top: none;
+    padding: 20px;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(127, 178, 157, 0.25);
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .profile-card {
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        width: 40%;
+    }
+
+    .btn-custom {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .modal-dialog {
+        margin: 10px;
+    }
+}
+
+/* Footer Styles */
+footer {
+    background-color: var(--dark-color);
+    color: var(--white-color);
+    padding: 40px 0;
+    margin-top: 50px;
+}
+
+/* Animation Effects */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-card,
+.table,
+.card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.pay-btn{
+    background-color: var(--primary-color);
+    padding: 5px 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
