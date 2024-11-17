@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Data;
+using System.Text;
 using System.Threading.Tasks;
 using BrainStormEra.Views.Profile;
 using BrainStormEra.Views.Admin;
@@ -559,11 +560,23 @@ namespace BrainStormEra.Repo
             return null;
         }
 
+        public string GetMd5Hash(string input)
+        {
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+                sb.Append(b.ToString("X2"));
+            return sb.ToString();
+        }
         // Phương thức để cập nhật mật khẩu của người dùng
         public async Task UpdatePasswordAsync(string userId, string newPassword)
         {
             try
             {
+                newPassword = GetMd5Hash(newPassword);
                 using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
                 {
                     await connection.OpenAsync();
@@ -697,6 +710,8 @@ namespace BrainStormEra.Repo
             return adminEmails;
         }
 
+        
+        
 
     }
 }

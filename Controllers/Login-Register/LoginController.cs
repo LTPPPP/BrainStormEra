@@ -142,14 +142,13 @@ namespace BrainStormEra.Controllers
             return BadRequest("OTP không hợp lệ hoặc đã hết hạn.");
         }
 
-        // Đặt lại mật khẩu
         [HttpPost]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
             var user = await _accountRepository.GetUserByEmailAsync(request.Email);
             if (user != null)
             {
-                await _accountRepository.UpdatePasswordAsync(user.UserId, GetMd5Hash(request.NewPassword));
+                await _accountRepository.UpdatePasswordAsync(user.UserId, request.NewPassword);
                 return Ok("Mật khẩu đã được đặt lại thành công.");
             }
             return BadRequest("Không tìm thấy tài khoản với email này.");

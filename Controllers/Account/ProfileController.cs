@@ -16,13 +16,16 @@ namespace BrainStormEra.Controllers.Account
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
         private readonly IMemoryCache _cache;
+        private readonly ILogger<ProfileController> _logger;
 
-        public ProfileController(AccountRepo accountRepo, IConfiguration configuration, EmailService emailService, IMemoryCache cache)
+
+        public ProfileController(AccountRepo accountRepo, IConfiguration configuration, EmailService emailService, IMemoryCache cache,ILogger<ProfileController> logger)
         {
             _accountRepo = accountRepo;
             _configuration = configuration;
             _emailService = emailService;
             _cache = cache;
+            _logger = logger;
         }
 
         public class ProfileEditViewModel
@@ -211,6 +214,59 @@ namespace BrainStormEra.Controllers.Account
             TempData["SuccessMessage"] = "Payment has been confirmed. Please wait for admin approval.";
             return RedirectToAction("Index");
         }
+        
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string oldPassword, string newPassword, string confirmPassword)
+        {
+            var userId = Request.Cookies["user_id"];
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "User is not authenticated.";
+                return RedirectToAction("LoginPage", "Login");
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["ErrorMessage"] = "New password and confirm password do not match.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                // Lấy thông tin tài khoản người dùng từ UserId
+                var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+                if (account == null)
+                {
+                    TempData["ErrorMessage"] = "User not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Hash mật khẩu cũ để kiểm tra
+                var oldPasswordHash = _accountRepo.GetMd5Hash(oldPassword);
+
+                if (account.Password != oldPasswordHash)
+                {
+                    TempData["ErrorMessage"] = "Old password is incorrect.";
+                    return RedirectToAction("Index");
+                }
+
+                // Hash mật khẩu mới và cập nhật
+                await _accountRepo.UpdatePasswordAsync(userId, newPassword);
+                TempData["SuccessMessage"] = "Password has been reset successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while resetting the password.";
+                _logger.LogError(ex, "Error resetting password.");
+            }
+
+            return RedirectToAction("Index");
+        }
+        
+        
+
 
     }
 }

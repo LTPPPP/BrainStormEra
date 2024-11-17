@@ -70,9 +70,10 @@
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="@Url.Action("CourseDetail", "Course")">@ViewBag.CourseName</a>
-                    </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("CourseDetail", "Course")">@ViewBag.CourseName</a>
+                </li>
+                </ol>                
             </nav>
 
             <h2 id="lesson-title">@Model.LessonName</h2>
