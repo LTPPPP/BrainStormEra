@@ -1,67 +1,144 @@
-﻿*{
-    font-family: 'Roboto', sans-serif;
-    text-align: center;
+﻿/* Ranking Page Animations and Styling */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Arial', sans-serif;
 }
-.ranking-title {
-    font-size: 2.5rem;
-    color: var(--linkedin-btn-bg-color);
-    padding: 15px;
-    font-weight: bold;
+
+.ranking-container {
     padding-top: 20px;
+    animation: fadeInContainer 1s ease-out;
 }
-.table-container {
-    background-color: var(--linkedin-btn-bg-color);
-    font-size: 1.5rem;
+
+.ranking-title {
+    color: var(--linkedin-btn-bg-color);
     font-weight: bold;
-    /* Chữ in đậm */
-    color: #ffffff;
-    /* Màu chữ trắng */
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    animation: slideInTitle 1s ease-out;
 }
 
-.table th,
-.table td {
+.table {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: tableEnter 1s ease-out;
+}
+
+/* Ranking Rows Animations */
+.table tbody tr {
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInRows 0.5s forwards;
+}
+
+.table tbody tr:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.table tbody tr:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.table tbody tr:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.table tbody tr:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.table tbody tr:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+/* Hover Effects */
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Ranking Tier Styling */
+.top-ranking {
+    background-color: rgba(255, 215, 0, 0.1);
     font-weight: bold;
-    font-size: 1.2rem;
 }
 
-.table-hover tbody tr:hover {
-    background-color: #f0f0f0;
+.middle-ranking {
+    background-color: rgba(192, 192, 192, 0.1);
 }
 
-.table-responsive .table tbody tr.top-ranking {
-    background-color: #ffd700 !important;
-    color: #000 !important;
+.regular-ranking {
+    background-color: rgba(205, 127, 50, 0.05);
 }
 
-.table-responsive .table tbody tr.middle-ranking {
-    background-color: #c0c0c0 !important;
-    color: #000 !important;
+/* Medal Icon Animations */
+.fa-award {
+    animation: pulse 2s infinite;
 }
 
-.table-responsive .table tbody tr.regular-ranking {
-    background-color: #f8f9fa !important;
-    color: #000 !important;
-}
-@media (max-width: 991px) {
-    .ranking-container {
-        padding: 10px;
+/* Keyframe Animations */
+@keyframes fadeInContainer {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
     }
 
-    h2 {
-        font-size: 2rem;
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
-@media (max-width: 575px) {
-    .ranking-container {
-        padding: 5px;
+@keyframes slideInTitle {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
     }
 
-    h2 {
-        font-size: 1.8rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes tableEnter {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
     }
 
-    .table th, .table td {
-        font-size: 0.9rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRows {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .table {
+        font-size: 14px;
+    }
+
+    .fa-award {
+        font-size: 1.5em;
     }
 }
