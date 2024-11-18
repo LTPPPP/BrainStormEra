@@ -1,16 +1,18 @@
 ﻿using BrainStormEra.Repo;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-
+using BrainStormEra.Repo.Course;
 namespace BrainStormEra.Controllers
 {
     public class FeedbackController : Controller
     {
         private readonly FeedbackRepo _feedbackRepo;
+        private readonly CourseRepo _courseRepo;
 
-        public FeedbackController(FeedbackRepo feedbackRepo)
+        public FeedbackController(FeedbackRepo feedbackRepo, CourseRepo courseRepo)
         {
             _feedbackRepo = feedbackRepo;
+            _courseRepo = courseRepo;
         }
 
 
@@ -21,6 +23,13 @@ namespace BrainStormEra.Controllers
             if (string.IsNullOrEmpty(userId))
             {
                 return Json(new { success = false, message = "Please log in to submit feedback." });
+            }
+
+            var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, model.CourseId);
+            System.Console.WriteLine("check : " + isEnrolled + " " + isBanned);
+            if (!isEnrolled || isBanned)
+            {
+                return Json(new { success = false, message = "You are not allowed to submit feedback for this course." });
             }
 
             // Kiểm tra nếu người dùng đã gửi feedback cho khóa học này
