@@ -722,5 +722,26 @@ ORDER BY
             }
         }
 
+        public async Task<bool> IsUserCourseCreatorAsync(string userId, string courseId)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand("SELECT COUNT(*) FROM course WHERE course_id = @CourseId AND created_by = @UserId", connection);
+                    command.Parameters.AddWithValue("@CourseId", courseId);
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    var count = (int)await command.ExecuteScalarAsync();
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
     }
 }

@@ -20,15 +20,19 @@ namespace BrainStormEra.Controllers
         public async Task<IActionResult> CreateFeedback([FromBody] FeedbackViewModel model)
         {
             string userId = Request.Cookies["user_id"];
+            var userRole = Request.Cookies["user_role"];
+            bool isCourseCreator = await _courseRepo.IsUserCourseCreatorAsync(userId, model.CourseId);
             if (string.IsNullOrEmpty(userId))
             {
                 return Json(new { success = false, message = "Please log in to submit feedback." });
             }
-
-            var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, model.CourseId);
-            if (!isEnrolled || isBanned)
+            if (!userRole.Equals("1") && !isCourseCreator)
             {
-                return Json(new { success = false, message = "You are not allowed to submit feedback for this course." });
+                var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, model.CourseId);
+                if (!isEnrolled || isBanned)
+                {
+                    return Json(new { success = false, message = "You are not allowed to submit feedback for this course." });
+                }
             }
 
             // Kiểm tra nếu người dùng đã gửi feedback cho khóa học này
