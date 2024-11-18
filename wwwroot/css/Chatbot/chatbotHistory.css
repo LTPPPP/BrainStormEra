@@ -1,18 +1,194 @@
-﻿
-.hover-zoom:hover {
-    transform: scale(1.02);
-    transition: transform 0.2s ease-in-out;
+﻿/* Base Styles */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
 }
 
-.rounded-lg {
-    border-radius: 0.5rem;
+.container {
+    max-width: 1200px;
+    padding: 2rem;
+}
+
+/* Header Styling */
+.header-his {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    animation: fadeInDown 0.7s ease-out;
+}
+
+.header-his::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, #3498db, #2ecc71);
+    border-radius: 2px;
+}
+
+/* Pagination Styling */
+.pagination {
+    margin: 1.5rem 0;
+}
+
+.page-link {
+    color: #2c3e50;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background-color: #f1f3f5;
+    color: #3498db;
+    transform: scale(1.05);
+}
+
+/* Conversation Card Styling */
+.card {
+    transition: all 0.4s ease;
+    overflow: hidden;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(to right, #3498db, #2ecc71);
+    color: white;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.card-header i {
+    margin-right: 0.5rem;
+    animation: pulse 2s infinite;
 }
 
 .title-chat {
-    background-color: var(--gray-color-main);
-}
-.header-his {
-    margin: 40px;
-    color: var(--hover-color-primary);
+    transition: background 0.3s ease;
 }
 
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-footer {
+    background-color: #f8f9fa !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Checkbox Styling */
+.form-check-input {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.form-check-input:checked {
+    background-color: #3498db;
+    border-color: #3498db;
+    transform: scale(1.2);
+}
+
+/* Delete Button */
+#delete-selected {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+#delete-selected:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Select All and Delete Section */
+.select-all-section {
+    background-color: #f1f3f5;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    animation: slideInRight 0.5s ease-out;
+}
+
+/* Fade In Animation for Conversation Cards */
+.card {
+    animation: fadeInDown 0.5s ease-out;
+    animation-fill-mode: backwards;
+}
+
+.card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.card:nth-child(4) {
+    animation-delay: 0.4s;
+}
