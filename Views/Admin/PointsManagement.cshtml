@@ -21,7 +21,10 @@
 
     <main class="container mt-5">
         <h2 class="text-center header-title">Update Learner Points</h2>
-
+        <div class="total-points-container">
+            <span class="total-points-label">Total Points: </span>
+            <span class="total-points-value">@ViewBag.TotalPoints.ToString("N0") đ</span>
+        </div>
         <div class="input-group mb-3">
             <input type="text" id="searchInput" class="form-control" placeholder="Search by ID or Name"
                 value="@Context.Request.Query["search"]">

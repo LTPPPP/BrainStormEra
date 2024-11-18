@@ -34,12 +34,17 @@ namespace BrainStormEra.Controllers.Points
             int totalLearners = learners.Count();
             int totalPages = (int)Math.Ceiling(totalLearners / (double)pageSize);
 
+            // Calculate the total points of all learners
+            decimal totalPoints = learners.Sum(learner => learner.PaymentPoint.GetValueOrDefault());
+
             var pagedLearners = learners.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
             ViewBag.TotalPages = totalPages;
             ViewBag.CurrentPage = pageIndex;
+            ViewBag.TotalPoints = totalPoints; // Pass the total points to the view
 
             return View("~/Views/Admin/PointsManagement.cshtml", pagedLearners);
         }
+
 
 
         [HttpPost]
