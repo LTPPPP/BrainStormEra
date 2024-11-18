@@ -1,186 +1,261 @@
-﻿/* General Styles */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+﻿:root {
+    --primary-color: #4682b4;
+    --primary-color-light: #5a9bd5;
+    --background-color: #f4f7fa;
+    --border-color: #d1e4f2;
+    --text-color-dark: #181818;
+    --transition-speed: 0.3s;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--background-color) 0%, #e6f2ff 100%);
+    color: var(--text-color-dark);
+    line-height: 1.6;
+}
+
+/* Achievement Title */
+.achievement-title {
+    position: relative;
+    text-align: center;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    perspective: 500px;
+}
+
+.achievement-title::before,
+.achievement-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+}
+
 /* Table Styling */
-.table,
 .achievement-table {
-    background-color: var(--linkedin-btn-bg-color);
-    width: 100%;
-    font-size: 2rem;
-    background-color: #ffffff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    border-collapse: collapse;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(70, 130, 180, 0.1);
+    background: white;
+    transition: all var(--transition-speed) ease;
 }
 
-.table th, 
-.achievement-table th{
-    background-color: var(--linkedin-btn-bg-color);
-    color: var(--text-color-light);
-    padding: 20px;
-    text-align: center;
-    font-size: 1.5rem;
-    border: none;
+.achievement-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-light));
+    color: white;
 }
 
-/* Center table content */
-.table th,
-.table td,
-.achievement-table th,
-.achievement-table td {
-    text-align: center;
-    vertical-align: middle;
-    padding: 15px;
-    font-size: 1.7rem;
+.achievement-table th {
+    padding: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
-.table td,
-.achievement-table td {
-    padding: 10px;
-    text-align: center;
-    font-size: 1.5rem;
-    color: #333;
-    border: none;
-    font-weight: bold;
+
+.achievement-table th:last-child {
+    border-right: none;
 }
-.achievement-table td img {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+.achievement-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: all var(--transition-speed) ease;
 }
-/* Table Hover Effect */
+
 .achievement-table tbody tr:hover {
-    background-color: #f1f1f1;
+    background-color: rgba(70, 130, 180, 0.05);
+    transform: translateY(-3px);
 }
 
-/* Achievement Image Styling */
-.achievement-table td img {
-    width: 50px;
-    height: 50px;
+.achievement-table td {
+    vertical-align: middle;
+    padding: 12px;
+    border-right: 1px solid var(--border-color);
+}
+
+.achievement-table td:last-child {
+    border-right: none;
+}
+
+.achievement-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Achievement Icons */
+.achievement-table img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 3px solid var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+.achievement-table img:hover {
+    transform: rotate(15deg) scale(1.2);
+    box-shadow: 0 10px 20px rgba(70, 130, 180, 0.2);
 }
 
 /* Buttons */
+.btn-add,
 .icon-btn {
-    border: none;
-    background: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all var(--transition-speed) ease;
 }
 
-.icon-btn:hover {
-    color: var(--main-color);
-}
-
-/* Add Button */
 .btn-add {
-    background-color: var(--create-btn-bg-color);
-    color: #fff;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-light));
+    color: white;
     border: none;
-    font-size: 1.5rem;
-    padding: 10px 20px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    padding: 12px 24px;
 }
 
-.btn-add i {
-    font-size: 1.2rem;
+.icon-btn {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 8px 12px;
+    margin: 0 5px;
 }
 
-.btn-add:hover {
-    background-color: var(--btn-create-hover);
+.btn-add::before,
+.icon-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all var(--transition-speed) ease;
+}
+
+.btn-add:hover::before,
+.icon-btn:hover::before {
+    left: 0;
+}
+
+.btn-add:hover,
+.icon-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(70, 130, 180, 0.2);
 }
 
 /* Modal Styling */
 .modal-content {
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    margin-top: 200px;
-    border-radius: 5px;
-    font-size: 1.5rem;
-    font-weight: bold;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(70, 130, 180, 0.15);
+    margin-top: 100px;
 }
 
 .modal-header {
-    background-color: var(--linkedin-btn-bg-color);
-    color: #fff;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-light));
+    color: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
-.modal-footer .btn-success {
-    background-color: var(--create-btn-bg-color);
-    border: none;
+/* Form Inputs */
+.form-control {
+    border-radius: 6px;
+    transition: all var(--transition-speed) ease;
 }
 
-.modal-footer .btn-success:hover {
-    background-color: var(--btn-create-hover);
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(70, 130, 180, 0.25);
 }
 
-.modal-footer .btn-secondary {
-    background-color: var(--border-color);
-    border: none;
-}
-
-.modal-footer .btn-secondary:hover {
-    background-color: var(--text-light-color);
-}
-
-.achievement-title {
-    color: var(--linkedin-btn-bg-color);
-    font-weight: bold;
-    text-align: center;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    font-size: 2.5rem;
-}
-
-/* Add Achievement Container */
-.add-achievement-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* Responsive Adjustments */
-.table-responsive {
-    overflow-x: auto;
-}
-
-@media (max-width: 576px) {
-    .achievement-title {
-        font-size: 1.5rem;
+/* Animations */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
 
-    .table th,
-    .table td {
-        font-size: 1rem;
-        padding: 5px;
-        white-space: nowrap;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes softPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
     }
 
-    .btn-add {
-        font-size: 1.2rem;
-        padding: 10px;
-        width: 100%;
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.achievement-table {
+    animation: slideInUp 0.8s ease-out;
+}
+
+.btn-add {
+    animation: softPulse 2s infinite alternate;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem;
     }
 
-    .modal-dialog {
-        width: 90%;
-    }
-
-    .modal-content {
+    .achievement-table {
         font-size: 0.9rem;
     }
+
+    .achievement-table img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Action Button Tooltips */
+.icon-btn {
+    position: relative;
+}
+
+.icon-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity var(--transition-speed) ease;
+    pointer-events: none;
+}
+
+.icon-btn:hover::after {
+    opacity: 1;
 }
