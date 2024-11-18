@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Tesseract;
+using System.Threading.Tasks;
+using System.Drawing;
+using PdfiumViewer;
 using System.IO;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 namespace BrainStormEra.Services
@@ -134,7 +134,7 @@ Your response (in Vietnamese):";
             var lessonDetails = string.IsNullOrEmpty(LessonContent) ? "" : $@"
     Lesson Name : {LessonName}
     Lesson Description : {LessonDescription}
-    Lesson Content : {await ParsePdf(LessonContent)}
+    Lesson Content : {LessonContent}
     ";
 
             // Determine the template based on user role (0 for user, 1 for admin)
@@ -208,39 +208,5 @@ Your response (in Vietnamese):";
                 throw;
             }
         }
-
-        private async Task<string> ParsePdf(string filePath)
-        {
-            try
-            {
-                // Tạo đường dẫn đầy đủ đến file PDF trong thư mục lessons
-                string fullPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath);
-                System.Console.WriteLine(fullPath);
-                fullPath = "wwwroot/" + filePath;
-                if (File.Exists(fullPath))
-                {
-                    StringBuilder text = new StringBuilder();
-
-                    using (iTextSharp.text.pdf.PdfReader reader = new iTextSharp.text.pdf.PdfReader(fullPath))
-                    {
-                        for (int page = 1; page <= reader.NumberOfPages; page++)
-                        {
-                            text.Append(PdfTextExtractor.GetTextFromPage(reader, page));
-                        }
-                    }
-                    return text.ToString();
-                }
-                else
-                {
-                    return "File PDF không tồn tại.";
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Lỗi khi phân tích file PDF: {ex.Message}");
-                return "Không thể phân tích nội dung của file PDF.";
-            }
-        }
-
     }
 }

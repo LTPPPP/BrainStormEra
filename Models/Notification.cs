@@ -19,6 +19,7 @@ public partial class Notification
 
     public DateTime NotificationCreatedAt { get; set; }
 
+    public string? CreatorImageUrl { get; set; }
     public string? CreatedBy { get; set; }
 
     public virtual Course? Course { get; set; }

@@ -22,11 +22,12 @@ namespace BrainStormEra.Repo.Notification
         {
             var notifications = new List<Models.Notification>();
             string sqlQuery = @"
-                SELECT * 
-                FROM notification 
-                WHERE user_id = @userId 
-                OR created_by = @userId 
-                ORDER BY notification_created_at DESC";
+        SELECT n.notification_id, n.user_id, n.notification_title, n.notification_content, n.notification_type, 
+               n.notification_created_at, n.created_by, a.user_picture -- Fetch the avatar URL from the account table
+        FROM notification n
+        LEFT JOIN account a ON n.created_by = a.user_id -- Join the account table to get avatar_url
+        WHERE n.user_id = @userId OR n.created_by = @userId
+        ORDER BY n.notification_created_at DESC";
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -44,12 +45,12 @@ namespace BrainStormEra.Repo.Notification
                             {
                                 NotificationId = reader["notification_id"].ToString(),
                                 UserId = reader["user_id"].ToString(),
-                                CourseId = reader["course_id"] as string,
                                 NotificationTitle = reader["notification_title"].ToString(),
                                 NotificationContent = reader["notification_content"].ToString(),
                                 NotificationType = reader["notification_type"].ToString(),
                                 NotificationCreatedAt = (DateTime)reader["notification_created_at"],
-                                CreatedBy = reader["created_by"].ToString()
+                                CreatedBy = reader["created_by"].ToString(),
+                                CreatorImageUrl = reader["user_picture"] as string // Get avatar URL from account table
                             });
                         }
                     }
@@ -58,6 +59,8 @@ namespace BrainStormEra.Repo.Notification
 
             return notifications;
         }
+
+
 
         public List<object> GetUsers(string currentUserId)
         {
