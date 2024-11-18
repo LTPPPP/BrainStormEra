@@ -1,0 +1,215 @@
+
+h2 {
+    color: cadetblue;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+/* Chart Section */
+.chart-section {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.chart-container {
+    margin-bottom: 30px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Button Hover Effects */
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(1);
+}
+
+/* Modal Styles */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+.dialog h3 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* Select All Checkbox */
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #28a745;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Tooltip Styles */
+.tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip.visible {
+    opacity: 1;
+}
+
+/* Notifications */
+.notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s;
+}
+
+.notification-item:hover {
+    background-color: #e2f3ff;
+}
+
+.notification-item .select-notification {
+    display: none;
+}
+
+.notification-item.selected .select-notification {
+    display: inline-block;
+}
+
+#deleteSelected {
+    display: none;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#deleteSelected:hover {
+    background-color: #c82333;
+}
+
+/* Floating Tooltip for Chart */
+.chart-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    visibility: hidden;
+}
+
+/* Footer */
+footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 50px;
+}
+
+footer a {
+    color: #f8f9fa;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+footer a:hover {
+    color: #ff6f61;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .chart-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart-container {
+        width: 90%;
+    }
+}
+
+/* Loader Animation */
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
