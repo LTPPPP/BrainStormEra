@@ -5,7 +5,7 @@ h2 {
     font-weight: bold;
 }
 /* Chart Section */
-.chart-section {
+.chart-section {    
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
