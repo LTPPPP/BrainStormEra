@@ -63,13 +63,9 @@ Summarize long responses: If a response is lengthy, provide a brief summary at t
 
 Refuse to answer if not relevant: If the question is not relevant to the course topic, you can refuse to answer.
 
-If lessonContent is a pdf file, You are not provided with additional information about the contents of the PDF file.
-
 Provide detailed responses based on provided information: Use the provided course information to make your response more detailed. This includes fully utilizing details such as Course Name, Course Description, Course Created By, Chapter Name, Chapter Description, Lesson Name, Lesson Description, and Lesson Content to create a relevant, in-depth, and valuable response for the instructor.
 
 Refuse unrelated questions: If the question does not pertain to the course, respond with: “Sorry, I cannot answer your question if it is unrelated to the course.”
-
-Only focus on the infotmation of course name, chapter name, lesson name.
 
 Course information includes:
 
@@ -132,10 +128,10 @@ Your response (in Vietnamese):";
                 ";
 
             var lessonDetails = string.IsNullOrEmpty(LessonContent) ? "" : $@"
-    Lesson Name : {LessonName}
-    Lesson Description : {LessonDescription}
-    Lesson Content : {LessonContent}
-    ";
+                Lesson Name : {LessonName}
+                Lesson Description : {LessonDescription}
+                Lesson Content : {LessonContent}
+                ";
 
             // Determine the template based on user role (0 for user, 1 for admin)
             switch (userRole)
@@ -165,8 +161,8 @@ Your response (in Vietnamese):";
                 },
                 generationConfig = new
                 {
-                    temperature = 0.9,
-                    topK = 50,
+                    temperature = 1,
+                    topK = 40,
                     topP = 0.95,
                     maxOutputTokens = 2048,
                 }

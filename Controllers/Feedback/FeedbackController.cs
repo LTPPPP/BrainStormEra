@@ -26,7 +26,6 @@ namespace BrainStormEra.Controllers
             }
 
             var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, model.CourseId);
-            System.Console.WriteLine("check : " + isEnrolled + " " + isBanned);
             if (!isEnrolled || isBanned)
             {
                 return Json(new { success = false, message = "You are not allowed to submit feedback for this course." });
