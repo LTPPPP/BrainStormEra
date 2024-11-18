@@ -1,197 +1,386 @@
-﻿/* Table Container Styles */
-.table-container {
-    max-width: 50%;
-    margin: auto;
+﻿/* Modern Reset & Base Styles */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+}
+
+/* Sophisticated Header Styles */
 .header-title {
-    color: var(--primary-color);
-    font-weight: bold;
-    font-size: 2rem;
-    margin-bottom: 20px;
-}
-
-/* Table Styles */
-.table {
-    width: 100%;
-    margin-top: 20px;
-    background-color: var(--background-light);
-    border-collapse: collapse;
-    border: 2px solid var(--black-color);
-}
-
-    /* Header and Cell Styles */
-    /* Header and Cell Styles */
-    .table th,
-    .table td {
-        padding: 12px;
-        font-size: 1.4rem;
-        color: var(--text-color);
-        border: none; /* Removes borders from header cells */
-        vertical-align: middle; /* Căn giữa theo chiều dọc */
-    }
-
-    /* Header specific styles */
-    .table th {
-        background-color: var(--btn-create); /* Header background color */
-        color: var(--text-color-light); /* Header text color */
-        font-weight: bold; /* Bold text for header */
-        padding: 15px; /* Padding for header cells */
-        text-align: center; /* Center align header text */
-    }
-
-
-    /* Alignments for each column */
-    .table td:first-child {
-        width: 100px;
-        text-align: left;
-    }
-
-    .table td:nth-child(2) {
-        text-align: center;
-    }
-
-    .table td:last-child {
-        text-align: right;
-    }
-
-    /* Đảm bảo độ rộng đồng nhất cho các cột tiêu đề và nội dung */
-    .table th:nth-child(1),
-    .table td:first-child {
-        width: 50px; /* Đặt chiều rộng đồng nhất cho cột User ID */
-        text-align: left; /* Căn trái để nhất quán */
-    }
-
-    .table th:nth-child(2),
-    .table td:nth-child(2) {
-        width: 150px;
-        text-align: center; /* Căn giữa cột Full Name */
-    }
-
-    .table th:nth-child(3),
-    .table td:last-child {
-        width: 100px;
-        text-align: center; /* Căn phải cột Payment Points */
-    }
-
-    /* Hover effect for rows */
-    .table tbody tr:hover {
-        background-color: var(--light-blue-color);
-    }
-
-/* Centering Update Points Section */
-.update-points-section {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--text-color-dark);
+    margin-bottom: 2.5rem;
     text-align: center;
-    margin: 20px 0;
+    opacity: 0;
+    animation: slideDownFade 0.6s ease forwards;
 }
 
-/* Input Group Styling */
-.input-group {
-    max-width: 400px;
-    margin: 20px auto;
-}
-
-    .input-group .form-control {
-        border-right: 0;
-        min-width: 100px;
-    }
-
-/* Responsive Adjustments for Small Screens */
-@media (max-width: 768px) {
-    .table {
-        font-size: 0.9rem;
-    }
-
-        .table thead {
-            display: none;
-        }
-
-        .table tr {
-            display: block;
-            margin-bottom: 1rem;
-        }
-
-        .table td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            text-align: right;
-        }
-
-            .table td:not(:first-child) {
-                text-align: left;
-            }
-
-    .btn-primary {
-        width: 100%;
-        max-width: 100px;
-        font-size: 0.9rem;
-    }
-}
-
-/* Total Points Container Styles */
 .total-points-container {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 12px;
-    padding: 1.5rem 2rem;
-    margin: 2rem 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    max-width: 25%;
-    margin-left: auto;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: var(--linkedin-btn-bg-color);
+    color: white;
+    padding: 1.5rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+    margin-bottom: 2rem;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: scaleFadeIn 0.6s ease forwards 0.3s;
+    text-align: end;
+}
+
+.total-points-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.2);
 }
 
 .total-points-label {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #495057;
-    margin-right: 1rem;
-    text-transform: uppercase;
+    font-size: 1.2rem;
+    font-weight: 500;
     letter-spacing: 0.5px;
 }
 
 .total-points-value {
     font-size: 1.5rem;
+    font-weight: 700;
+    margin-left: 0.75rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Search Section */
+.input-group {
+    background: var(--header-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: slideUpFade 0.6s ease forwards 0.6s;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.15);
+}
+
+.input-group .form-control {
+    border: 2px solid transparent;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.input-group .form-control:focus {
+    border-color: var(--linkedin-btn-bg-color);
+    background: white;
+    outline: none;
+}
+
+.search-btn {
+    background: #4f46e5;
+    border: none;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.search-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.search-btn:hover::after {
+    width: 300%;
+    height: 300%;
+}
+
+/* Modern Table Styles */
+.table-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin: 2.5rem 0;
+    opacity: 0;
+    animation: slideUpFade 0.6s ease forwards 0.9s;
+    transition: all 0.3s ease;
+}
+
+.table-container:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+    background: #f8fafc;
+    color: var(--text-color-dark);
     font-weight: bold;
-    color: var(--link-color);
-    background: rgba(13, 110, 253, 0.1);
-    padding: 0.5rem 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
+
+.table tbody td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+tr {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+tr:hover {
+    transform: translateX(5px);
+    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Animated Toggle Button */
+.toggle-btn {
+    padding: 0.5rem;
+    color: #4f46e5;
+    border: none;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+.toggle-btn:hover i {
+    transform: scale(1.2);
+}
+
+/* Enhanced Update Points Section */
+.update-points-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f4f8 100%);
+    padding: 2.5rem;
+    border-radius: 12px;
+    margin: 1.5rem;
+    transform-origin: top;
+    animation: slideDown 0.3s ease forwards;
+}
+
+.update-points-section h4 {
+    color: var(--text-color-dark);
+    margin-bottom: 2rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.input-group-centered {
+    max-width: 350px;
+    margin: 0 auto;
+    transform: scale(0.98);
+    transition: transform 0.3s ease;
+}
+
+.input-group-centered:focus-within {
+    transform: scale(1);
+}
+
+.points-input {
+    border: 2px solid #e2e8f0;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
     border-radius: 8px;
-    min-width: 150px;
-    text-align: right;
 }
 
-/* Hover Effect */
-.total-points-container:hover {
+.points-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+/* Modern Pagination */
+.pagination {
+    margin-top: 2.5rem;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: slideUpFade 0.6s ease forwards 1.2s;
+}
+
+.page-link {
+    color: #4f46e5;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: #4f46e5;
+    color: white;
+    border-color: #4f46e5;
     transform: translateY(-2px);
-    transition: transform 0.2s ease-in-out;
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Responsive Design */
+.page-item.active .page-link {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+}
+
+/* Sophisticated Animations */
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+/* Loading Skeleton Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Responsive Enhancements */
 @media (max-width: 768px) {
+    .header-title {
+        font-size: 1.75rem;
+    }
+
     .total-points-container {
-        max-width: 100%;
-        flex-direction: column;
-        align-items: stretch;
+        padding: 1.25rem;
         text-align: center;
-        padding: 1rem;
     }
 
-    .total-points-label {
-        margin-right: 0;
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem;
+    .table thead {
+        display: none;
     }
 
-    .total-points-value {
-        font-size: 1.3rem;
-        text-align: center;
-        min-width: unset;
+    .table,
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
         width: 100%;
+    }
+
+    .table tr {
+        margin-bottom: 1.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        animation: slideUpFade 0.3s ease forwards;
+    }
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        position: relative;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .update-points-section {
+        padding: 1.5rem;
+    }
+
+    tr:hover {
+        transform: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    .toggle-btn,
+    .search-btn,
+    .pagination {
+        display: none;
+    }
+
+    .table-container {
+        box-shadow: none;
+    }
+
+    .total-points-container {
+        border: 1px solid #e2e8f0;
+        background: none;
+        color: #1a1f36;
     }
 }

@@ -20,11 +20,11 @@
     @await Html.PartialAsync("~/Views/Shared/Admin/Header/_Header.cshtml")
 
     <main class="container mt-5">
+        <div class="total-points-container">
+            <span class="total-points-label">Total Points: </span>
+            <span class="total-points-value">@ViewBag.TotalPoints.ToString("N0") đ</span>
+        </div>
         <h2 class="text-center header-title">
-            <div class="total-points-container">
-                <span class="total-points-label">Total Points: </span>
-                <span class="total-points-value">@ViewBag.TotalPoints.ToString("N0") đ</span>
-            </div>
             Update Learner Points
         </h2>
         <div class="input-group mb-3">
@@ -200,7 +200,6 @@
         });
 
     </script>
-    @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 </body>
 
 </html>
