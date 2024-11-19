@@ -186,8 +186,8 @@ namespace BrainStormEra.Repo
                 using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
                 {
                     await connection.OpenAsync();
-                    var command = new SqlCommand(@"INSERT INTO account (user_id, user_role, username, password, user_email, full_name, account_created_at)
-                                                  VALUES (@UserId, @UserRole, @Username, @Password, @UserEmail, @FullName, @AccountCreatedAt)", connection);
+                    var command = new SqlCommand(@"INSERT INTO account (user_id, user_role, username, password, user_email, full_name, account_created_at, user_picture)
+                                          VALUES (@UserId, @UserRole, @Username, @Password, @UserEmail, @FullName, @AccountCreatedAt, @UserPicture)", connection);
 
                     command.Parameters.AddWithValue("@UserId", newAccount.UserId);
                     command.Parameters.AddWithValue("@UserRole", newAccount.UserRole ?? (object)DBNull.Value);
@@ -196,7 +196,7 @@ namespace BrainStormEra.Repo
                     command.Parameters.AddWithValue("@UserEmail", newAccount.UserEmail);
                     command.Parameters.AddWithValue("@FullName", newAccount.FullName);
                     command.Parameters.AddWithValue("@AccountCreatedAt", newAccount.AccountCreatedAt);
-
+                    command.Parameters.AddWithValue("@UserPicture", "/uploads/User-img/default_user.png");
                     await command.ExecuteNonQueryAsync();
                 }
             }
