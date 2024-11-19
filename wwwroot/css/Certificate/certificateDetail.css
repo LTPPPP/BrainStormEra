@@ -9,6 +9,15 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
+.user-info-section{
+    display: flex;
+    text-align: start;
+}
+.user-info{
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
 .certificate-header {
     color: #2c3e50;
     font-size: 24px;
