@@ -206,3 +206,100 @@ h2 {
         transition: all var(--transition-speed) ease;
     }
 }
+
+.certi-detail {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    background-color: #f4f6f7;
+    padding: 20px;
+}
+
+.certificate-content {
+    width: 90%;
+    max-width: 800px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--linkedin-btn-bg-color);
+}
+
+.certificate-header {
+    color: var(--linkedin-btn-bg-color);
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+}
+
+.certificate-title {
+    color: var(--secondary-primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.certificate-body {
+    color: var(--gray-color-main);
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.certificate-username {
+    color: var(--linkedin-btn-bg-color);
+    font-size: 2rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.certificate-logo {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.certificate-logo img {
+    max-width: 200px;
+    opacity: 0.8;
+}
+
+.certificate-footer {
+    color: var(--gray-color-main);
+    font-size: 0.9rem;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+    text-align: center;
+}
+
+/* Optional decorative elements */
+.certificate-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: repeating-linear-gradient(transparent,
+            transparent 20px,
+            rgba(10, 102, 194, 0.05) 20px,
+            rgba(10, 102, 194, 0.05) 40px);
+    transform: rotate(-45deg);
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .certificate-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .certificate-title {
+        font-size: 2rem;
+    }
+
+    .certificate-username {
+        font-size: 1.5rem;
+    }
+}
