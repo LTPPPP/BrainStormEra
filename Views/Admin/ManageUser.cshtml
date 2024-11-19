@@ -221,11 +221,22 @@
         function toggleApproval(approve) {
             const userId = document.getElementById('modalUserId').value;
             const url = approve ? `/api/unban/${userId}` : `/api/ban/${userId}`;
+            const banButton = document.getElementById('banButton');
+            const unbanButton = document.getElementById('unbanButton');
+
             fetch(url, { method: 'POST' })
                 .then(response => {
                     if (response.ok) {
                         alert(approve ? 'User unbanned successfully.' : 'User banned successfully.');
-                        location.reload();
+
+                        // Toggle button visibility without page reload
+                        if (approve) {
+                            banButton.style.display = 'block';
+                            unbanButton.style.display = 'none';
+                        } else {
+                            banButton.style.display = 'none';
+                            unbanButton.style.display = 'block';
+                        }
                     } else {
                         alert('Failed to update user status.');
                     }
