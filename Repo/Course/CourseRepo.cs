@@ -742,6 +742,16 @@ ORDER BY
                 throw;
             }
         }
+        public async Task<int> GetTotalCourseCountAsync()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM course";
+                var command = new SqlCommand(query, connection);
+                await connection.OpenAsync();
+                return (int)await command.ExecuteScalarAsync();
+            }
+        }
 
     }
 }

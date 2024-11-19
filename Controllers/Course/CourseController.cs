@@ -334,7 +334,8 @@ namespace BrainStormEra.Controllers.Course
                 int count = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
                 categoryCounts[category.CourseCategoryId] = count;
             }
-
+            int totalCourseCount = await _courseRepo.GetTotalCourseCountAsync();
+            ViewBag.TotalCourseCount = totalCourseCount;
             // Fetch courses filtered by category
             List<Models.Course> courses;
             if (userRole == "2")
@@ -505,7 +506,8 @@ namespace BrainStormEra.Controllers.Course
             }
 
             ViewBag.CategoryCounts = categoryCounts;
-
+            int totalCourseCount = await _courseRepo.GetTotalCourseCountAsync();
+            ViewBag.TotalCourseCount = totalCourseCount;
             foreach (var course in pendingCourses)
             {
                 var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
@@ -645,5 +647,6 @@ namespace BrainStormEra.Controllers.Course
                 return Json(new { success = false, message = "The course must have at least 1 chapter and 1 lesson. Back to edit and add more" });
             }
         }
+
     }
 }

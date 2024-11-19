@@ -261,3 +261,55 @@
 .status-approved {
     background-color: var(--green-color); /* Màu xanh lá cho trạng thái Approved */
 }
+
+.search-and-count {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.search-bar {
+    flex: 1;
+    margin-right: 15px;
+    /* Add some space between the search bar and the total course count */
+}
+
+.total-course-count {
+    font-size: 1.5rem;
+    color: var(--text-color-dark);
+    background-color: var(--linkedin-btn-bg-color);
+    animation: fadeIn 1s ease-in-out;
+    padding: 10px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .search-and-count {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-bar {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+
+    .total-course-count {
+        text-align: left;
+        width: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
