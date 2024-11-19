@@ -14,116 +14,8 @@
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link href="~/css/Notification/notification-modal.css" rel="stylesheet" />
     <link href="~/css/HomePage/Learner/HomePageLearner.css" rel="stylesheet" />
+    <link href="~/css/Certificate/certificateDetail.css" rel="stylesheet" />
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
-    <!-- Custom Styling -->
-    <style>
-        /* Container Styling */
-        .certificate-page {
-            max-width: 100%;
-            margin: 0 auto;
-            font-size: 1rem;
-        }
-
-        /* User Info Section */
-        .user-info-section {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #D6EDF6;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-right: 12px;
-            padding: 20px;
-        }
-
-        .user-info p {
-            font-size: 1.5rem;
-            margin: 8px 0;
-            color: #333;
-            text-align: start;
-        }
-
-        /* Certificate Section */
-        .certificate-section {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            background: #fff;
-            text-align: center;
-            min-width: 400px;
-            max-width: 800px;
-            flex: 1;
-        }
-
-        .certificate-content {
-            padding: 25px;
-            border: 2px solid var(--star-color);
-            border-radius: 10px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            font-size: 1.5rem;
-        }
-
-        .certificate-header {
-            font-size: 1.4rem;
-            color: #d4af37;
-            font-weight: bold;
-        }
-
-        .certificate-title {
-            font-size: 2.5rem;
-            margin-top: 20px;
-            margin-bottom: 30px;
-            color: #d4af37;
-            font-weight: bold;
-        }
-
-        .certificate-body {
-            font-size: 1.5rem;
-            color: #555;
-        }
-
-        .certificate-username {
-            font-size: 2rem;
-            font-style: italic;
-            color: #333;
-            border-bottom: 2px solid #d4af37;
-            display: inline-block;
-            padding-bottom: 5px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-
-        .certificate-logo img {
-            width: 90px;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .certificate-footer {
-            font-size: 0.9rem;
-            color: #888;
-            text-align: start;
-        }
-
-        /* Button Styling */
-        .download-btn {
-            display: block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1.5rem;
-            background-color: var(--linkedin-btn-bg-color);
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .download-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
-
     <!-- Include html2canvas and jsPDF from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js" defer></script>
@@ -147,7 +39,16 @@
                         @Model.CourseName Specialization.
                     </p>
                     <!-- Download Button inside user info section -->
-                    <button class="download-btn" onclick="downloadCertificate()">Download Certificate</button>
+                    <div class="col-12 text-center mt-4">
+                        <button class="download-btn" onclick="downloadCertificate()">
+                            <i class="fas fa-download"></i> Download Certificate
+                        </button>
+                        <div class="loading-spinner">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -172,13 +73,18 @@
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- JavaScript to handle downloading only the certificate area as PDF -->
     <script>
         function downloadCertificate() {
             const certificateArea = document.getElementById("certificateArea");
+
+            // Use html2canvas with increased scale for better resolution
             html2canvas(certificateArea, {
-                scale: 3 // Increase scale for better resolution in PDF
+                scale: 10, // Increase scale for FHD resolution (4x for better quality)
+                useCORS: true, // Ensures that external resources (like images) are included
+                logging: true, // For debugging purposes
             }).then(canvas => {
                 // Create a new jsPDF instance
                 const pdf = new jsPDF("p", "pt", "a4");
@@ -186,13 +92,18 @@
                 // Get canvas image as data URL
                 const imgData = canvas.toDataURL("image/png");
 
-                // Add image to PDF
-                const imgWidth = 500;
+                // Define PDF size (A4)
+                const imgWidth = 595.28; // A4 width in points
                 const imgHeight = canvas.height * imgWidth / canvas.width;
-                pdf.addImage(imgData, 'PNG', 30, 40, imgWidth, imgHeight);
+
+                // Add image to PDF
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);  // Adjust margins as necessary
+
+                // Save the generated PDF
                 pdf.save("certificate.pdf");
             });
         }
+
     </script>
 
     <!-- Bootstrap JavaScript Bundle (Optional for advanced features) -->

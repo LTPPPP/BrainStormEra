@@ -1,0 +1,114 @@
+/* Certificate Styles */
+.certificate-content {
+    width: 800px;
+    height: 600px;
+    padding: 40px;
+    border: 2px solid gold;
+    position: relative;
+    background: linear-gradient(45deg, #fff 0%, #f9f9f9 100%);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-header {
+    color: #2c3e50;
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.certificate-title {
+    color: #2c3e50;
+    font-size: 36px;
+    font-weight: bold;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.certificate-username {
+    color: #e74c3c;
+    font-size: 28px;
+    font-style: italic;
+    margin: 20px 0;
+}
+
+.certificate-logo {
+    width: 150px;
+    margin: 30px auto;
+}
+
+.certificate-logo img {
+    max-width: 100%;
+    height: auto;
+}
+
+.certificate-footer {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+/* Download Button Styles */
+.download-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.download-btn:hover {
+    background-color: #2980b9;
+}
+
+.download-btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: none;
+    margin: 20px auto;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .certificate-content {
+        width: 100%;
+        height: auto;
+        min-height: 500px;
+    }
+
+    .certificate-title {
+        font-size: 28px;
+    }
+
+    .certificate-username {
+        font-size: 24px;
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    .download-btn,
+    .loading-spinner {
+        display: none !important;
+    }
+
+    .certificate-content {
+        box-shadow: none;
+        border: none;
+    }
+}
