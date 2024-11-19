@@ -1,4 +1,11 @@
 /* Certificate Styles */
+
+#certificateArea {
+    width: 100%;
+    max-width: none;
+    padding: 20px;
+    box-sizing: border-box;
+}
 .certificate-content {
     width: 800px;
     height: 600px;
@@ -37,9 +44,9 @@
 
 .certificate-username {
     color: #e74c3c;
-    font-size: 28px;
+    font-size: 3rem;
     font-style: italic;
-    margin: 20px 0;
+    margin: 50px 0;
 }
 
 .certificate-logo {
@@ -107,7 +114,13 @@
         font-size: 24px;
     }
 }
-
+.congra-title{
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-color);
+    text-align: center;
+    padding-top: 20px;
+}
 /* Print Styles */
 @media print {
 

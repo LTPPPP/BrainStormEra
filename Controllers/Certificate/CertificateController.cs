@@ -29,8 +29,6 @@ namespace BrainStormEra.Controllers.Certificate
         }
 
 
-
-        // Lấy thông tin chi tiết của một chứng chỉ cụ thể
         public async Task<IActionResult> CertificateDetails(string courseId)
         {
             var userId = Request.Cookies["user_id"]; // Get user ID from cookies
@@ -73,8 +71,5 @@ namespace BrainStormEra.Controllers.Certificate
                 completedDate = certificate.CompletedDate.ToString("yyyy-MM-dd")
             });
         }
-
     }
-
-
 }

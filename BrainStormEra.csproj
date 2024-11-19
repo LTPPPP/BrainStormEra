@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3596" />
-    <PackageReference Include="itext7" Version="8.0.5" />
+    <PackageReference Include="itext7" Version="9.0.0" />
     <PackageReference Include="itextsharp" Version="5.5.13.4" />
     <PackageReference Include="Markdig" Version="0.37.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />

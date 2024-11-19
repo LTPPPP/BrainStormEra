@@ -59,7 +59,7 @@
                     <h4 class="certificate-header text-uppercase mb-2">BrainStormEra Academy</h4>
                     <h2 class="certificate-title mb-3">Certificate of Completion</h2>
                     <h3 class="certificate-username mb-1">@Model.UserName</h3>
-                    <p class="mb-2">
+                    <p class="mb-2 congra-title">
                         Has successfully completed the online course "@Model.CourseName" specialization on
                         @Model.CompletedDate.ToString("dd/MM/yyyy")
                     </p>
@@ -78,30 +78,28 @@
     <!-- JavaScript to handle downloading only the certificate area as PDF -->
     <script>
         function downloadCertificate() {
-            const certificateArea = document.getElementById("certificateArea");
+            const element = document.getElementById('certificateArea'); // Chọn vùng HTML chứa chứng chỉ
 
-            // Use html2canvas with increased scale for better resolution
-            html2canvas(certificateArea, {
-                scale: 10, // Increase scale for FHD resolution (4x for better quality)
-                useCORS: true, // Ensures that external resources (like images) are included
-                logging: true, // For debugging purposes
-            }).then(canvas => {
-                // Create a new jsPDF instance
-                const pdf = new jsPDF("p", "pt", "a4");
+            const options = {
+                margin: [10, 10], // Lề trên-dưới và trái-phải
+                filename: 'BrainStormEra_Certificate.pdf', // Tên file tải về
+                image: { type: 'jpeg', quality: 1 }, // Chất lượng hình ảnh
+                html2canvas: {
+                    scale: 4, // Tăng chất lượng hình
+                    useCORS: true // Hỗ trợ hình ảnh từ nguồn khác
+                },
+                jsPDF: {
+                    unit: 'pt',
+                    format: 'a4', // Kích thước trang PDF A4
+                    orientation: 'landscape' // Định dạng ngang để vừa với nội dung rộng
+                }
+            };
 
-                // Get canvas image as data URL
-                const imgData = canvas.toDataURL("image/png");
+            // Tăng chiều rộng của element trước khi render PDF
+            element.style.width = '100%';
+            element.style.maxWidth = 'none';
 
-                // Define PDF size (A4)
-                const imgWidth = 595.28; // A4 width in points
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-
-                // Add image to PDF
-                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);  // Adjust margins as necessary
-
-                // Save the generated PDF
-                pdf.save("certificate.pdf");
-            });
+            html2pdf().set(options).from(element).save(); // Xuất file PDF
         }
 
     </script>
@@ -109,6 +107,9 @@
     <!-- Bootstrap JavaScript Bundle (Optional for advanced features) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
 </body>
 
 </html>
