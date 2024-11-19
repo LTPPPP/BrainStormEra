@@ -45,6 +45,31 @@ h2 {
     }
 }
 
+/* User Counts Styles */
+.user-counts {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    background-color: var(--white-color);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow var(--transition-speed) ease;
+}
+
+.user-counts p {
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--gray-color-main);
+    text-align: center;
+}
+
+.user-counts p strong {
+    color: var(--linkedin-btn-bg-color);
+    font-weight: bold;
+}
+
 /* Table Styles with Hover Effects */
 .table {
     border-collapse: collapse;

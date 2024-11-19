@@ -1,4 +1,5 @@
 ﻿using BrainStormEra.Models;
+using BrainStormEra.Repo;
 using BrainStormEra.Repo.Admin;
 using BrainStormEra.Views.Profile;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace BrainStormEra.Controllers.Profile
     public class ManageProfileController : Controller
     {
         private readonly ProfileRepo _profileRepo;
+        private readonly AccountRepo _accountRepo;
 
-        public ManageProfileController(ProfileRepo profileRepo)
+        public ManageProfileController(ProfileRepo profileRepo, AccountRepo accountRepo)
         {
             _profileRepo = profileRepo ?? throw new ArgumentNullException(nameof(profileRepo));
+            _accountRepo = accountRepo ?? throw new ArgumentNullException(nameof(accountRepo));
         }
 
         [HttpGet]
@@ -25,6 +28,8 @@ namespace BrainStormEra.Controllers.Profile
             if (userRole == "1") // Admin
             {
                 var users = await _profileRepo.GetLearnersAndInstructorsAsync();
+                var userRoleCounts = await _accountRepo.GetUserRoleCountsAsync();
+                ViewBag.UserRoleCounts = userRoleCounts;
                 return View("~/Views/Admin/ManageUser.cshtml", users);
             }
             else if (userRole == "2") // Instructor
@@ -105,7 +110,6 @@ namespace BrainStormEra.Controllers.Profile
             }
         }
 
-
         [HttpGet("/api/certificates/{userId}/{courseId}")]
         public async Task<IActionResult> GetCertificateForCourse(string userId, string courseId)
         {
@@ -116,6 +120,5 @@ namespace BrainStormEra.Controllers.Profile
             }
             return Json(certificate);
         }
-
     }
 }

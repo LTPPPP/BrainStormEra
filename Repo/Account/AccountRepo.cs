@@ -699,6 +699,45 @@ namespace BrainStormEra.Repo
             return adminEmails;
         }
 
+        public async Task<UserRoleCountsViewModel> GetUserRoleCountsAsync()
+        {
+            var userRoleCounts = new UserRoleCountsViewModel();
+
+            try
+            {
+                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    var command = new SqlCommand(@"
+                SELECT
+                    COUNT(*) AS TotalUsers,
+                    SUM(CASE WHEN user_role = 1 THEN 1 ELSE 0 END) AS AdminCount,
+                    SUM(CASE WHEN user_role = 2 THEN 1 ELSE 0 END) AS InstructorCount,
+                    SUM(CASE WHEN user_role = 3 THEN 1 ELSE 0 END) AS LearnerCount
+                FROM account", connection);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            userRoleCounts.TotalUsers = (int)reader["TotalUsers"];
+                            userRoleCounts.AdminCount = (int)reader["AdminCount"];
+                            userRoleCounts.InstructorCount = (int)reader["InstructorCount"];
+                            userRoleCounts.LearnerCount = (int)reader["LearnerCount"];
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user role counts.");
+                throw;
+            }
+
+            return userRoleCounts;
+        }
+
+
         public string GetMd5Hash(string input)
         {
             using var md5 = System.Security.Cryptography.MD5.Create();
@@ -710,5 +749,14 @@ namespace BrainStormEra.Repo
                 sb.Append(b.ToString("X2"));
             return sb.ToString();
         }
+
+        public class UserRoleCountsViewModel
+        {
+            public int TotalUsers { get; set; }
+            public int AdminCount { get; set; }
+            public int InstructorCount { get; set; }
+            public int LearnerCount { get; set; }
+        }
+
     }
 }

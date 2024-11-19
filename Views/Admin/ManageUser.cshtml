@@ -19,6 +19,12 @@
 
     <main class="container mt-5">
         <h2>Manage Users</h2>
+        <div class="user-counts mb-3">
+            <p><strong>Total Users:</strong> @ViewBag.UserRoleCounts.TotalUsers</p>
+            <p><strong>Admins:</strong> @ViewBag.UserRoleCounts.AdminCount</p>
+            <p><strong>Instructors:</strong> @ViewBag.UserRoleCounts.InstructorCount</p>
+            <p><strong>Learners:</strong> @ViewBag.UserRoleCounts.LearnerCount</p>
+        </div>
         <div class="search-container mb-3">
             <input type="text" id="searchInput" class="form-control"
                 placeholder="Search by User ID, Username, or Full Name" onkeyup="filterTable()">
