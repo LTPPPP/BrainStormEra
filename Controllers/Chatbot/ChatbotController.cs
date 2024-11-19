@@ -158,6 +158,8 @@ namespace BrainStormEra.Controllers
                     ConversationContent = c.ConversationContent
                 }).ToList();
 
+                var totalConversations = await _chatbotRepo.GetTotalConversationCountAsync();
+
                 var viewModel = new ConversationHistoryViewModel
                 {
                     DailyConversations = new List<DailyConversationViewModel>
@@ -169,7 +171,8 @@ namespace BrainStormEra.Controllers
                 }
             },
                     CurrentPage = page,
-                    TotalPages = totalPages
+                    TotalPages = totalPages,
+                    TotalConversations = totalConversations // Thêm tổng số cuộc hội thoại vào view model
                 };
 
                 return View("~/Views/Shared/Chatbot/ConversationHistory.cshtml", viewModel);
@@ -179,6 +182,7 @@ namespace BrainStormEra.Controllers
                 return View("Error", new ErrorViewModel { Message = "Failed to load conversation history." });
             }
         }
+
 
 
         [HttpPost]
@@ -220,6 +224,7 @@ namespace BrainStormEra.Controllers
         public List<DailyConversationViewModel> DailyConversations { get; set; }
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
+        public int TotalConversations { get; set; } // Thêm thuộc tính này
     }
 
     public class DailyConversationViewModel

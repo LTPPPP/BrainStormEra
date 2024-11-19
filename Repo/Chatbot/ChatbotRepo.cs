@@ -341,8 +341,52 @@ namespace BrainStormEra.Repo.Chatbot
                 }
             }
         }
+        public async Task<List<ChatbotConversation>> GetAggregatedConversationsAsync(DateTime? startDate = null, DateTime? endDate = null, string userId = null)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
 
+                string sql = @"
+            SELECT c.*, a.*
+            FROM chatbot_conversation c
+            LEFT JOIN account a ON c.user_id = a.user_id
+            WHERE (@StartDate IS NULL OR c.conversation_time >= @StartDate)
+            AND (@EndDate IS NULL OR c.conversation_time <= @EndDate)
+            AND (@UserId IS NULL OR c.user_id = @UserId)
+            ORDER BY c.conversation_time DESC";
 
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@StartDate", (object)startDate ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@EndDate", (object)endDate ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UserId", (object)userId ?? DBNull.Value);
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        var list = new List<ChatbotConversation>();
+                        while (await reader.ReadAsync())
+                        {
+                            var conversation = new ChatbotConversation
+                            {
+                                ConversationId = reader["conversation_id"].ToString(),
+                                UserId = reader["user_id"] == DBNull.Value ? null : reader["user_id"].ToString(),
+                                ConversationTime = Convert.ToDateTime(reader["conversation_time"]),
+                                ConversationContent = reader["conversation_content"].ToString(),
+                                User = reader["user_id"] == DBNull.Value ? null : new Account
+                                {
+                                    UserId = reader["user_id"].ToString(),
+                                    FullName = reader["full_name"]?.ToString(),
+                                    // Thêm các thuộc tính khác nếu cần
+                                }
+                            };
+                            list.Add(conversation);
+                        }
+                        return list;
+                    }
+                }
+            }
+        }
     }
 
     // Class để lưu trữ thống kê hội thoại

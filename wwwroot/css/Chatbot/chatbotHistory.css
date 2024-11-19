@@ -63,9 +63,10 @@ body {
 }
 
 .card-header {
-    background: linear-gradient(to right, #3498db, #2ecc71);
-    color: white;
-    font-weight: 600;
+    background: linear-gradient(to right, #437495, #dce3ef);
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 1.2rem;
     padding: 1rem;
 }
 
@@ -191,4 +192,28 @@ body {
 
 .card:nth-child(4) {
     animation-delay: 0.4s;
+}
+
+/* chatbotHistory.css */
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 2s ease-in-out;
+}
+
+.total-chat{
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    position: relative;
+    animation: fadeInDown 0.7s ease-out;
 }
