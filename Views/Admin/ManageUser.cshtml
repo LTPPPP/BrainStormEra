@@ -84,7 +84,7 @@
 
                     <!-- User Picture Section -->
                     <div class="user-picture ms-3">
-                        <img id="userPicture" src="default-avatar.png" alt="User Picture"
+                        <img id="userPicture" src="/uploads/User-img/default_user.png" alt="User Picture"
                             style="width: 140px; height: 140px; border-radius: 8px;margin-left: 35px;">
                     </div>
                 </div>
@@ -137,7 +137,7 @@
                     document.getElementById('modalUserId').value = userId;
 
                     // Set user picture
-                    document.getElementById('userPicture').src = data.userPicture || 'default-avatar.png';
+                    document.getElementById('userPicture').src = data.userPicture || '/uploads/User-img/default_user.png';
 
                     // Show learner-specific actions if role is 'Learner'
                     if (userRole === "3") {
