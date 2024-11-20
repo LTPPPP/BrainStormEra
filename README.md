@@ -107,25 +107,90 @@ BrainStormEra is a comprehensive Course and Certificate management system design
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/download) (version 8.0 or higher)
-- SQL Server
+- [SQL Server 2019](https://www.microsoft.com/en-us/sql-server/sql-server-2019) SQL Server 2019 or later
 
 ## Installation
 
-To set up the project and install necessary dependencies, run the following commands:
+To set up the project and install necessary dependencies, follow these steps:
 
-```bash
-dotnet add package System.Net.Http
-dotnet add package Microsoft.EntityFrameworkCore
-dotnet add package Microsoft.EntityFrameworkCore.Tools
-dotnet add package Microsoft.EntityFrameworkCore.Design
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Microsoft.AspNetCore.Session
-dotnet add package Newtonsoft.Json
-dotnet add package Markdig
-dotnet add package System.Data.SqlClient
-dotnet add package Microsoft.CognitiveServices.Speech
-dotnet add package Google.Apis.YouTube.v3
-dotnet add package itext7
-dotnet add package PdfSharp
-dotnet add package itextsharp
-```
+1. **Clone the Repository:**
+
+   ```bash
+   git clone https://github.com/LTPPPP/BrainStormEra
+   ```
+
+   ```bash
+   cd BrainStormEra
+   ```
+
+2. **Install .NET SDK:**
+   Ensure you have the .NET SDK installed. You can download it from [here](https://dotnet.microsoft.com/download).
+
+3. **Install SQL Server:**
+   Make sure SQL Server 2019 or later is installed and running. You can download it from [here](https://www.microsoft.com/en-us/sql-server/sql-server-2019).
+
+4. **Set Up the Database:**
+   Update the connection string in `appsettings.json` to match your SQL Server configuration.
+
+   ```json
+   "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+   },
+   "AllowedHosts": "*",
+   "ConnectionStrings": {
+   "DefaultConnection": "Server=your_server_name;Database=BrainStormEra;User Id=your_username;Password=your_password;"
+    },
+   "GeminiApiKey": "",
+   "GeminiApiUrl": "",
+   "SmtpSettings": {
+    "Server": "",
+    "Port": "",
+    "EnableSsl": true,
+    "SenderEmail": "",
+    "SenderName": "",
+    "Username": "",
+    "Password": ""
+   }
+   ```
+
+5. **Install Dependencies:**
+   Run the following commands to install necessary packages:
+
+   ```bash
+   dotnet add package System.Net.Http
+   dotnet add package Microsoft.EntityFrameworkCore
+   dotnet add package Microsoft.EntityFrameworkCore.Tools
+   dotnet add package Microsoft.EntityFrameworkCore.Design
+   dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+   dotnet add package Microsoft.AspNetCore.Session
+   dotnet add package Newtonsoft.Json
+   dotnet add package Markdig
+   dotnet add package System.Data.SqlClient
+   dotnet add package Microsoft.CognitiveServices.Speech
+   dotnet add package Google.Apis.YouTube.v3
+   dotnet add package itext7
+   dotnet add package PdfSharp
+   dotnet add package itextsharp
+   ```
+
+6. **Run Migrations:**
+   Apply the database migrations to set up the database schema.
+
+   ```bash
+   dotnet ef database update
+   ```
+
+7. **Run the Application:**
+   Start the application using the following command:
+
+   ```bash
+   dotnet run
+   ```
+
+8. **Access the Application:**
+   Open your web browser and navigate to `http://localhost:5000` to access the BrainStormEra application.
+
+By following these steps, you should have the BrainStormEra project up and running on your local machine.
