@@ -170,8 +170,8 @@ To set up the project and install necessary dependencies, follow these steps:
    ```json
    "Logging": {
     "LogLevel": {
-             "Default": "Information",
-             "Microsoft.AspNetCore": "Warning"
+       "Default": "Information",
+       "Microsoft.AspNetCore": "Warning"
     }
    },
    "AllowedHosts": "*",
