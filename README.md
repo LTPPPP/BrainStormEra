@@ -187,10 +187,10 @@ To set up the project and install necessary dependencies, follow these steps:
    Start the application using the following command:
 
    ```bash
-   dotnet run
+   dotnet run build
    ```
 
 8. **Access the Application:**
-   Open your web browser and navigate to `http://localhost:5000` to access the BrainStormEra application.
+   Open your web browser and navigate to `http://localhost:5289` or `"https://localhost:7252` to access the BrainStormEra application.
 
 By following these steps, you should have the BrainStormEra project up and running on your local machine.
