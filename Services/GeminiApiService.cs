@@ -48,6 +48,8 @@ Câu trả lời của bạn (bằng tiếng Việt):";
 ";
 
         private const string USER_TEMPLATE = @"
+        Nếu câu hỏi chỉ liên quan 1 nhỏ đến khóa học thì vẫn trả lời câu hỏi,
+        Nếu câu hỏi không liên quan đến bất kì, không thuộc phạm trù của khóa học thì từ chối trả lời.
         Nếu người dùng hỏi những câu hỏi, yêu cầu không liên quan đế chủ đề của khóa học, chương, bài học thì trả lời như sau: (Xin lỗi, tôi không thể trả lời câu hỏi này vì nó không liên quan đến chủ đề của khóa học, chương, bài học mà bạn đang học. Bạn có thể hỏi về chủ đề khác hoặc liên hệ với giáo viên để được hỗ trợ.)
 ";
 
