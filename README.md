@@ -1,4 +1,18 @@
+![BrainStormEra Logo](https://your-logo-url.com/logo.png)
+
 # BrainStormEra Project
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Technologies Used](#technologies-used)
+3. [Role](#role)
+4. [Features](#features)
+5. [Prerequisites](#prerequisites)
+6. [Installation](#installation)
+7. [Contributing](#contributing)
+8. [License](#license)
+9. [Contact](#contact)
 
 ## Overview
 
@@ -24,13 +38,13 @@ BrainStormEra is a comprehensive Course and Certificate management system design
 ![PdfSharp](https://img.shields.io/badge/PdfSharp-000000?style=for-the-badge&logo=pdf&logoColor=white)
 ![iTextSharp](https://img.shields.io/badge/iTextSharp-000000?style=for-the-badge&logo=itext&logoColor=white)
 
-## Role :
+## Role
 
 1. **Admin**
 2. **Instructor**
 3. **Learner**
 
-## Features:
+## Features
 
 1. **User Registration and Authentication:**
 
@@ -128,6 +142,8 @@ BrainStormEra is a comprehensive Course and Certificate management system design
 
 - [.NET SDK](https://dotnet.microsoft.com/download) (version 8.0 or higher)
 - [SQL Server 2019](https://www.microsoft.com/en-us/sql-server/sql-server-2019) SQL Server 2019 or later
+- [Visual Studio](https://visualstudio.microsoft.com/) (recommended for development)
+- [Git](https://git-scm.com/) (for version control)
 
 ## Installation
 
@@ -155,8 +171,8 @@ To set up the project and install necessary dependencies, follow these steps:
    ```json
    "Logging": {
     "LogLevel": {
-         "Default": "Information",
-         "Microsoft.AspNetCore": "Warning"
+           "Default": "Information",
+           "Microsoft.AspNetCore": "Warning"
     }
    },
    "AllowedHosts": "*",
