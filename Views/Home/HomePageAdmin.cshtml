@@ -276,9 +276,6 @@
                 $('#addNotificationModal').modal('show');
             });
 
-            console.log('Full Name:', '@ViewBag.FullName');
-            console.log('User Picture:', '@ViewBag.UserPicture');
-
             window.confirmLogout = function () {
                 if (confirm("Are you sure you want to logout?")) {
                     window.location.href = '@Url.Action("Logout", "Login")';
