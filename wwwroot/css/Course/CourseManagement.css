@@ -1,21 +1,14 @@
 ﻿body {
     background-color: var(--white-color) !important;
 }
-
+.delete-course{
+    padding-top: 70px;
+}
 .img-welcomeheader {
     display: flex;
     width: 100%;
     height: 40%;
 }
-
-.robotwelcome {
-    width: 250px;
-    position: absolute;
-    top: 85%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
 @media (max-width: 768px) {
     .banner img {
         max-width: 390px; /* Giới hạn chiều ngang cho phù hợp với màn hình iPhone 12 */
