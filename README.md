@@ -297,7 +297,7 @@ We welcome contributions to the BrainStormEra project. If you would like to cont
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE]([LICENSE](https://drive.google.com/drive/folders/1SWbiUoTGMQEZghKBikA88Ud9a6Zo3y1N)) file for more information.
+This project is licensed under the MIT License. See the [LICENSE](https://drive.google.com/drive/folders/1SWbiUoTGMQEZghKBikA88Ud9a6Zo3y1N) file for more information.
 
 ## Contact
 
