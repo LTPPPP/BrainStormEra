@@ -4,6 +4,26 @@
 
 BrainStormEra is a comprehensive Course and Certificate management system designed to streamline the process of managing educational courses and certificates. Built using ASP.NET, the project follows a 3-layer architecture and adheres to the MVC (Model-View-Controller) pattern. The backend is developed using ASP.NET MVC, with the Entity Framework Database First approach for efficient database interactions. The system includes robust session management and utilizes SQL Server for database operations.
 
+## Technologies Used
+
+![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)
+![HTML](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=orange)
+![CSS](https://img.shields.io/badge/CSS-239120?style=for-the-badge&logo=css3&logoColor=blue)
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Entity Framework](https://img.shields.io/badge/Entity%20Framework-512BD4?style=for-the-badge&logo=.net&logoColor=white)
+![ASP.NET MVC](https://img.shields.io/badge/ASP.NET%20MVC-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![Newtonsoft.Json](https://img.shields.io/badge/Newtonsoft.Json-000000?style=for-the-badge&logo=json&logoColor=white)
+![Markdig](https://img.shields.io/badge/Markdig-000000?style=for-the-badge&logo=markdown&logoColor=white)
+![System.Data.SqlClient](https://img.shields.io/badge/System.Data.SqlClient-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
+![Microsoft Cognitive Services](https://img.shields.io/badge/Microsoft%20Cognitive%20Services-0078D7?style=for-the-badge&logo=microsoft&logoColor=white)
+![Google APIs](https://img.shields.io/badge/Google%20APIs-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![iText7](https://img.shields.io/badge/iText7-000000?style=for-the-badge&logo=itext&logoColor=white)
+![PdfSharp](https://img.shields.io/badge/PdfSharp-000000?style=for-the-badge&logo=pdf&logoColor=white)
+![iTextSharp](https://img.shields.io/badge/iTextSharp-000000?style=for-the-badge&logo=itext&logoColor=white)
+
 ## Role :
 
 1. **Admin**
@@ -135,8 +155,8 @@ To set up the project and install necessary dependencies, follow these steps:
    ```json
    "Logging": {
     "LogLevel": {
-       "Default": "Information",
-       "Microsoft.AspNetCore": "Warning"
+         "Default": "Information",
+         "Microsoft.AspNetCore": "Warning"
     }
    },
    "AllowedHosts": "*",
