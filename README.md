@@ -171,8 +171,8 @@ To set up the project and install necessary dependencies, follow these steps:
    ```json
    "Logging": {
     "LogLevel": {
-           "Default": "Information",
-           "Microsoft.AspNetCore": "Warning"
+             "Default": "Information",
+             "Microsoft.AspNetCore": "Warning"
     }
    },
    "AllowedHosts": "*",
@@ -229,7 +229,31 @@ To set up the project and install necessary dependencies, follow these steps:
 8. **Access the Application:**
    Open your web browser and navigate to `http://localhost:5289` or `"https://localhost:7252` to access the BrainStormEra application.
 
-By following these steps, you should have the BrainStormEra project up and running on your local machine.
+## Getting GEMINI API Key
+
+To use the GEMINI API in the BrainStormEra project, follow these steps to obtain your API key:
+
+1. **Sign Up for GEMINI:**
+   Visit the [GEMINI website](https://gemini.com/) and sign up for an account if you don't already have one.
+
+2. **Navigate to API Settings:**
+   Once logged in, go to your account settings and find the API section.
+
+3. **Create a New API Key:**
+   Create a new API key by following the instructions provided. Make sure to set the appropriate permissions for the key.
+
+4. **Copy the API Key:**
+   Copy the generated API key and keep it secure. You will need this key to configure the BrainStormEra project.
+
+5. **Update `appsettings.json`:**
+   Add your GEMINI API key to the `appsettings.json` file in the project.
+
+   ```json
+   "GeminiApiKey": "your_gemini_api_key",
+   "GeminiApiUrl": "https://api.gemini.com/v1"
+   ```
+
+By following these steps, you should have the BrainStormEra project up and running on your local machine with the GEMINI API configured.
 
 ## Contributing
 
