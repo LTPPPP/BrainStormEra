@@ -81,6 +81,9 @@ Câu trả lời của bạn (bằng tiếng Việt):";
                 case 3:
                     selectedTemplate = courseDetails + chapterDetails + lessonDetails + ADMIN_TEMPLATE + USER_TEMPLATE;
                     break;
+                case 2:
+                    selectedTemplate = ADMIN_TEMPLATE;
+                    break;
                 default:
                     selectedTemplate = ADMIN_TEMPLATE;
                     break;

@@ -50,13 +50,15 @@
                 <div class="col-md-3 bg-SECONDARY sidebar p-3">
                     <div class="text-start mb-3">
                         <button type="button" onclick="window.location.href='@Url.Action("ChapterManagement", "Chapter")'"
-                                class="btn btn-sm">
+                            class="btn btn-sm">
                             <i class="fas fa-arrow-left"></i> Back to Course
                         </button>
                     </div>
                     <a class="btn btn-primary w-100 mb-3" href="@Url.Action("CreateLesson", "Lesson")">Add Lesson</a>
-                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete Lesson</a>
-                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View Lesson</a>
+                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteLesson", "Lesson")">Delete
+                        Lesson</a>
+                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("LessonManagement", "Lesson")">View
+                        Lesson</a>
                 </div>
             }
             <!-- Main Content for Edit Chapter -->
@@ -80,14 +82,15 @@
                             <div class="mb-3">
                                 <label asp-for="LessonDescription" class="form-label">Lesson Description</label>
                                 <textarea asp-for="LessonDescription" class="form-control" id="lessonDescription"
-                                          rows="5"></textarea>
+                                    rows="5"></textarea>
                                 <span asp-validation-for="LessonDescription" class="text-danger"></span>
 
                             </div>
                             <!-- Lesson Type Id -->
                             <div class="mb-3">
                                 <label asp-for="LessonTypeId" class="form-label">Lesson Type</label>
-                                <select asp-for="LessonTypeId" class="form-select" id="lessonTypeId" onchange="toggleLessonContent()">
+                                <select asp-for="LessonTypeId" class="form-select" id="lessonTypeId"
+                                    onchange="toggleLessonContent()">
                                     <option value="0">Type of Lesson</option>
                                     <option value="1">Video</option>
                                     <option value="2">Reading</option>
@@ -95,22 +98,32 @@
                                 <span asp-validation-for="LessonTypeId" class="text-danger"></span>
                             </div>
                             <!-- Video Section -->
-                            <div class="mb-3" id="videoSection" style="display: @(Model.LessonTypeId == 1 ? "block" : "none")">
+                            <div class="mb-3" id="videoSection"
+                                style="display: @(Model.LessonTypeId == 1 ? "block" : "none")">
                                 <div class="mt-3" id="youtubeLinkSection">
                                     <label for="lessonLink" class="form-label">YouTube Video Link</label>
-                                    <input type="url" name="LessonLink" class="form-control" placeholder="https://www.youtube.com/watch?v=example" value="@(Model.LessonTypeId == 1 ? Model.LessonContent : "")">
+                                    <input type="url" name="LessonLink" class="form-control"
+                                        placeholder="https://www.youtube.com/watch?v=example"
+                                        value="@(Model.LessonTypeId == 1 ? Model.LessonContent : "")">
                                     <span asp-validation-for="LessonContent" class="text-danger"></span>
                                 </div>
                             </div>
                             <!-- Reading Section -->
-                            <div class="mb-3" id="readingSection" style="display: @(Model.LessonTypeId == 2 ? "block" : "none")">
-                                <label for="lessonContentFile" class="form-label">Upload Lesson Content (Reading)</label>
-                                <input type="file" name="LessonContentFile" class="form-control" id="lessonContentFile" accept=".pdf" />
+                            <div class="mb-3" id="readingSection"
+                                style="display: @(Model.LessonTypeId == 2 ? "block" : "none")">
+                                <label for="lessonContentFile" class="form-label">Upload Lesson Content
+                                    (Reading)</label>
+                                <input type="file" name="LessonContentFile" class="form-control" id="lessonContentFile"
+                                    accept=".pdf" />
                                 @if (!string.IsNullOrEmpty(Model.LessonContent))
                                 {
                                     <p>Current File: <a href="@Model.LessonContent" target="_blank">View Document</a></p>
                                 }
-                                @Html.ValidationMessageFor(model => model.LessonContent, "", new { @class = "text-danger" })
+                                @Html.ValidationMessageFor(model => model.LessonContent, "", new
+                                    {
+                                        @class =
+                                         "text-danger"
+                                    })
                             </div>
 
                             <!-- Save Button -->
@@ -123,7 +136,7 @@
             </div>
         </div>
     </div>
-
+    @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <!-- Bootstrap JS from CDN -->

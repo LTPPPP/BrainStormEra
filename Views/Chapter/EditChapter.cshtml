@@ -54,15 +54,17 @@
 
                     <div class="text-start mb-3">
                         <button type="button" onclick="window.location.href='@Url.Action("EditCourse", "Course")'"
-                                class="btn btn-sm">
+                            class="btn btn-sm">
                             <i class="fas fa-arrow-left"></i> Back to Course
                         </button>
                     </div>
 
 
                     <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddChapter", "Chapter")">Add Chapter</a>
-                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete Chapter</a>
-                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")">Chapter Management</a>
+                    <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete
+                        Chapter</a>
+                    <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")">Chapter
+                        Management</a>
                 </div>
             }
             <!-- Main Content for Edit Chapter -->
@@ -87,7 +89,7 @@
                             <div class="mb-3">
                                 <label for="chapterDescription" class="form-label">Chapter Description</label>
                                 <textarea asp-for="ChapterDescription" class="form-control" id="chapterDescription"
-                                          rows="5">This chapter dives into more complex topics.</textarea>
+                                    rows="5">This chapter dives into more complex topics.</textarea>
                                 <span asp-validation-for="ChapterDescription" class="text-danger"></span>
 
                             </div>
@@ -103,7 +105,7 @@
             </div>
         </div>
     </div>
-
+    @await Html.PartialAsync("~/Views/Shared/Chatbot/Chatbot.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Footer/_Footer.cshtml")
 
     <!-- Bootstrap JS from CDN -->
