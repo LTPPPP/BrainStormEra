@@ -52,13 +52,15 @@
 
                 <div class="text-start mb-3">
                     <button type="button" onclick="window.location.href='@Url.Action("EditCourse", "Course")'"
-                            class="btn btn-sm">
+                        class="btn btn-sm">
                         <i class="fas fa-arrow-left"></i> Back to Course
                     </button>
                 </div>
                 <a class="btn btn-primary w-100 mb-3" href="@Url.Action("AddChapter", "Chapter")">Add Chapter</a>
-                <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete Chapter</a>
-                <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")">Chapter Management</a>
+                <a class="btn btn-outline-secondary w-100 mb-3" href="@Url.Action("DeleteChapter", "Chapter")">Delete
+                    Chapter</a>
+                <a class="btn btn-outline-secondary w-100" href="@Url.Action("ChapterManagement", "Chapter")">Chapter
+                    Management</a>
             </div>
         }
 
@@ -66,7 +68,7 @@
         <div class="col-md-9 d-flex align-items-start vh-100">
             <div class="card w-100">
                 <div class="card-header gradient-header">
-                    @courseName >  CHAPTER MANAGEMENT
+                    @courseName > CHAPTER MANAGEMENT
                 </div>
                 <div class="card-body">
                     <!-- List of chapters with edit and manage lessons buttons -->
@@ -76,10 +78,12 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5>@c.ChapterName</h5>
                                 <!-- Thêm thuộc tính data-chapterid vào nút "Edit" -->
-                                <a class="btn btn-outline-primary btn-sm edit-chapter" href="javascript:void(0);" data-chapterid="@c.ChapterId">Edit</a>
+                                <a class="btn btn-outline-primary btn-sm edit-chapter" href="javascript:void(0);"
+                                    data-chapterid="@c.ChapterId">Edit</a>
                             </div>
                             <p>@c.ChapterDescription</p>
-                            <a class="btn btn-primary manage-lessons" href="javascript:void(0);" data-chapterid="@c.ChapterId">Manage Lessons</a>
+                            <a class="btn btn-primary manage-lessons" href="javascript:void(0);"
+                                data-chapterid="@c.ChapterId">Manage Lessons</a>
                         </div>
                         <hr />
                     }
