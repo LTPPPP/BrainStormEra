@@ -433,11 +433,7 @@ namespace BrainStormEra.Controllers.Course
         {
             var courseId = Request.Cookies["CourseId"];
             var userId = Request.Cookies["user_id"];
-            if (string.IsNullOrEmpty(userId))
-            {
-                TempData["Message"] = "You need to log in to access the course details.";
-                return RedirectToAction("LoginPage", "Login");
-            }
+            bool isLoggedIn = !string.IsNullOrEmpty(userId);
 
             if (string.IsNullOrEmpty(courseId))
             {
@@ -445,15 +441,26 @@ namespace BrainStormEra.Controllers.Course
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
 
-
             ViewBag.CreatedBy = await _courseRepo.GetCourseCreatorNameAsync(courseId);
-            var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, courseId);
-            ViewBag.IsEnrolled = isEnrolled;
-            ViewBag.IsBanned = isBanned;
+            if (isLoggedIn)
+            {
+                var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, courseId);
+                double progress = isLoggedIn ? await _courseRepo.GetCourseProgressAsync(userId, courseId) : 0;
+                ViewBag.Progress = progress;
+                ViewBag.IsEnrolled = isEnrolled;
+                ViewBag.IsBanned = isBanned;
+                ViewBag.IsLoggedIn = isLoggedIn;
+
+            }
+            else
+            {
+                ViewBag.IsLoggedIn = false;
+                ViewBag.IsEnrolled = false;
+                ViewBag.IsBanned = false;
+                ViewBag.Progress = 0;
+            }
 
             var course = await _courseRepo.GetCourseByIdAsync(courseId);
-            double progress = await _courseRepo.GetCourseProgressAsync(userId, courseId);
-            ViewBag.Progress = progress;
             if (course == null)
             {
                 _logger.LogError($"Course not found with ID: {courseId}");
@@ -472,7 +479,6 @@ namespace BrainStormEra.Controllers.Course
             }
             course.Chapters = chapters;
 
-
             ViewBag.TotalLessons = totalLessons;
 
             int offset = (page - 1) * pageSize;
@@ -486,6 +492,7 @@ namespace BrainStormEra.Controllers.Course
 
             return View(course);
         }
+
 
         public async Task<ActionResult> CourseAcceptance()
         {

@@ -1,17 +1,18 @@
-﻿/*CourseDetail*/
-body {
-  font-family: "Roboto", sans-serif;
-  background-color: var(--white-color);
-  font-size: 1.2rem;
-}
-
-.main-header {
+﻿.main-header {
   font-size: 2rem;
   color: var(--main-color);
   background-color: var(--light-blue);
   padding: 10px;
   border-radius: 10px;
   font-weight: bold;
+}
+
+.header-detail{
+  font-size: 1.5rem;
+}
+
+.container {
+  font-size: 1.5rem;
 }
 .course-name {
   font-size: 5rem;

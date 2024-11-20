@@ -17,6 +17,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/Course/CourseDetail.css">
     <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/HomePage/homePage.css">
     <link rel="stylesheet" href="~/css/HomePage/landing_page.css">
     <link rel="icon" href="~/lib/img/BrainStormEra_logo.png" type="image/x-icon">
 </head>
@@ -42,11 +43,35 @@
     }
     else
     {
-        @await Html.PartialAsync("~/Views/Shared/Header/_Header.cshtml") <!-- Default header for non-logged-in users -->
+        <header class="container-fluid sticky-header">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="@Url.Action("Index", "Home" )">
+                        <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Home" )">DASHBOARD</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link"
+                                    href="@Url.Action("CourseManagement", "Course")">COURSE</a></li>
+                        </ul>
+                        <div class="profile d-flex align-items-center">
+                            <a href="@Url.Action("LoginPage", "Login" )" class="btn_login">Log In</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
     }
 
     <!-- Course Information -->
-    <div class="header">
+    <div class="header header-detail">
         <div class="container">
             <div class="row py-5">
                 <!-- Left Column -->
@@ -55,7 +80,6 @@
                     <p class="lead">@Model.CourseDescription</p>
                     <div class="d-flex mb-2 mt-5">
                         <h3 class="price">@Model.Price.ToString("N2", new System.Globalization.CultureInfo("vi-VN")) ₫
-                        </h3>
                     </div>
                     <div class="d-flex mb-4 mt-2">
                         @if (userRole == "3")
