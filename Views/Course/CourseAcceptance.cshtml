@@ -53,8 +53,23 @@
                         onkeyup="filterCourses()" />
                 </div>
                 <div class="total-course-count mt-3">
-                    <strong>Total Courses:</strong> @ViewBag.TotalCourseCount
+                    <div class="course-count-item">
+                        <strong>Total Courses:</strong> @ViewBag.TotalCourseCount
+                    </div>
+                    <div class="course-count-item">
+                        <strong>Pending Courses:</strong> @ViewBag.PendingCourseCount
+                    </div>
+                    <div class="course-count-item">
+                        <strong>Accepted Courses:</strong> @ViewBag.AcceptedCourseCount
+                    </div>
+                    <div class="course-count-item">
+                        <strong>Rejected Courses:</strong> @ViewBag.RejectedCourseCount
+                    </div>
+                    <div class="course-count-item">
+                        <strong>Not Approved Courses:</strong> @ViewBag.NotApprovedCourseCount
+                    </div>
                 </div>
+
             </div>
 
             <div id="no-results" class="text-center text-muted my-3" style="display: none; height : 360px;">

@@ -331,8 +331,19 @@ namespace BrainStormEra.Controllers.Course
                 int count = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
                 categoryCounts[category.CourseCategoryId] = count;
             }
+
             int totalCourseCount = await _courseRepo.GetTotalCourseCountAsync();
+            int pendingCourseCount = await _courseRepo.GetPendingCourseCountAsync();
+            int acceptedCourseCount = await _courseRepo.GetAcceptedCourseCountAsync();
+            int rejectedCourseCount = await _courseRepo.GetRejectedCourseCountAsync();
+            int notApprovedCourseCount = await _courseRepo.GetNotApprovedCourseCountAsync();
+
             ViewBag.TotalCourseCount = totalCourseCount;
+            ViewBag.PendingCourseCount = pendingCourseCount;
+            ViewBag.AcceptedCourseCount = acceptedCourseCount;
+            ViewBag.RejectedCourseCount = rejectedCourseCount;
+            ViewBag.NotApprovedCourseCount = notApprovedCourseCount;
+
             // Fetch courses filtered by category
             List<Models.Course> courses;
             if (userRole == "2")
@@ -510,8 +521,19 @@ namespace BrainStormEra.Controllers.Course
             }
 
             ViewBag.CategoryCounts = categoryCounts;
+
             int totalCourseCount = await _courseRepo.GetTotalCourseCountAsync();
+            int pendingCourseCount = await _courseRepo.GetPendingCourseCountAsync();
+            int acceptedCourseCount = await _courseRepo.GetAcceptedCourseCountAsync();
+            int rejectedCourseCount = await _courseRepo.GetRejectedCourseCountAsync();
+            int notApprovedCourseCount = await _courseRepo.GetNotApprovedCourseCountAsync();
+
             ViewBag.TotalCourseCount = totalCourseCount;
+            ViewBag.PendingCourseCount = pendingCourseCount;
+            ViewBag.AcceptedCourseCount = acceptedCourseCount;
+            ViewBag.RejectedCourseCount = rejectedCourseCount;
+            ViewBag.NotApprovedCourseCount = notApprovedCourseCount;
+
             foreach (var course in pendingCourses)
             {
                 var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
@@ -533,6 +555,7 @@ namespace BrainStormEra.Controllers.Course
 
             return View("CourseAcceptance", coursesViewModel);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ReviewCourse(int page = 1, int pageSize = 4)

@@ -753,5 +753,50 @@ ORDER BY
             }
         }
 
+        public async Task<int> GetPendingCourseCountAsync()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM course WHERE course_status = 1";
+                var command = new SqlCommand(query, connection);
+                await connection.OpenAsync();
+                return (int)await command.ExecuteScalarAsync();
+            }
+        }
+
+        public async Task<int> GetAcceptedCourseCountAsync()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM course WHERE course_status = 2";
+                var command = new SqlCommand(query, connection);
+                await connection.OpenAsync();
+                return (int)await command.ExecuteScalarAsync();
+            }
+        }
+
+        public async Task<int> GetRejectedCourseCountAsync()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM course WHERE course_status = 0";
+                var command = new SqlCommand(query, connection);
+                await connection.OpenAsync();
+                return (int)await command.ExecuteScalarAsync();
+            }
+        }
+
+        public async Task<int> GetNotApprovedCourseCountAsync()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT COUNT(*) FROM course WHERE course_status NOT IN (0, 1, 2)";
+                var command = new SqlCommand(query, connection);
+                await connection.OpenAsync();
+                return (int)await command.ExecuteScalarAsync();
+            }
+        }
+
+
     }
 }

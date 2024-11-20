@@ -276,6 +276,11 @@
 }
 
 .total-course-count {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
     font-size: 1.5rem;
     color: var(--text-color-dark);
     background-color: var(--linkedin-btn-bg-color);
@@ -285,23 +290,25 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.course-count-item {
+    text-align: center;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
-    .search-and-count {
+    .total-course-count {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .search-bar {
-        margin-right: 0;
-        margin-bottom: 15px;
-    }
-
-    .total-course-count {
-        text-align: left;
+    .course-count-item {
         width: 100%;
+        text-align: left;
     }
 }
-
 @keyframes fadeIn {
     from {
         opacity: 0;
