@@ -27,7 +27,7 @@
                     <img src="~/lib/img/BrainStormEra_logo.png" alt="Logo" class="logo_img">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -35,7 +35,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="@Url.Action("Index", "Home" )">DASHBOARD</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("CourseManagement", "Course")">COURSE</a></li>
+                        <li class="nav-item"><a class="nav-link"
+                                href="@Url.Action("CourseManagement", "Course")">COURSE</a></li>
                     </ul>
                     <div class="profile d-flex align-items-center">
                         <a href="@Url.Action("LoginPage", "Login" )" class="btn_login">Log In</a>
@@ -47,9 +48,8 @@
 
     <div class="container mt-5">
         <!-- Header Section -->
-        <div class="text-center mb-5 w-100 position-relative" style="padding-bottom: 200px;">
+        <div class="text-center mb-5 w-100 position-relative welcome-header-container">
             <img src="~/lib/img/WelcomeHeader.png" class="img-welcomeheader">
-            <img src="~/lib/img/Bot/bot-icon.png" class="robotwelcome">
         </div>
     </div>
 
