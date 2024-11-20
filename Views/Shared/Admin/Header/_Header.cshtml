@@ -43,13 +43,13 @@
                     <div class="profile d-flex align-items-center">
                         <i class="fas fa-bell icon" id="notificationIcon" data-bs-toggle="modal"
                             data-bs-target="#notificationsModal"></i>
-                        <a href="@Url.Action("Index", "Profile")">
+                        @* <a href="@Url.Action("Index", "Profile")">
                             <img src="@ViewBag.UserPicture" alt="Profile Picture"
                                 onerror="this.onerror=null;this.src='~/lib/img/User-img/default_user.png';" class="user_img"
                                 style="width: 40px; height: 40px; border-radius: 50%;">
-                        </a>
-                        <span class="d-none d-md-inline">@ViewBag.FullName</span>
-                        <i class="fas fa-chevron-down d-none d-md-inline" aria-hidden="true"></i>
+                        </a> *@
+                        @* <span class="d-none d-md-inline">@ViewBag.FullName</span> *@
+                        @* <i class="fas fa-chevron-down d-none d-md-inline" aria-hidden="true"></i> *@
                         <a href="#" onclick="confirmLogout()" class="d-flex align-items-center" aria-label="Logout">
                             <i class="fa-solid fa-arrow-right-from-bracket exit_icon" aria-hidden="true"></i>
                         </a>
