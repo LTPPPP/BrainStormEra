@@ -300,3 +300,140 @@
   text-align: center;
   pointer-events: none; /* Không ảnh hưởng đến các sự kiện chuột */
 }
+@media (max-width: 768px) {
+  .course-name {
+    font-size: 3rem;
+  }
+
+  .lead {
+    font-size: 1.5rem;
+  }
+
+  .header-detail {
+    font-size: 1.2rem;
+  }
+
+  .container {
+    font-size: 1.2rem;
+  }
+
+  .badge {
+    font-size: 0.8rem;
+  }
+
+  .enroll-btn,
+  .go-to-course,
+  .comment-btn {
+    font-size: 1.2rem;
+    padding: 8px 16px;
+  }
+
+  .progress-bar-lesson-div {
+    height: 15px;
+  }
+
+  .progress-num {
+    font-size: 1.2rem;
+  }
+
+  .comment .avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .comment-header .fw-bold {
+    font-size: 1rem;
+  }
+
+  .comment-options i {
+    font-size: 1em;
+  }
+
+  .dropdown-menu .dropdown-item {
+    padding: 6px 12px;
+  }
+
+  .feedback-section img {
+    width: 100%;
+  }
+
+  /* Stack items vertically on mobile */
+  .d-flex.text-white.mt-3 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .d-flex.text-white.mt-3>div {
+    margin-bottom: 10px;
+    /* Add some space between items */
+  }
+}
+
+@media (max-width: 480px) {
+  .course-name {
+    font-size: 2rem;
+  }
+
+  .lead {
+    font-size: 1.2rem;
+  }
+
+  .header-detail {
+    font-size: 1rem;
+  }
+
+  .container {
+    font-size: 1rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+  }
+
+  .enroll-btn,
+  .go-to-course,
+  .comment-btn {
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
+
+  .progress-bar-lesson-div {
+    height: 10px;
+  }
+
+  .progress-num {
+    font-size: 1rem;
+  }
+
+  .comment .avatar {
+    width: 25px;
+    height: 25px;
+  }
+
+  .comment-header .fw-bold {
+    font-size: 0.8rem;
+  }
+
+  .comment-options i {
+    font-size: 0.9em;
+  }
+
+  .dropdown-menu .dropdown-item {
+    padding: 4px 10px;
+  }
+
+  .feedback-section img {
+    width: 100%;
+  }
+
+  /* Stack items vertically on mobile */
+  .d-flex.text-white.mt-3 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .d-flex.text-white.mt-3>div {
+    margin-bottom: 10px;
+    /* Add some space between items */
+  }
+}
