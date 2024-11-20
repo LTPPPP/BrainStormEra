@@ -5,3 +5,5 @@
 node_modules/
 appsettings.json
 appsettings.Development.json
+wwwroot/uploads/
+wwwroot/lib/
