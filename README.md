@@ -1,5 +1,3 @@
-![BrainStormEra Logo](https://your-logo-url.com/logo.png)
-
 # BrainStormEra Project
 
 ## Table of Contents
@@ -235,7 +233,7 @@ To set up the project and install necessary dependencies, follow these steps:
 To use the GEMINI API in the BrainStormEra project, follow these steps to obtain your API key:
 
 1. **Sign Up for GEMINI:**
-   Visit the [GEMINI website](https://gemini.com/) and sign up for an account if you don't already have one.
+   Visit the [GEMINI website](https://ai.google.dev/gemini-api/docs) and sign up for an account if you don't already have one.
 
 2. **Navigate to API Settings:**
    Once logged in, go to your account settings and find the API section.
