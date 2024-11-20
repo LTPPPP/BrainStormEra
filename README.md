@@ -135,8 +135,8 @@ To set up the project and install necessary dependencies, follow these steps:
    ```json
    "Logging": {
     "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
+       "Default": "Information",
+       "Microsoft.AspNetCore": "Warning"
     }
    },
    "AllowedHosts": "*",
@@ -194,3 +194,52 @@ To set up the project and install necessary dependencies, follow these steps:
    Open your web browser and navigate to `http://localhost:5289` or `"https://localhost:7252` to access the BrainStormEra application.
 
 By following these steps, you should have the BrainStormEra project up and running on your local machine.
+
+## Contributing
+
+We welcome contributions to the BrainStormEra project. If you would like to contribute, please follow these steps:
+
+1. **Fork the Repository:**
+   Click the "Fork" button at the top right of the repository page to create a copy of the repository in your GitHub account.
+
+2. **Clone the Forked Repository:**
+   Clone the forked repository to your local machine.
+
+   ```bash
+   git clone https://github.com/LTPPPP/BrainStormEra
+   ```
+
+3. **Create a New Branch:**
+   Create a new branch for your feature or bug fix.
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+4. **Make Your Changes:**
+   Make your changes to the codebase.
+
+5. **Commit Your Changes:**
+   Commit your changes with a descriptive commit message.
+
+   ```bash
+   git commit -m "Add feature: your feature name"
+   ```
+
+6. **Push Your Changes:**
+   Push your changes to your forked repository.
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+7. **Create a Pull Request:**
+   Open a pull request to the main repository with a description of your changes.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+
+## Contact
+
+For any questions or inquiries, please contact us at [brainstormera.pro@gmail.com](mailto:brainstormera.pro@gmail.com).
