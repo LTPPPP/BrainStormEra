@@ -2,40 +2,44 @@
     display: flex;
     padding: 20px;
 }
-#lesson-title ,h2{
+
+#lesson-title,
+h2 {
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 20px;
 }
-#lesson-description{
+
+#lesson-description {
     font-size: 1.5rem;
     margin-bottom: 20px;
 }
+
 /* Sidebar width */
 .sidebar {
     width: 20%;
     padding-right: 20px;
 }
 
-    .sidebar ul {
-        list-style-type: none;
-        padding: 0;
-    }
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
 
-        .sidebar ul li {
-            padding: 10px 0;
-        }
+.sidebar ul li {
+    padding: 10px 0;
+}
 
-            .sidebar ul li a {
-                text-decoration: none;
-                color: black;
-                display: flex;
-                align-items: center;
-            }
+.sidebar ul li a {
+    text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+}
 
-                .sidebar ul li a i {
-                    margin-right: 10px;
-                }
+.sidebar ul li a i {
+    margin-right: 10px;
+}
 
 /* Submenu for lessons, initially hidden */
 .submenu {
@@ -44,9 +48,9 @@
     list-style: none;
 }
 
-    .submenu li {
-        padding: 5px 0;
-    }
+.submenu li {
+    padding: 5px 0;
+}
 
 /* Style for icons and items */
 .submenu-item {
@@ -55,13 +59,13 @@
     cursor: pointer;
 }
 
-    .submenu-item:hover {
-        background-color: #f1f1f1;
-    }
+.submenu-item:hover {
+    background-color: #f1f1f1;
+}
 
-    .submenu-item i {
-        margin-right: 10px;
-    }
+.submenu-item i {
+    margin-right: 10px;
+}
 
 /* Toggle active submenu */
 .active .submenu {
@@ -111,10 +115,14 @@ h3 {
 }
 
 #markCompletedButton {
-    font-size: 1.2em; /* Tăng kích thước chữ */
-    padding: 10px 20px; /* Tăng kích thước padding */
-    margin-right: 20px; /* Thêm khoảng cách nếu cần */
-    height: 50px; /* Đặt chiều cao cụ thể cho nút */
+    font-size: 1.2em;
+    /* Tăng kích thước chữ */
+    padding: 10px 20px;
+    /* Tăng kích thước padding */
+    margin-right: 20px;
+    /* Thêm khoảng cách nếu cần */
+    height: 50px;
+    /* Đặt chiều cao cụ thể cho nút */
     border-radius: 30px;
 }
 
@@ -130,4 +138,61 @@ h3 {
 
 .accordion-button::after {
     margin-left: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    .main-content {
+        width: 100%;
+    }
+
+    #lesson-title,
+    h2 {
+        font-size: 2rem;
+    }
+
+    #lesson-description {
+        font-size: 1.2rem;
+    }
+
+    iframe {
+        height: 300px;
+    }
+
+    #markCompletedButton {
+        font-size: 1em;
+        padding: 8px 16px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    #lesson-title,
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    #lesson-description {
+        font-size: 1rem;
+    }
+
+    iframe {
+        height: 250px;
+    }
+
+    #markCompletedButton {
+        font-size: 0.9em;
+        padding: 6px 12px;
+        height: 35px;
+    }
 }
