@@ -10,9 +10,10 @@
 4. [Features](#features)
 5. [Prerequisites](#prerequisites)
 6. [Installation](#installation)
-7. [Contributing](#contributing)
-8. [License](#license)
-9. [Contact](#contact)
+7. [GEMINI_KEY](#getting-gemini-api-key)
+8. [Contributing](#contributing)
+9. [License](#license)
+10. [Contact](#contact)
 
 ## Overview
 
