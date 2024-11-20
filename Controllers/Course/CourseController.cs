@@ -440,7 +440,7 @@ namespace BrainStormEra.Controllers.Course
         }
 
         [HttpGet]
-        public async Task<IActionResult> CourseDetail(int page = 1, int pageSize = 4)
+        public async Task<IActionResult> CourseDetail(int page = 1, int pageSize = 10)
         {
             var courseId = Request.Cookies["CourseId"];
             var userId = Request.Cookies["user_id"];

@@ -342,7 +342,7 @@ namespace BrainStormEra.Repo.Course
             var feedbacks = new List<Feedback>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT f.*, a.full_name FROM feedback f " +
+                var query = "SELECT f.*, a.full_name, a.user_picture FROM feedback f " +
                             "JOIN account a ON f.user_id = a.user_id " +
                             "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
                             "ORDER BY f.feedback_date DESC " +
@@ -365,12 +365,17 @@ namespace BrainStormEra.Repo.Course
                         FeedbackDate = reader["feedback_date"] != DBNull.Value
                             ? DateOnly.FromDateTime(Convert.ToDateTime(reader["feedback_date"]))
                             : DateOnly.MinValue,
-                        User = new Models.Account { FullName = reader["full_name"].ToString() }
+                        User = new Account
+                        {
+                            FullName = reader["full_name"].ToString(),
+                            UserPicture = reader["user_picture"]?.ToString()
+                        }
                     });
                 }
             }
             return feedbacks;
         }
+
 
         public async Task<int> GetTotalFeedbackCountAsync(string courseId)
         {
