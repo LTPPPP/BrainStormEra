@@ -315,9 +315,6 @@ namespace BrainStormEra.Controllers.Course
 
             return View("CourseManagement", coursesViewModel);
         }
-
-
-
         public async Task<ActionResult> FilterCoursesByCategoryAsync()
         {
             var userId = HttpContext.Request.Cookies["user_id"];
