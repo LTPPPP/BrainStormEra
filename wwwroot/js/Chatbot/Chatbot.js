@@ -61,7 +61,8 @@ function sendMessage() {
         })
         .catch(error => {
             console.error('Error:', error);
-            appendMessage('Bot: Sorry, I encountered an error. ' + error.message);
+            console.error('Bot: Sorry, I encountered an error. ' + error.message);
+            appendMessage('Your network connection has problem, please check and try again! Thanks 😽')
         });
 }
 
