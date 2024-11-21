@@ -63,8 +63,6 @@ namespace BrainStormEra.Controllers
                 AchievementCreatedAt = DateTime.Parse(a.ReceivedDate.ToString())
             }).ToList();
 
-
-
             ViewBag.FullName = user.FullName ?? "Learner";
             ViewBag.UserPicture = string.IsNullOrEmpty(user.UserPicture)
                 ? "~/lib/img/User-img/default_user.png"
@@ -77,13 +75,14 @@ namespace BrainStormEra.Controllers
                 CompletedCoursesCount = completedCoursesCount,
                 TotalCoursesEnrolled = totalCoursesEnrolled,
                 Achievements = achievements,
-                Ranking = userRank,
+                Ranking = int.TryParse(userRank, out var rank) ? rank : 0,
                 RecommendedCourses = recommendedCourses,
                 Notifications = notifications
             };
 
             return View("~/Views/Home/HomePageLearner.cshtml", viewModel);
         }
+
 
     }
 }

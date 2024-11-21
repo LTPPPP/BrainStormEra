@@ -622,7 +622,7 @@ namespace BrainStormEra.Repo
             return rankings;
         }
 
-        public async Task<int> GetUserRankAsync(string userId)
+        public async Task<string> GetUserRankAsync(string userId)
         {
             try
             {
@@ -630,19 +630,34 @@ namespace BrainStormEra.Repo
                 {
                     await connection.OpenAsync();
 
-                    // Sử dụng ROW_NUMBER() để xếp hạng người dùng dựa trên số lượng khóa học đã hoàn thành
+                    // Kiểm tra số lượng khóa học đã hoàn thành
                     var command = connection.CreateCommand();
                     command.CommandText = @"
-                SELECT ranked_users.ranking 
+                SELECT COUNT(lc.lesson_id)
+                FROM lesson_completion lc
+                WHERE lc.user_id = @UserId";
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+
+                    var completedCoursesCount = (int)await command.ExecuteScalarAsync();
+
+                    // Nếu không có khóa học nào đã hoàn thành, trả về "NO Ranking"
+                    if (completedCoursesCount == 0)
+                    {
+                        return "NO Ranking";
+                    }
+
+                    // Sử dụng ROW_NUMBER() để xếp hạng người dùng dựa trên số lượng khóa học đã hoàn thành
+                    command = connection.CreateCommand();
+                    command.CommandText = @"
+                SELECT ranked_users.ranking
                 FROM (
-                    SELECT a.user_id, 
+                    SELECT a.user_id,
                            ROW_NUMBER() OVER(ORDER BY COUNT(lc.lesson_id) DESC) AS ranking
                     FROM account a
                     LEFT JOIN lesson_completion lc ON a.user_id = lc.user_id
                     GROUP BY a.user_id
                 ) AS ranked_users
                 WHERE ranked_users.user_id = @UserId";
-
                     command.Parameters.Add(new SqlParameter("@UserId", userId));
 
                     var result = await command.ExecuteScalarAsync();
@@ -650,12 +665,11 @@ namespace BrainStormEra.Repo
                     // Nếu tìm thấy thứ hạng, trả về giá trị
                     if (result != null && int.TryParse(result.ToString(), out int rank))
                     {
-                        return rank;
+                        return rank.ToString();
                     }
                     else
                     {
-                        // Nếu người dùng không có thứ hạng, có thể trả về -1 hoặc một giá trị nào đó để biểu thị
-                        return -1;
+                        return "NO Ranking";
                     }
                 }
             }
@@ -665,6 +679,7 @@ namespace BrainStormEra.Repo
                 throw;
             }
         }
+
 
         public async Task<List<string>> GetAdminEmailsAsync()
         {
