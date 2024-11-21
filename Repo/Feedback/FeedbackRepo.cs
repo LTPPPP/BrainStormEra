@@ -108,7 +108,7 @@ namespace BrainStormEra.Repo
                 command.Parameters.AddWithValue("@UserId", userId);
 
                 int count = (int)await command.ExecuteScalarAsync();
-                return count > 0; // Nếu count > 0 nghĩa là user có quyền xóa feedback này
+                return count > 0; // User can delete if they own the feedback
             }
         }
 
@@ -118,12 +118,20 @@ namespace BrainStormEra.Repo
         }
 
 
-        public async Task DeleteFeedbackAsync(string feedbackId)
+        public async Task DeleteFeedbackAsync(string feedbackId, string user_role)
         {
             using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
             {
                 await connection.OpenAsync();
-                var command = new SqlCommand("DELETE FROM feedback WHERE feedback_id = @FeedbackId", connection);
+                SqlCommand command;
+                if (user_role == "3")
+                {
+                    command = new SqlCommand("UPDATE feedback SET hidden_status = 1 WHERE feedback_id = @FeedbackId", connection);
+                }
+                else
+                {
+                    command = new SqlCommand("DELETE FROM feedback WHERE feedback_id = @FeedbackId", connection);
+                }
                 command.Parameters.AddWithValue("@FeedbackId", feedbackId);
                 await command.ExecuteNonQueryAsync();
             }

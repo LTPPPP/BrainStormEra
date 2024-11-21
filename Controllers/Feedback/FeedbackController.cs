@@ -58,12 +58,10 @@ namespace BrainStormEra.Controllers
         public async Task<IActionResult> DeleteFeedback([FromBody] string feedbackId)
         {
             string userId = Request.Cookies["user_id"];
-            if (await _feedbackRepo.CanDeleteFeedbackAsync(feedbackId, userId))
-            {
-                await _feedbackRepo.DeleteFeedbackAsync(feedbackId);
-                return Json(new { success = true, message = "Comment deleted successfully" });
-            }
-            return Json(new { success = false, message = "You cannot delete this comment" });
+            var userRole = Request.Cookies["user_role"];
+            await _feedbackRepo.DeleteFeedbackAsync(feedbackId, userRole);
+            return Json(new { success = true, message = "Comment deleted successfully" });
+
         }
 
         [HttpPost]

@@ -342,7 +342,7 @@ namespace BrainStormEra.Repo.Course
             var feedbacks = new List<Feedback>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT f.*, a.full_name, a.user_picture FROM feedback f " +
+                var query = "SELECT f.*, a.full_name, a.user_picture, f.hidden_status FROM feedback f " +
                             "JOIN account a ON f.user_id = a.user_id " +
                             "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
                             "ORDER BY f.feedback_date DESC " +
@@ -369,12 +369,14 @@ namespace BrainStormEra.Repo.Course
                         {
                             FullName = reader["full_name"].ToString(),
                             UserPicture = reader["user_picture"]?.ToString()
-                        }
+                        },
+                        HiddenStatus = reader["hidden_status"] != DBNull.Value ? Convert.ToBoolean(reader["hidden_status"]) : false
                     });
                 }
             }
             return feedbacks;
         }
+
 
 
         public async Task<int> GetTotalFeedbackCountAsync(string courseId)
