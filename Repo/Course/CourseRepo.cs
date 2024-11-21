@@ -337,16 +337,28 @@ namespace BrainStormEra.Repo.Course
             }
         }
 
-        public async Task<List<Feedback>> GetFeedbacksAsync(string courseId, int offset, int pageSize)
+        public async Task<List<Feedback>> GetFeedbacksAsync(string courseId, string userRole, int offset, int pageSize)
         {
             var feedbacks = new List<Feedback>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT f.*, a.full_name, a.user_picture, f.hidden_status FROM feedback f " +
+                var query = "";
+                if (userRole == "3")
+                {
+                    query = "SELECT f.*, a.full_name, a.user_picture, f.hidden_status FROM feedback f " +
+                                                "JOIN account a ON f.user_id = a.user_id " +
+                                                "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
+                                                "ORDER BY f.feedback_date DESC " +
+                                                "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                }
+                else
+                {
+                    query = "SELECT f.*, a.full_name, a.user_picture, f.hidden_status FROM feedback f " +
                             "JOIN account a ON f.user_id = a.user_id " +
-                            "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
+                            "WHERE f.course_id = @CourseId " +
                             "ORDER BY f.feedback_date DESC " +
                             "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                }
                 var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@CourseId", courseId);
                 command.Parameters.AddWithValue("@Offset", offset);

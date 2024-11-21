@@ -462,6 +462,7 @@ namespace BrainStormEra.Controllers.Course
         {
             var courseId = Request.Cookies["CourseId"];
             var userId = Request.Cookies["user_id"];
+            string userRole = Request.Cookies["user_role"];
             bool isLoggedIn = !string.IsNullOrEmpty(userId);
 
             if (string.IsNullOrEmpty(courseId))
@@ -511,7 +512,7 @@ namespace BrainStormEra.Controllers.Course
             ViewBag.TotalLessons = totalLessons;
 
             int offset = (page - 1) * pageSize;
-            ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, offset, pageSize);
+            ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, userRole, offset, pageSize);
             ViewBag.TotalComments = await _courseRepo.GetTotalFeedbackCountAsync(courseId);
             ViewBag.AverageRating = await _courseRepo.GetAverageRatingAsync(courseId);
             ViewBag.RatingPercentages = await _courseRepo.GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
@@ -581,7 +582,7 @@ namespace BrainStormEra.Controllers.Course
             try
             {
                 var courseId = Request.Cookies["course_id"];
-
+                var userRole = Request.Cookies["user_role"];
                 if (string.IsNullOrEmpty(courseId))
                 {
                     _logger.LogWarning("Course ID is null or empty.");
@@ -598,7 +599,7 @@ namespace BrainStormEra.Controllers.Course
                 ViewBag.LearnersCount = await _courseRepo.GetLearnersCountAsync(courseId);
 
                 int offset = (page - 1) * pageSize;
-                ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, offset, pageSize);
+                ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, userRole, offset, pageSize);
                 ViewBag.TotalComments = await _courseRepo.GetTotalFeedbackCountAsync(courseId);
                 ViewBag.AverageRating = await _courseRepo.GetAverageRatingAsync(courseId);
                 ViewBag.RatingPercentages = await _courseRepo.GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
