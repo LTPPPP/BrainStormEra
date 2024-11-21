@@ -68,6 +68,13 @@ namespace BrainStormEra.Controllers.Course
                 return View(viewModel);
             }
 
+            if (viewModel.CategoryIds.Count > 5)
+            {
+                ModelState.AddModelError("CategoryIds", "You can select up to 5 categories.");
+                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                return View(viewModel);
+            }
+
             string coursePicturePath = null;
             if (viewModel.CoursePicture != null && viewModel.CoursePicture.Length > 0)
             {
@@ -107,6 +114,7 @@ namespace BrainStormEra.Controllers.Course
 
             return RedirectToAction("CourseManagement");
         }
+
 
         [HttpGet]
         public async Task<ActionResult> EditCourse()
@@ -189,6 +197,15 @@ namespace BrainStormEra.Controllers.Course
                 return View(viewModel);
             }
 
+            if (viewModel.CategoryIds.Count > 5)
+            {
+                ModelState.AddModelError("CategoryIds", "You can select up to 5 categories.");
+                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                viewModel.SelectedCategories = selectedCategories;   // Only selected categories
+                return View(viewModel);
+            }
+
             // Handle course picture upload
             string coursePicturePath = course.CoursePicture;
             if (viewModel.CoursePicture != null && viewModel.CoursePicture.Length > 0)
@@ -227,6 +244,7 @@ namespace BrainStormEra.Controllers.Course
 
             return RedirectToAction("CourseManagement");
         }
+
 
 
         // Helper method to get a course by ID
