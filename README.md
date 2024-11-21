@@ -33,9 +33,6 @@ BrainStormEra is a comprehensive Course and Certificate management system design
 ![System.Data.SqlClient](https://img.shields.io/badge/System.Data.SqlClient-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
 ![Microsoft Cognitive Services](https://img.shields.io/badge/Microsoft%20Cognitive%20Services-0078D7?style=for-the-badge&logo=microsoft&logoColor=white)
 ![Google APIs](https://img.shields.io/badge/Google%20APIs-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![iText7](https://img.shields.io/badge/iText7-000000?style=for-the-badge&logo=itext&logoColor=white)
-![PdfSharp](https://img.shields.io/badge/PdfSharp-000000?style=for-the-badge&logo=pdf&logoColor=white)
-![iTextSharp](https://img.shields.io/badge/iTextSharp-000000?style=for-the-badge&logo=itext&logoColor=white)
 
 ## Role
 
@@ -206,9 +203,6 @@ To set up the project and install necessary dependencies, follow these steps:
    dotnet add package System.Data.SqlClient
    dotnet add package Microsoft.CognitiveServices.Speech
    dotnet add package Google.Apis.YouTube.v3
-   dotnet add package itext7
-   dotnet add package PdfSharp
-   dotnet add package itextsharp
    ```
 
 6. **Run Migrations:**
