@@ -1,4 +1,3 @@
-// View and Add
 $(document).ready(function () {
     // Đảm bảo dialog overlay được ẩn ngay khi trang tải
     $('#dialogOverlay').hide();
@@ -15,7 +14,7 @@ $(document).ready(function () {
         // Lấy các giá trị từ form Add Notification
         var notificationTitle = $('#subject').val();
         var notificationContent = $('#content').val();
-        var notificationType = $('.select-group select:eq(1)').val(); // Lấy giá trị của thẻ select loại thông báo
+        var notificationType = $('#notificationType').val(); // Lấy giá trị của thẻ select loại thông báo
 
         // Kiểm tra xem các trường cần thiết đã được điền chưa
         if (!notificationTitle || !notificationContent || !notificationType) {
@@ -64,7 +63,7 @@ $(document).ready(function () {
 
         var notificationTitle = $('#subject').val();
         var notificationContent = $('#content').val();
-        var notificationType = $('.select-group select:eq(1)').val();
+        var notificationType = $('#notificationType').val();
 
         if (!notificationTitle || !notificationContent || !notificationType) {
             alert("Please fill in all required fields.");
@@ -102,7 +101,6 @@ $(document).ready(function () {
         });
     });
 
-
     // Đảm bảo khi nhấn vào bất kỳ vùng nào ngoài dialog, dialog sẽ bị đóng
     $('#dialogOverlay').click(function (e) {
         if (e.target === this) {
@@ -110,8 +108,6 @@ $(document).ready(function () {
         }
     });
 });
-
-
 
 // Edit
 $(document).on('click', '.edit', function () {
@@ -185,7 +181,6 @@ $('#editNotificationForm').on('submit', function (event) {
     });
 });
 
-
 //Delete
 $(document).on('click', '.delete', function () {
     var notificationId = $(this).closest('.notification-item').data('notification-id');
@@ -244,5 +239,3 @@ $(document).on('click', '#deleteSelected', function () {
         alert("No notifications selected for deletion.");
     }
 });
-
-

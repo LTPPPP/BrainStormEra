@@ -61,7 +61,7 @@ namespace BrainStormEra.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
-                                              .Select(e => e.ErrorMessage).ToList();
+                                               .Select(e => e.ErrorMessage).ToList();
                 return Json(new { success = false, message = string.Join(", ", errors) });
             }
 
@@ -89,6 +89,8 @@ namespace BrainStormEra.Controllers
 
             return Json(new { success = true });
         }
+
+
 
         [HttpGet]
         public IActionResult GetNotificationById(string id)

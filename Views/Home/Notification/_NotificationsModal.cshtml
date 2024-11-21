@@ -16,7 +16,6 @@
         userRole = "0"; // Giá trị mặc định nếu không có cookie user_role
     }
 }
-
 <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-md">
@@ -58,7 +57,6 @@
                         {
                             var currentDate = notification.NotificationCreatedAt;
 
-
                             if (lastDate == null || currentDate.Month != lastDate.Value.Month || currentDate.Year !=
                             lastDate.Value.Year)
                             {
@@ -67,7 +65,7 @@
                                 </div>
                             }
 
-                            <div class="notification-item d-flex justify-content-between align-items-center"
+                            <div class="notification-item d-flex justify-content-between align-items-center @notification.NotificationType.ToLower()"
                                 data-notification-id="@notification.NotificationId" data-createdby="@notification.CreatedBy">
                                 <div class="d-flex align-items-center">
                                     <!-- Checkbox for selecting this notification -->
@@ -75,22 +73,21 @@
                                         data-notification-id="@notification.NotificationId" />
 
                                     <div class="icon ms-2">
-                                       @if (!string.IsNullOrEmpty(notification.CreatorImageUrl))
-            {
-                <!-- Display the user's avatar image if available -->
-                <img src="@notification.CreatorImageUrl" alt="Creator Image" class="creator-image" />
-            }
-            else
-            {
-                <!-- Default icon if avatar is not available -->
-                <i class="fas fa-user" aria-hidden="true"></i>
-            }
+                                        @if (!string.IsNullOrEmpty(notification.CreatorImageUrl))
+                                        {
+                                            <img src="@notification.CreatorImageUrl" alt="Creator Image" class="creator-image" />
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-user" aria-hidden="true"></i>
+                                        }
                                     </div>
                                     <div class="content ms-3">
                                         <p>
                                             <strong>@notification.NotificationTitle</strong> <br />
                                             @notification.NotificationContent
                                         </p>
+                                        <p><strong>@notification.NotificationType</strong></p>
                                         <p class="time">@currentDate.ToString("g")</p>
                                     </div>
                                 </div>

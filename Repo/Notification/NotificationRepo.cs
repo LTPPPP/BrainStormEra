@@ -112,8 +112,8 @@ namespace BrainStormEra.Repo.Notification
         public void CreateNotification(Models.Notification notification)
         {
             string insertQuery = @"
-                INSERT INTO notification (notification_id, user_id, notification_title, notification_content, notification_type, notification_created_at, created_by)
-                VALUES (@NotificationId, @UserId, @Title, @Content, @Type, @CreatedAt, @CreatedBy)";
+        INSERT INTO notification (notification_id, user_id, notification_title, notification_content, notification_type, notification_created_at, created_by)
+        VALUES (@NotificationId, @UserId, @Title, @Content, @Type, @CreatedAt, @CreatedBy)";
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -133,6 +133,7 @@ namespace BrainStormEra.Repo.Notification
                 }
             }
         }
+
 
         public Models.Notification GetNotificationById(string id)
         {

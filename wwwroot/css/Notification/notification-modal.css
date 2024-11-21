@@ -59,6 +59,7 @@
     /* Giới hạn chiều cao của modal body */
     max-height: calc(100vh - 70px);
     overflow-y: auto; /* Cho phép cuộn khi nội dung quá dài */
+    padding: 0;
 }
 
 .notification-header {
@@ -128,8 +129,8 @@
 .notification-item {
     display: flex;
     align-items: center;
-    padding: 10px 0;
     border-bottom: 1px solid #ccc;
+    margin: 10px 0;
 }
 
     .notification-item:last-child {
@@ -467,3 +468,18 @@
         padding: 8px 16px;
     }
 }
+
+        .notification-item.info {
+            background-color: lightblue;
+            border-radius: 10px;
+        }
+    
+        .notification-item.warning {
+            border-radius: 10px;
+            background-color: lightcoral;
+        }
+    
+        .notification-item.reminder {
+            border-radius: 10px;
+            background-color: lightgoldenrodyellow;
+        }
