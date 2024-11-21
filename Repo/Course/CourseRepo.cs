@@ -346,10 +346,10 @@ namespace BrainStormEra.Repo.Course
                 if (userRole == "3")
                 {
                     query = "SELECT f.*, a.full_name, a.user_picture, f.hidden_status FROM feedback f " +
-                                                "JOIN account a ON f.user_id = a.user_id " +
-                                                "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
-                                                "ORDER BY f.feedback_date DESC " +
-                                                "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                            "JOIN account a ON f.user_id = a.user_id " +
+                            "WHERE f.course_id = @CourseId AND f.hidden_status = 0 " +
+                            "ORDER BY f.feedback_date DESC " +
+                            "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
                 }
                 else
                 {
@@ -388,7 +388,6 @@ namespace BrainStormEra.Repo.Course
             }
             return feedbacks;
         }
-
 
 
         public async Task<int> GetTotalFeedbackCountAsync(string courseId)

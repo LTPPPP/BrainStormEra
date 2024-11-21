@@ -264,6 +264,10 @@
                                         <i class="fas fa-star @(i <= comment.StarRating ? "selected" : "")" data-value="@i"
                                             onclick="feedbackManager.selectStarForEdit(this, '@comment.FeedbackId')"></i>
                                     }
+                                    @if (comment.HiddenStatus)
+                                    {
+                                        <i class="fas fa-eye-slash"></i> <!-- Eye icon for hidden feedback -->
+                                    }
                                     <div class="d-flex align-items-center">
                                     </div>
                                     @if (comment.UserId == currentUserId || userRole == "1")

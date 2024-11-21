@@ -480,7 +480,6 @@ namespace BrainStormEra.Controllers.Course
                 ViewBag.IsEnrolled = isEnrolled;
                 ViewBag.IsBanned = isBanned;
                 ViewBag.IsLoggedIn = isLoggedIn;
-
             }
             else
             {
@@ -522,6 +521,7 @@ namespace BrainStormEra.Controllers.Course
 
             return View(course);
         }
+
 
 
         public async Task<ActionResult> CourseAcceptance()
