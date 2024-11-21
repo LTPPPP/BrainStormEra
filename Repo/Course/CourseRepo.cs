@@ -410,7 +410,7 @@ namespace BrainStormEra.Repo.Course
                 int count = 0;
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating";
+                    var query = "SELECT COUNT(*) FROM feedback WHERE course_id = @CourseId AND star_rating = @Rating AND hidden_status = 0";
                     var command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@CourseId", courseId);
                     command.Parameters.AddWithValue("@Rating", i);

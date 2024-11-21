@@ -1,5 +1,5 @@
 ﻿/* Điều chỉnh modal cho kích thước màn hình nhỏ */
-@media only screen and (max-width: 390px) {
+@media only screen and (max-width: 389px) {
     .modal-dialog {
         width: 90%;
         margin: 10px auto;
@@ -59,7 +59,7 @@
     /* Giới hạn chiều cao của modal body */
     max-height: calc(100vh - 70px);
     overflow-y: auto; /* Cho phép cuộn khi nội dung quá dài */
-    padding: 0;
+    padding: 5px 10px;
 }
 
 .notification-header {
