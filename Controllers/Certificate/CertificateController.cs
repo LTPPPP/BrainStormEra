@@ -45,7 +45,14 @@ namespace BrainStormEra.Controllers.Certificate
                 return NotFound("No certificate found for this course.");
             }
             var duration = (certificate.CompletedDate - certificate.StartedDate).TotalDays;
-            ViewData["Duration"] = Math.Round(duration);
+            if (duration < 1)
+            {
+                ViewData["Duration"] = 1;
+            }
+            else
+            {
+                ViewData["Duration"] = Math.Round(duration);
+            }
 
             return View(certificate); // Pass the certificate details to the view
         }
