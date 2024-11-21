@@ -193,7 +193,7 @@ namespace BrainStormEra.Controllers.Course
             string coursePicturePath = course.CoursePicture;
             if (viewModel.CoursePicture != null && viewModel.CoursePicture.Length > 0)
             {
-                if (viewModel.CoursePicture.Length > 2 * 1024 * 1024)
+                if (viewModel.CoursePicture.Length > 10 * 1024 * 1024)
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
                     viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();

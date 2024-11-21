@@ -33,8 +33,6 @@ namespace BrainStormEra
             // Configure DbContext with SQL Server
             builder.Services.AddDbContext<SwpMainContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
-            builder.Services.AddSingleton<VideoToTextService>(sp =>
-                new VideoToTextService("YourAzureSubscriptionKey", "YourAzureRegion"));
 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>

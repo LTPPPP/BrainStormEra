@@ -261,7 +261,5 @@ namespace BrainStormEra.Controllers.Account
             return RedirectToAction("Index");
         }
 
-
-
     }
 }
