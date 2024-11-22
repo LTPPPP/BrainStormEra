@@ -15,7 +15,7 @@
 
 ## Overview
 
-BrainStormEra is a comprehensive Course and Certificate management system designed to streamline the process of managing educational courses and certificates. Built using ASP.NET, the project follows a 3-layer architecture and adheres to the MVC (Model-View-Controller) pattern. The backend is developed using ASP.NET MVC, The system includes robust session management and utilizes SQL Server for database operations.
+BrainStormEra is a comprehensive Course and Certificate management system designed to streamline the process of managing educational courses and certificates. Built using ASP.NET, the project follows a 3-layer architecture and adheres to the MVC (Model-View-Controller) pattern. The backend is developed using ASP.NET MVC, The system includes robust session management and utilizes SQL Server 2019 for database operations.
 
 ## Technologies Used
 
