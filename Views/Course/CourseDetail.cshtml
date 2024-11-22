@@ -254,8 +254,8 @@
                     @foreach (var comment in ViewBag.Comments)
                     {
                         <div class="comment mb-4 d-flex border-bottom pb-3">
-                            <img src="@comment.User.UserPicture" class="avatar rounded-circle me-3"
-                                style="width: 40px; height: 40px;" alt="User Avatar">
+                            <img src="@(string.IsNullOrEmpty(comment.User.UserPicture) ? Url.Content("~/lib/img/User-img/default_user.png") : comment.User.UserPicture)"
+                                class="avatar rounded-circle me-3" style="width: 40px; height: 40px;" alt="User Avatar">
                             <div class="flex-fill">
                                 <div class="fw-bold me-2">@comment.User.FullName</div>
                                 <div class="stars me-3 edit-stars" id="editStars-@comment.FeedbackId">
