@@ -104,12 +104,11 @@ namespace BrainStormEra.Repo.Chapter
             {
                 var command = new SqlCommand(
                     "UPDATE chapter SET chapter_name = @ChapterName, chapter_description = @ChapterDescription, " +
-                    "chapter_order = @ChapterOrder, chapter_status = @ChapterStatus WHERE chapter_id = @ChapterId",
+                    "chapter_status = @ChapterStatus WHERE chapter_id = @ChapterId",
                     connection);
 
                 command.Parameters.AddWithValue("@ChapterName", chapter.ChapterName);
                 command.Parameters.AddWithValue("@ChapterDescription", chapter.ChapterDescription);
-                command.Parameters.AddWithValue("@ChapterOrder", chapter.ChapterOrder);
                 command.Parameters.AddWithValue("@ChapterStatus", chapter.ChapterStatus ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ChapterId", chapter.ChapterId);
 
