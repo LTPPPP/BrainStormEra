@@ -1,22 +1,22 @@
-﻿using BrainStormEra.Controllers.Course;
+﻿using BrainStormEra.Models;
 using BrainStormEra.Repo;
-using BrainStormEra.Repo.Course;
-using BrainStormEra.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers.Points
 {
     public class PointsController : Controller
     {
-        private readonly string _connectionString;
-        private readonly ILogger<CourseController> _logger;
-        private readonly PointsRepo _pointRepo;
-        public PointsController(IConfiguration configuration, ILogger<CourseController> logger, PointsRepo pointsRepo)
+        private readonly ILogger<PointsController> _logger;
+        private readonly SwpMainContext _context;
+
+        public PointsController(ILogger<PointsController> logger, SwpMainContext context)
         {
-            _connectionString = configuration.GetConnectionString("SwpMainContext");
             _logger = logger;
-            _pointRepo = pointsRepo;
+            _context = context;
         }
 
         [HttpGet]
@@ -30,7 +30,14 @@ namespace BrainStormEra.Controllers.Points
                 return Unauthorized();
             }
 
-            var learners = await _pointRepo.GetLearners(search);
+            var learnersQuery = _context.Accounts.Where(a => a.UserRole == 3 && a.UserId.StartsWith("LN"));
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                learnersQuery = learnersQuery.Where(a => a.UserId.Contains(search) || a.FullName.Contains(search));
+            }
+
+            var learners = await learnersQuery.ToListAsync();
             int totalLearners = learners.Count();
             int totalPages = (int)Math.Ceiling(totalLearners / (double)pageSize);
 
@@ -45,8 +52,6 @@ namespace BrainStormEra.Controllers.Points
             return View("~/Views/Admin/PointsManagement.cshtml", pagedLearners);
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> UpdatePaymentPoints([FromBody] UpdatePointsRequest request)
         {
@@ -58,7 +63,7 @@ namespace BrainStormEra.Controllers.Points
                 return Unauthorized();
             }
 
-            var resultMessage = await _pointRepo.UpdatePaymentPoints(request.UserId, request.NewPoints);
+            var resultMessage = await UpdatePaymentPoints(request.UserId, request.NewPoints);
 
             if (resultMessage == "User not found!" || resultMessage == "The points must be between 1,000 and 20,000,000.")
             {
@@ -66,6 +71,58 @@ namespace BrainStormEra.Controllers.Points
             }
 
             return Json(new { success = true, message = resultMessage });
+        }
+
+        private async Task<string> UpdatePaymentPoints(string userId, decimal newPoints)
+        {
+            if (newPoints < 1000 || newPoints > 20000000)
+            {
+                return "The points must be between 1,000 and 20,000,000.";
+            }
+
+            var user = await _context.Accounts.FindAsync(userId);
+            if (user == null)
+            {
+                return "User not found!";
+            }
+
+            user.PaymentPoint += newPoints;
+            _context.Accounts.Update(user);
+            await _context.SaveChangesAsync();
+
+            var newPaymentId = await GetNewPaymentId();
+
+            var payment = new Payment
+            {
+                PaymentId = newPaymentId,
+                UserId = userId,
+                PaymentDescription = $"{userId} - {newPoints:N0} points update",
+                Amount = newPoints,
+                PointsEarned = (int)newPoints,
+                PaymentStatus = "Completed",
+                PaymentDate = DateTime.Now
+            };
+
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            return "Payment points updated and transaction logged successfully!";
+        }
+
+        private async Task<string> GetNewPaymentId()
+        {
+            var maxPaymentId = await _context.Payments.OrderByDescending(p => p.PaymentId).FirstOrDefaultAsync();
+            if (maxPaymentId == null)
+            {
+                return "PA001";
+            }
+
+            if (int.TryParse(maxPaymentId.PaymentId.Substring(2), out int idNumber))
+            {
+                return $"PA{idNumber + 1:D3}";
+            }
+
+            return "PA001";
         }
 
         public class UpdatePointsRequest
