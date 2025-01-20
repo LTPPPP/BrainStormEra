@@ -1,147 +1,127 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repo.Notification;
-using BrainStormEra.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace BrainStormEra.Controllers
+namespace BrainStormEra.Repo.Notification
 {
-    public class NotificationController : Controller
+    public class NotificationRepo
     {
-        private readonly NotificationRepo _notificationRepo;
-        private readonly ILogger<NotificationController> _logger;
+        private readonly SwpMainContext _context;
 
-        public NotificationController(NotificationRepo notificationRepo, ILogger<NotificationController> logger)
+        public NotificationRepo(SwpMainContext context)
         {
-            _notificationRepo = notificationRepo;
-            _logger = logger;
+            _context = context;
         }
 
-        [HttpGet]
-        public IActionResult Notifications()
+        public List<Models.Notification> GetNotifications(string userId)
         {
-            var currentUserId = Request.Cookies["user_id"];
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Unauthorized();
-            }
-
-            var notifications = _notificationRepo.GetNotifications(currentUserId);
-
-            // Kiểm tra thông báo mới dựa trên thời gian lần cuối người dùng xem
-            var lastViewed = HttpContext.Session.GetString("LastViewedNotifications") ?? DateTime.MinValue.ToString();
-            var lastViewedDate = DateTime.Parse(lastViewed);
-
-            var newNotificationsCount = notifications.Count(n => n.NotificationCreatedAt > lastViewedDate);
-            ViewBag.NewNotificationsCount = newNotificationsCount;
-
-            return PartialView("~/Views/Home/Notification/_NotificationsModal.cshtml", notifications);
-        }
-
-        [HttpPost]
-        public IActionResult MarkNotificationsAsViewed()
-        {
-            HttpContext.Session.SetString("LastViewedNotifications", DateTime.Now.ToString());
-            return Json(new { success = true });
-        }
-
-
-
-        public JsonResult GetUsers()
-        {
-            var currentUserId = Request.Cookies["user_id"];
-            var users = _notificationRepo.GetUsers(currentUserId);
-            return Json(users);
-        }
-
-        [HttpPost]
-        public IActionResult CreateNotification([FromBody] NotificationViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors)
-                                               .Select(e => e.ErrorMessage).ToList();
-                return Json(new { success = false, message = string.Join(", ", errors) });
-            }
-
-            var createdBy = Request.Cookies["user_id"];
-            int nextIdNumber = _notificationRepo.GetNextNotificationIdNumber();
-
-            foreach (var userId in model.UserIds)
-            {
-                string newNotificationId = "N" + nextIdNumber.ToString().PadLeft(2, '0');
-
-                var newNotification = new Notification
+            return _context.Notifications
+                .Where(n => n.UserId == userId || n.CreatedBy == userId)
+                .OrderByDescending(n => n.NotificationCreatedAt)
+                .Select(n => new Models.Notification
                 {
-                    NotificationId = newNotificationId,
-                    UserId = userId,
-                    NotificationTitle = model.NotificationTitle,
-                    NotificationContent = model.NotificationContent,
-                    NotificationType = model.NotificationType,
-                    NotificationCreatedAt = DateTime.Now,
-                    CreatedBy = createdBy
-                };
-
-                _notificationRepo.CreateNotification(newNotification);
-                nextIdNumber++;
-            }
-
-            return Json(new { success = true });
+                    NotificationId = n.NotificationId,
+                    UserId = n.UserId,
+                    NotificationTitle = n.NotificationTitle,
+                    NotificationContent = n.NotificationContent,
+                    NotificationType = n.NotificationType,
+                    NotificationCreatedAt = n.NotificationCreatedAt,
+                    CreatedBy = n.CreatedBy,
+                    CreatorImageUrl = n.CreatedByNavigation.UserPicture
+                })
+                .ToList();
         }
 
-
-
-        [HttpGet]
-        public IActionResult GetNotificationById(string id)
+        public List<object> GetUsers(string currentUserId)
         {
-            var notification = _notificationRepo.GetNotificationById(id);
+            return _context.Accounts
+                .Where(a => a.UserId != currentUserId)
+                .Select(a => new
+                {
+                    user_id = a.UserId,
+                    full_name = a.FullName
+                })
+                .ToList<object>();
+        }
+
+        public int GetNextNotificationIdNumber()
+        {
+            var lastNotification = _context.Notifications
+                .Where(n => n.NotificationId.StartsWith("N"))
+                .OrderByDescending(n => n.NotificationId)
+                .FirstOrDefault();
+
+            if (lastNotification == null)
+            {
+                return 1;
+            }
+
+            int lastNumber = int.Parse(lastNotification.NotificationId.Substring(1));
+            return lastNumber + 1;
+        }
+
+        public void CreateNotification(Models.Notification notification)
+        {
+            _context.Notifications.Add(notification);
+            _context.SaveChanges();
+        }
+
+        public Models.Notification GetNotificationById(string id)
+        {
+            return _context.Notifications
+                .Where(n => n.NotificationId == id)
+                .Select(n => new Models.Notification
+                {
+                    NotificationId = n.NotificationId,
+                    NotificationTitle = n.NotificationTitle,
+                    NotificationContent = n.NotificationContent,
+                    NotificationType = n.NotificationType
+                })
+                .FirstOrDefault();
+        }
+
+        public bool UpdateNotification(Models.Notification updatedNotification)
+        {
+            var notification = _context.Notifications.Find(updatedNotification.NotificationId);
             if (notification == null)
             {
-                return NotFound();
+                return false;
             }
 
-            return Json(new
+            notification.NotificationTitle = updatedNotification.NotificationTitle;
+            notification.NotificationContent = updatedNotification.NotificationContent;
+            notification.NotificationType = updatedNotification.NotificationType;
+
+            _context.SaveChanges();
+            return true;
+        }
+
+        public bool DeleteNotification(string id)
+        {
+            var notification = _context.Notifications.Find(id);
+            if (notification == null)
             {
-                success = true,
-                data = new
-                {
-                    notification.NotificationId,
-                    notification.NotificationTitle,
-                    notification.NotificationContent,
-                    notification.NotificationType
-                }
-            });
+                return false;
+            }
+
+            _context.Notifications.Remove(notification);
+            _context.SaveChanges();
+            return true;
         }
 
-        [HttpPost]
-        public IActionResult EditNotification([FromBody] Notification updatedNotification)
+        public bool DeleteSelectedNotifications(string[] ids)
         {
-            bool success = _notificationRepo.UpdateNotification(updatedNotification);
-            return Json(new { success, message = success ? "" : "Notification not found." });
-        }
+            var notifications = _context.Notifications.Where(n => ids.Contains(n.NotificationId)).ToList();
+            if (notifications.Count == 0)
+            {
+                return false;
+            }
 
-        [HttpPost]
-        public IActionResult DeleteNotification(string id)
-        {
-            bool success = _notificationRepo.DeleteNotification(id);
-            return Json(new { success, message = success ? "" : "Notification not found." });
-        }
-
-        [HttpPost]
-        public IActionResult DeleteSelectedNotifications(string[] ids)
-        {
-            bool success = _notificationRepo.DeleteSelectedNotifications(ids);
-            return Json(new { success, message = success ? "" : "No notifications found to delete." });
-        }
-
-        public class NotificationViewModel
-        {
-            public List<string> UserIds { get; set; }
-            public string NotificationTitle { get; set; }
-            public string NotificationContent { get; set; }
-            public string NotificationType { get; set; }
-            public DateTime NotificationCreatedAt { get; set; } = DateTime.Now;
+            _context.Notifications.RemoveRange(notifications);
+            _context.SaveChanges();
+            return true;
         }
     }
 }
