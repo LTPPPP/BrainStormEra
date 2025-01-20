@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
-using BrainStormEra.Repo;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,18 +7,20 @@ using System.Text;
 using System.Threading.Tasks;
 using BrainStormEra.Views.Login;
 using BrainStormEra.Services;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BrainStormEra.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly AccountRepo _accountRepository;
+        private readonly SwpMainContext _context;
         private readonly EmailService _emailService;
         private readonly OtpService _otpService;
 
-        public LoginController(AccountRepo accountRepository, EmailService emailService, OtpService otpService)
+        public LoginController(SwpMainContext context, EmailService emailService, OtpService otpService)
         {
-            _accountRepository = accountRepository;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _emailService = emailService;
             _otpService = otpService;
         }
@@ -37,14 +38,16 @@ namespace BrainStormEra.Controllers
             {
                 string hashedPassword = GetMd5Hash(model.Password);
 
-                var user = await _accountRepository.Login(model.Username, hashedPassword);
+                var user = await _context.Accounts
+                    .Where(a => a.Username == model.Username && a.Password == hashedPassword)
+                    .FirstOrDefaultAsync();
 
                 if (user != null)
                 {
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Username),
-                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                        new Claim(ClaimTypes.NameIdentifier, user.UserId),
                         new Claim(ClaimTypes.Role, user.UserRole.ToString())
                     };
 
@@ -53,7 +56,7 @@ namespace BrainStormEra.Controllers
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                    Response.Cookies.Append("user_id", user.UserId.ToString(), new CookieOptions { Expires = DateTime.Now.AddHours(1) });
+                    Response.Cookies.Append("user_id", user.UserId, new CookieOptions { Expires = DateTime.Now.AddHours(1) });
                     Response.Cookies.Append("username", user.Username, new CookieOptions { Expires = DateTime.Now.AddHours(1) });
                     Response.Cookies.Append("user_role", user.UserRole.ToString(), new CookieOptions { Expires = DateTime.Now.AddHours(1) });
 
@@ -121,7 +124,10 @@ namespace BrainStormEra.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            var user = await _accountRepository.GetUserByEmailAsync(request.Email);
+            var user = await _context.Accounts
+                .Where(a => a.UserEmail == request.Email)
+                .FirstOrDefaultAsync();
+
             if (user != null)
             {
                 var otpCode = _otpService.GenerateOtp(request.Email);
@@ -146,10 +152,14 @@ namespace BrainStormEra.Controllers
         [HttpPost]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
-            var user = await _accountRepository.GetUserByEmailAsync(request.Email);
+            var user = await _context.Accounts
+                .Where(a => a.UserEmail == request.Email)
+                .FirstOrDefaultAsync();
+
             if (user != null)
             {
-                await _accountRepository.UpdatePasswordAsync(user.UserId, GetMd5Hash(request.NewPassword));
+                user.Password = GetMd5Hash(request.NewPassword);
+                await _context.SaveChangesAsync();
                 return Ok("Mật khẩu đã được đặt lại thành công.");
             }
             return BadRequest("Không tìm thấy tài khoản với email này.");

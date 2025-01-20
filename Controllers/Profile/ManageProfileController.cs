@@ -1,23 +1,20 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repo;
-using BrainStormEra.Repo.Admin;
 using BrainStormEra.Views.Profile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers.Profile
 {
     public class ManageProfileController : Controller
     {
-        private readonly ProfileRepo _profileRepo;
-        private readonly AccountRepo _accountRepo;
+        private readonly SwpMainContext _context;
 
-        public ManageProfileController(ProfileRepo profileRepo, AccountRepo accountRepo)
+        public ManageProfileController(SwpMainContext context)
         {
-            _profileRepo = profileRepo ?? throw new ArgumentNullException(nameof(profileRepo));
-            _accountRepo = accountRepo ?? throw new ArgumentNullException(nameof(accountRepo));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         [HttpGet]
@@ -27,15 +24,64 @@ namespace BrainStormEra.Controllers.Profile
 
             if (userRole == "1") // Admin
             {
-                var users = await _profileRepo.GetLearnersAndInstructorsAsync();
-                var userRoleCounts = await _accountRepo.GetUserRoleCountsAsync();
-                ViewBag.UserRoleCounts = userRoleCounts;
+                var users = await _context.Accounts
+                    .Where(a => a.UserRole == 2 || a.UserRole == 3)
+                    .Select(a => new UserDetailsViewModel
+                    {
+                        UserId = a.UserId,
+                        UserRole = a.UserRole,
+                        Username = a.Username,
+                        UserEmail = a.UserEmail,
+                        FullName = a.FullName,
+                        DateOfBirth = a.DateOfBirth,
+                        Gender = a.Gender,
+                        PhoneNumber = a.PhoneNumber,
+                        UserAddress = a.UserAddress,
+                        AccountCreatedAt = a.AccountCreatedAt,
+                        Approved = _context.Enrollments.Any(e => e.UserId == a.UserId && e.Approved) ? 1 : 0
+                    })
+                    .ToListAsync();
+
+                var userRoleCounts = await _context.Accounts
+                    .GroupBy(a => a.UserRole)
+                    .Select(g => new
+                    {
+                        UserRole = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToDictionaryAsync(g => g.UserRole, g => g.Count);
+
+                ViewBag.UserRoleCounts = new UserRoleCountsViewModel
+                {
+                    TotalUsers = userRoleCounts.Values.Sum(),
+                    AdminCount = userRoleCounts.GetValueOrDefault(1),
+                    InstructorCount = userRoleCounts.GetValueOrDefault(2),
+                    LearnerCount = userRoleCounts.GetValueOrDefault(3)
+                };
+
                 return View("~/Views/Admin/ManageUser.cshtml", users);
             }
             else if (userRole == "2") // Instructor
             {
                 var instructorId = Request.Cookies["user_id"];
-                var model = await _profileRepo.GetLearnersByInstructorCoursesAsync(instructorId);
+                var model = await _context.Enrollments
+                    .Where(e => e.Course.CreatedBy == instructorId)
+                    .Select(e => new UserDetailsViewModel
+                    {
+                        UserId = e.UserId,
+                        UserRole = e.User.UserRole,
+                        Username = e.User.Username,
+                        UserEmail = e.User.UserEmail,
+                        FullName = e.User.FullName,
+                        DateOfBirth = e.User.DateOfBirth,
+                        Gender = e.User.Gender,
+                        PhoneNumber = e.User.PhoneNumber,
+                        UserAddress = e.User.UserAddress,
+                        AccountCreatedAt = e.User.AccountCreatedAt,
+                        Approved = e.Approved ? 1 : 0
+                    })
+                    .ToListAsync();
+
                 return View("~/Views/Instructor/ViewLearner.cshtml", model);
             }
 
@@ -45,7 +91,24 @@ namespace BrainStormEra.Controllers.Profile
         [HttpGet("/api/users/{userId}")]
         public async Task<IActionResult> GetUserDetails(string userId)
         {
-            var user = await _profileRepo.GetUserDetailsAsync(userId);
+            var user = await _context.Accounts
+                .Where(a => a.UserId == userId)
+                .Select(a => new UserDetailsViewModel
+                {
+                    UserId = a.UserId,
+                    UserRole = a.UserRole,
+                    Username = a.Username,
+                    UserEmail = a.UserEmail,
+                    FullName = a.FullName,
+                    DateOfBirth = a.DateOfBirth,
+                    Gender = a.Gender,
+                    PhoneNumber = a.PhoneNumber,
+                    UserAddress = a.UserAddress,
+                    AccountCreatedAt = a.AccountCreatedAt,
+                    Approved = _context.Enrollments.Any(e => e.UserId == a.UserId && e.Approved) ? 1 : 0
+                })
+                .FirstOrDefaultAsync();
+
             if (user == null)
             {
                 return NotFound();
@@ -56,64 +119,93 @@ namespace BrainStormEra.Controllers.Profile
         [HttpPost("/api/ban/{userId}")]
         public async Task<IActionResult> BanLearner(string userId)
         {
-            try
+            var enrollment = await _context.Enrollments
+                .Where(e => e.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (enrollment == null)
             {
-                await _profileRepo.BanLearnerAsync(userId);
-                return Ok("User banned successfully.");
+                return BadRequest("Failed to ban user: No matching enrollment found.");
             }
-            catch (Exception ex)
-            {
-                return BadRequest($"Failed to ban user: {ex.Message}");
-            }
+
+            enrollment.Approved = false;
+            await _context.SaveChangesAsync();
+
+            return Ok("User banned successfully.");
         }
 
         [HttpGet("/api/users/{userId}/completed-courses")]
         public async Task<IActionResult> GetCompletedCoursesForLearner(string userId)
         {
-            var completedCourses = await _profileRepo.GetCompletedCoursesForLearnerAsync(userId);
+            var completedCourses = await _context.LessonCompletions
+                .Where(lc => lc.UserId == userId)
+                .Select(lc => new
+                {
+                    CourseId = lc.Lesson.Chapter.CourseId,
+                    CourseName = lc.Lesson.Chapter.Course.CourseName,
+                    CompletionDate = lc.CompletionDate
+                })
+                .ToListAsync();
+
             return Json(completedCourses);
         }
 
         [HttpPost("/api/unban/{userId}")]
         public async Task<IActionResult> UnbanLearner(string userId)
         {
-            try
+            var enrollment = await _context.Enrollments
+                .Where(e => e.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (enrollment == null)
             {
-                await _profileRepo.UnbanLearnerAsync(userId);
-                return Ok("User unbanned successfully.");
+                return BadRequest("Failed to unban user: No matching enrollment found.");
             }
-            catch (Exception ex)
-            {
-                return BadRequest($"Failed to unban user: {ex.Message}");
-            }
+
+            enrollment.Approved = true;
+            await _context.SaveChangesAsync();
+
+            return Ok("User unbanned successfully.");
         }
 
         [HttpPost("/api/promote/{userId}")]
         public async Task<IActionResult> PromoteLearner(string userId)
         {
-            try
-            {
-                var newInstructorId = await _profileRepo.PromoteLearnerToInstructorAsync(userId);
+            var learner = await _context.Accounts
+                .Where(a => a.UserId == userId && a.UserRole == 3)
+                .FirstOrDefaultAsync();
 
-                if (newInstructorId == null)
-                    return BadRequest("Learner cannot be promoted. Ensure payment is zero and there are no enrollments.");
+            if (learner == null || learner.PaymentPoint > 0 || _context.Enrollments.Any(e => e.UserId == userId))
+            {
+                return BadRequest("Learner cannot be promoted. Ensure payment is zero and there are no enrollments.");
+            }
 
-                return Ok($"Learner promoted to Instructor with new ID: {newInstructorId}");
-            }
-            catch (SqlException ex) when (ex.Number == 547) // Foreign key violation
-            {
-                return BadRequest("Promotion failed due to existing dependencies in the notification records.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"An unexpected error occurred: {ex.Message}");
-            }
+            var maxInstructorId = await _context.Accounts
+                .Where(a => a.UserRole == 2)
+                .MaxAsync(a => int.Parse(a.UserId.Substring(2)));
+
+            var newInstructorId = $"IN{maxInstructorId + 1:D3}";
+
+            learner.UserId = newInstructorId;
+            learner.UserRole = 2;
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Learner promoted to Instructor with new ID: {newInstructorId}");
         }
 
         [HttpGet("/api/certificates/{userId}/{courseId}")]
         public async Task<IActionResult> GetCertificateForCourse(string userId, string courseId)
         {
-            var certificate = await _profileRepo.GetCertificateDetailsForCourseAsync(userId, courseId);
+            var certificate = await _context.Enrollments
+                .Where(e => e.UserId == userId && e.CourseId == courseId && e.CertificateIssuedDate != null)
+                .Select(e => new
+                {
+                    CertificateIssuedDate = e.CertificateIssuedDate,
+                    CourseName = e.Course.CourseName
+                })
+                .FirstOrDefaultAsync();
+
             if (certificate == null)
             {
                 return NotFound("Certificate not found for the specified course and user.");
