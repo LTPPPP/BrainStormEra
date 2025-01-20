@@ -1,37 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Models;
-using BrainStormEra.Repo.Chapter;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using BrainStormEra.Repo.Course;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra.Controllers
 {
     public class ChapterController : Controller
     {
-        private readonly ChapterRepo _chapterRepo;
-        private readonly CourseRepo _courseRepo;
+        private readonly SwpMainContext _context;
 
-        public ChapterController(ChapterRepo chapterRepo, CourseRepo courseRepo)
+        public ChapterController(SwpMainContext context)
         {
-            _chapterRepo = chapterRepo;
-            _courseRepo = courseRepo;
+            _context = context;
         }
 
         // GET: EditChapter
         public async Task<IActionResult> EditChapter()
         {
             var chapterId = HttpContext.Request.Cookies["ChapterId"];
-            var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
+            var chapter = await _context.Chapters.FindAsync(chapterId);
 
             return View(chapter);
         }
 
         // POST: EditChapter
         [HttpPost]
-        public async Task<IActionResult> EditChapter(BrainStormEra.Models.Chapter chapter)
+        public async Task<IActionResult> EditChapter(Chapter chapter)
         {
-            var isDuplicate = await _chapterRepo.IsChapterNameDuplicateAsync(chapter.ChapterName, chapter.ChapterId);
+            var isDuplicate = await _context.Chapters
+                .AnyAsync(c => c.ChapterName == chapter.ChapterName && c.ChapterId != chapter.ChapterId);
 
             if (isDuplicate)
             {
@@ -39,7 +38,8 @@ namespace BrainStormEra.Controllers
                 return View(chapter);
             }
 
-            await _chapterRepo.UpdateChapterAsync(chapter);
+            _context.Chapters.Update(chapter);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("ChapterManagement");
         }
@@ -49,9 +49,12 @@ namespace BrainStormEra.Controllers
         public async Task<IActionResult> ChapterManagement()
         {
             var courseId = HttpContext.Request.Cookies["CourseId"];
-            var chapters = await _chapterRepo.GetAllChaptersByCourseIdAsync(courseId);
+            var chapters = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .OrderBy(c => c.ChapterOrder)
+                .ToListAsync();
 
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
             ViewBag.courseName = course?.CourseName;
 
             return View(chapters);
@@ -61,7 +64,10 @@ namespace BrainStormEra.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateChapter(string courseId)
         {
-            var existingChapters = await _chapterRepo.GetAllChaptersByCourseIdAsync(courseId);
+            var existingChapters = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .OrderBy(c => c.ChapterOrder)
+                .ToListAsync();
             return View(existingChapters);
         }
 
@@ -70,9 +76,12 @@ namespace BrainStormEra.Controllers
         public async Task<IActionResult> DeleteChapter()
         {
             var courseId = HttpContext.Request.Cookies["CourseId"];
-            var chapters = await _chapterRepo.GetAllChaptersByCourseIdAsync(courseId);
+            var chapters = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .OrderBy(c => c.ChapterOrder)
+                .ToListAsync();
 
-            var maxOrderChapter = await _chapterRepo.GetLastChapterInCourseAsync(courseId);
+            var maxOrderChapter = chapters.OrderByDescending(c => c.ChapterOrder).FirstOrDefault();
             ViewBag.MaxOrderChapterId = maxOrderChapter?.ChapterId;
 
             return View(chapters);
@@ -84,7 +93,12 @@ namespace BrainStormEra.Controllers
         {
             if (chapterIds.Count > 0)
             {
-                await _chapterRepo.DeleteChaptersAsync(chapterIds);
+                var chaptersToDelete = await _context.Chapters
+                    .Where(c => chapterIds.Contains(c.ChapterId))
+                    .ToListAsync();
+
+                _context.Chapters.RemoveRange(chaptersToDelete);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("DeleteChapter");
@@ -99,28 +113,37 @@ namespace BrainStormEra.Controllers
 
         // POST: AddChapter
         [HttpPost]
-        public async Task<IActionResult> AddChapter(BrainStormEra.Models.Chapter chapter)
+        public async Task<IActionResult> AddChapter(Chapter chapter)
         {
             var courseId = HttpContext.Request.Cookies["CourseId"];
 
-            var isDuplicate = await _chapterRepo.IsChapterNameDuplicateAsync(chapter.ChapterName, courseId);
+            var isDuplicate = await _context.Chapters
+                .AnyAsync(c => c.ChapterName == chapter.ChapterName && c.CourseId == courseId);
             if (isDuplicate)
             {
                 ModelState.AddModelError("ChapterName", "Chapter name already exists in this course. Please choose a different name.");
                 return View(chapter);
             }
 
-            var lastChapter = await _chapterRepo.GetLastChapterInCourseAsync(courseId);
+            var lastChapter = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .OrderByDescending(c => c.ChapterOrder)
+                .FirstOrDefaultAsync();
             var newChapterOrder = (lastChapter?.ChapterOrder ?? 0) + 1;
 
-            var newChapterId = await _chapterRepo.GenerateNewChapterIdAsync();
+            var newChapterId = (await _context.Chapters
+                .OrderByDescending(c => c.ChapterId)
+                .Select(c => c.ChapterId)
+                .FirstOrDefaultAsync()) ?? "CH000";
+            newChapterId = "CH" + (int.Parse(newChapterId.Substring(2)) + 1).ToString("D3");
 
             chapter.ChapterId = newChapterId;
             chapter.CourseId = courseId;
             chapter.ChapterOrder = newChapterOrder;
             chapter.ChapterStatus = 0;
 
-            await _chapterRepo.AddChapterAsync(chapter);
+            _context.Chapters.Add(chapter);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("ChapterManagement");
         }
