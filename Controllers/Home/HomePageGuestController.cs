@@ -1,24 +1,25 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repo;
 using BrainStormEra.Views.Home;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BrainStormEra.Controllers.Home
 {
     public class HomePageGuestController : Controller
     {
-        private readonly GuestRepo _guestRepo;
+        private readonly SwpMainContext _context;
 
-        public HomePageGuestController(GuestRepo guestRepo)
+        public HomePageGuestController(SwpMainContext context)
         {
-            _guestRepo = guestRepo;
+            _context = context;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var categories = _guestRepo.GetTopCategories();
-            var recommendedCourses = _guestRepo.GetRecommendedCourses();
+            var categories = GetTopCategories();
+            var recommendedCourses = GetRecommendedCourses();
 
             var viewModel = new HomePageGuestViewtModel
             {
@@ -28,6 +29,38 @@ namespace BrainStormEra.Controllers.Home
             ViewBag.Categories = categories; // Pass categories to the view using ViewBag
 
             return View("~/Views/Home/Index.cshtml", viewModel);
+        }
+
+        private List<CourseCategory> GetTopCategories()
+        {
+            return _context.CourseCategories
+                .OrderBy(c => c.CourseCategoryName)
+                .Take(5)
+                .ToList();
+        }
+
+        private List<HomePageGuestViewtModel.ManagementCourseViewModel> GetRecommendedCourses()
+        {
+            var recommendedCourses = _context.Courses
+                .Where(c => c.CourseStatus == 2)
+                .OrderByDescending(c => c.Enrollments.Count())
+                .Take(4)
+                .Select(c => new HomePageGuestViewtModel.ManagementCourseViewModel
+                {
+                    CourseId = c.CourseId,
+                    CourseName = c.CourseName,
+                    CourseDescription = c.CourseDescription,
+                    CourseStatus = c.CourseStatus,
+                    CoursePicture = c.CoursePicture,
+                    Price = c.Price,
+                    CourseCreatedAt = c.CourseCreatedAt,
+                    CreatedBy = c.CreatedByNavigation.FullName,
+                    StarRating = c.Feedbacks.Average(f => (byte?)f.StarRating) ?? 0,
+                    CourseCategories = c.CourseCategories.Select(cc => cc.CourseCategoryName).ToList()
+                })
+                .ToList();
+
+            return recommendedCourses;
         }
     }
 }
