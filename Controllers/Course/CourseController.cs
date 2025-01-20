@@ -1,33 +1,27 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repo;
-using BrainStormEra.Repo.Chapter;
-using BrainStormEra.Repo.Course;
 using BrainStormEra.Views.Course;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers.Course
 {
     public class CourseController : Controller
     {
-        private readonly string _connectionString;
+        private readonly SwpMainContext _context;
         private readonly ILogger<CourseController> _logger;
-        private readonly CourseRepo _courseRepo;
-        private readonly LessonRepo _lessonRepo;
-        private readonly ChapterRepo _chapterRepo;
-        public CourseController(IConfiguration configuration, ILogger<CourseController> logger, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
+
+        public CourseController(SwpMainContext context, ILogger<CourseController> logger)
         {
-            _connectionString = configuration.GetConnectionString("SwpMainContext");
+            _context = context;
             _logger = logger;
-            _courseRepo = courseRepo;
-            _chapterRepo = chapterRepo;
-            _lessonRepo = lessonRepo;
         }
 
         public async Task<ActionResult> AddCourse()
@@ -36,7 +30,7 @@ namespace BrainStormEra.Controllers.Course
             {
                 var viewModel = new CreateCourseViewModel
                 {
-                    CourseCategories = await _courseRepo.GetCourseCategoriesAsync()
+                    CourseCategories = await _context.CourseCategories.ToListAsync()
                 };
                 return View(viewModel);
             }
@@ -52,26 +46,26 @@ namespace BrainStormEra.Controllers.Course
         {
             var userId = Request.Cookies["user_id"];
 
-            viewModel.CourseId = await _courseRepo.GenerateNewCourseIdAsync();
+            viewModel.CourseId = await GenerateNewCourseIdAsync();
 
-            if (await _courseRepo.IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
+            if (await IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
             {
                 ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
-                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
                 return View(viewModel);
             }
 
             if (viewModel.CategoryIds == null || !viewModel.CategoryIds.Any())
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
-                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
                 return View(viewModel);
             }
 
             if (viewModel.CategoryIds.Count > 5)
             {
                 ModelState.AddModelError("CategoryIds", "You can select up to 5 categories.");
-                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
+                viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
                 return View(viewModel);
             }
 
@@ -98,7 +92,7 @@ namespace BrainStormEra.Controllers.Course
                 coursePicturePath = $"/uploads/Course-img/{fileName}";
             }
 
-            var newCourse = new Models.Course
+            var newCourse = new Course
             {
                 CourseId = viewModel.CourseId,
                 CourseName = viewModel.CourseName,
@@ -109,12 +103,22 @@ namespace BrainStormEra.Controllers.Course
                 Price = viewModel.Price
             };
 
-            await _courseRepo.AddCourseAsync(newCourse);
-            await _courseRepo.AddCourseCategoriesAsync(viewModel.CourseId, viewModel.CategoryIds);
+            _context.Courses.Add(newCourse);
+            await _context.SaveChangesAsync();
+
+            foreach (var categoryId in viewModel.CategoryIds)
+            {
+                _context.Set<Dictionary<string, object>>("CourseCategoryMapping").Add(
+                    new Dictionary<string, object>
+                    {
+                        { "CourseId", newCourse.CourseId },
+                        { "CourseCategoryId", categoryId }
+                    });
+            }
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("CourseManagement");
         }
-
 
         [HttpGet]
         public async Task<ActionResult> EditCourse()
@@ -126,7 +130,7 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseManagement");
             }
 
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
 
             if (course == null)
             {
@@ -140,8 +144,14 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("CourseManagement");
             }
 
-            var allCategories = await _courseRepo.GetCourseCategoriesAsync(); // Get all categories
-            var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+            var allCategories = await _context.CourseCategories.ToListAsync(); // Get all categories
+            var selectedCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                .Join(_context.CourseCategories,
+                      ccm => ccm["CourseCategoryId"].ToString(),
+                      cc => cc.CourseCategoryId,
+                      (ccm, cc) => cc)
+                .ToListAsync(); // Get selected categories for the course
 
             var viewModel = new EditCourseViewModel
             {
@@ -157,13 +167,11 @@ namespace BrainStormEra.Controllers.Course
             return View(viewModel);
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> EditCourse(EditCourseViewModel viewModel)
         {
-            var course = await _courseRepo.GetCourseByIdAsync(viewModel.CourseId);
+            var course = await _context.Courses.FindAsync(viewModel.CourseId);
             var courseId = HttpContext.Request.Cookies["CourseId"];
             if (course == null)
             {
@@ -178,11 +186,17 @@ namespace BrainStormEra.Controllers.Course
             }
 
             // Check if the course name already exists
-            if (await _courseRepo.IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
+            if (await IsCourseNameExistsAsync(viewModel.CourseName, viewModel.CourseId))
             {
                 ModelState.AddModelError("CourseName", "The Course Name already exists. Please enter a different name.");
-                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
+                var selectedCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .ToListAsync(); // Get selected categories for the course
                 viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                 return View(viewModel);
             }
@@ -191,8 +205,14 @@ namespace BrainStormEra.Controllers.Course
             if (viewModel.CategoryIds == null || !viewModel.CategoryIds.Any())
             {
                 ModelState.AddModelError("CategoryIds", "Please select at least one category.");
-                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
+                var selectedCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .ToListAsync(); // Get selected categories for the course
                 viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                 return View(viewModel);
             }
@@ -200,8 +220,14 @@ namespace BrainStormEra.Controllers.Course
             if (viewModel.CategoryIds.Count > 5)
             {
                 ModelState.AddModelError("CategoryIds", "You can select up to 5 categories.");
-                viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
+                var selectedCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .ToListAsync(); // Get selected categories for the course
                 viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                 return View(viewModel);
             }
@@ -213,8 +239,14 @@ namespace BrainStormEra.Controllers.Course
                 if (viewModel.CoursePicture.Length > 10 * 1024 * 1024)
                 {
                     ModelState.AddModelError("CoursePicture", "File size should not exceed 2MB.");
-                    viewModel.CourseCategories = await _courseRepo.GetCourseCategoriesAsync();
-                    var selectedCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId); // Get selected categories for the course
+                    viewModel.CourseCategories = await _context.CourseCategories.ToListAsync();
+                    var selectedCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                        .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                        .Join(_context.CourseCategories,
+                              ccm => ccm["CourseCategoryId"].ToString(),
+                              cc => cc.CourseCategoryId,
+                              (ccm, cc) => cc)
+                        .ToListAsync(); // Get selected categories for the course
                     viewModel.SelectedCategories = selectedCategories;   // Only selected categories
                     return View(viewModel);
                 }
@@ -237,25 +269,31 @@ namespace BrainStormEra.Controllers.Course
             }
 
             // Update course information
-            await _courseRepo.UpdateCourseAsync(viewModel, coursePicturePath);
+            course.CourseName = viewModel.CourseName;
+            course.CourseDescription = viewModel.CourseDescription;
+            course.Price = viewModel.Price;
+            course.CoursePicture = coursePicturePath;
+
+            await _context.SaveChangesAsync();
 
             // Update course categories
-            await _courseRepo.UpdateCourseCategoriesAsync(viewModel.CourseId, viewModel.CategoryIds);
+            var existingCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                .ToListAsync();
+            _context.Set<Dictionary<string, object>>("CourseCategoryMapping").RemoveRange(existingCategories);
+
+            foreach (var categoryId in viewModel.CategoryIds)
+            {
+                _context.Set<Dictionary<string, object>>("CourseCategoryMapping").Add(
+                    new Dictionary<string, object>
+                    {
+                        { "CourseId", courseId },
+                        { "CourseCategoryId", categoryId }
+                    });
+            }
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("CourseManagement");
-        }
-
-
-
-        // Helper method to get a course by ID
-        private async Task<Models.Course> GetCourseByIdAsync(string courseId)
-        {
-            return await _courseRepo.GetCourseByIdAsync(courseId);
-        }
-
-        private async Task<List<CourseCategory>> GetCourseCategoriesByCourseIdAsync(string courseId)
-        {
-            return await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId);
         }
 
         public async Task<ActionResult> CourseManagement()
@@ -264,12 +302,18 @@ namespace BrainStormEra.Controllers.Course
             var userRole = HttpContext.Request.Cookies["user_role"];
 
             List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
-            var categories = await _courseRepo.GetTopCourseCategoriesAsync();
+            var categories = await _context.CourseCategories.ToListAsync();
             var categoryCounts = new Dictionary<string, int>();
 
             foreach (var category in categories)
             {
-                int courseCount = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
+                int courseCount = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseCategoryId"].ToString() == category.CourseCategoryId)
+                    .Join(_context.Courses,
+                          ccm => ccm["CourseId"].ToString(),
+                          c => c.CourseId,
+                          (ccm, c) => c)
+                    .CountAsync();
                 categoryCounts[category.CourseCategoryId] = courseCount;
             }
 
@@ -279,14 +323,24 @@ namespace BrainStormEra.Controllers.Course
             if (userRole == "2")
             {
                 // Lấy danh sách khóa học của giảng viên
-                var courses = await _courseRepo.GetInstructorCoursesAsync(userId);
+                var courses = await _context.Courses
+                    .Where(c => c.CreatedBy == userId)
+                    .ToListAsync();
                 foreach (var course in courses)
                 {
                     // Lấy rating trung bình
-                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
+                    double averageRating = await _context.Feedbacks
+                        .Where(f => f.CourseId == course.CourseId && f.HiddenStatus == false)
+                        .AverageAsync(f => f.StarRating) ?? 0;
 
                     // Lấy danh sách các category
-                    var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+                    var courseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                        .Where(ccm => ccm["CourseId"].ToString() == course.CourseId)
+                        .Join(_context.CourseCategories,
+                              ccm => ccm["CourseCategoryId"].ToString(),
+                              cc => cc.CourseCategoryId,
+                              (ccm, cc) => cc)
+                        .ToListAsync();
 
                     coursesViewModel.Add(new ManagementCourseViewModel
                     {
@@ -306,15 +360,29 @@ namespace BrainStormEra.Controllers.Course
             else
             {
                 // Lấy tất cả khóa học đang active
-                var courses = await _courseRepo.GetAllActiveCoursesAsync();
+                var courses = await _context.Courses
+                    .Where(c => c.CourseStatus == 2)
+                    .OrderByDescending(c => c.CourseCreatedAt)
+                    .ToListAsync();
                 foreach (var course in courses)
                 {
                     // Lấy rating trung bình
-                    double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
+                    double averageRating = await _context.Feedbacks
+                        .Where(f => f.CourseId == course.CourseId && f.HiddenStatus == false)
+                        .AverageAsync(f => f.StarRating) ?? 0;
 
                     // Lấy danh sách các category
-                    var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
-                    string creatorName = await _courseRepo.GetCourseCreatorNameAsync(course.CourseId);
+                    var courseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                        .Where(ccm => ccm["CourseId"].ToString() == course.CourseId)
+                        .Join(_context.CourseCategories,
+                              ccm => ccm["CourseCategoryId"].ToString(),
+                              cc => cc.CourseCategoryId,
+                              (ccm, cc) => cc)
+                        .ToListAsync();
+                    string creatorName = await _context.Accounts
+                        .Where(a => a.UserId == course.CreatedBy)
+                        .Select(a => a.FullName)
+                        .FirstOrDefaultAsync();
                     coursesViewModel.Add(new ManagementCourseViewModel
                     {
                         CourseId = course.CourseId,
@@ -333,6 +401,7 @@ namespace BrainStormEra.Controllers.Course
 
             return View("CourseManagement", coursesViewModel);
         }
+
         public async Task<ActionResult> FilterCoursesByCategoryAsync()
         {
             var userId = HttpContext.Request.Cookies["user_id"];
@@ -340,21 +409,27 @@ namespace BrainStormEra.Controllers.Course
             var categoryId = HttpContext.Request.Cookies["CategoryId"];
 
             var coursesViewModel = new List<ManagementCourseViewModel>();
-            var categories = await _courseRepo.GetTopCourseCategoriesAsync();
+            var categories = await _context.CourseCategories.ToListAsync();
 
             // Prepare a dictionary to store course counts per category
             var categoryCounts = new Dictionary<string, int>();
             foreach (var category in categories)
             {
-                int count = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
+                int count = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseCategoryId"].ToString() == category.CourseCategoryId)
+                    .Join(_context.Courses,
+                          ccm => ccm["CourseId"].ToString(),
+                          c => c.CourseId,
+                          (ccm, c) => c)
+                    .CountAsync();
                 categoryCounts[category.CourseCategoryId] = count;
             }
 
-            int totalCourseCount = await _courseRepo.GetTotalCourseCountAsync();
-            int pendingCourseCount = await _courseRepo.GetPendingCourseCountAsync();
-            int acceptedCourseCount = await _courseRepo.GetAcceptedCourseCountAsync();
-            int rejectedCourseCount = await _courseRepo.GetRejectedCourseCountAsync();
-            int notApprovedCourseCount = await _courseRepo.GetNotApprovedCourseCountAsync();
+            int totalCourseCount = await _context.Courses.CountAsync();
+            int pendingCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus == 1);
+            int acceptedCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus == 2);
+            int rejectedCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus == 0);
+            int notApprovedCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus != 0 && c.CourseStatus != 1 && c.CourseStatus != 2);
 
             ViewBag.TotalCourseCount = totalCourseCount;
             ViewBag.PendingCourseCount = pendingCourseCount;
@@ -363,20 +438,41 @@ namespace BrainStormEra.Controllers.Course
             ViewBag.NotApprovedCourseCount = notApprovedCourseCount;
 
             // Fetch courses filtered by category
-            List<Models.Course> courses;
+            List<Course> courses;
             if (userRole == "2")
             {
-                courses = _courseRepo.GetInstructorCoursesByCategory(userId, categoryId);
+                courses = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseCategoryId"].ToString() == categoryId && ccm["CourseId"].ToString() == userId)
+                    .Join(_context.Courses,
+                          ccm => ccm["CourseId"].ToString(),
+                          c => c.CourseId,
+                          (ccm, c) => c)
+                    .ToListAsync();
             }
             else
             {
-                courses = _courseRepo.GetActiveCoursesByCategory(categoryId);
+                courses = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseCategoryId"].ToString() == categoryId)
+                    .Join(_context.Courses,
+                          ccm => ccm["CourseId"].ToString(),
+                          c => c.CourseId,
+                          (ccm, c) => c)
+                    .Where(c => c.CourseStatus == 2)
+                    .ToListAsync();
             }
 
             foreach (var course in courses)
             {
-                double averageRating = await _courseRepo.GetAverageRatingAsync(course.CourseId);
-                var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
+                double averageRating = await _context.Feedbacks
+                    .Where(f => f.CourseId == course.CourseId && f.HiddenStatus == false)
+                    .AverageAsync(f => f.StarRating) ?? 0;
+                var courseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == course.CourseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .ToListAsync();
 
                 coursesViewModel.Add(new ManagementCourseViewModel
                 {
@@ -410,12 +506,11 @@ namespace BrainStormEra.Controllers.Course
             return View("CourseManagement", coursesViewModel);
         }
 
-
         public async Task<ActionResult> ConfirmDelete()
         {
             var courseId = HttpContext.Request.Cookies["course_id"];
 
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
 
             if (course == null) return RedirectToAction("ErrorPage", "Home");
 
@@ -423,8 +518,14 @@ namespace BrainStormEra.Controllers.Course
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
-                CourseCategories = await _courseRepo.GetCourseCategoriesAsync(),
-                CourseCategoryId = (await _courseRepo.GetCourseCategoriesByCourseIdAsync(courseId)).FirstOrDefault()?.CourseCategoryId,
+                CourseCategories = await _context.CourseCategories.ToListAsync(),
+                CourseCategoryId = (await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .FirstOrDefaultAsync())?.CourseCategoryId,
                 CourseDescription = course.CourseDescription,
                 CoursePictureFile = course.CoursePicture,
                 Price = course.Price
@@ -436,22 +537,21 @@ namespace BrainStormEra.Controllers.Course
         public async Task<ActionResult> DeleteCourse()
         {
             var courseId = HttpContext.Request.Cookies["CourseId"];
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
 
             if (course != null)
             {
-                var deleted = await _courseRepo.DeleteCourseAsync(courseId);
-                if (deleted)
+                _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
+
+                var userRole = HttpContext.Request.Cookies["user_role"];
+                if (userRole == "1")
                 {
-                    var userRole = HttpContext.Request.Cookies["user_role"];
-                    if (userRole == "1")
-                    {
-                        return RedirectToAction("CourseAcceptance", "Course");
-                    }
-                    else if (userRole == "2")
-                    {
-                        return RedirectToAction("CourseManagement");
-                    }
+                    return RedirectToAction("CourseAcceptance", "Course");
+                }
+                else if (userRole == "2")
+                {
+                    return RedirectToAction("CourseManagement");
                 }
             }
             return RedirectToAction("ErrorPage", "Home");
@@ -471,11 +571,14 @@ namespace BrainStormEra.Controllers.Course
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
 
-            ViewBag.CreatedBy = await _courseRepo.GetCourseCreatorNameAsync(courseId);
+            ViewBag.CreatedBy = await _context.Accounts
+                .Where(a => a.UserId == courseId)
+                .Select(a => a.FullName)
+                .FirstOrDefaultAsync();
             if (isLoggedIn)
             {
-                var (isEnrolled, isBanned) = await _courseRepo.CheckEnrollmentStatusAsync(userId, courseId);
-                double progress = isLoggedIn ? await _courseRepo.GetCourseProgressAsync(userId, courseId) : 0;
+                var (isEnrolled, isBanned) = await CheckEnrollmentStatusAsync(userId, courseId);
+                double progress = isLoggedIn ? await GetCourseProgressAsync(userId, courseId) : 0;
                 ViewBag.Progress = progress;
                 ViewBag.IsEnrolled = isEnrolled;
                 ViewBag.IsBanned = isBanned;
@@ -489,32 +592,62 @@ namespace BrainStormEra.Controllers.Course
                 ViewBag.Progress = 0;
             }
 
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
             if (course == null)
             {
                 _logger.LogError($"Course not found with ID: {courseId}");
                 return View("ErrorPage", "Course not found.");
             }
 
-            ViewBag.CourseCategories = await _courseRepo.GetCourseCategoriesAsync(courseId);
-            ViewBag.LearnersCount = await _courseRepo.GetLearnersCountAsync(courseId);
+            ViewBag.CourseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                .Join(_context.CourseCategories,
+                      ccm => ccm["CourseCategoryId"].ToString(),
+                      cc => cc.CourseCategoryId,
+                      (ccm, cc) => cc)
+                .ToListAsync();
+            ViewBag.LearnersCount = await _context.Enrollments
+                .Where(e => e.CourseId == courseId && e.Approved == true)
+                .CountAsync();
 
-            var chapters = await _chapterRepo.GetChaptersByCourseIdAsync(courseId);
-            int totalLessons = 0;
-            foreach (var chapter in chapters)
-            {
-                chapter.Lessons = await _lessonRepo.GetLessonsByChapterIdAsync(chapter.ChapterId);
-                totalLessons += chapter.Lessons.Count;
-            }
+            var chapters = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .Include(c => c.Lessons)
+                .ToListAsync();
+            int totalLessons = chapters.Sum(c => c.Lessons.Count);
             course.Chapters = chapters;
 
             ViewBag.TotalLessons = totalLessons;
 
             int offset = (page - 1) * pageSize;
-            ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, userRole, offset, pageSize);
-            ViewBag.TotalComments = await _courseRepo.GetTotalFeedbackCountAsync(courseId);
-            ViewBag.AverageRating = await _courseRepo.GetAverageRatingAsync(courseId);
-            ViewBag.RatingPercentages = await _courseRepo.GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
+            ViewBag.Comments = await _context.Feedbacks
+                .Where(f => f.CourseId == courseId && (userRole != "3" || f.HiddenStatus == false))
+                .OrderByDescending(f => f.FeedbackCreatedAt)
+                .Skip(offset)
+                .Take(pageSize)
+                .Select(f => new Feedback
+                {
+                    FeedbackId = f.FeedbackId,
+                    CourseId = f.CourseId,
+                    UserId = f.UserId,
+                    StarRating = f.StarRating,
+                    Comment = f.Comment,
+                    FeedbackDate = f.FeedbackDate,
+                    User = new Account
+                    {
+                        FullName = f.User.FullName,
+                        UserPicture = f.User.UserPicture
+                    },
+                    HiddenStatus = f.HiddenStatus
+                })
+                .ToListAsync();
+            ViewBag.TotalComments = await _context.Feedbacks
+                .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
+                .CountAsync();
+            ViewBag.AverageRating = await _context.Feedbacks
+                .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
+                .AverageAsync(f => f.StarRating) ?? 0;
+            ViewBag.RatingPercentages = await GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
 
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)ViewBag.TotalComments / pageSize);
@@ -522,30 +655,38 @@ namespace BrainStormEra.Controllers.Course
             return View(course);
         }
 
-
-
         public async Task<ActionResult> CourseAcceptance()
         {
-            var pendingCourses = await _courseRepo.GetPendingCoursesAsync();
+            var pendingCourses = await _context.Courses
+                .Where(c => c.CourseStatus == 0 || c.CourseStatus == 1 || c.CourseStatus == 2)
+                .OrderBy(c => c.CourseStatus == 1 ? 0 : 1)
+                .ThenBy(c => c.CourseCreatedAt)
+                .ToListAsync();
             var coursesViewModel = new List<ManagementCourseViewModel>();
-            var topCategories = await _courseRepo.GetTopCourseCategoriesAsync();
+            var topCategories = await _context.CourseCategories.ToListAsync();
 
             ViewBag.Categories = topCategories;
 
             var categoryCounts = new Dictionary<string, int>();
             foreach (var category in topCategories)
             {
-                int count = await _courseRepo.GetCourseCountByCategoryAsync(category.CourseCategoryId);
+                int count = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseCategoryId"].ToString() == category.CourseCategoryId)
+                    .Join(_context.Courses,
+                          ccm => ccm["CourseId"].ToString(),
+                          c => c.CourseId,
+                          (ccm, c) => c)
+                    .CountAsync();
                 categoryCounts[category.CourseCategoryId] = count;
             }
 
             ViewBag.CategoryCounts = categoryCounts;
 
-            int totalCourseCount = await _courseRepo.GetTotalCourseCountAsync();
-            int pendingCourseCount = await _courseRepo.GetPendingCourseCountAsync();
-            int acceptedCourseCount = await _courseRepo.GetAcceptedCourseCountAsync();
-            int rejectedCourseCount = await _courseRepo.GetRejectedCourseCountAsync();
-            int notApprovedCourseCount = await _courseRepo.GetNotApprovedCourseCountAsync();
+            int totalCourseCount = await _context.Courses.CountAsync();
+            int pendingCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus == 1);
+            int acceptedCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus == 2);
+            int rejectedCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus == 0);
+            int notApprovedCourseCount = await _context.Courses.CountAsync(c => c.CourseStatus != 0 && c.CourseStatus != 1 && c.CourseStatus != 2);
 
             ViewBag.TotalCourseCount = totalCourseCount;
             ViewBag.PendingCourseCount = pendingCourseCount;
@@ -555,8 +696,17 @@ namespace BrainStormEra.Controllers.Course
 
             foreach (var course in pendingCourses)
             {
-                var courseCategories = await _courseRepo.GetCourseCategoriesByCourseIdAsync(course.CourseId);
-                string creatorName = await _courseRepo.GetCourseCreatorNameAsync(course.CourseId);
+                var courseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == course.CourseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .ToListAsync();
+                string creatorName = await _context.Accounts
+                    .Where(a => a.UserId == course.CreatedBy)
+                    .Select(a => a.FullName)
+                    .FirstOrDefaultAsync();
 
                 coursesViewModel.Add(new ManagementCourseViewModel
                 {
@@ -575,7 +725,6 @@ namespace BrainStormEra.Controllers.Course
             return View("CourseAcceptance", coursesViewModel);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> ReviewCourse(int page = 1, int pageSize = 4)
         {
@@ -589,26 +738,61 @@ namespace BrainStormEra.Controllers.Course
                     return View("ErrorPage", "Course ID not found in cookies.");
                 }
 
-                var course = await _courseRepo.GetCourseByIdAsync(courseId);
+                var course = await _context.Courses.FindAsync(courseId);
                 if (course == null)
                 {
                     _logger.LogError($"Course not found with ID: {courseId}");
                     return View("ErrorPage", "Course not found.");
                 }
 
-                ViewBag.LearnersCount = await _courseRepo.GetLearnersCountAsync(courseId);
+                ViewBag.LearnersCount = await _context.Enrollments
+                    .Where(e => e.CourseId == courseId && e.Approved == true)
+                    .CountAsync();
 
                 int offset = (page - 1) * pageSize;
-                ViewBag.Comments = await _courseRepo.GetFeedbacksAsync(courseId, userRole, offset, pageSize);
-                ViewBag.TotalComments = await _courseRepo.GetTotalFeedbackCountAsync(courseId);
-                ViewBag.AverageRating = await _courseRepo.GetAverageRatingAsync(courseId);
-                ViewBag.RatingPercentages = await _courseRepo.GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
+                ViewBag.Comments = await _context.Feedbacks
+                    .Where(f => f.CourseId == courseId && (userRole != "3" || f.HiddenStatus == false))
+                    .OrderByDescending(f => f.FeedbackCreatedAt)
+                    .Skip(offset)
+                    .Take(pageSize)
+                    .Select(f => new Feedback
+                    {
+                        FeedbackId = f.FeedbackId,
+                        CourseId = f.CourseId,
+                        UserId = f.UserId,
+                        StarRating = f.StarRating,
+                        Comment = f.Comment,
+                        FeedbackDate = f.FeedbackDate,
+                        User = new Account
+                        {
+                            FullName = f.User.FullName,
+                            UserPicture = f.User.UserPicture
+                        },
+                        HiddenStatus = f.HiddenStatus
+                    })
+                    .ToListAsync();
+                ViewBag.TotalComments = await _context.Feedbacks
+                    .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
+                    .CountAsync();
+                ViewBag.AverageRating = await _context.Feedbacks
+                    .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
+                    .AverageAsync(f => f.StarRating) ?? 0;
+                ViewBag.RatingPercentages = await GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)ViewBag.TotalComments / pageSize);
 
-                ViewBag.CreatedBy = await _courseRepo.GetCourseCreatorNameAsync(courseId);
-                ViewBag.CourseCategories = await _courseRepo.GetCourseCategoriesAsync(courseId);
+                ViewBag.CreatedBy = await _context.Accounts
+                    .Where(a => a.UserId == courseId)
+                    .Select(a => a.FullName)
+                    .FirstOrDefaultAsync();
+                ViewBag.CourseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
+                    .Where(ccm => ccm["CourseId"].ToString() == courseId)
+                    .Join(_context.CourseCategories,
+                          ccm => ccm["CourseCategoryId"].ToString(),
+                          cc => cc.CourseCategoryId,
+                          (ccm, cc) => cc)
+                    .ToListAsync();
 
                 return View(course);
             }
@@ -622,12 +806,14 @@ namespace BrainStormEra.Controllers.Course
         [HttpPost]
         public async Task<IActionResult> ChangeStatus(string courseId, int status)
         {
-            var result = await _courseRepo.UpdateCourseStatusAsync(courseId, status);
-            if (!result)
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course != null)
             {
-                return View("ErrorPage", "Failed to update course status.");
+                course.CourseStatus = status;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("CourseAcceptance", "Course");
             }
-            return RedirectToAction("CourseAcceptance", "Course");
+            return View("ErrorPage", "Failed to update course status.");
         }
 
         [HttpPost]
@@ -640,8 +826,8 @@ namespace BrainStormEra.Controllers.Course
                 return RedirectToAction("Login", "Account");
             }
 
-            var user = await _courseRepo.GetUserByIdAsync(userId);
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var user = await _context.Accounts.FindAsync(userId);
+            var course = await _context.Courses.FindAsync(courseId);
 
             if (user == null || course == null)
             {
@@ -651,17 +837,26 @@ namespace BrainStormEra.Controllers.Course
             if (user.PaymentPoint >= course.Price)
             {
                 // Sử dụng GenerateNewEnrollmentIdAsync từ CourseRepo để tạo EnrollmentId mới
-                string newEnrollmentId = await _courseRepo.GenerateNewEnrollmentIdAsync();
+                string newEnrollmentId = await GenerateNewEnrollmentIdAsync();
 
                 // Ghi danh người dùng vào khóa học
-                var enrolled = await _courseRepo.EnrollUserInCourseAsync(newEnrollmentId, userId, courseId, DateTime.Now);
-
-                if (enrolled)
+                var enrollment = new Enrollment
                 {
-                    // Trừ điểm của người dùng sau khi ghi danh thành công
-                    await _courseRepo.UpdateUserPaymentPointsAsync(userId, course.Price);
-                    return RedirectToAction("CourseDetail");
-                }
+                    EnrollmentId = newEnrollmentId,
+                    UserId = userId,
+                    CourseId = courseId,
+                    EnrollmentStatus = 1,
+                    Approved = true,
+                    EnrollmentCreatedAt = DateTime.Now
+                };
+                _context.Enrollments.Add(enrollment);
+                await _context.SaveChangesAsync();
+
+                // Trừ điểm của người dùng sau khi ghi danh thành công
+                user.PaymentPoint -= course.Price;
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("CourseDetail");
             }
             else
             {
@@ -674,13 +869,17 @@ namespace BrainStormEra.Controllers.Course
         [HttpPost]
         public async Task<IActionResult> RequestToAdmin(string courseId)
         {
-            bool hasChaptersAndLessons = await _courseRepo.HasChaptersAndLessonsAsync(courseId);
+            bool hasChaptersAndLessons = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .AnyAsync(c => c.Lessons.Any());
 
             if (hasChaptersAndLessons)
             {
-                bool updated = await _courseRepo.UpdateCourseStatusAsync(courseId, 1);
-                if (updated)
+                var course = await _context.Courses.FindAsync(courseId);
+                if (course != null)
                 {
+                    course.CourseStatus = 1;
+                    await _context.SaveChangesAsync();
                     return Json(new { success = true, message = "Request sent to Admin successfully." });
                 }
                 else
@@ -694,5 +893,71 @@ namespace BrainStormEra.Controllers.Course
             }
         }
 
+        private async Task<string> GenerateNewCourseIdAsync()
+        {
+            var lastCourseId = await _context.Courses
+                .OrderByDescending(c => c.CourseId)
+                .Select(c => c.CourseId)
+                .FirstOrDefaultAsync();
+            return lastCourseId == null ? "CO001" : "CO" + (int.Parse(lastCourseId.Substring(2)) + 1).ToString("D3");
+        }
+
+        private async Task<bool> IsCourseNameExistsAsync(string courseName, string courseId)
+        {
+            return await _context.Courses
+                .AnyAsync(c => c.CourseName == courseName && c.CourseId != courseId);
+        }
+
+        private async Task<(bool IsEnrolled, bool IsBanned)> CheckEnrollmentStatusAsync(string userId, string courseId)
+        {
+            var enrollment = await _context.Enrollments
+                .Where(e => e.UserId == userId && e.CourseId == courseId)
+                .FirstOrDefaultAsync();
+            if (enrollment != null)
+            {
+                return (true, !enrollment.Approved);
+            }
+            return (false, false);
+        }
+
+        private async Task<double> GetCourseProgressAsync(string userId, string courseId)
+        {
+            var completedLessons = await _context.LessonCompletions
+                .Where(lc => lc.UserId == userId && lc.Lesson.Chapter.CourseId == courseId)
+                .CountAsync();
+            var totalLessons = await _context.Lessons
+                .Where(l => l.Chapter.CourseId == courseId)
+                .CountAsync();
+            return totalLessons > 0 ? (double)completedLessons / totalLessons * 100 : 0;
+        }
+
+        private async Task<Dictionary<int, double>> GetRatingPercentagesAsync(string courseId, int totalComments)
+        {
+            var ratingPercentages = new Dictionary<int, double>();
+            for (int i = 1; i <= 5; i++)
+            {
+                int count = await _context.Feedbacks
+                    .Where(f => f.CourseId == courseId && f.StarRating == i && f.HiddenStatus == false)
+                    .CountAsync();
+                ratingPercentages[i] = totalComments > 0 ? (double)count / totalComments : 0;
+            }
+            return ratingPercentages;
+        }
+
+        private async Task<string> GenerateNewEnrollmentIdAsync()
+        {
+            var maxEnrollmentId = await _context.Enrollments
+                .OrderByDescending(e => e.EnrollmentId)
+                .Select(e => e.EnrollmentId)
+                .FirstOrDefaultAsync();
+
+            int newIdNumber = 1;
+            if (!string.IsNullOrEmpty(maxEnrollmentId) && maxEnrollmentId.Length > 2)
+            {
+                newIdNumber = int.Parse(maxEnrollmentId.Substring(2)) + 1;
+            }
+
+            return "EN" + newIdNumber.ToString("D3");
+        }
     }
 }
