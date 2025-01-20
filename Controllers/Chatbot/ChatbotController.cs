@@ -2,8 +2,6 @@
 using BrainStormEra.Services;
 using BrainStormEra.Models;
 using BrainStormEra.ViewModels;
-using BrainStormEra.Repo.Course;
-using BrainStormEra.Repo.Chapter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,17 +14,11 @@ namespace BrainStormEra.Controllers
     {
         private readonly GeminiApiService _geminiApiService;
         private readonly SwpMainContext _context;
-        private readonly CourseRepo _courseRepo;
-        private readonly ChapterRepo _chapterRepo;
-        private readonly LessonRepo _lessonRepo;
 
-        public ChatbotController(GeminiApiService geminiApiService, SwpMainContext context, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
+        public ChatbotController(GeminiApiService geminiApiService, SwpMainContext context)
         {
             _geminiApiService = geminiApiService;
             _context = context;
-            _courseRepo = courseRepo;
-            _chapterRepo = chapterRepo;
-            _lessonRepo = lessonRepo;
         }
 
         [HttpPost]
@@ -63,17 +55,20 @@ namespace BrainStormEra.Controllers
                 var chapterID = HttpContext.Request.Cookies["ChapterId"];
                 if (userRole == 3)
                 {
-                    var course = await _courseRepo.GetCourseByIdAsync(courseId);
+                    var course = await _context.Courses
+                        .FirstOrDefaultAsync(c => c.CourseId == courseId);
                     if (course == null)
                     {
                         return BadRequest(new { error = "course not found" });
                     }
-                    var chapter = await _chapterRepo.GetChapterByIdAsync(chapterID);
+                    var chapter = await _context.Chapters
+                        .FirstOrDefaultAsync(c => c.ChapterId == chapterID);
                     if (chapter == null)
                     {
                         return BadRequest(new { error = "chapter not found" });
                     }
-                    var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
+                    var lesson = await _context.Lessons
+                        .FirstOrDefaultAsync(l => l.LessonId == lessonId);
                     reply = await _geminiApiService.GetResponseFromGemini(
                         chatbotConversation.ConversationContent,
                         userRole,

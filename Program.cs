@@ -43,23 +43,6 @@ namespace BrainStormEra
 
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<OtpService>();
-
-            // Register Repositories
-            builder.Services.AddScoped<AccountRepo>();
-            builder.Services.AddScoped<AchievementRepo>();
-            builder.Services.AddScoped<AdminRepo>();
-            builder.Services.AddScoped<InstructorRepo>();
-            builder.Services.AddScoped<LearnerRepo>();
-            builder.Services.AddScoped<GuestRepo>();
-            builder.Services.AddScoped<ChatbotRepo>();
-            builder.Services.AddScoped<ProfileRepo>();
-            builder.Services.AddScoped<FeedbackRepo>();
-            builder.Services.AddScoped<LessonRepo>();
-            builder.Services.AddScoped<CourseRepo>();
-            builder.Services.AddScoped<PointsRepo>();
-            builder.Services.AddScoped<ChapterRepo>();
-            builder.Services.AddScoped<NotificationRepo>();
-
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
             // Cookie Authentication Configuration
