@@ -1,20 +1,21 @@
 ﻿using BrainStormEra.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using BrainStormEra.Repo;
 
 namespace BrainStormEra.Controllers.Achievement
 {
     public class AchievementController : Controller
     {
-        private readonly AchievementRepo _achievementRepo;
+        private readonly SwpMainContext _context;
 
-        public AchievementController(AchievementRepo achievementRepo)
+        public AchievementController(SwpMainContext context)
         {
-            _achievementRepo = achievementRepo;
+            _context = context;
         }
 
         public async Task<IActionResult> LearnerAchievements()
@@ -26,10 +27,21 @@ namespace BrainStormEra.Controllers.Achievement
             }
 
             // Assign achievements based on completed courses
-            await _achievementRepo.AssignAchievementsBasedOnCompletedCourses();
+            await AssignAchievementsBasedOnCompletedCourses();
 
             // Retrieve the learner's achievements
-            var learnerAchievements = await _achievementRepo.GetLearnerAchievements(userId);
+            var learnerAchievements = await _context.UserAchievements
+                .Where(ua => ua.UserId == userId)
+                .Join(_context.Achievements, ua => ua.AchievementId, a => a.AchievementId, (ua, a) => new
+                {
+                    AchievementId = a.AchievementId,
+                    AchievementName = a.AchievementName,
+                    AchievementDescription = a.AchievementDescription,
+                    AchievementIcon = a.AchievementIcon,
+                    ReceivedDate = ua.ReceivedDate
+                })
+                .ToListAsync();
+
             ViewData["UserId"] = userId;
             ViewData["Achievements"] = learnerAchievements;
 
@@ -45,7 +57,17 @@ namespace BrainStormEra.Controllers.Achievement
                 return Json(new { success = false, message = "Invalid achievementId or userId" });
             }
 
-            var achievement = await _achievementRepo.GetAchievementDetails(achievementId, userId);
+            var achievement = await _context.UserAchievements
+                .Where(ua => ua.UserId == userId && ua.AchievementId == achievementId)
+                .Join(_context.Achievements, ua => ua.AchievementId, a => a.AchievementId, (ua, a) => new
+                {
+                    AchievementName = a.AchievementName,
+                    AchievementDescription = a.AchievementDescription,
+                    AchievementIcon = a.AchievementIcon,
+                    ReceivedDate = ua.ReceivedDate
+                })
+                .FirstOrDefaultAsync();
+
             if (achievement == null)
             {
                 return Json(new { success = false, message = "Achievement not found" });
@@ -69,7 +91,21 @@ namespace BrainStormEra.Controllers.Achievement
 
             if (userRole == "1") // Admin role
             {
-                var allAchievements = await _achievementRepo.GetAdminAchievements();
+                var allAchievements = await _context.Achievements
+                    .Select(a => new
+                    {
+                        AchievementId = a.AchievementId,
+                        AchievementName = a.AchievementName,
+                        AchievementDescription = a.AchievementDescription,
+                        AchievementIcon = a.AchievementIcon,
+                        AchievementCreatedAt = a.AchievementCreatedAt,
+                        UserName = _context.UserAchievements
+                            .Where(ua => ua.AchievementId == a.AchievementId)
+                            .Join(_context.Accounts, ua => ua.UserId, acc => acc.UserId, (ua, acc) => acc.FullName)
+                            .FirstOrDefault() ?? "null"
+                    })
+                    .ToListAsync();
+
                 ViewData["UserId"] = userId;
                 ViewData["Achievements"] = allAchievements;
 
@@ -79,20 +115,21 @@ namespace BrainStormEra.Controllers.Achievement
             return NotFound();
         }
 
-
-        [HttpPost]
-
         [HttpPost]
         public async Task<IActionResult> AddAchievement(string achievementName, string achievementDescription, IFormFile achievementIcon)
         {
             // Check if the achievement name already exists to prevent duplicates
-            if (await _achievementRepo.AchievementNameExists(achievementName))
+            if (await _context.Achievements.AnyAsync(a => a.AchievementName == achievementName))
             {
                 return Json(new { success = false, message = "Achievement name already exists. Please choose a different name." });
             }
 
             // Get the list of all current conditions from the repository
-            var allConditions = await _achievementRepo.GetAllConditions();
+            var allConditions = await _context.Achievements
+                .Where(a => int.TryParse(a.AchievementDescription, out _))
+                .Select(a => int.Parse(a.AchievementDescription))
+                .ToListAsync();
+
             int conditionValue;
 
             // Convert achievementDescription to a number for validation
@@ -119,85 +156,76 @@ namespace BrainStormEra.Controllers.Achievement
                 }
             }
 
-
             // Continue processing and add the achievement if all conditions are met
-            var iconPath = "/uploads/Achievement/default.png";
-            if (achievementIcon != null && achievementIcon.Length > 0)
-            {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "Achievement");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-                var fileName = Path.GetFileName(achievementIcon.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await achievementIcon.CopyToAsync(stream);
-                }
-                iconPath = $"/uploads/Achievement/{fileName}";
-            }
+            var iconPath = await SaveAchievementIcon(achievementIcon);
 
-            await _achievementRepo.AddAchievement(achievementName, conditionValue.ToString(), iconPath);
+            var newAchievement = new Achievement
+            {
+                AchievementId = GenerateAchievementId(),
+                AchievementName = achievementName,
+                AchievementDescription = conditionValue.ToString(),
+                AchievementIcon = iconPath,
+                AchievementCreatedAt = DateTime.Today
+            };
+
+            _context.Achievements.Add(newAchievement);
+            await _context.SaveChangesAsync();
+
             return Json(new { success = true });
         }
-
-
-
-
 
         [HttpGet]
         public async Task<IActionResult> CheckAchievementName(string achievementName, string achievementId = null)
         {
-            var nameExists = await _achievementRepo.AchievementNameExists(achievementName, achievementId);
+            var nameExists = await _context.Achievements
+                .AnyAsync(a => a.AchievementName == achievementName && a.AchievementId != achievementId);
             return Json(new { success = !nameExists });
         }
+
         [HttpGet]
         public async Task<IActionResult> GetMaxCondition()
         {
-            int maxCondition = await _achievementRepo.GetMaxCondition();
+            int maxCondition = await _context.Achievements
+                .Where(a => int.TryParse(a.AchievementDescription, out _))
+                .MaxAsync(a => int.Parse(a.AchievementDescription)) ?? 0;
             return Json(new { success = true, maxCondition });
         }
+
         [HttpPost]
         public async Task<IActionResult> EditAchievement(string achievementId, string achievementName, string achievementDescription, IFormFile achievementIcon, DateTime? achievementCreatedAt)
         {
             // Check if the achievement name already exists, excluding the current achievement's ID
-            if (await _achievementRepo.AchievementNameExists(achievementName, achievementId))
+            if (await _context.Achievements.AnyAsync(a => a.AchievementName == achievementName && a.AchievementId != achievementId))
             {
                 return Json(new { success = false, message = "Achievement name already exists. Please choose a different name." });
             }
 
             // Determine the icon path, or keep it unchanged if no new file is provided
             var iconPath = achievementIcon != null && achievementIcon.Length > 0
-                ? $"/uploads/Achievement/{Path.GetFileName(achievementIcon.FileName)}"
+                ? await SaveAchievementIcon(achievementIcon)
                 : null;
-
-            // If a new icon is provided, save it to the uploads folder
-            if (iconPath != null)
-            {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "Achievement");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-
-                var filePath = Path.Combine(uploadsFolder, Path.GetFileName(achievementIcon.FileName));
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await achievementIcon.CopyToAsync(stream);
-                }
-            }
 
             // Extract the numeric part from achievementDescription (without 'courses')
             var conditionNumber = achievementDescription.Replace(" courses", "").Trim();
 
-            // Call the repository to update the achievement details
-            var result = await _achievementRepo.EditAchievement(achievementId, achievementName, conditionNumber, iconPath, achievementCreatedAt);
+            var achievement = await _context.Achievements.FindAsync(achievementId);
+            if (achievement == null)
+            {
+                return Json(new { success = false, message = "Achievement not found" });
+            }
 
-            // Return the result of the operation as JSON
-            return Json(new { success = result });
+            achievement.AchievementName = achievementName;
+            achievement.AchievementDescription = conditionNumber;
+            if (iconPath != null)
+            {
+                achievement.AchievementIcon = iconPath;
+            }
+            achievement.AchievementCreatedAt = achievementCreatedAt ?? DateTime.Today;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
-
 
         private async Task<string> SaveAchievementIcon(IFormFile achievementIcon)
         {
@@ -221,33 +249,85 @@ namespace BrainStormEra.Controllers.Achievement
             return iconPath;
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> DeleteAchievement(string achievementId)
         {
-            var result = await _achievementRepo.DeleteAchievement(achievementId);
-            if (result)
+            var achievement = await _context.Achievements.FindAsync(achievementId);
+            if (achievement == null)
             {
-                return Json(new { success = true, message = "Achievement deleted successfully" });
+                return Json(new { success = false, message = "Achievement not found" });
             }
-            else
-            {
-                return Json(new { success = false, message = "Failed to delete achievement" });
-            }
-        }
 
+            _context.Achievements.Remove(achievement);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Achievement deleted successfully" });
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAchievement(string achievementId)
         {
-            var achievement = await _achievementRepo.GetAchievement(achievementId);
+            var achievement = await _context.Achievements.FindAsync(achievementId);
             if (achievement == null)
             {
                 return Json(new { success = false, message = "Achievement not found!" });
             }
 
             return Json(new { success = true, data = achievement });
+        }
+
+        private async Task AssignAchievementsBasedOnCompletedCourses()
+        {
+            // Get all achievements with condition (number of completed courses)
+            var achievements = await _context.Achievements
+                .Where(a => int.TryParse(a.AchievementDescription, out _))
+                .Select(a => new
+                {
+                    AchievementId = a.AchievementId,
+                    RequiredCourses = int.Parse(a.AchievementDescription)
+                })
+                .ToListAsync();
+
+            // Get count of completed courses (enrollment_status = 5) per user
+            var userCompletedCourses = await _context.Enrollments
+                .Where(e => e.EnrollmentStatus == 5)
+                .GroupBy(e => e.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    CompletedCourses = g.Count()
+                })
+                .ToDictionaryAsync(g => g.UserId, g => g.CompletedCourses);
+
+            // Insert achievements for each user based on completed courses
+            foreach (var user in userCompletedCourses)
+            {
+                foreach (var achievement in achievements)
+                {
+                    if (user.Value >= achievement.RequiredCourses)
+                    {
+                        if (!await _context.UserAchievements.AnyAsync(ua => ua.UserId == user.Key && ua.AchievementId == achievement.AchievementId))
+                        {
+                            var userAchievement = new UserAchievement
+                            {
+                                UserId = user.Key,
+                                AchievementId = achievement.AchievementId,
+                                ReceivedDate = DateTime.Today
+                            };
+
+                            _context.UserAchievements.Add(userAchievement);
+                        }
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private string GenerateAchievementId()
+        {
+            var maxId = _context.Achievements.Max(a => int.Parse(a.AchievementId.Substring(1))) + 1;
+            return "A" + maxId.ToString("D3");
         }
     }
 }
