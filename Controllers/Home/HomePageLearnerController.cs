@@ -2,27 +2,19 @@
 using BrainStormEra.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
 using BrainStormEra.Views.Home;
 using BrainStormEra.Views.Course;
-using BrainStormEra.Repositories;
-using BrainStormEra.Repo;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageLearnerController : Controller
     {
-        private readonly LearnerRepo _learnerRepo;
-        private readonly AccountRepo _accountRepo;
-        private readonly AchievementRepo _achievementRepo;
-        private readonly ILogger<HomePageInstructorController> _logger;
+        private readonly SwpMainContext _context;
+        private readonly ILogger<HomePageLearnerController> _logger;
 
-        public HomePageLearnerController(IConfiguration configuration, LearnerRepo learnerRepo, AchievementRepo achievementRepo, AccountRepo accountRepo, ILogger<HomePageInstructorController> logger)
+        public HomePageLearnerController(SwpMainContext context, ILogger<HomePageLearnerController> logger)
         {
-            string connectionString = configuration.GetConnectionString("SwpMainContext");
-            _learnerRepo = learnerRepo;
-            _accountRepo = accountRepo;
-            _achievementRepo = achievementRepo;
+            _context = context;
             _logger = logger;
         }
 
@@ -37,31 +29,67 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var user = await _learnerRepo.GetUserByIdAsync(userId);
+            var user = await _context.Accounts
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
             if (user == null)
             {
                 _logger.LogWarning($"User with ID {userId} not found.");
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var categories = _learnerRepo.GetTopCategories();
+            var categories = await _context.CourseCategories
+                .OrderBy(c => c.CourseCategoryName)
+                .Take(5)
+                .ToListAsync();
             ViewBag.Categories = categories;
 
-            var completedCoursesCount = await _learnerRepo.GetCompletedCoursesCountAsync(userId);
-            var totalCoursesEnrolled = await _learnerRepo.GetTotalCoursesEnrolledAsync(userId);
-            var userRank = await _accountRepo.GetUserRankAsync(userId);
-            var recommendedCourses = await _learnerRepo.GetRecommendedCoursesAsync(userId);
-            var notifications = await _learnerRepo.GetNotificationsAsync(userId);
-            var dynamicAchievements = await _achievementRepo.GetLearnerAchievements(userId);
-
-            var achievements = dynamicAchievements.Select(a => new Models.Achievement
-            {
-                AchievementId = a.AchievementId,
-                AchievementName = a.AchievementName,
-                AchievementDescription = a.AchievementDescription,
-                AchievementIcon = a.AchievementIcon,
-                AchievementCreatedAt = DateTime.Parse(a.ReceivedDate.ToString())
-            }).ToList();
+            var completedCoursesCount = await _context.Enrollments
+                .CountAsync(e => e.UserId == userId && e.EnrollmentStatus == 5);
+            var totalCoursesEnrolled = await _context.Enrollments
+                .CountAsync(e => e.UserId == userId);
+            var userRank = await _context.Accounts
+                .Where(a => a.UserId == userId)
+                .Select(a => a.PaymentPoint)
+                .FirstOrDefaultAsync();
+            var recommendedCourses = await _context.Courses
+                .Where(c => c.CourseStatus == 2)
+                .OrderByDescending(c => c.Enrollments.Count)
+                .Take(4)
+                .Select(c => new ManagementCourseViewModel
+                {
+                    CourseId = c.CourseId,
+                    CourseName = c.CourseName,
+                    CourseDescription = c.CourseDescription,
+                    CourseStatus = c.CourseStatus,
+                    CoursePicture = c.CoursePicture,
+                    Price = c.Price,
+                    CourseCreatedAt = c.CourseCreatedAt,
+                    CreatedBy = c.CreatedByNavigation.FullName,
+                    StarRating = c.Feedbacks.Average(f => f.StarRating) ?? 0,
+                    CourseCategories = c.CourseCategories.Select(cc => new CourseCategory
+                    {
+                        CourseCategoryName = cc.CourseCategoryName
+                    }).ToList()
+                })
+                .ToListAsync();
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.NotificationCreatedAt)
+                .ToListAsync();
+            var dynamicAchievements = await _context.UserAchievements
+                .Where(ua => ua.UserId == userId)
+                .OrderByDescending(ua => ua.ReceivedDate)
+                .Take(3)
+                .Select(ua => new Models.Achievement
+                {
+                    AchievementId = ua.AchievementId,
+                    AchievementName = ua.Achievement.AchievementName,
+                    AchievementDescription = ua.Achievement.AchievementDescription,
+                    AchievementIcon = ua.Achievement.AchievementIcon,
+                    AchievementCreatedAt = ua.ReceivedDate
+                })
+                .ToListAsync();
 
             ViewBag.FullName = user.FullName ?? "Learner";
             ViewBag.UserPicture = string.IsNullOrEmpty(user.UserPicture)
@@ -74,15 +102,13 @@ namespace BrainStormEra.Controllers
                 UserPicture = user.UserPicture,
                 CompletedCoursesCount = completedCoursesCount,
                 TotalCoursesEnrolled = totalCoursesEnrolled,
-                Achievements = achievements,
-                Ranking = int.TryParse(userRank, out var rank) ? rank : 0,
+                Achievements = dynamicAchievements,
+                Ranking = userRank ?? 0,
                 RecommendedCourses = recommendedCourses,
                 Notifications = notifications
             };
 
             return View("~/Views/Home/HomePageLearner.cshtml", viewModel);
         }
-
-
     }
 }
