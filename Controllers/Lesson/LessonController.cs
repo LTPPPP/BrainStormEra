@@ -1,30 +1,18 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repo;
-using BrainStormEra.Repo.Chapter;
-using BrainStormEra.Repo.Course;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 using System.Security.Claims;
 
 namespace BrainStormEra.Controllers.Lesson
 {
     public class LessonController : Controller
     {
-        private readonly string _connectionString;
         private readonly SwpMainContext _context;
-        private readonly LessonRepo _lessonRepo;
-        private readonly ChapterRepo _chapterRepo;
-        private readonly CourseRepo _courseRepo;
-        public LessonController(IConfiguration configuration, SwpMainContext context, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
+
+        public LessonController(SwpMainContext context)
         {
-            _connectionString = configuration.GetConnectionString("SwpMainContext");
             _context = context;
-            _courseRepo = courseRepo;
-            _chapterRepo = chapterRepo;
-            _lessonRepo = lessonRepo;
         }
 
         // GET: View Lessons
@@ -33,8 +21,14 @@ namespace BrainStormEra.Controllers.Lesson
         {
             if (Request.Cookies.TryGetValue("ChapterId", out string chapterId))
             {
-                List<Models.Lesson> lessons = await _lessonRepo.GetLessonsByChapterIdAsync(chapterId);
-                ViewBag.ChapterName = await _lessonRepo.GetChapterNameByIdAsync(chapterId);
+                List<Models.Lesson> lessons = await _context.Lessons
+                    .Where(l => l.ChapterId == chapterId)
+                    .ToListAsync();
+
+                ViewBag.ChapterName = await _context.Chapters
+                    .Where(c => c.ChapterId == chapterId)
+                    .Select(c => c.ChapterName)
+                    .FirstOrDefaultAsync();
 
                 return View("LessonManagement", lessons);
             }
@@ -53,19 +47,31 @@ namespace BrainStormEra.Controllers.Lesson
                 return RedirectToAction("LessonManagement");
             }
 
-            List<Models.Lesson> lessons = await _lessonRepo.GetLessonsByChapterIdAsync(chapterId);
-            ViewBag.MaxOrderLessonId = await _lessonRepo.GetMaxOrderLessonIdByChapterIdAsync(chapterId);
+            List<Models.Lesson> lessons = await _context.Lessons
+                .Where(l => l.ChapterId == chapterId)
+                .ToListAsync();
+
+            ViewBag.MaxOrderLessonId = await _context.Lessons
+                .Where(l => l.ChapterId == chapterId)
+                .OrderByDescending(l => l.LessonOrder)
+                .Select(l => l.LessonId)
+                .FirstOrDefaultAsync();
 
             return View(lessons);
         }
-
 
         // POST: Delete Lesson
         [HttpPost, ActionName("DeleteLesson")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLesson(List<string> LessonIds)
         {
-            await _lessonRepo.DeleteLessonsAsync(LessonIds);
+            var lessonsToDelete = await _context.Lessons
+                .Where(l => LessonIds.Contains(l.LessonId))
+                .ToListAsync();
+
+            _context.Lessons.RemoveRange(lessonsToDelete);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("DeleteLesson");
         }
 
@@ -75,10 +81,10 @@ namespace BrainStormEra.Controllers.Lesson
         {
             var lessonModel = new Models.Lesson
             {
-                LessonId = await _lessonRepo.GenerateNewLessonIdAsync()
+                LessonId = await GenerateNewLessonIdAsync()
             };
 
-            ViewBag.Chapters = new SelectList(await _lessonRepo.GetChaptersAsync(), "Value", "Text");
+            ViewBag.Chapters = new SelectList(await _context.Chapters.Select(c => new { c.ChapterId, c.ChapterName }).ToListAsync(), "ChapterId", "ChapterName");
             return View(lessonModel);
         }
 
@@ -136,14 +142,15 @@ namespace BrainStormEra.Controllers.Lesson
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Chapters = new SelectList(await _lessonRepo.GetChaptersAsync(), "Value", "Text");
+                ViewBag.Chapters = new SelectList(await _context.Chapters.Select(c => new { c.ChapterId, c.ChapterName }).ToListAsync(), "ChapterId", "ChapterName");
                 return View(model);
             }
 
-            model.LessonOrder = await _lessonRepo.GetNextLessonOrderAsync(model.ChapterId);
-            model.LessonId = await _lessonRepo.GenerateNewLessonIdAsync();
+            model.LessonOrder = await GetNextLessonOrderAsync(model.ChapterId);
+            model.LessonId = await GenerateNewLessonIdAsync();
 
-            await _lessonRepo.AddLessonAsync(model);
+            _context.Lessons.Add(model);
+            await _context.SaveChangesAsync();
             return RedirectToAction("LessonManagement");
         }
 
@@ -158,7 +165,7 @@ namespace BrainStormEra.Controllers.Lesson
                 return RedirectToAction("LessonManagement");
             }
 
-            var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
+            var lesson = await _context.Lessons.FindAsync(lessonId);
 
             if (lesson == null)
             {
@@ -191,7 +198,7 @@ namespace BrainStormEra.Controllers.Lesson
                 {
                     try
                     {
-                        model.LessonContent = await _lessonRepo.SaveLessonFileAsync(LessonContentFile);
+                        model.LessonContent = await SaveLessonFileAsync(LessonContentFile);
                     }
                     catch (InvalidOperationException ex)
                     {
@@ -205,7 +212,8 @@ namespace BrainStormEra.Controllers.Lesson
                 return View(model);
             }
 
-            await _lessonRepo.UpdateLessonAsync(model);
+            _context.Lessons.Update(model);
+            await _context.SaveChangesAsync();
             return RedirectToAction("LessonManagement");
         }
 
@@ -215,7 +223,7 @@ namespace BrainStormEra.Controllers.Lesson
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             string courseId = Request.Cookies["CourseId"];
-            var course = await _courseRepo.GetCourseByIdAsync(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
 
             if (string.IsNullOrEmpty(courseId) || string.IsNullOrEmpty(userId))
             {
@@ -224,7 +232,13 @@ namespace BrainStormEra.Controllers.Lesson
 
             if (string.IsNullOrEmpty(lessonId))
             {
-                var firstLesson = await _lessonRepo.GetFirstLessonInCourseAsync(courseId);
+                var firstLesson = await _context.Lessons
+                    .Include(l => l.Chapter)
+                    .Where(l => l.Chapter.CourseId == courseId)
+                    .OrderBy(l => l.Chapter.ChapterOrder)
+                    .ThenBy(l => l.LessonOrder)
+                    .FirstOrDefaultAsync();
+
                 lessonId = firstLesson?.LessonId;
 
                 if (!string.IsNullOrEmpty(lessonId))
@@ -233,9 +247,12 @@ namespace BrainStormEra.Controllers.Lesson
                 }
             }
 
-            var lesson = await _lessonRepo.GetLessonByIdAndCourseAsync(lessonId, courseId);
+            var lesson = await _context.Lessons
+                .Include(l => l.Chapter)
+                .ThenInclude(c => c.Course)
+                .FirstOrDefaultAsync(l => l.LessonId == lessonId && l.Chapter.CourseId == courseId);
 
-            var chapterId = await _lessonRepo.GetChapterIdByLessonIdAsync(lessonId);
+            var chapterId = lesson?.ChapterId;
 
             // Thêm cookie ChapterId
             if (!string.IsNullOrEmpty(chapterId))
@@ -243,15 +260,20 @@ namespace BrainStormEra.Controllers.Lesson
                 Response.Cookies.Append("ChapterId", chapterId, new CookieOptions { Path = "/" });
             }
 
-            var chapter = await _chapterRepo.GetChapterByIdAsync(chapterId);
+            var chapter = await _context.Chapters.FindAsync(chapterId);
 
             if (lesson == null)
             {
                 return NotFound();
             }
 
-            bool isCompleted = await _lessonRepo.IsLessonCompletedAsync(userId, lessonId);
-            var completedLessonIds = await _lessonRepo.GetCompletedLessonIdsAsync(userId, courseId);
+            bool isCompleted = await _context.LessonCompletions
+                .AnyAsync(lc => lc.UserId == userId && lc.LessonId == lessonId);
+
+            var completedLessonIds = await _context.LessonCompletions
+                .Where(lc => lc.UserId == userId && lc.Lesson.Chapter.CourseId == courseId)
+                .Select(lc => lc.LessonId)
+                .ToListAsync();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
@@ -259,14 +281,20 @@ namespace BrainStormEra.Controllers.Lesson
                 {
                     lessonName = lesson.LessonName,
                     lessonDescription = lesson.LessonDescription,
-                    lessonContent = _lessonRepo.FormatYoutubeUrl(lesson.LessonContent, lesson.LessonTypeId),
+                    lessonContent = FormatYoutubeUrl(lesson.LessonContent, lesson.LessonTypeId),
                     lessonTypeId = lesson.LessonTypeId,
                     isCompleted = isCompleted
                 });
             }
 
-            ViewBag.Lessons = _context.Lessons.Where(l => l.Chapter.CourseId == courseId).ToList();
-            ViewBag.Chapters = _context.Chapters.Where(c => c.CourseId == courseId).ToList();
+            ViewBag.Lessons = await _context.Lessons
+                .Where(l => l.Chapter.CourseId == courseId)
+                .ToListAsync();
+
+            ViewBag.Chapters = await _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .ToListAsync();
+
             ViewBag.CompletedLessons = completedLessonIds;
             ViewBag.IsCompleted = isCompleted;
 
@@ -276,7 +304,6 @@ namespace BrainStormEra.Controllers.Lesson
 
             return View(lesson);
         }
-
 
         // POST: Mark Lesson Completed
         [HttpPost]
@@ -289,20 +316,56 @@ namespace BrainStormEra.Controllers.Lesson
                 return Json(new { success = false, message = "User not logged in." });
             }
 
-            await _lessonRepo.MarkLessonCompletedAsync(userId, request.LessonId);
+            var completion = new LessonCompletion
+            {
+                CompletionId = await GenerateNewCompletionIdAsync(),
+                UserId = userId,
+                LessonId = request.LessonId,
+                CompletionDate = DateTime.Now
+            };
 
+            _context.LessonCompletions.Add(completion);
+            await _context.SaveChangesAsync();
 
-            string courseId = await _lessonRepo.GetCourseIdByLessonIdAsync(request.LessonId);
-            bool allLessonsCompleted = await _lessonRepo.AreAllLessonsCompletedAsync(userId, courseId);
+            string courseId = await _context.Lessons
+                .Where(l => l.LessonId == request.LessonId)
+                .Select(l => l.Chapter.CourseId)
+                .FirstOrDefaultAsync();
+
+            bool allLessonsCompleted = await _context.Lessons
+                .Where(l => l.Chapter.CourseId == courseId)
+                .AllAsync(l => _context.LessonCompletions.Any(lc => lc.UserId == userId && lc.LessonId == l.LessonId));
 
             if (allLessonsCompleted)
             {
+                var enrollment = await _context.Enrollments
+                    .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
 
-                await _lessonRepo.UpdateEnrollmentStatusAsync(userId, courseId, 5);
+                if (enrollment != null)
+                {
+                    enrollment.EnrollmentStatus = 5;
+                    enrollment.CertificateIssuedDate = DateTime.Now;
+
+                    var notification = new Notification
+                    {
+                        NotificationId = await GenerateNewNotificationIdAsync(),
+                        UserId = userId,
+                        CourseId = courseId,
+                        NotificationTitle = "Congratulations",
+                        NotificationContent = "Congratulations, you have received a new certificate!",
+                        NotificationType = "Info",
+                        NotificationCreatedAt = DateTime.Now,
+                        CreatedBy = userId
+                    };
+
+                    _context.Notifications.Add(notification);
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return Json(new { success = true });
         }
+
         private string FormatYoutubeUrl(string url, int lessonTypeId)
         {
             if (lessonTypeId == 1 && !string.IsNullOrEmpty(url))
@@ -317,6 +380,67 @@ namespace BrainStormEra.Controllers.Lesson
                 }
             }
             return url;
+        }
+
+        private async Task<string> GenerateNewLessonIdAsync()
+        {
+            int maxId = await _context.Lessons
+                .Where(l => l.LessonId.StartsWith("LE"))
+                .Select(l => int.Parse(l.LessonId.Substring(2)))
+                .DefaultIfEmpty(0)
+                .MaxAsync();
+
+            return "LE" + (maxId + 1).ToString("D3");
+        }
+
+        private async Task<string> GenerateNewCompletionIdAsync()
+        {
+            int maxId = await _context.LessonCompletions
+                .Where(lc => lc.CompletionId.StartsWith("LC"))
+                .Select(lc => int.Parse(lc.CompletionId.Substring(2)))
+                .DefaultIfEmpty(0)
+                .MaxAsync();
+
+            return "LC" + (maxId + 1).ToString("D3");
+        }
+
+        private async Task<string> GenerateNewNotificationIdAsync()
+        {
+            int maxId = await _context.Notifications
+                .Where(n => n.NotificationId.StartsWith("N"))
+                .Select(n => int.Parse(n.NotificationId.Substring(1)))
+                .DefaultIfEmpty(0)
+                .MaxAsync();
+
+            return "N" + (maxId + 1).ToString("D3");
+        }
+
+        private async Task<int> GetNextLessonOrderAsync(string chapterId)
+        {
+            int lessonOrder = await _context.Lessons
+                .Where(l => l.ChapterId == chapterId)
+                .Select(l => l.LessonOrder)
+                .DefaultIfEmpty(0)
+                .MaxAsync();
+
+            return lessonOrder + 1;
+        }
+
+        private async Task<string> SaveLessonFileAsync(IFormFile file)
+        {
+            var allowedExtensions = new[] { ".doc", ".docx", ".pdf" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException("Only .doc, .docx, and .pdf files are allowed.");
+            }
+
+            var filePath = Path.Combine("wwwroot/uploads/lessons", file.FileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return "/uploads/lessons/" + file.FileName;
         }
 
         public class LessonCompletionRequest

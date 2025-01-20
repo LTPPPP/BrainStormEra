@@ -1,27 +1,30 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repo;
 using BrainStormEra.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace BrainStormEra.Controllers.Account
 {
     public class ProfileController : Controller
     {
-        private readonly AccountRepo _accountRepo;
+        private readonly SwpMainContext _context;
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<ProfileController> _logger;
 
-
-        public ProfileController(AccountRepo accountRepo, IConfiguration configuration, EmailService emailService, IMemoryCache cache, ILogger<ProfileController> logger)
+        public ProfileController(SwpMainContext context, IConfiguration configuration, EmailService emailService, IMemoryCache cache, ILogger<ProfileController> logger)
         {
-            _accountRepo = accountRepo;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _configuration = configuration;
             _emailService = emailService;
             _cache = cache;
@@ -49,7 +52,10 @@ namespace BrainStormEra.Controllers.Account
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+            var account = await _context.Accounts
+                .Where(a => a.UserId == userId)
+                .FirstOrDefaultAsync();
+
             if (account == null)
             {
                 return NotFound();
@@ -68,7 +74,10 @@ namespace BrainStormEra.Controllers.Account
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+            var account = await _context.Accounts
+                .Where(a => a.UserId == userId)
+                .FirstOrDefaultAsync();
+
             if (account == null)
             {
                 return NotFound();
@@ -102,13 +111,21 @@ namespace BrainStormEra.Controllers.Account
 
             if (ModelState.IsValid || avatar == null)
             {
-                var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+                var account = await _context.Accounts
+                    .Where(a => a.UserId == userId)
+                    .FirstOrDefaultAsync();
+
                 if (account == null)
                 {
                     return NotFound();
                 }
 
-                await _accountRepo.UpdateAccountAsync(userId, model.FullName, model.UserEmail, model.PhoneNumber, model.Gender, model.UserAddress, model.DateOfBirth);
+                account.FullName = model.FullName;
+                account.UserEmail = model.UserEmail;
+                account.PhoneNumber = model.PhoneNumber;
+                account.Gender = model.Gender;
+                account.UserAddress = model.UserAddress;
+                account.DateOfBirth = model.DateOfBirth;
 
                 if (avatar != null)
                 {
@@ -125,10 +142,23 @@ namespace BrainStormEra.Controllers.Account
                         return View(model);
                     }
 
-                    var fileName = await _accountRepo.SaveAvatarAsync(userId, avatar);
-                    await _accountRepo.UpdateUserPictureAsync(userId, fileName);
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "User-img");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var fileName = Path.GetFileName(avatar.FileName);
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await avatar.CopyToAsync(stream);
+                    }
+
+                    account.UserPicture = $"/uploads/User-img/{fileName}";
                 }
 
+                await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
@@ -143,7 +173,10 @@ namespace BrainStormEra.Controllers.Account
 
             if (!string.IsNullOrEmpty(userIdCookie) && int.TryParse(userRoleCookie, out var userRole))
             {
-                var userRoleFromDb = await _accountRepo.GetUserRoleByUserIdAsync(userIdCookie);
+                var userRoleFromDb = await _context.Accounts
+                    .Where(a => a.UserId == userIdCookie)
+                    .Select(a => a.UserRole)
+                    .FirstOrDefaultAsync();
 
                 switch (userRoleFromDb)
                 {
@@ -164,7 +197,9 @@ namespace BrainStormEra.Controllers.Account
         public async Task<IActionResult> ConfirmPayment(IFormFile paymentImage, int paymentAmount)
         {
             var userId = Request.Cookies["user_id"];
-            var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+            var account = await _context.Accounts
+                .Where(a => a.UserId == userId)
+                .FirstOrDefaultAsync();
 
             if (account == null || paymentImage == null || paymentImage.Length == 0)
             {
@@ -196,7 +231,11 @@ namespace BrainStormEra.Controllers.Account
             }
 
             // Retrieve admin emails and special emails
-            var adminEmails = await _accountRepo.GetAdminEmailsAsync();
+            var adminEmails = await _context.Accounts
+                .Where(a => a.UserRole == 1)
+                .Select(a => a.UserEmail)
+                .ToListAsync();
+
             var specialEmails = _configuration.GetSection("SpecialEmails").Get<List<string>>() ?? new List<string>();
 
             // Combine admin emails and special emails
@@ -234,14 +273,17 @@ namespace BrainStormEra.Controllers.Account
 
             try
             {
-                var account = await _accountRepo.GetAccountByUserIdAsync(userId);
+                var account = await _context.Accounts
+                    .Where(a => a.UserId == userId)
+                    .FirstOrDefaultAsync();
+
                 if (account == null)
                 {
                     TempData["ErrorMessage"] = "User not found.";
                     return RedirectToAction("Index");
                 }
 
-                var oldPasswordHash = _accountRepo.GetMd5Hash(oldPassword);
+                var oldPasswordHash = GetMd5Hash(oldPassword);
 
                 if (account.Password != oldPasswordHash)
                 {
@@ -249,7 +291,9 @@ namespace BrainStormEra.Controllers.Account
                     return RedirectToAction("Index");
                 }
 
-                await _accountRepo.UpdatePasswordAsync(userId, _accountRepo.GetMd5Hash(newPassword));
+                account.Password = GetMd5Hash(newPassword);
+                await _context.SaveChangesAsync();
+
                 TempData["SuccessMessage"] = "Password has been reset successfully.";
             }
             catch (Exception ex)
@@ -261,5 +305,16 @@ namespace BrainStormEra.Controllers.Account
             return RedirectToAction("Index");
         }
 
+        private string GetMd5Hash(string input)
+        {
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+                sb.Append(b.ToString("X2"));
+            return sb.ToString();
+        }
     }
 }

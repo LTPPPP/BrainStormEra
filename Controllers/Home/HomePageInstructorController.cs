@@ -1,20 +1,21 @@
 ﻿using BrainStormEra.Models;
-using BrainStormEra.Repositories;
 using BrainStormEra.Views.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageInstructorController : Controller
     {
-        private readonly InstructorRepo _repository;
+        private readonly SwpMainContext _context;
         private readonly ILogger<HomePageInstructorController> _logger;
 
-        public HomePageInstructorController(IConfiguration configuration, InstructorRepo repository, ILogger<HomePageInstructorController> logger)
+        public HomePageInstructorController(SwpMainContext context, ILogger<HomePageInstructorController> logger)
         {
-            string connectionString = configuration.GetConnectionString("SwpMainContext");
-            _repository = repository;
+            _context = context;
             _logger = logger;
         }
 
@@ -28,15 +29,42 @@ namespace BrainStormEra.Controllers
                 return RedirectToAction("LoginPage", "Login");
             }
 
-            var (fullName, userPicture) = await _repository.GetUserDetailsAsync(userId);
+            var userDetails = await _context.Accounts
+                .Where(a => a.UserId == userId)
+                .Select(a => new { a.FullName, a.UserPicture })
+                .FirstOrDefaultAsync();
 
-            ViewBag.FullName = fullName;
-            ViewBag.UserPicture = userPicture;
+            ViewBag.FullName = userDetails?.FullName ?? "Guest";
+            ViewBag.UserPicture = userDetails?.UserPicture ?? "~/lib/img/User-img/default_user.png";
 
-            var categories = _repository.GetTopCategories();
-            var recommendedCourses = _repository.GetRecommendedCourses();
+            var categories = await _context.CourseCategories
+                .OrderBy(c => c.CourseCategoryName)
+                .Take(5)
+                .ToListAsync();
 
             ViewBag.Categories = categories;
+
+            var recommendedCourses = await _context.Courses
+                .Where(c => c.CourseStatus == 2)
+                .OrderByDescending(c => c.Enrollments.Count())
+                .Take(4)
+                .Select(c => new ManagementCourseViewModel
+                {
+                    CourseId = c.CourseId,
+                    CourseName = c.CourseName,
+                    CourseDescription = c.CourseDescription,
+                    CourseStatus = c.CourseStatus,
+                    CoursePicture = c.CoursePicture,
+                    Price = c.Price,
+                    CourseCreatedAt = c.CourseCreatedAt,
+                    CreatedBy = c.CreatedByNavigation.FullName,
+                    StarRating = c.Feedbacks.Any() ? (byte?)c.Feedbacks.Average(f => f.StarRating) : (byte?)0,
+                    CourseCategories = c.CourseCategories.Select(cc => new CourseCategory
+                    {
+                        CourseCategoryName = cc.CourseCategoryName
+                    }).ToList()
+                })
+                .ToListAsync();
 
             var viewModel = new HomePageInstructorViewModel
             {
@@ -45,6 +73,5 @@ namespace BrainStormEra.Controllers
 
             return View("~/Views/Home/HomePageInstructor.cshtml", viewModel);
         }
-
     }
 }

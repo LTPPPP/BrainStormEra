@@ -1,34 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BrainStormEra.Services;
 using BrainStormEra.Models;
-using BrainStormEra.Repo.Chatbot;
 using BrainStormEra.ViewModels;
-using BrainStormEra.Repo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BrainStormEra.Repo.Course;
-using BrainStormEra.Repo.Chapter;
-using OpenQA.Selenium.DevTools.V127.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra.Controllers
 {
     public class ChatbotController : Controller
     {
         private readonly GeminiApiService _geminiApiService;
-        private readonly ChatbotRepo _chatbotRepo;
-        private readonly CourseRepo _courseRepo;
-        private readonly ChapterRepo _chapterRepo;
-        private readonly LessonRepo _lessonRepo;
+        private readonly SwpMainContext _context;
 
-        public ChatbotController(GeminiApiService geminiApiService, ChatbotRepo chatbotRepo, CourseRepo courseRepo, ChapterRepo chapterRepo, LessonRepo lessonRepo)
+        public ChatbotController(GeminiApiService geminiApiService, SwpMainContext context)
         {
             _geminiApiService = geminiApiService;
-            _chatbotRepo = chatbotRepo;
-            _courseRepo = courseRepo;
-            _chapterRepo = chapterRepo;
-            _lessonRepo = lessonRepo;
+            _context = context;
         }
 
         [HttpPost]
@@ -47,11 +37,17 @@ namespace BrainStormEra.Controllers
                 }
 
                 // Lấy ConversationId lớn nhất và tăng thêm 1
-                var maxConversationId = await _chatbotRepo.GetMaxConversationIdAsync();
-                chatbotConversation.ConversationId = (maxConversationId + 1).ToString();
+                var maxConversationId = await _context.ChatbotConversations
+                    .Select(c => c.ConversationId)
+                    .OrderByDescending(c => c)
+                    .FirstOrDefaultAsync();
+
+                int maxId = int.TryParse(maxConversationId, out maxId) ? maxId : 0;
+                chatbotConversation.ConversationId = (maxId + 1).ToString();
                 chatbotConversation.ConversationTime = DateTime.Now;
 
-                await _chatbotRepo.AddConversationAsync(chatbotConversation);
+                _context.ChatbotConversations.Add(chatbotConversation);
+                await _context.SaveChangesAsync();
 
                 string reply;
                 var courseId = HttpContext.Request.Cookies["CourseId"];
@@ -59,17 +55,20 @@ namespace BrainStormEra.Controllers
                 var chapterID = HttpContext.Request.Cookies["ChapterId"];
                 if (userRole == 3)
                 {
-                    var course = await _courseRepo.GetCourseByIdAsync(courseId);
+                    var course = await _context.Courses
+                        .FirstOrDefaultAsync(c => c.CourseId == courseId);
                     if (course == null)
                     {
                         return BadRequest(new { error = "course not found" });
                     }
-                    var chapter = await _chapterRepo.GetChapterByIdAsync(chapterID);
+                    var chapter = await _context.Chapters
+                        .FirstOrDefaultAsync(c => c.ChapterId == chapterID);
                     if (chapter == null)
                     {
                         return BadRequest(new { error = "chapter not found" });
                     }
-                    var lesson = await _lessonRepo.GetLessonByIdAsync(lessonId);
+                    var lesson = await _context.Lessons
+                        .FirstOrDefaultAsync(l => l.LessonId == lessonId);
                     reply = await _geminiApiService.GetResponseFromGemini(
                         chatbotConversation.ConversationContent,
                         userRole,
@@ -99,11 +98,12 @@ namespace BrainStormEra.Controllers
                 var botConversation = new ChatbotConversation
                 {
                     UserId = chatbotConversation.UserId,
-                    ConversationId = (maxConversationId + 2).ToString(), // Conversation của bot sẽ là max + 2
+                    ConversationId = (maxId + 2).ToString(), // Conversation của bot sẽ là max + 2
                     ConversationTime = DateTime.Now,
                     ConversationContent = reply
                 };
-                await _chatbotRepo.AddConversationAsync(botConversation);
+                _context.ChatbotConversations.Add(botConversation);
+                await _context.SaveChangesAsync();
 
                 return Json(new { reply });
             }
@@ -113,13 +113,21 @@ namespace BrainStormEra.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetConversationStatistics()
         {
             try
             {
-                var conversationData = await _chatbotRepo.GetConversationStatisticsAsync();
+                var conversationData = await _context.ChatbotConversations
+                    .GroupBy(c => c.ConversationTime.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key,
+                        Count = g.Count()
+                    })
+                    .OrderBy(d => d.Date)
+                    .ToListAsync();
+
                 var formattedData = conversationData.Select(d => new
                 {
                     Date = d.Date.ToString("yyyy-MM-dd"),
@@ -139,7 +147,11 @@ namespace BrainStormEra.Controllers
             try
             {
                 int pageSize = 1; // Mỗi trang hiển thị hội thoại của 1 ngày
-                var conversationDates = await _chatbotRepo.GetDistinctConversationDatesAsync();
+                var conversationDates = await _context.ChatbotConversations
+                    .Select(c => c.ConversationTime.Date)
+                    .Distinct()
+                    .OrderByDescending(d => d)
+                    .ToListAsync();
 
                 var totalPages = conversationDates.Count;
                 if (page > totalPages || page < 1)
@@ -148,7 +160,11 @@ namespace BrainStormEra.Controllers
                 }
 
                 var selectedDate = conversationDates[page - 1]; // Lấy ngày tương ứng với trang hiện tại
-                var conversations = await _chatbotRepo.GetConversationsByDateAsync(selectedDate);
+                var conversations = await _context.ChatbotConversations
+                    .Where(c => c.ConversationTime.Date == selectedDate)
+                    .Include(c => c.User)
+                    .OrderByDescending(c => c.ConversationTime)
+                    .ToListAsync();
 
                 var conversationViewModels = conversations.Select(c => new ConversationViewModel
                 {
@@ -158,7 +174,7 @@ namespace BrainStormEra.Controllers
                     ConversationContent = c.ConversationContent
                 }).ToList();
 
-                var totalConversations = await _chatbotRepo.GetTotalConversationCountAsync();
+                var totalConversations = await _context.ChatbotConversations.CountAsync();
 
                 var viewModel = new ConversationHistoryViewModel
                 {
@@ -183,8 +199,6 @@ namespace BrainStormEra.Controllers
             }
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> DeleteConversations([FromBody] List<string> conversationIds)
         {
@@ -195,7 +209,13 @@ namespace BrainStormEra.Controllers
 
             try
             {
-                await _chatbotRepo.DeleteConversationsByIdsAsync(conversationIds);
+                var conversationsToDelete = await _context.ChatbotConversations
+                    .Where(c => conversationIds.Contains(c.ConversationId))
+                    .ToListAsync();
+
+                _context.ChatbotConversations.RemoveRange(conversationsToDelete);
+                await _context.SaveChangesAsync();
+
                 return Ok(new { success = "Selected conversations deleted successfully" });
             }
             catch (Exception ex)
@@ -209,7 +229,8 @@ namespace BrainStormEra.Controllers
         {
             try
             {
-                await _chatbotRepo.DeleteAllConversationsAsync();
+                _context.ChatbotConversations.RemoveRange(_context.ChatbotConversations);
+                await _context.SaveChangesAsync();
                 return Ok(new { success = "All conversations deleted successfully" });
             }
             catch (Exception ex)
@@ -232,5 +253,4 @@ namespace BrainStormEra.Controllers
         public DateTime Date { get; set; }
         public List<ConversationViewModel> Conversations { get; set; }
     }
-
 }

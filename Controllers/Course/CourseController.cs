@@ -836,7 +836,6 @@ namespace BrainStormEra.Controllers.Course
 
             if (user.PaymentPoint >= course.Price)
             {
-                // Sử dụng GenerateNewEnrollmentIdAsync từ CourseRepo để tạo EnrollmentId mới
                 string newEnrollmentId = await GenerateNewEnrollmentIdAsync();
 
                 // Ghi danh người dùng vào khóa học

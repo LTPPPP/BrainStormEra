@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading.Tasks;
-using BrainStormEra.Repo;
-using BrainStormEra.Repo.Admin;
+using BrainStormEra.Models;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrainStormEra.Controllers
 {
     public class HomePageAdminController : Controller
     {
-        private readonly AdminRepo _adminRepo;
+        private readonly SwpMainContext _context;
 
-        public HomePageAdminController(AdminRepo adminRepo)
+        public HomePageAdminController(SwpMainContext context)
         {
-            _adminRepo = adminRepo;
+            _context = context;
         }
 
         [HttpGet]
@@ -23,9 +24,25 @@ namespace BrainStormEra.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId != null)
                 {
-                    var (fullName, userPicture) = await _adminRepo.GetUserDetailsAsync(userId);
-                    ViewBag.FullName = fullName;
-                    ViewBag.UserPicture = userPicture;
+                    var user = await _context.Accounts
+                        .Where(a => a.UserId == userId)
+                        .Select(a => new
+                        {
+                            a.FullName,
+                            UserPicture = a.UserPicture ?? "~/lib/img/User-img/default_user.png"
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (user != null)
+                    {
+                        ViewBag.FullName = user.FullName;
+                        ViewBag.UserPicture = user.UserPicture;
+                    }
+                    else
+                    {
+                        ViewBag.FullName = "Guest";
+                        ViewBag.UserPicture = "~/lib/img/User-img/default_user.png";
+                    }
 
                     return View("~/Views/Home/HomePageAdmin.cshtml");
                 }
@@ -38,7 +55,15 @@ namespace BrainStormEra.Controllers
         {
             try
             {
-                var userStatistics = await _adminRepo.GetUserStatisticsAsync();
+                var userStatistics = await _context.Accounts
+                    .GroupBy(a => a.AccountCreatedAt.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key.ToString("yyyy-MM-dd"),
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
                 return Json(userStatistics);
             }
             catch
@@ -52,7 +77,15 @@ namespace BrainStormEra.Controllers
         {
             try
             {
-                var conversationStatistics = await _adminRepo.GetConversationStatisticsAsync();
+                var conversationStatistics = await _context.ChatbotConversations
+                    .GroupBy(c => c.ConversationTime.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key.ToString("yyyy-MM-dd"),
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
                 return Json(conversationStatistics);
             }
             catch
@@ -66,8 +99,35 @@ namespace BrainStormEra.Controllers
         {
             try
             {
-                var courseStatistics = await _adminRepo.GetCourseCreationStatisticsAsync();
-                return Json(courseStatistics);
+                var courseCount = await _context.Courses.CountAsync();
+                if (courseCount == 0)
+                {
+                    return Json(new { success = false, message = "No courses found", data = new List<object>() });
+                }
+
+                var courseStatistics = await _context.Courses
+                    .Where(c => c.CourseCreatedAt <= DateTime.Now)
+                    .GroupBy(c => c.CourseCreatedAt.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key.ToString("yyyy-MM-dd"),
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
+                var result = new
+                {
+                    success = true,
+                    data = courseStatistics,
+                    totalCourses = courseStatistics.Count,
+                    dateRange = new
+                    {
+                        start = courseStatistics.Count > 0 ? courseStatistics[0].Date : "N/A",
+                        end = DateTime.Now.ToString("yyyy-MM-dd")
+                    }
+                };
+
+                return Json(result);
             }
             catch
             {
