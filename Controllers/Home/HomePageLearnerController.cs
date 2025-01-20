@@ -56,17 +56,17 @@ namespace BrainStormEra.Controllers
                 .Where(c => c.CourseStatus == 2)
                 .OrderByDescending(c => c.Enrollments.Count)
                 .Take(4)
-                .Select(c => new ManagementCourseViewModel
+                .Select(c => new BrainStormEra.Views.Course.ManagementCourseViewModel
                 {
                     CourseId = c.CourseId,
                     CourseName = c.CourseName,
                     CourseDescription = c.CourseDescription,
-                    CourseStatus = c.CourseStatus,
+                    CourseStatus = (int)c.CourseStatus,
                     CoursePicture = c.CoursePicture,
                     Price = c.Price,
                     CourseCreatedAt = c.CourseCreatedAt,
                     CreatedBy = c.CreatedByNavigation.FullName,
-                    StarRating = c.Feedbacks.Average(f => f.StarRating) ?? 0,
+                    StarRating = (byte?)(c.Feedbacks.Average(f => f.StarRating) ?? 0),
                     CourseCategories = c.CourseCategories.Select(cc => new CourseCategory
                     {
                         CourseCategoryName = cc.CourseCategoryName
@@ -87,7 +87,7 @@ namespace BrainStormEra.Controllers
                     AchievementName = ua.Achievement.AchievementName,
                     AchievementDescription = ua.Achievement.AchievementDescription,
                     AchievementIcon = ua.Achievement.AchievementIcon,
-                    AchievementCreatedAt = ua.ReceivedDate
+                    AchievementCreatedAt = ua.ReceivedDate.ToDateTime(TimeOnly.MinValue)
                 })
                 .ToListAsync();
 
@@ -103,7 +103,7 @@ namespace BrainStormEra.Controllers
                 CompletedCoursesCount = completedCoursesCount,
                 TotalCoursesEnrolled = totalCoursesEnrolled,
                 Achievements = dynamicAchievements,
-                Ranking = userRank ?? 0,
+                Ranking = (int)(userRank ?? 0),
                 RecommendedCourses = recommendedCourses,
                 Notifications = notifications
             };

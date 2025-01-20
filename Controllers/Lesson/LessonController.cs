@@ -344,7 +344,7 @@ namespace BrainStormEra.Controllers.Lesson
                 if (enrollment != null)
                 {
                     enrollment.EnrollmentStatus = 5;
-                    enrollment.CertificateIssuedDate = DateTime.Now;
+                    enrollment.CertificateIssuedDate = DateOnly.FromDateTime(DateTime.Now);
 
                     var notification = new Notification
                     {

@@ -38,7 +38,7 @@ namespace BrainStormEra.Controllers.Profile
                         PhoneNumber = a.PhoneNumber,
                         UserAddress = a.UserAddress,
                         AccountCreatedAt = a.AccountCreatedAt,
-                        Approved = _context.Enrollments.Any(e => e.UserId == a.UserId && e.Approved) ? 1 : 0
+                        Approved = _context.Enrollments.Any(e => e.UserId == a.UserId && e.Approved.GetValueOrDefault()) ? 1 : 0
                     })
                     .ToListAsync();
 
@@ -78,7 +78,7 @@ namespace BrainStormEra.Controllers.Profile
                         PhoneNumber = e.User.PhoneNumber,
                         UserAddress = e.User.UserAddress,
                         AccountCreatedAt = e.User.AccountCreatedAt,
-                        Approved = e.Approved ? 1 : 0
+                        Approved = e.Approved.GetValueOrDefault() ? 1 : 0
                     })
                     .ToListAsync();
 
@@ -105,7 +105,7 @@ namespace BrainStormEra.Controllers.Profile
                     PhoneNumber = a.PhoneNumber,
                     UserAddress = a.UserAddress,
                     AccountCreatedAt = a.AccountCreatedAt,
-                    Approved = _context.Enrollments.Any(e => e.UserId == a.UserId && e.Approved) ? 1 : 0
+                    Approved = _context.Enrollments.Any(e => e.UserId == a.UserId && e.Approved.GetValueOrDefault()) ? 1 : 0
                 })
                 .FirstOrDefaultAsync();
 

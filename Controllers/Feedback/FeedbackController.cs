@@ -40,7 +40,7 @@ namespace BrainStormEra.Controllers
                 }
             }
 
-            if (await _context.Feedbacks.AnyAsync(f => f.CourseId == model.CourseId && f.UserId == userId && !f.HiddenStatus))
+            if (await _context.Feedbacks.AnyAsync(f => f.CourseId == model.CourseId && f.UserId == userId && (f.HiddenStatus == false || f.HiddenStatus == null)))
             {
                 return Json(new { success = false, message = "You have already submitted feedback for this course." });
             }

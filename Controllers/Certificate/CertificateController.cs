@@ -28,11 +28,11 @@ namespace BrainStormEra.Controllers.Certificate
                       {
                           CourseId = c.CourseId,
                           CourseName = c.CourseName,
-                          CompletedDate = e.CertificateIssuedDate.Value
+                          CompletedDate = e.CertificateIssuedDate.HasValue ? e.CertificateIssuedDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue
                       })
                 .ToListAsync();
 
-            bool hasCompletedCourses = completedCourses != null && completedCourses.Count > 0;
+            bool hasCompletedCourses = completedCourses != null && completedCourses.Count() > 0;
 
             if (!hasCompletedCourses)
             {
@@ -42,6 +42,7 @@ namespace BrainStormEra.Controllers.Certificate
             ViewData["UserId"] = userId; // Pass user_id through ViewData
             return View(completedCourses); // Pass completed courses to view
         }
+
 
         public async Task<IActionResult> CertificateDetails(string courseId)
         {
@@ -66,7 +67,7 @@ namespace BrainStormEra.Controllers.Certificate
                           UserName = a.FullName,
                           CourseName = ec.Course.CourseName,
                           CourseDescription = ec.Course.CourseDescription,
-                          CompletedDate = ec.Enrollment.CertificateIssuedDate.Value,
+                          CompletedDate = ec.Enrollment.CertificateIssuedDate.HasValue ? ec.Enrollment.CertificateIssuedDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                           StartedDate = ec.Enrollment.EnrollmentCreatedAt
                       })
                 .FirstOrDefaultAsync();
@@ -89,42 +90,5 @@ namespace BrainStormEra.Controllers.Certificate
             return View(certificate); // Pass the certificate details to the view
         }
 
-        [HttpGet]
-        public async Task<IActionResult> CertificateDetails(string userId, string courseId)
-        {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(courseId))
-            {
-                return BadRequest("User ID or Course ID is missing.");
-            }
-
-            var certificate = await _context.Enrollments
-                .Where(e => e.UserId == userId && e.CourseId == courseId && e.EnrollmentStatus == 5)
-                .Join(_context.Courses,
-                      e => e.CourseId,
-                      c => c.CourseId,
-                      (e, c) => new { Enrollment = e, Course = c })
-                .Join(_context.Accounts,
-                      ec => ec.Enrollment.UserId,
-                      a => a.UserId,
-                      (ec, a) => new
-                      {
-                          UserName = a.FullName,
-                          CourseName = ec.Course.CourseName,
-                          CompletedDate = ec.Enrollment.CertificateIssuedDate.Value
-                      })
-                .FirstOrDefaultAsync();
-
-            if (certificate == null)
-            {
-                return NotFound("Certificate not found for this course.");
-            }
-
-            return Json(new
-            {
-                userName = certificate.UserName,
-                courseName = certificate.CourseName,
-                completedDate = certificate.CompletedDate.ToString("yyyy-MM-dd")
-            });
-        }
     }
 }

@@ -48,12 +48,12 @@ namespace BrainStormEra.Controllers
                 .Where(c => c.CourseStatus == 2)
                 .OrderByDescending(c => c.Enrollments.Count())
                 .Take(4)
-                .Select(c => new ManagementCourseViewModel
+                .Select(c => new BrainStormEra.Views.Course.ManagementCourseViewModel
                 {
                     CourseId = c.CourseId,
                     CourseName = c.CourseName,
                     CourseDescription = c.CourseDescription,
-                    CourseStatus = c.CourseStatus,
+                    CourseStatus = (int)c.CourseStatus,
                     CoursePicture = c.CoursePicture,
                     Price = c.Price,
                     CourseCreatedAt = c.CourseCreatedAt,

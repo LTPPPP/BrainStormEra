@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BrainStormEra.Controllers.Achievement
 {
@@ -126,23 +127,31 @@ namespace BrainStormEra.Controllers.Achievement
 
             // Get the list of all current conditions from the repository
             var allConditions = await _context.Achievements
-                .Where(a => int.TryParse(a.AchievementDescription, out _))
-                .Select(a => int.Parse(a.AchievementDescription))
+                .Select(a => a.AchievementDescription)
                 .ToListAsync();
 
-            int conditionValue;
+            // Modified parsing logic to avoid using out parameter in LINQ
+            var parsedConditions = allConditions
+                .Select(desc =>
+                {
+                    int value;
+                    return int.TryParse(desc, out value) ? value : (int?)null;
+                })
+                .Where(value => value.HasValue)
+                .Select(value => value.Value)
+                .ToList();
 
             // Convert achievementDescription to a number for validation
-            if (!int.TryParse(achievementDescription, out conditionValue))
+            if (!int.TryParse(achievementDescription, out int conditionValue))
             {
                 return Json(new { success = false, message = "Condition must be a valid number." });
             }
 
             // Ensure the condition is unique and greater than the maximum existing condition
-            if (allConditions.Any())
+            if (parsedConditions.Any())
             {
-                int maxCondition = allConditions.Max();
-                if (allConditions.Contains(conditionValue) || conditionValue <= maxCondition)
+                int maxCondition = parsedConditions.Max();
+                if (parsedConditions.Contains(conditionValue) || conditionValue <= maxCondition)
                 {
                     return Json(new { success = false, message = $"Condition must be unique and greater than the current max condition of {maxCondition} courses." });
                 }
@@ -150,7 +159,7 @@ namespace BrainStormEra.Controllers.Achievement
             else
             {
                 // Handle case when there are no existing conditions
-                if (allConditions.Contains(conditionValue))
+                if (parsedConditions.Contains(conditionValue))
                 {
                     return Json(new { success = false, message = "Condition must be unique." });
                 }
@@ -159,7 +168,7 @@ namespace BrainStormEra.Controllers.Achievement
             // Continue processing and add the achievement if all conditions are met
             var iconPath = await SaveAchievementIcon(achievementIcon);
 
-            var newAchievement = new Achievement
+            var newAchievement = new Models.Achievement
             {
                 AchievementId = GenerateAchievementId(),
                 AchievementName = achievementName,
@@ -173,22 +182,12 @@ namespace BrainStormEra.Controllers.Achievement
 
             return Json(new { success = true });
         }
-
         [HttpGet]
         public async Task<IActionResult> CheckAchievementName(string achievementName, string achievementId = null)
         {
             var nameExists = await _context.Achievements
                 .AnyAsync(a => a.AchievementName == achievementName && a.AchievementId != achievementId);
             return Json(new { success = !nameExists });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetMaxCondition()
-        {
-            int maxCondition = await _context.Achievements
-                .Where(a => int.TryParse(a.AchievementDescription, out _))
-                .MaxAsync(a => int.Parse(a.AchievementDescription)) ?? 0;
-            return Json(new { success = true, maxCondition });
         }
 
         [HttpPost]
@@ -279,14 +278,13 @@ namespace BrainStormEra.Controllers.Achievement
         private async Task AssignAchievementsBasedOnCompletedCourses()
         {
             // Get all achievements with condition (number of completed courses)
-            var achievements = await _context.Achievements
-                .Where(a => int.TryParse(a.AchievementDescription, out _))
+            var achievements = (await _context.Achievements.ToListAsync())
                 .Select(a => new
                 {
                     AchievementId = a.AchievementId,
-                    RequiredCourses = int.Parse(a.AchievementDescription)
+                    RequiredCourses = int.TryParse(a.AchievementDescription, out int conditionValue) ? conditionValue : 0
                 })
-                .ToListAsync();
+                .ToList();
 
             // Get count of completed courses (enrollment_status = 5) per user
             var userCompletedCourses = await _context.Enrollments
@@ -312,7 +310,7 @@ namespace BrainStormEra.Controllers.Achievement
                             {
                                 UserId = user.Key,
                                 AchievementId = achievement.AchievementId,
-                                ReceivedDate = DateTime.Today
+                                ReceivedDate = DateOnly.FromDateTime(DateTime.Today)
                             };
 
                             _context.UserAchievements.Add(userAchievement);

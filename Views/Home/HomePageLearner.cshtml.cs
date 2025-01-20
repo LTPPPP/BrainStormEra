@@ -22,7 +22,7 @@ namespace BrainStormEra.Views.Home
         public virtual ICollection<CourseCategory> CourseCategories { get; set; } = new List<CourseCategory>();
         public List<BrainStormEra.Models.Course> EnrolledCourses { get; set; } = new List<BrainStormEra.Models.Course>();
 
-        public List<ManagementCourseViewModel> RecommendedCourses { get; set; } = new List<ManagementCourseViewModel>();
+        public List<BrainStormEra.Views.Course.ManagementCourseViewModel> RecommendedCourses { get; set; } = new List<BrainStormEra.Views.Course.ManagementCourseViewModel>();
 
         // Th�ng tin th�nh t�ch
         public List<BrainStormEra.Models.Achievement> Achievements { get; set; } = new List<BrainStormEra.Models.Achievement>();

@@ -2,6 +2,7 @@
 using BrainStormEra.Views.Course;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -92,7 +93,7 @@ namespace BrainStormEra.Controllers.Course
                 coursePicturePath = $"/uploads/Course-img/{fileName}";
             }
 
-            var newCourse = new Course
+            var newCourse = new Models.Course
             {
                 CourseId = viewModel.CourseId,
                 CourseName = viewModel.CourseName,
@@ -301,7 +302,7 @@ namespace BrainStormEra.Controllers.Course
             var userId = HttpContext.Request.Cookies["user_id"];
             var userRole = HttpContext.Request.Cookies["user_role"];
 
-            List<ManagementCourseViewModel> coursesViewModel = new List<ManagementCourseViewModel>();
+            List<BrainStormEra.Views.Course.ManagementCourseViewModel> coursesViewModel = new List<BrainStormEra.Views.Course.ManagementCourseViewModel>();
             var categories = await _context.CourseCategories.ToListAsync();
             var categoryCounts = new Dictionary<string, int>();
 
@@ -342,7 +343,7 @@ namespace BrainStormEra.Controllers.Course
                               (ccm, cc) => cc)
                         .ToListAsync();
 
-                    coursesViewModel.Add(new ManagementCourseViewModel
+                    coursesViewModel.Add(new BrainStormEra.Views.Course.ManagementCourseViewModel
                     {
                         CourseId = course.CourseId,
                         CourseName = course.CourseName,
@@ -383,7 +384,7 @@ namespace BrainStormEra.Controllers.Course
                         .Where(a => a.UserId == course.CreatedBy)
                         .Select(a => a.FullName)
                         .FirstOrDefaultAsync();
-                    coursesViewModel.Add(new ManagementCourseViewModel
+                    coursesViewModel.Add(new BrainStormEra.Views.Course.ManagementCourseViewModel
                     {
                         CourseId = course.CourseId,
                         CourseName = course.CourseName,
@@ -408,7 +409,7 @@ namespace BrainStormEra.Controllers.Course
             var userRole = HttpContext.Request.Cookies["user_role"];
             var categoryId = HttpContext.Request.Cookies["CategoryId"];
 
-            var coursesViewModel = new List<ManagementCourseViewModel>();
+            var coursesViewModel = new List<BrainStormEra.Views.Course.ManagementCourseViewModel>();
             var categories = await _context.CourseCategories.ToListAsync();
 
             // Prepare a dictionary to store course counts per category
@@ -438,7 +439,7 @@ namespace BrainStormEra.Controllers.Course
             ViewBag.NotApprovedCourseCount = notApprovedCourseCount;
 
             // Fetch courses filtered by category
-            List<Course> courses;
+            List<Models.Course> courses;
             if (userRole == "2")
             {
                 courses = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
@@ -474,7 +475,7 @@ namespace BrainStormEra.Controllers.Course
                           (ccm, cc) => cc)
                     .ToListAsync();
 
-                coursesViewModel.Add(new ManagementCourseViewModel
+                coursesViewModel.Add(new BrainStormEra.Views.Course.ManagementCourseViewModel
                 {
                     CourseId = course.CourseId,
                     CourseName = course.CourseName,
@@ -633,7 +634,7 @@ namespace BrainStormEra.Controllers.Course
                     StarRating = f.StarRating,
                     Comment = f.Comment,
                     FeedbackDate = f.FeedbackDate,
-                    User = new Account
+                    User = new Models.Account
                     {
                         FullName = f.User.FullName,
                         UserPicture = f.User.UserPicture
@@ -662,7 +663,7 @@ namespace BrainStormEra.Controllers.Course
                 .OrderBy(c => c.CourseStatus == 1 ? 0 : 1)
                 .ThenBy(c => c.CourseCreatedAt)
                 .ToListAsync();
-            var coursesViewModel = new List<ManagementCourseViewModel>();
+            var coursesViewModel = new List<BrainStormEra.Views.Course.ManagementCourseViewModel>();
             var topCategories = await _context.CourseCategories.ToListAsync();
 
             ViewBag.Categories = topCategories;
@@ -708,7 +709,7 @@ namespace BrainStormEra.Controllers.Course
                     .Select(a => a.FullName)
                     .FirstOrDefaultAsync();
 
-                coursesViewModel.Add(new ManagementCourseViewModel
+                coursesViewModel.Add(new BrainStormEra.Views.Course.ManagementCourseViewModel
                 {
                     CourseId = course.CourseId,
                     CourseName = course.CourseName,
@@ -763,7 +764,7 @@ namespace BrainStormEra.Controllers.Course
                         StarRating = f.StarRating,
                         Comment = f.Comment,
                         FeedbackDate = f.FeedbackDate,
-                        User = new Account
+                        User = new Models.Account
                         {
                             FullName = f.User.FullName,
                             UserPicture = f.User.UserPicture
@@ -914,7 +915,7 @@ namespace BrainStormEra.Controllers.Course
                 .FirstOrDefaultAsync();
             if (enrollment != null)
             {
-                return (true, !enrollment.Approved);
+                return (true, !(enrollment.Approved ?? false));
             }
             return (false, false);
         }

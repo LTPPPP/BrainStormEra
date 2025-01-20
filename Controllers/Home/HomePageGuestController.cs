@@ -50,12 +50,12 @@ namespace BrainStormEra.Controllers.Home
                     CourseId = c.CourseId,
                     CourseName = c.CourseName,
                     CourseDescription = c.CourseDescription,
-                    CourseStatus = c.CourseStatus,
+                    CourseStatus = c.CourseStatus ?? 0,
                     CoursePicture = c.CoursePicture,
                     Price = c.Price,
                     CourseCreatedAt = c.CourseCreatedAt,
                     CreatedBy = c.CreatedByNavigation.FullName,
-                    StarRating = c.Feedbacks.Average(f => (byte?)f.StarRating) ?? 0,
+                    StarRating = (byte?)(c.Feedbacks.Average(f => (double?)f.StarRating) ?? 0),
                     CourseCategories = c.CourseCategories.Select(cc => cc.CourseCategoryName).ToList()
                 })
                 .ToList();

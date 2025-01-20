@@ -3,15 +3,7 @@ using BrainStormEra.Models;
 using BrainStormEra.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using BrainStormEra.Repo;
-using BrainStormEra.Repo.Chatbot;
-using BrainStormEra.Repo.Admin;
 using Microsoft.Extensions.Configuration;
-using BrainStormEra.Repo.Chapter;
-using BrainStormEra.Repo.Course;
-using BrainStormEra.Repositories;
-using BrainStormEra.Repo.Certificate;
-using BrainStormEra.Repo.Notification;
 
 namespace BrainStormEra
 {
@@ -44,7 +36,6 @@ namespace BrainStormEra
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<OtpService>();
             builder.Services.AddControllersWithViews();
-            builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
             // Cookie Authentication Configuration
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
