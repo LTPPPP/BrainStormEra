@@ -116,16 +116,27 @@
                     <div class="d-flex text-white mt-3">
                         <div class="me-4">
                             <i class="fas fa-tags me-2"></i> Category:
-                            @foreach (var category in ViewBag.CourseCategories as List<string>)
+                            @if (ViewBag.CourseCategories != null)
                             {
-                                <span class="badge bg-primary me-1">@category</span>
+                                foreach (var category in ViewBag.CourseCategories as List<string>)
+                                {
+                                    <span class="badge bg-primary me-1">@category</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary me-1">No categories</span>
                             }
                         </div>
-                        <div class="me-4"><i class="fas fa-users me-2"></i> Students: @ViewBag.LearnersCount</div>
-                        <div class="me-4"><i class="fas fa-user me-2"></i> Created by: @ViewBag.CreatedBy</div>
-                        <div class="me-4"><i class="fas fa-star me-2"></i> @ViewBag.AverageRating.ToString("0.0")
-                            (@ViewBag.TotalComments comments)</div>
+                        <div class="me-4"><i class="fas fa-users me-2"></i> Students: @(ViewBag.LearnersCount ?? 0)
+                        </div>
+                        <div class="me-4"><i class="fas fa-user me-2"></i> Created by: @(ViewBag.CreatedBy ?? "Unknown")
+                        </div>
+                        <div class="me-4"><i class="fas fa-star me-2"></i> @(ViewBag.AverageRating?.ToString("0.0") ??
+                            "0.0")
+                            (@(ViewBag.TotalComments ?? 0) comments)</div>
                     </div>
+
                 </div>
 
                 <!-- Right Column -->
