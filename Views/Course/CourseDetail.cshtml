@@ -116,16 +116,16 @@
                     <div class="d-flex text-white mt-3">
                         <div class="me-4">
                             <i class="fas fa-tags me-2"></i> Category:
-                            @if (ViewBag.CourseCategories != null)
+                            @if (ViewBag.CourseCategories is IEnumerable<string> categories && categories.Any())
                             {
-                                foreach (var category in ViewBag.CourseCategories as List<string>)
+                                foreach (var category in categories)
                                 {
                                     <span class="badge bg-primary me-1">@category</span>
                                 }
                             }
                             else
                             {
-                                <span class="badge bg-primary me-1">No categories</span>
+                                <span class="badge bg-secondary me-1">No categories</span>
                             }
                         </div>
                         <div class="me-4"><i class="fas fa-users me-2"></i> Students: @(ViewBag.LearnersCount ?? 0)

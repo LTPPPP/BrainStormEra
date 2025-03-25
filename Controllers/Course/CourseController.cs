@@ -572,90 +572,113 @@ namespace BrainStormEra.Controllers.Course
                 return View("ErrorPage", "Course ID not found in cookies.");
             }
 
-            ViewBag.CreatedBy = await _context.Accounts
-                .Where(a => a.UserId == courseId)
-                .Select(a => a.FullName)
-                .FirstOrDefaultAsync();
-            if (isLoggedIn)
+            try
             {
-                var (isEnrolled, isBanned) = await CheckEnrollmentStatusAsync(userId, courseId);
-                double progress = isLoggedIn ? await GetCourseProgressAsync(userId, courseId) : 0;
-                ViewBag.Progress = progress;
-                ViewBag.IsEnrolled = isEnrolled;
-                ViewBag.IsBanned = isBanned;
-                ViewBag.IsLoggedIn = isLoggedIn;
-            }
-            else
-            {
-                ViewBag.IsLoggedIn = false;
-                ViewBag.IsEnrolled = false;
-                ViewBag.IsBanned = false;
-                ViewBag.Progress = 0;
-            }
+                // Fix for CreatedBy query
+                ViewBag.CreatedBy = await _context.Accounts
+                    .Where(a => a.UserId == courseId)
+                    .Select(a => a.FullName)
+                    .FirstOrDefaultAsync() ?? "Unknown";
 
-            var course = await _context.Courses.FindAsync(courseId);
-            if (course == null)
-            {
-                _logger.LogError($"Course not found with ID: {courseId}");
-                return View("ErrorPage", "Course not found.");
-            }
-
-            ViewBag.CourseCategories = await _context.Set<Dictionary<string, object>>("CourseCategoryMapping")
-                .Where(ccm => ccm["CourseId"].ToString() == courseId)
-                .Join(_context.CourseCategories,
-                      ccm => ccm["CourseCategoryId"].ToString(),
-                      cc => cc.CourseCategoryId,
-                      (ccm, cc) => cc)
-                .ToListAsync();
-            ViewBag.LearnersCount = await _context.Enrollments
-                .Where(e => e.CourseId == courseId && e.Approved == true)
-                .CountAsync();
-
-            var chapters = await _context.Chapters
-                .Where(c => c.CourseId == courseId)
-                .Include(c => c.Lessons)
-                .ToListAsync();
-            int totalLessons = chapters.Sum(c => c.Lessons.Count);
-            course.Chapters = chapters;
-
-            ViewBag.TotalLessons = totalLessons;
-
-            int offset = (page - 1) * pageSize;
-            ViewBag.Comments = await _context.Feedbacks
-                .Where(f => f.CourseId == courseId && (userRole != "3" || f.HiddenStatus == false))
-                .OrderByDescending(f => f.FeedbackCreatedAt)
-                .Skip(offset)
-                .Take(pageSize)
-                .Select(f => new Feedback
+                // Enrollment status check
+                if (isLoggedIn)
                 {
-                    FeedbackId = f.FeedbackId,
-                    CourseId = f.CourseId,
-                    UserId = f.UserId,
-                    StarRating = f.StarRating,
-                    Comment = f.Comment,
-                    FeedbackDate = f.FeedbackDate,
-                    User = new Models.Account
+                    var (isEnrolled, isBanned) = await CheckEnrollmentStatusAsync(userId, courseId);
+                    double progress = await GetCourseProgressAsync(userId, courseId);
+                    ViewBag.Progress = progress;
+                    ViewBag.IsEnrolled = isEnrolled;
+                    ViewBag.IsBanned = isBanned;
+                    ViewBag.IsLoggedIn = true;
+                }
+                else
+                {
+                    ViewBag.IsLoggedIn = false;
+                    ViewBag.IsEnrolled = false;
+                    ViewBag.IsBanned = false;
+                    ViewBag.Progress = 0;
+                }
+
+                // Get course details
+                var course = await _context.Courses.FindAsync(courseId);
+                if (course == null)
+                {
+                    _logger.LogError($"Course not found with ID: {courseId}");
+                    return View("ErrorPage", "Course not found.");
+                }
+
+                // Fix for course categories query
+                ViewBag.CourseCategories = await _context.CourseCategories
+                    .Join(_context.Set<Dictionary<string, object>>("CourseCategoryMapping"),
+                        cc => cc.CourseCategoryId,
+                        ccm => ccm["CourseCategoryId"],
+                        (cc, ccm) => new { Category = cc, Mapping = ccm })
+                    .Where(x => x.Mapping["CourseId"].ToString() == courseId)
+                    .Select(x => x.Category.CourseCategoryName)
+                    .ToListAsync();
+
+                // Get learner count
+                ViewBag.LearnersCount = await _context.Enrollments
+                    .CountAsync(e => e.CourseId == courseId && e.Approved == true);
+
+                // Get chapters and lessons
+                var chapters = await _context.Chapters
+                    .Where(c => c.CourseId == courseId)
+                    .Include(c => c.Lessons)
+                    .ToListAsync();
+
+                course.Chapters = chapters;
+                ViewBag.TotalLessons = chapters.Sum(c => c.Lessons.Count);
+
+                // Get feedback and ratings
+                var feedbackQuery = _context.Feedbacks
+                    .Where(f => f.CourseId == courseId);
+
+                if (userRole == "3") // If learner, only show non-hidden feedback
+                {
+                    feedbackQuery = feedbackQuery.Where(f => !(f.HiddenStatus ?? false));
+                }
+
+                ViewBag.Comments = await feedbackQuery
+                    .OrderByDescending(f => f.FeedbackCreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(f => new Feedback
                     {
-                        FullName = f.User.FullName,
-                        UserPicture = f.User.UserPicture
-                    },
-                    HiddenStatus = f.HiddenStatus
-                })
-                .ToListAsync();
-            ViewBag.TotalComments = await _context.Feedbacks
-                .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
-                .CountAsync();
-            ViewBag.AverageRating = await _context.Feedbacks
-                .Where(f => f.CourseId == courseId && f.HiddenStatus == false)
-                .AverageAsync(f => f.StarRating) ?? 0;
-            ViewBag.RatingPercentages = await GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
+                        FeedbackId = f.FeedbackId,
+                        CourseId = f.CourseId,
+                        UserId = f.UserId,
+                        StarRating = f.StarRating,
+                        Comment = f.Comment,
+                        FeedbackDate = f.FeedbackDate,
+                        User = new Models.Account
+                        {
+                            FullName = f.User.FullName,
+                            UserPicture = f.User.UserPicture ?? "/lib/img/User-img/default_user.png"
+                        },
+                        HiddenStatus = f.HiddenStatus
+                    })
+                    .ToListAsync();
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)ViewBag.TotalComments / pageSize);
+                // Calculate ratings
+                var visibleFeedbacks = await feedbackQuery.Where(f => !(f.HiddenStatus ?? false)).ToListAsync();
+                ViewBag.TotalComments = visibleFeedbacks.Count;
+                ViewBag.AverageRating = visibleFeedbacks.Any()
+                    ? visibleFeedbacks.Average(f => f.StarRating)
+                    : 0;
+                ViewBag.RatingPercentages = await GetRatingPercentagesAsync(courseId, ViewBag.TotalComments);
 
-            return View(course);
+                // Pagination
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)ViewBag.TotalComments / pageSize);
+
+                return View(course);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while loading course details for ID: {CourseId}", courseId);
+                return View("ErrorPage", "An error occurred while loading the course details.");
+            }
         }
-
         public async Task<ActionResult> CourseAcceptance()
         {
             var pendingCourses = await _context.Courses
