@@ -4,7 +4,7 @@ namespace BrainStormEra.Controllers
 {
     public class ErrorPageController : Controller
     {
-        [Route("ErrorPage/Error")]
+        [HttpGet]
         public IActionResult Error(int statusCode)
         {
             ViewBag.StatusCode = statusCode;

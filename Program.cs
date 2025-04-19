@@ -3,7 +3,7 @@ using BrainStormEra.Models;
 using BrainStormEra.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 
 namespace BrainStormEra
 {
@@ -20,22 +20,19 @@ namespace BrainStormEra
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<GeminiApiService>();
 
-            builder.Services.AddSession();
-
-            // Configure DbContext with SQL Server
+            // DbContext with SQL Server
             builder.Services.AddDbContext<SwpMainContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SwpMainContext")));
 
+            // Session Configuration
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(10);
                 options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
             });
 
-            builder.Services.AddScoped<EmailService>();
-            builder.Services.AddScoped<OtpService>();
-            builder.Services.AddControllersWithViews();
             // Cookie Authentication Configuration
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -47,9 +44,20 @@ namespace BrainStormEra
                     options.Cookie.IsEssential = true;
                 });
 
+            builder.Services.AddScoped<EmailService>();
+
+            // Add MVC Controllers with Views
+            builder.Services.AddControllersWithViews();
+
+            // Add Swagger
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BrainStormEra API", Version = "v1" });
+            });
+
             var app = builder.Build();
 
-            // Configure Middleware
+            // Middleware Configuration
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -58,6 +66,12 @@ namespace BrainStormEra
             else
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    c.RoutePrefix = "swagger";
+                });
             }
 
             app.UseHttpsRedirection();
@@ -68,13 +82,14 @@ namespace BrainStormEra
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
-            // Middleware để xử lý các URL không hợp lệ hoặc không tìm thấy
+
+            // Handle status code errors
             app.UseStatusCodePagesWithReExecute("/ErrorPage/Error", "?statusCode={0}");
 
-            // Map Controller Routes
+            // Routing
             app.MapControllerRoute(
                 name: "default",
-                 pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }
